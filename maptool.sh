@@ -13,6 +13,10 @@ spinner()
     printf "    \b\b\b\b"
 }
 
-bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool  ~/binmaps/planet-150202.bin > ~/assets/150202.log &
+for phase in `seq 1 10`; do 
+bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s $phase -e $phase ~/binmaps/planet-150202.bin > ~/assets/150202.log &
+done
+
+bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 11 ~/binmaps/planet-150202.bin > ~/assets/150202.log &
 
 spinner  $!
