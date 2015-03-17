@@ -26,17 +26,17 @@ test:
     - ls
     - pwd
 #    - bzcat  ~/assets/california-latest.osm.bz2 | ./bin/navit/maptool/maptool  ~/assets/binmaps/california-latest.bin
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 1 -e 1 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 2 -e 2 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 3 -e 3 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 4 -e 4 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 5 -e 5 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 6 -e 6 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 7 -e 7 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 8 -e 8 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 9 -e 9 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 10 -e 10 ~/binmaps/planet-150202.bin 
-    - bzcat  ~/planet-150202.osm.bz2 | ./bin/navit/maptool/maptool -s 11 ~/binmaps/planet-150202.bin 
+    - wget -c -O - ftp://ftp.spline.de/pub/openstreetmap/planet/2015/planet-150202.osm.bz2 | bzcat | ./bin/navit/maptool/maptool -s 1 -e 1 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 2 -e 2 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 3 -e 3 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 4 -e 4 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 5 -e 5 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 6 -e 6 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 7 -e 7 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 8 -e 8 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 9 -e 9 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 10 -e 10 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 10 ~/binmaps/planet-150202.bin 
 #    - bash maptool.sh
 general:
   artifacts:
