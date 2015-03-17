@@ -236,7 +236,7 @@ map_collect_data_osm(FILE *in, struct maptool_osm *osm)
 			osm_end_relation(osm);
 		} else if (!strncmp(p, "</osm>",6)) {
 		} else {
-			fprintf(stderr,"WARNING: unknown tag in %s\n", buffer);
+			// fprintf(stderr,"WARNING: unknown tag in %s\n", buffer);
 		}
 	}
 	sig_alrm(0);
