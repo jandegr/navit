@@ -2,8 +2,8 @@ machine:
   pre:
 dependencies:
   pre:
-    - find  ~/assets/
     - mkdir -p ~/assets/binmaps/
+    - find  ~/assets/
     - sudo apt-get update
 #    - wget -c -O ~/assets/cov-analysis-linux64-7.6.0.tar.gz http://sd-55475.dedibox.fr/cov-analysis-linux64-7.6.0.tar.gz
 #    - wget -c -O ~/assets/california-latest.osm.bz2 http://download.geofabrik.de/north-america/us/california-latest.osm.bz2
