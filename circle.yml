@@ -36,7 +36,7 @@ test:
     - ./bin/navit/maptool/maptool -s 8 -e 8 ~/binmaps/planet-150202.bin 
     - ./bin/navit/maptool/maptool -s 9 -e 9 ~/binmaps/planet-150202.bin 
     - ./bin/navit/maptool/maptool -s 10 -e 10 ~/binmaps/planet-150202.bin 
-    - ./bin/navit/maptool/maptool -s 10 ~/binmaps/planet-150202.bin 
+    - ./bin/navit/maptool/maptool -s 11 ~/binmaps/planet-150202.bin 
 #    - bash maptool.sh
 general:
   artifacts:
