@@ -18,7 +18,8 @@ dependencies:
     - "~/assets/"
 test:
   post:
-    - ./bin/navit/maptool/maptool -P  -6 -s1 -e1 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s1 -e1 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin:
+        timeout: 7200
     - ./bin/navit/maptool/maptool -P  -6 -s2 -e2 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
     - ./bin/navit/maptool/maptool -P  -6 -s3 -e3 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
     - ./bin/navit/maptool/maptool -P  -6 -s4 -e4 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
