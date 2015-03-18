@@ -17,18 +17,18 @@ dependencies:
     - "~/assets/"
 test:
   post:
-    - bzcat ~/planet-${MAPCODE}.osm.bz2 | ./bin/navit/maptool/maptool -s 1 -e 1 ~/binmaps/planet-${MAPCODE}.bin:
+    - bzcat ~/planet-${MAPCODE}.osm.bz2 | ./bin/navit/maptool/maptool -s 1 -e 1 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin:
         timeout: 10800
-    - ./bin/navit/maptool/maptool -s 2 -e 2 ~/binmaps/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 3 -e 3 ~/binmaps/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 4 -e 4 ~/binmaps/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 5 -e 5 ~/binmaps/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 6 -e 6 ~/binmaps/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 7 -e 7 ~/binmaps/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 8 -e 8 ~/binmaps/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 9 -e 9 ~/binmaps/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 10 -e 10 ~/binmaps/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 11 ~/binmaps/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 2 -e 2 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 3 -e 3 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 4 -e 4 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 5 -e 5 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 6 -e 6 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 7 -e 7 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 8 -e 8 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 9 -e 9 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 10 -e 10 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -s 11 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
 general:
   artifacts:
     - "~/assets/binmaps/"
