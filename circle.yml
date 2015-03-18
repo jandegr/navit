@@ -1,6 +1,6 @@
 machine:
   environment:
-    MAPCODE: 150309
+    MAPCODE: 150302
 dependencies:
   pre:
     - mkdir -p ~/assets/binmaps/
