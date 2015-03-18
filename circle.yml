@@ -6,7 +6,8 @@ dependencies:
     - mkdir -p ~/assets/binmaps/
     - find  ~/assets/
     - sudo apt-get update
-    - wget -c -O ~/planet-${MAPCODE}.osm.bz2 ftp://ftp.spline.de/pub/openstreetmap/planet/2015/planet-${MAPCODE}.osm.bz2
+#    - wget -c -O ~/planet-${MAPCODE}.osm.bz2 ftp://ftp.spline.de/pub/openstreetmap/planet/2015/planet-${MAPCODE}.osm.bz2
+    - wget -c -O  ~/planet-latest.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/planet-latest.osm.pbf
     - sudo apt-get install cmake 
     - sudo apt-get install libpng12-dev 
     - sudo apt-get install libgtk2.0-dev 
@@ -17,18 +18,29 @@ dependencies:
     - "~/assets/"
 test:
   post:
-    - bzcat ~/planet-${MAPCODE}.osm.bz2 | ./bin/navit/maptool/maptool -s 1 -e 1 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin:
-        timeout: 10800
-    - ./bin/navit/maptool/maptool -s 2 -e 2 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 3 -e 3 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 4 -e 4 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 5 -e 5 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 6 -e 6 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 7 -e 7 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 8 -e 8 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 9 -e 9 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 10 -e 10 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
-    - ./bin/navit/maptool/maptool -s 11 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+    - ./bin/navit/maptool/maptool -P  -6 -s1 -e1 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s2 -e2 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s3 -e3 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s4 -e4 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s5 -e5 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s6 -e6 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s7 -e7 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s8 -e8 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s9 -e9 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s10 -e10 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -s11 -i ~/planet-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+#    - bzcat ~/planet-${MAPCODE}.osm.bz2 | ./bin/navit/maptool/maptool -s 1 -e 1 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin:
+#        timeout: 10800
+#    - ./bin/navit/maptool/maptool -s 2 -e 2 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+#    - ./bin/navit/maptool/maptool -s 3 -e 3 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+#    - ./bin/navit/maptool/maptool -s 4 -e 4 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+#    - ./bin/navit/maptool/maptool -s 5 -e 5 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+#    - ./bin/navit/maptool/maptool -s 6 -e 6 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+#    - ./bin/navit/maptool/maptool -s 7 -e 7 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+#    - ./bin/navit/maptool/maptool -s 8 -e 8 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+#    - ./bin/navit/maptool/maptool -s 9 -e 9 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+#    - ./bin/navit/maptool/maptool -s 10 -e 10 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
+#    - ./bin/navit/maptool/maptool -s 11 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
 general:
   artifacts:
     - "~/assets/binmaps/"
