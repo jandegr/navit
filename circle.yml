@@ -7,7 +7,7 @@ dependencies:
     - find  ~/assets/
     - sudo apt-get update
 #    - wget -c -O ~/planet-${MAPCODE}.osm.bz2 ftp://ftp.spline.de/pub/openstreetmap/planet/2015/planet-${MAPCODE}.osm.bz2
-    - wget -c -O  ~/planet-latest.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
+    - wget -c -O  ~/europe-latest.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
     - sudo apt-get install cmake 
     - sudo apt-get install libpng12-dev 
     - sudo apt-get install libgtk2.0-dev 
