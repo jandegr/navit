@@ -13,24 +13,26 @@ dependencies:
     - sudo apt-get install libgtk2.0-dev 
     - sudo apt-get install librsvg2-bin 
     - sudo apt-get install g++
+    - sudo apt-get install osmctools
     - bash ~/navit/build.sh
   cache_directories:
     - "~/assets/"
 test:
   post:
-    - ./bin/navit/maptool/maptool -P  -6 -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin:
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin:
         timeout: 7200
-    - ./bin/navit/maptool/maptool -P  -6 -s2 -e2 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
-    - ./bin/navit/maptool/maptool -P  -6 -s3 -e3 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
-    - ./bin/navit/maptool/maptool -P  -6 -s4 -e4 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
-    - ./bin/navit/maptool/maptool -P  -6 -s5 -e5 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
-    - ./bin/navit/maptool/maptool -P  -6 -s6 -e6 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin:
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s2 -e2 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s3 -e3 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s4 -e4 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s5 -e5 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s6 -e6 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin:
        timeout: 7200
-    - ./bin/navit/maptool/maptool -P  -6 -s7 -e7 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
-    - ./bin/navit/maptool/maptool -P  -6 -s8 -e8 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
-    - ./bin/navit/maptool/maptool -P  -6 -s9 -e9 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
-    - ./bin/navit/maptool/maptool -P  -6 -s10 -e10 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
-    - ./bin/navit/maptool/maptool -P  -6 -s11 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s7 -e7 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s8 -e8 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s9 -e9 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s10 -e10 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -S 1800000000 -s11 e11 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+    - ./bin/navit/maptool/maptool -P  -6 -k -S 1800000000 -s12 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
 #    - bzcat ~/planet-${MAPCODE}.osm.bz2 | ./bin/navit/maptool/maptool -s 1 -e 1 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin:
 #        timeout: 10800
 #    - ./bin/navit/maptool/maptool -s 2 -e 2 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
