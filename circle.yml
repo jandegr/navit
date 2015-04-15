@@ -20,7 +20,8 @@ dependencies:
 test:
   post:
     - ./osmconvert -h
-    - ./osmconvert --drop-author ~/europe-latest-complete.osm.pbf -b=83.5,20,32,-32 -o=~/europe-latest.osm.pbf
+    - ./osmconvert --drop-author ~/europe-latest-complete.osm.pbf -b=-40,0,20,85 -o=/home/ubuntu/europe-latest.osm.pbf
+    - ls -la /home/ubuntu
     - ./bin/navit/maptool/maptool -P  -6 -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/europe.bin:
         timeout: 7200
     - ./bin/navit/maptool/maptool -P  -6 -s2 -e2 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/europe.bin
