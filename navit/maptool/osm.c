@@ -699,7 +699,7 @@ static char *attrmap={
 /*	"w	natural=fell		poly_fell\n" */
 /*	"w	natural=glacier		poly_glacier\n" */
 /*	"w	natural=heath		poly_heath\n" */
-/	"w	natural=land		poly_land\n" /
+/*	"w	natural=land		poly_land\n" */
 /*	"w	natural=marsh		poly_marsh\n" */
 /*	"w	natural=meadow		poly_meadow\n" */
 /*	"w	natural=mud		poly_mud\n" */
@@ -748,12 +748,12 @@ static char *attrmap={
 /*	"w	waterway=river		water_river\n" */
 /*	"w	waterway=riverbank	poly_water\n" */
 /*	"w	waterway=stream		water_stream\n" */
-/* 	"w	barrier=ditch	ditch\n" /*
-/*	"w	barrier=hedge	hedge\n" /*
-/*	"w	barrier=fence	fence\n" /*
-/*	"w	barrier=wall	wall\n" /*
-/*	"w	barrier=retaining_wall	retaining_wall\n" /*
-/*	"w	barrier=city_wall	city_wall\n" /*
+/* 	"w	barrier=ditch	ditch\n" */
+/*	"w	barrier=hedge	hedge\n" */
+/*	"w	barrier=fence	fence\n" */
+/*	"w	barrier=wall	wall\n" */
+/*	"w	barrier=retaining_wall	retaining_wall\n" */
+/*	"w	barrier=city_wall	city_wall\n" */
 };
 
 static void
