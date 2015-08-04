@@ -213,6 +213,21 @@ item_order_by_type(enum item_type type)
 		case type_street_3_land:
 			max=12;
 			break;
+		case type_street_2_city:
+		case type_street_2_land:
+		case type_street_1_city:
+		case type_street_1_land:
+		case type_street_0:
+		case type_living_street:
+		case type_track_gravelled:
+		case type_track_paved:
+		case type_street_parking_lane:
+		case type_street_service:
+		case type_track_unpaved:
+		case type_ferry:
+
+			max=13;
+			break;
 		default:
 			break;
 	}
