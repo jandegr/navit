@@ -191,6 +191,8 @@ item_order_by_type(enum item_type type)
 		case type_highway_city:
 		case type_highway_land:
 		case type_ramp:
+		case type_street_4_land:
+		case type_street_4_city:
 			max=8;
 			break;
 		case type_town_label_5e4:
@@ -200,10 +202,6 @@ item_order_by_type(enum item_type type)
 		case type_district_label_2e4:
 		case type_district_label_1e4:
 			max=9;
-			break;
-		case type_street_4_land:
-		case type_street_4_city:
-			max=10;
 			break;
 		case type_town_label_5e3:
 		case type_town_label_2e3:
