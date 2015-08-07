@@ -1239,6 +1239,9 @@ pedestrian_navit_init(struct navit *nav)
 	struct attr_iter *iter;
 
 #ifdef HAVE_API_ANDROID
+	JNIEnv *jnienv;
+	(*javavm)->GetEnv(javavm,(void**)&jnienv, JNI_VERSION_1_4);
+
 	struct callback *cb;
 	jclass navitsensorsclass;
 	jmethodID cid;
@@ -1358,6 +1361,9 @@ plugin_init(void)
 	struct attr callback,navit;
 	struct attr_iter *iter;
 #ifdef HAVE_API_ANDROID
+	JNIEnv *jnienv;
+	(*javavm)->GetEnv(javavm,(void**)&jnienv, JNI_VERSION_1_4);
+
 	jclass ActivityClass;
 	jmethodID Activity_setRequestedOrientation;
 

@@ -144,6 +144,9 @@ vehicle_android_position_callback(struct vehicle_priv *v, jobject location) {
 	struct tm *tm;
 	dbg(lvl_debug,"enter\n");
 
+	JNIEnv *jnienv;
+	(*javavm)->GetEnv(javavm,(void**)&jnienv, JNI_VERSION_1_4);
+
 	v->geo.lat = (*jnienv)->CallDoubleMethod(jnienv, location, v->Location_getLatitude);
 	v->geo.lng = (*jnienv)->CallDoubleMethod(jnienv, location, v->Location_getLongitude);
 	v->speed = (*jnienv)->CallFloatMethod(jnienv, location, v->Location_getSpeed)*3.6;
@@ -216,6 +219,9 @@ static int
 vehicle_android_init(struct vehicle_priv *ret)
 {
 	jmethodID cid;
+
+	JNIEnv *jnienv;
+	(*javavm)->GetEnv(javavm,(void**)&jnienv, JNI_VERSION_1_4);
 
 	if (!android_find_class_global("android/location/Location", &ret->LocationClass))
                 return 0;

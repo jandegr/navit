@@ -76,6 +76,12 @@
 #include "libc.h"
 #endif
 
+/* 	used to enable/disable the map drawing thread.
+	0 - drawing in main thread
+	1 - drawing in seperated thread */
+#define DRAW_MAP_THREAD 1
+
+
 /* define string for bookmark handling */
 #define TEXTFILE_COMMENT_NAVI_STOPPED "# navigation stopped\n"
 
@@ -199,6 +205,8 @@ static int navit_set_vehicleprofile(struct navit *this_, struct vehicleprofile *
 struct object_func navit_func;
 
 struct navit *global_navit;
+
+
 
 void
 navit_add_mapset(struct navit *this_, struct mapset *ms)
@@ -494,7 +502,11 @@ navit_handle_button(struct navit *this_, int pressed, int button, struct point *
 		if (this_->moved) {
 			dbg(lvl_debug, "mouse drag (%d, %d)->(%d, %d)\n", this_->pressed.x, this_->pressed.y, p->x, p->y);
 			update_transformation(this_->trans, &this_->pressed, p);
-			graphics_draw_drag(this_->gra, NULL);
+#ifdef HAVE_API_ANDROID
+			if(DRAW_MAP_THREAD == 0)
+#endif
+			graphics_draw_drag(this_->gra, NULL); 
+
 			transform_copy(this_->trans, this_->trans_cursor);
 			graphics_overlay_disable(this_->gra, 0);
 			if (!this_->zoomed) 
@@ -570,8 +582,9 @@ navit_handle_motion(struct navit *this_, struct point *p)
 			this_->current=*p;
 			if (! this_->motion_timeout_callback)
 				this_->motion_timeout_callback=callback_new_1(callback_cast(navit_motion_timeout), this_);
-			if (! this_->motion_timeout)
+			if (! this_->motion_timeout) {
 				this_->motion_timeout=event_add_timeout(this_->drag_bitmap?10:100, 0, this_->motion_timeout_callback);
+			}
 		}
 	}
 }
@@ -599,7 +612,7 @@ navit_predraw(struct navit *this_)
 }
 
 static void
-navit_scale(struct navit *this_, long scale, struct point *p, int draw)
+navit_scale(struct navit *this_, float scale, struct point *p, int draw)
 {
 	struct coord c1, c2, *center;
 	if (scale < this_->zoom_min)
@@ -614,7 +627,8 @@ navit_scale(struct navit *this_, long scale, struct point *p, int draw)
 		center = transform_center(this_->trans);
 		center->x += c1.x - c2.x;
 		center->y += c1.y - c2.y;
-	}
+		
+	} 
 	if (draw)
 		navit_draw(this_);
 }
@@ -667,7 +681,7 @@ navit_autozoom(struct navit *this_, struct coord *center, int speed, int draw)
 	if (new_scale < this_->autozoom_min)
 		new_scale=this_->autozoom_min;
 	if (new_scale != scale)
-		navit_scale(this_, (long)new_scale, &pc, 0);
+		navit_scale(this_, (float)new_scale, &pc, 0);
 }
 
 /**
@@ -679,7 +693,7 @@ navit_autozoom(struct navit *this_, struct coord *center, int speed, int draw)
  * @returns nothing
  */
 void
-navit_zoom_in(struct navit *this_, int factor, struct point *p)
+navit_zoom_in(struct navit *this_, float factor, struct point *p)
 {
 	long scale=transform_get_scale(this_->trans)/factor;
 	if (scale < 1)
@@ -696,14 +710,31 @@ navit_zoom_in(struct navit *this_, int factor, struct point *p)
  * @returns nothing
  */
 void
-navit_zoom_out(struct navit *this_, int factor, struct point *p)
+navit_zoom_out(struct navit *this_, float factor, struct point *p)
 {
 	long scale=transform_get_scale(this_->trans)*factor;
 	navit_scale(this_, scale, p, 1);
 }
 
+/**
+ * Change the current zoom level
+ *
+ * @param navit The navit instance
+ * @param factor The zoom factor with float precision, usually 2
+ * @param p The invariant point (if set to NULL, default to center)
+ * @returns nothing
+ */
 void
-navit_zoom_in_cursor(struct navit *this_, int factor)
+navit_zoomf(struct navit *this_, float factor, struct point *p)
+{
+	float scale=transform_get_scalef(this_->trans)/factor;
+	if (scale < 1)
+		scale=1;
+	navit_scale(this_, scale, p, 1);
+}
+
+void
+navit_zoom_in_cursor(struct navit *this_, float factor)
 {
 	struct point p;
 	if (this_->vehicle && this_->vehicle->follow_curr <= 1 && navit_get_cursor_pnt(this_, &p, 0, NULL)) {
@@ -714,27 +745,27 @@ navit_zoom_in_cursor(struct navit *this_, int factor)
 }
 
 void
-navit_zoom_out_cursor(struct navit *this_, int factor)
+navit_zoom_out_cursor(struct navit *this_, float factor)
 {
 	struct point p;
 	if (this_->vehicle && this_->vehicle->follow_curr <= 1 && navit_get_cursor_pnt(this_, &p, 0, NULL)) {
-		navit_zoom_out(this_, 2, &p);
+		navit_zoom_out(this_, factor, &p);
 		this_->vehicle->follow_curr=this_->vehicle->follow;
 	} else
-		navit_zoom_out(this_, 2, NULL);
+		navit_zoom_out(this_, factor, NULL);
 }
 
 static int
 navit_cmd_zoom_in(struct navit *this_)
 {
-	navit_zoom_in_cursor(this_, 2);
+	navit_zoom_in_cursor(this_, 2.0f);
 	return 0;
 }
 
 static int
 navit_cmd_zoom_out(struct navit *this_)
 {
-	navit_zoom_out_cursor(this_, 2);
+	navit_zoom_out_cursor(this_, 2.0f);
 	return 0;
 }
 

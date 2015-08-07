@@ -29,6 +29,9 @@ extern struct gui *main_loop_gui;
 struct _GList;
 typedef struct _GList GList;
 #endif
+	
+
+
 
 /* prototypes */
 enum attr_type;
@@ -67,10 +70,11 @@ void navit_ignore_graphics_events(struct navit *this_, int ignore);
 void navit_set_timeout(struct navit *this_);
 int navit_handle_button(struct navit *this_, int pressed, int button, struct point *p, struct callback *popup_callback);
 void navit_handle_motion(struct navit *this_, struct point *p);
-void navit_zoom_in(struct navit *this_, int factor, struct point *p);
-void navit_zoom_out(struct navit *this_, int factor, struct point *p);
-void navit_zoom_in_cursor(struct navit *this_, int factor);
-void navit_zoom_out_cursor(struct navit *this_, int factor);
+void navit_zoom_in(struct navit *this_, float factor, struct point *p);
+void navit_zoom_out(struct navit *this_, float factor, struct point *p);
+void navit_zoomf(struct navit *this_, float factor, struct point *p);
+void navit_zoom_in_cursor(struct navit *this_, float factor);
+void navit_zoom_out_cursor(struct navit *this_, float factor);
 struct navit *navit_new(struct attr *parent, struct attr **attrs);
 void navit_add_message(struct navit *this_, const char *message);
 struct message *navit_get_messages(struct navit *this_);

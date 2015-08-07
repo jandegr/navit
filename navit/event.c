@@ -112,6 +112,20 @@ event_call_callback(struct callback_list *cb)
 	event_methods.call_callback(cb);
 }
 
+/**
+ * @brief This function is used on JNI-Platforms (android), it registers a pthread to java. Additionally the thread_count will be send to java.
+ * @param reg Register/Unregister pthread to java. 1 - thread should be registered/unregisted, 0 - ignore this param and just update the thread_count
+ * @param n 0 - all deactivated. 1 - draw map in Thread. 2 - draw map in two threads. (recommended) 3 - draw map in three threads (BAD)
+ * @author Sascha Oedekoven (06/2015)
+*/
+void 
+event_register_thread(int reg, int n)
+{
+	//require_method(register_thread);
+	if(event_methods.register_thread)
+		event_methods.register_thread(reg, n);
+}
+
 char const *
 event_system(void)
 {

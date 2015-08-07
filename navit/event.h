@@ -34,6 +34,7 @@ enum event_watch_cond {
 	event_watch_cond_except,
 };
 
+
 struct event_methods {
 	void (*main_loop_run)(void);
 	void (*main_loop_quit)(void);
@@ -44,6 +45,7 @@ struct event_methods {
 	struct event_idle *(*add_idle)(int priority, struct callback *cb);
 	void (*remove_idle)(struct event_idle *ev);
 	void (*call_callback)(struct callback_list *cb);
+	void (*register_thread)(int reg, int n);
 };
 
 
@@ -64,6 +66,9 @@ void event_remove_timeout(struct event_timeout *ev);
 struct event_idle *event_add_idle(int priority, struct callback *cb);
 void event_remove_idle(struct event_idle *ev);
 void event_call_callback(struct callback_list *cb);
+	
+void event_register_thread(int reg, int n);
+	
 char const *event_system(void);
 int event_request_system(const char *system, const char *requestor);
 /* end of prototypes */

@@ -20,6 +20,8 @@
 #ifndef NAVIT_GRAPHICS_H
 #define NAVIT_GRAPHICS_H
 
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -194,7 +196,7 @@ struct displayitem *graphics_displaylist_next(struct displaylist_handle *dlh);
 void graphics_displaylist_close(struct displaylist_handle *dlh);
 struct displaylist *graphics_displaylist_new(void);
 void graphics_displaylist_destroy(struct displaylist *displaylist);
-struct map_selection *displaylist_get_selection(struct displaylist *displaylist);
+struct map_selection *displaylist_get_selection(struct displaylist *displaylist, int load);
 GList *displaylist_get_clicked_list(struct displaylist *displaylist, struct point *p, int radius);
 struct item *graphics_displayitem_get_item(struct displayitem *di);
 int graphics_displayitem_get_coord_count(struct displayitem *di);
@@ -205,6 +207,11 @@ int graphics_displayitem_within_dist(struct displaylist *displaylist, struct dis
 void graphics_add_selection(struct graphics *gra, struct item *item, enum item_type type, struct displaylist *dl);
 void graphics_remove_selection(struct graphics *gra, struct item *item, enum item_type type, struct displaylist *dl);
 void graphics_clear_selection(struct graphics *gra, struct displaylist *dl);
+	
+void draw_map(struct displaylist *displaylistl, int flags);
+void load_map(struct displaylist *displaylist);	
+void xdisplayfree_update(struct displaylist *dl);
+	
 /* end of prototypes */
 #ifdef __cplusplus
 }

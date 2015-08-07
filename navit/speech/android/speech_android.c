@@ -36,6 +36,9 @@ struct speech_priv {
 static int 
 speech_android_say(struct speech_priv *this, const char *text)
 {
+	JNIEnv *jnienv;
+	(*javavm)->GetEnv(javavm,(void**)&jnienv, JNI_VERSION_1_4);
+
 	char *str=g_strdup(text);
 	jstring string;
 	int i;
@@ -94,6 +97,10 @@ static struct speech_methods speech_android_meth = {
 static int
 speech_android_init(struct speech_priv *ret)
 {
+
+	JNIEnv *jnienv;
+	(*javavm)->GetEnv(javavm,(void**)&jnienv, JNI_VERSION_1_4);
+
 	jmethodID cid;
 	char *class="org/navitproject/navit/NavitSpeech2";
 

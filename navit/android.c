@@ -21,9 +21,10 @@
 #include "start_real.h"
 #include "track.h"
 
-JNIEnv *jnienv;
+JavaVM *javavm;
 jobject *android_activity;
 int android_version;
+
 
 struct android_search_priv
 {
@@ -41,6 +42,10 @@ struct android_search_priv
 int
 android_find_class_global(char *name, jclass *ret)
 {
+
+	JNIEnv *jnienv;
+	(*javavm)->GetEnv(javavm, (void**)&jnienv, JNI_VERSION_1_4);
+
 	*ret=(*jnienv)->FindClass(jnienv, name);
 	if (! *ret) {
 		dbg(lvl_error,"Failed to get Class %s\n",name);
@@ -53,6 +58,9 @@ android_find_class_global(char *name, jclass *ret)
 int
 android_find_method(jclass class, char *name, char *args, jmethodID *ret)
 {
+	JNIEnv *jnienv;
+	(*javavm)->GetEnv(javavm, (void**) &jnienv, JNI_VERSION_1_4);
+
 	*ret = (*jnienv)->GetMethodID(jnienv, class, name, args);
 	if (*ret == NULL) {
 		dbg(lvl_error,"Failed to get Method %s with signature %s\n",name,args);
@@ -65,6 +73,9 @@ android_find_method(jclass class, char *name, char *args, jmethodID *ret)
 int
 android_find_static_method(jclass class, char *name, char *args, jmethodID *ret)
 {
+	JNIEnv *jnienv;
+	(*javavm)->GetEnv(javavm,(void**)&jnienv, JNI_VERSION_1_4);
+
 	*ret = (*jnienv)->GetStaticMethodID(jnienv, class, name, args);
 	if (*ret == NULL) {
 		dbg(lvl_error,"Failed to get static Method %s with signature %s\n",name,args);
@@ -80,8 +91,17 @@ Java_org_navitproject_navit_Navit_NavitMain( JNIEnv* env, jobject thiz, jobject 
 	const char *displaydensitystr;
 	const char *map_file_path;
 	android_version=version;
-	__android_log_print(ANDROID_LOG_ERROR,"test","called");
+
+	JNIEnv *jnienv;
 	jnienv=env;
+
+	//get javavm for the access to java functions from other threads
+	(*jnienv)->GetJavaVM(jnienv, &javavm);
+
+
+
+
+
 	android_activity = (*jnienv)->NewGlobalRef(jnienv, activity);
 	langstr=(*env)->GetStringUTFChars(env, lang, NULL);
 	dbg(lvl_debug,"enter env=%p thiz=%p activity=%p lang=%s version=%d\n",env,thiz,android_activity,langstr,version);
@@ -126,7 +146,24 @@ Java_org_navitproject_navit_NavitGraphics_ButtonCallback( JNIEnv* env, jobject t
 }
 
 JNIEXPORT void JNICALL
+Java_org_navitproject_navit_NavitManagerThread_ButtonCallback( JNIEnv* env, jobject thiz, int id, int pressed, int button, int x, int y)
+{
+	dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)id,pressed,button);
+	if (id)
+		callback_call_4((struct callback *)id,pressed,button,x,y);
+}
+
+
+JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitGraphics_MotionCallback( JNIEnv* env, jobject thiz, int id, int x, int y)
+{
+	dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)id,x,y);
+	if (id)
+		callback_call_2((struct callback *)id,x,y);
+}
+
+JNIEXPORT void JNICALL
+Java_org_navitproject_navit_NavitManagerThread_MotionCallback( JNIEnv* env, jobject thiz, int id, int x, int y)
 {
 	dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)id,x,y);
 	if (id)
@@ -144,6 +181,15 @@ Java_org_navitproject_navit_NavitGraphics_KeypressCallback( JNIEnv* env, jobject
 		callback_call_1((struct callback *)id,s);
 	(*env)->ReleaseStringUTFChars(env, str, s);
 }
+
+JNIEXPORT void JNICALL
+Java_org_navitproject_navit_NavitManagerThread_TimeoutCallback( JNIEnv* env, jobject thiz, int id)
+{
+	void (*event_handler)(void *) = *(void **)id;
+	dbg(lvl_debug,"enter %p %p\n",thiz, (void *)id);
+	event_handler((void*)id);
+}
+
 
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitTimeout_TimeoutCallback( JNIEnv* env, jobject thiz, int id)
@@ -226,6 +272,28 @@ Java_org_navitproject_navit_NavitGraphics_CallbackLocalizedString( JNIEnv* env, 
 
 	return js;
 }
+
+
+
+JNIEXPORT jint JNICALL
+Java_org_navitproject_navit_NavitGraphics_CallbackZoom( JNIEnv* env, jobject thiz, float factor)
+{
+	struct attr attr;
+	config_get_attr(config_get(), attr_navit, &attr, NULL);
+	
+	/*if(factor < 1.0f) {
+		factor = 1.0f / factor;
+	}*/
+	navit_zoomf(attr.u.navit, factor, NULL);
+
+
+	return 0;
+}
+
+
+
+
+
 
 JNIEXPORT jint JNICALL
 Java_org_navitproject_navit_NavitGraphics_CallbackMessageChannel( JNIEnv* env, jobject thiz, int channel, jobject str)
@@ -550,7 +618,11 @@ static void
 android_search_end(struct android_search_priv *search_priv)
 {
 	dbg(lvl_debug, "End search");
-	JNIEnv* env = search_priv->search_result_obj.env;
+	//JNIEnv* env = search_priv->search_result_obj.env;
+	JNIEnv* env;
+	(*javavm)->GetEnv(javavm,(void**)&env, JNI_VERSION_1_4);
+
+
 	if (search_priv->idle_ev) {
 		event_remove_idle(search_priv->idle_ev);
 		search_priv->idle_ev=NULL;

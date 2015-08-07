@@ -77,6 +77,7 @@ Navigation</text></img>
 				<img src='gui_vehicle' onclick='setting_vehicle()'><text>Vehicle</text></img>
 				<!-- <a href='#Settings Vehicles'><img src='gui_vehicle'><text>Vehicle</text></img></a> -->
 				<img src='gui_rules' onclick='setting_rules()'><text>Rules</text></img>
+				<a href='#Settings DrawingThreads'><img src='gui_maps'><text>Drawing Threads</text></img></a>
 			</a>
 			<a name='Settings Display'><text>Display</text>
 				<!-- <img src='gui_display' onclick='setting_layout()'><text>Layout</text></img> -->
@@ -145,6 +146,14 @@ Waypoint</text></img>
 			<a name='NMEA Data' class='clist'><text>NMEA Data</text>
 				<script>nmea_data_page()</script>
 			</a>
+
+ 			<a name='Settings DrawingThreads' class='clist'><text>Number of Threads</text>
+ 				<img src='gui_maps' onclick='setting_DrawingThreads("0")'><text>Deactivated</text></img>
+ 				<img src='gui_maps' onclick='setting_DrawingThreads("1")'><text>(1T) drawing in new Thread</text></img>
+				<img src='gui_maps' onclick='setting_DrawingThreads("2")'><text>(2T) parallel trans and draw</text></img>
+				<img src='gui_maps' onclick='setting_DrawingThreads("3")'><text>(3T) BAD, just for performance test</text></img>
+ 			</a>
+
 			</html>
 		]]></gui>
 		<!-- for a debug log -->

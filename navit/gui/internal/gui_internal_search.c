@@ -56,6 +56,7 @@ gui_internal_search_house_number(struct gui_priv *this, struct widget *widget, v
 void
 gui_internal_search_idle_end(struct gui_priv *this)
 {
+	dbg(lvl_error, "idle_end called");
 	if (this->idle) {
 		event_remove_idle(this->idle);
 		this->idle=NULL;
@@ -316,6 +317,9 @@ gui_internal_create_resultlist_entry(struct gui_priv *this, struct search_list_r
 static void
 gui_internal_search_idle(struct gui_priv *this, char *wm_name, struct widget *search_list, void *param)
 {
+
+	dbg(lvl_error, "idle search!!");
+
 	char *result_main_label=NULL,*result_sublabel=NULL,*item_name=NULL, *widget_name=NULL, *search_text;
 	struct search_list_result *res;
 	struct item *item=NULL;
@@ -390,6 +394,8 @@ gui_internal_search_idle(struct gui_priv *this, char *wm_name, struct widget *se
 static void
 gui_internal_search_idle_start(struct gui_priv *this, char *wm_name, struct widget *search_list, void *param)
 {
+	dbg(lvl_error, "idle_start with 50 ms");
+
 	this->idle_cb=callback_new_4(callback_cast(gui_internal_search_idle), this, wm_name, search_list, param);
 	this->idle=event_add_idle(50,this->idle_cb);
 	callback_call_0(this->idle_cb);

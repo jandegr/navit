@@ -1168,10 +1168,50 @@ gui_internal_cmd2(struct gui_priv *this, char *function, struct attr **in, struc
 		gui_internal_cmd2_waypoints(this, function, in, out, valid);
 	else if(!strcmp(function, "about"))
 		gui_internal_cmd2_about(this, function, in, out, valid);
+	else if(!strcmp(function, "setting_DrawingThreads"))
+		gui_internal_cmd2_setting_DrawingThreads(this, function, in, out, valid);
 
 	if(entering)
 		graphics_draw_mode(this->gra, draw_mode_end);
 }
+
+
+void
+gui_internal_cmd2_setting_DrawingThreads(struct gui_priv *this, char *function, struct attr **in, struct attr ***out, int *valid)
+{
+	
+if(in)
+	{
+ 		char *str;
+ 		str=attr_to_text(*in, NULL, 0);
+ 
+ 		if(!strcmp(str, "0"))
+ 		{
+ 			setDrawingThreadsTo(0);
+ 			dbg(lvl_debug, "1 Thread activated!");
+ 		}
+ 		if(!strcmp(str, "1"))
+ 		{
+ 			setDrawingThreadsTo(1);
+ 			dbg(lvl_debug, "1 Thread activated!");	
+ 		}
+ 		if(!strcmp(str, "2"))
+ 		{
+			setDrawingThreadsTo(2);
+ 			dbg(lvl_debug, "2 Threads activated!");
+ 		}
+		if(!strcmp(str, "3"))
+		{
+			setDrawingThreadsTo(3);
+			dbg(lvl_debug, "3 Threads activated!");
+		}
+	}
+ 	gui_internal_prune_menu(this, NULL);
+	
+	
+	
+}
+
 
 static struct command_table commands[] = {
 	{"E",command_cast(gui_internal_cmd_escape)},
@@ -1203,6 +1243,7 @@ static struct command_table commands[] = {
 	{"waypoints",command_cast(gui_internal_cmd2)},
 	{"write",command_cast(gui_internal_cmd_write)},
 	{"about",command_cast(gui_internal_cmd2)},
+	{"setting_DrawingThreads",command_cast(gui_internal_cmd2)},
 
 };
 

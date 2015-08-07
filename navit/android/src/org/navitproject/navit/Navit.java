@@ -69,6 +69,7 @@ import android.widget.Toast;
 public class Navit extends Activity
 {
 
+	
 	public NavitDialogs              dialogs;
 	private PowerManager.WakeLock    wl;
 	private NavitActivityResult      ActivityResults[];
@@ -96,6 +97,12 @@ public class Navit extends Activity
 	static final String              NAVIT_DATA_SHARE_DIR           = NAVIT_DATA_DIR + "/share";
 	static final String              FIRST_STARTUP_FILE             = NAVIT_DATA_SHARE_DIR + "/has_run_once.txt";
 	public static final String       NAVIT_PREFS                    = "NavitPrefs";
+
+	public static Navit 			 navit;
+	
+
+	//public NavitManagerThread manThread = null;
+
 
 	public void removeFileIfExists(String source) {
 		File file = new File(source);
@@ -243,8 +250,14 @@ public class Navit extends Activity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		
+		navit = this;
 
 		dialogs = new NavitDialogs(this);
+
+		// this thread handles most of all tasks (Timeout, Draw, Route, ..)
+		//manThread = new NavitManagerThread();
+		//manThread.navit = this;
 
 		NavitResources = getResources();
 
@@ -371,6 +384,11 @@ public class Navit extends Activity
 		showInfos();
 
 		Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		
+		
+		
+
+		//manThread.start();
 	}
 
 	@Override
@@ -505,22 +523,56 @@ public class Navit extends Activity
 		//Log.e("Navit", "setKeypressCallback -> id2=" + mo_cb_id);
 		//Log.e("Navit", "setKeypressCallback -> ng=" + String.valueOf(ng));
 		//N_MotionCallbackID = mo_cb_id;
-		N_NavitGraphics = ng;
-	}
 
-	public void start_targetsearch_from_intent(String target_address)
+		N_NavitGraphics = ng;
+
+	
+	}
+	
+	private String target_address;
+
+	public void start_targetsearch_from_intent(String target_add)
 	{
-		if (target_address == null || target_address.equals(""))
-		{
-			// empty search string entered
-			Toast.makeText(getApplicationContext(), getString(R.string.address_search_not_found), Toast.LENGTH_LONG).show(); //TRANS
-		}
-		else
-		{
-			Intent search_intent = new Intent(this, NavitAddressSearchActivity.class);
-			search_intent.putExtra("search_string", target_address);
-			this.startActivityForResult(search_intent, NavitAddressSearch_id);
-		}
+		target_address = target_add;
+				
+		this.runOnUiThread(new Runnable() {
+
+			public void run() {
+
+				if (target_address == null || target_address.equals(""))
+				{
+					// empty search string entered
+					Toast.makeText(getApplicationContext(), getString(R.string.address_search_not_found), Toast.LENGTH_LONG).show(); //TRANS
+				}
+				else
+				{
+					Intent search_intent = new Intent(navit, NavitAddressSearchActivity.class);
+					search_intent.putExtra("search_string", target_address);
+
+					startActivityForResult(search_intent, NavitAddressSearch_id);
+
+				}
+			}
+		});
+				
+				
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
 	}
 
 	@Override
@@ -549,8 +601,14 @@ public class Navit extends Activity
 				break;
 			case 3 :
 				// map download menu
-				Intent map_download_list_activity = new Intent(this, NavitDownloadSelectMapActivity.class);
-				startActivityForResult(map_download_list_activity, Navit.NavitDownloaderSelectMap_id);
+					
+					this.runOnUiThread(new Runnable() {
+
+						public void run() {
+							Intent map_download_list_activity = new Intent(navit, NavitDownloadSelectMapActivity.class);	
+							startActivityForResult(map_download_list_activity, Navit.NavitDownloaderSelectMap_id);
+						}
+					});
 				break;
 			case 5 :
 				// toggle the normal POI layers (to avoid double POIs)
@@ -569,9 +627,16 @@ public class Navit extends Activity
 
 				break;
 			case 6 :
-				// ok startup address search activity
-				Intent search_intent = new Intent(this, NavitAddressSearchActivity.class);
-				this.startActivityForResult(search_intent, NavitAddressSearch_id);
+				
+			   this.runOnUiThread(new Runnable() {
+
+				   
+					public void run() {
+						// ok startup address search activity
+						Intent search_intent = new Intent(navit, NavitAddressSearchActivity.class);
+						startActivityForResult(search_intent, NavitAddressSearch_id);
+					}
+			   });
 				break;
 			case 7 :
 			    /* Backup / Restore */
@@ -659,20 +724,33 @@ public class Navit extends Activity
 	@Override
 	public boolean onSearchRequested() {
 		/* Launch the internal Search Activity */
-        Intent search_intent = new Intent(this, NavitAddressSearchActivity.class);
-        this.startActivityForResult(search_intent, NavitAddressSearch_id);
-        
+		
+		this.runOnUiThread(new Runnable() {
+
+			public void run() {
+				Intent search_intent = new Intent(navit, NavitAddressSearchActivity.class);
+				startActivityForResult(search_intent, NavitAddressSearch_id);
+			}
+		});
+
 		return true;
 	}
 
 	public boolean setMapLocation() 
 	{ 
-		Intent fileExploreIntent = new Intent(this,FileBrowserActivity.class); 
-		fileExploreIntent
-			.putExtra(FileBrowserActivity.startDirectoryParameter, "/mnt")
-			.setAction(FileBrowserActivity.INTENT_ACTION_SELECT_DIR);
-		startActivityForResult(fileExploreIntent,NavitSelectStorage_id); 
-		                 
+		
+		
+		this.runOnUiThread(new Runnable() {
+
+			public void run() {
+				Intent fileExploreIntent = new Intent(navit,FileBrowserActivity.class); 
+					fileExploreIntent
+						.putExtra(FileBrowserActivity.startDirectoryParameter, "/mnt")
+						.setAction(FileBrowserActivity.INTENT_ACTION_SELECT_DIR);
+				
+				startActivityForResult(fileExploreIntent,NavitSelectStorage_id); 
+			}
+		});
 		return true; 
 	} 
 
@@ -711,6 +789,8 @@ public class Navit extends Activity
 		NavitVehicle.removeListener();
 		NavitDestroy();
 	}
+
+
 
 	public native void NavitMain(Navit x, String lang, int version, String display_density_string, String path, String path2);
 	public native void NavitDestroy();

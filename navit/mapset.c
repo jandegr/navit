@@ -36,6 +36,14 @@
 #include "map.h"
 #include "xmlconfig.h"
 
+#ifdef HAVE_API_ANDROID
+
+#include <pthread.h>
+
+static pthread_mutex_t lock;
+
+#endif
+
 /**
  * @brief A mapset
  *
@@ -180,6 +188,12 @@ struct mapset_handle {
 struct mapset_handle *
 mapset_open(struct mapset *ms)
 {
+#ifdef HAVE_API_ANDROID
+	dbg(0, "try to lock");
+	pthread_mutex_lock(&lock);
+	dbg(0, "locked");
+#endif
+	
 	struct mapset_handle *ret=NULL;
 	if(ms)
 	{
@@ -269,6 +283,10 @@ void
 mapset_close(struct mapset_handle *msh)
 {
 	g_free(msh);
+#ifdef HAVE_API_ANDROID
+	dbg(0, "unlock");
+	pthread_mutex_unlock(&lock);
+#endif
 }
 
 /**

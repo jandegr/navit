@@ -79,8 +79,11 @@ void transform_get_size(struct transformation *t, int *width, int *height);
 void transform_setup(struct transformation *t, struct pcoord *c, int scale, int yaw);
 void transform_setup_source_rect(struct transformation *t);
 long transform_get_scale(struct transformation *t);
-void transform_set_scale(struct transformation *t, long scale);
+float transform_get_scalef(struct transformation *t);
+void transform_set_scale(struct transformation *t, float scale);
 int transform_get_order(struct transformation *t);
+int transform_get_ddd(struct transformation *t);	
+	
 double transform_scale(int y);
 double transform_distance(enum projection pro, struct coord *c1, struct coord *c2);
 void transform_project(enum projection pro, struct coord *c, int distance, int angle, struct coord *res);

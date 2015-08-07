@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -41,8 +42,11 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.GestureDetector;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
+
+
 
 
 public class NavitGraphics
@@ -53,6 +57,7 @@ public class NavitGraphics
 	int                              bitmap_h;
 	int                              pos_x;
 	int                              pos_y;
+
 	int                              pos_wraparound;
 	int                              overlay_disabled;
 	float                            trackball_x, trackball_y;
@@ -61,6 +66,15 @@ public class NavitGraphics
 	NavitCamera                      camera;
 	Activity                         activity;
 
+	//public NavitManagerThread 		 		manThread;
+	private static NavitDrawObjectsPool	 	drawThreadPool;
+	
+	public static int 						THREAD_NUM = 1;
+	public static boolean					draw_in_thread = true;
+	
+	public float				 			 zoomFactor = 1;
+
+
 	public static Boolean            in_map            = false;
 
 	// for menu key
@@ -68,6 +82,8 @@ public class NavitGraphics
 	private static long              interval_for_long_press           = 200L;
 
 	private Handler timer_handler = new Handler();
+
+
 
 	public void SetCamera(int use_camera)
 	{
@@ -114,6 +130,8 @@ public class NavitGraphics
 		static final int  ZOOM       = 2;
 		static final int  PRESSED    = 3;
 
+
+
 		Method eventGetX = null;
 		Method eventGetY = null;
 		
@@ -158,7 +176,44 @@ public class NavitGraphics
 		protected void onDraw(Canvas canvas)
 		{
 			super.onDraw(canvas);
-			canvas.drawBitmap(draw_bitmap, pos_x, pos_y, null);
+			
+			
+			
+			if( overlay_disabled == 0) {
+
+				
+				
+				if(zoomFactor != 1) {
+
+					Bitmap scaledBitmap = draw_bitmap;
+
+					canvas.save();
+
+					canvas.translate(-1 * (bitmap_w * zoomFactor - bitmap_w) / 2, -1 *(bitmap_h * zoomFactor - bitmap_h) / 2);
+					canvas.scale(zoomFactor, zoomFactor);
+
+					Paint paint = new Paint();
+					paint.setAntiAlias(true);
+					paint.setFilterBitmap(true);
+					paint.setDither(true);
+
+					canvas.drawBitmap(scaledBitmap, pos_x, pos_y, paint);
+
+					canvas.restore();
+
+
+				} else {
+
+					canvas.drawBitmap(draw_bitmap, pos_x, pos_y, null);
+
+
+				}
+			} else {
+				canvas.drawBitmap(draw_bitmap, pos_x, pos_y, null);
+			}
+			
+			
+			
 			if (overlay_disabled == 0)
 			{
 				//Log.e("NavitGraphics", "view -> onDraw 1");
@@ -195,6 +250,16 @@ public class NavitGraphics
 					}
 				}
 			}
+			
+			/*
+			// thats a way to check how many free memory is available
+			final Runtime runtime = Runtime.getRuntime();
+			final long usedMemInMB=(runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
+			final long maxHeapSizeInMB=runtime.maxMemory() / 1048576L;
+			
+			Log.e("Navit", "usedMem: " + usedMemInMB + " MB  maxHeapSize: " + maxHeapSizeInMB + " MB");
+			*/
+			
 		}
 
 		@Override
@@ -204,9 +269,21 @@ public class NavitGraphics
 			Log.e("Navit", "NavitGraphics -> onSizeChanged density=" + Navit.metrics.density);
 			Log.e("Navit", "NavitGraphics -> onSizeChanged scaledDensity="
 					+ Navit.metrics.scaledDensity);
-			super.onSizeChanged(w, h, oldw, oldh);
+
+			super.onSizeChanged(w, h, oldw, oldh); // was before bitmap/canvas init
+
+			
+			
+			//each pixel is stored on 4 bytes
+			// http://developer.android.com/reference/android/graphics/Bitmap.Config.html
 			draw_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 			draw_canvas = new Canvas(draw_bitmap);
+			
+			
+			drawThreadPool.init(draw_canvas, w, h);
+
+			
+
 			bitmap_w = w;
 			bitmap_h = h;
 			SizeChangedCallback(SizeChangedCallbackID, w, h);
@@ -239,6 +316,21 @@ public class NavitGraphics
 			return ret_value;
 		}
 		
+		
+		
+		public final GestureDetector gestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
+		    public void onLongPress(MotionEvent e) {
+						
+			if (in_map && touch_mode == PRESSED)
+			{
+				do_longpress_action();
+				touch_mode = NONE;
+			}
+
+
+		    }
+		});
+		
 		@Override
 		public boolean onTouchEvent(MotionEvent event)
 		{
@@ -258,57 +350,84 @@ public class NavitGraphics
 			}
 
 			if (switch_value == MotionEvent.ACTION_DOWN)
-			{
+			{	/* one (first) finger touches the screen */
+
+
+
 				touch_mode = PRESSED;
-				if (!in_map) ButtonCallback(ButtonCallbackID, 1, 1, x, y); // down
+				if (!in_map) {
+					ButtonCallback(ButtonCallbackID, 1, 1, x, y); // down
+					//manThread.addButtonEvent(ButtonCallbackID, 1, 1, x, y); // down
+				}
+
+
 				mPressedPosition = new PointF(x, y);
-				postDelayed(this, time_for_long_press);
+				gestureDetector.onTouchEvent(event);
+
 			}
 			else if ((switch_value == MotionEvent.ACTION_UP) || (switch_value == _ACTION_POINTER_UP_))
-			{
+			{ /* one or two finger left the screen */
 				Log.e("NavitGraphics", "ACTION_UP");
 
 				if ( touch_mode == DRAG )
 				{
 					Log.e("NavitGraphics", "onTouch move");
 
+
 					MotionCallback(MotionCallbackID, x, y);
-					ButtonCallback(ButtonCallbackID, 0, 1, x, y); // up
+					ButtonCallback(ButtonCallbackID, 0, 1, x, y);
+
+					//zoomFactor = 1;
+					//manThread.addMotionEvent(MotionCallbackID, x, y);
+
+					//manThread.addButtonEvent(ButtonCallbackID, 0, 1, x, y); // up
+
+
 				}
 				else if (touch_mode == ZOOM)
 				{
-					//Log.e("NavitGraphics", "onTouch zoom");
+					Log.e("NavitGraphics", "onTouch zoom");
 
 					float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
 					float scale = 0;
-					if (newDist > 10f)
+					
+					float z = 1;
+					
+					if (newDist > 0f)
 					{
 						scale = newDist / oldDist;
+						zoomFactor = scale;
+						viewInvalidate(); // hier kann direkt invalidate aufgerufen werden, da es immer aus dem main-thread ausgefuehrt wird.
+						
 					}
+					
 
-					if (scale > 1.3)
-					{
-						// zoom in
-						CallbackMessageChannel(1, null);
-						//Log.e("NavitGraphics", "onTouch zoom in");
-					}
-					else if (scale < 0.8)
-					{
-						// zoom out
-						CallbackMessageChannel(2, null);
-						//Log.e("NavitGraphics", "onTouch zoom out");
-					}
+					
+					CallbackZoom(scale);
+					//Log.e("NavitGraphics", "zoom (get new map)");
+					
+
 				}
 				else if (touch_mode == PRESSED)
 				{
-					if (in_map) ButtonCallback(ButtonCallbackID, 1, 1, x, y); // down
-					ButtonCallback(ButtonCallbackID, 0, 1, x, y); // up
+					Log.e("NavitGraphics", "onTouch pressed!!");
+					if (in_map) {
+						//manThread.addButtonEvent(ButtonCallbackID, 1, 1, x, y); // down	
+						ButtonCallback(ButtonCallbackID, 1, 1, x, y); //down
+						
+						ButtonCallback(ButtonCallbackID, 0, 1, x, y); //up
+						//manThread.addButtonEvent(ButtonCallbackID, 0, 1, x, y); // up
+					} else {
+						
+						ButtonCallback(ButtonCallbackID, 0, 1, x, y); //up
+					}
+					
 				}
 				touch_mode = NONE;
 			}
 			else if (switch_value == MotionEvent.ACTION_MOVE)
 			{
-				//Log.e("NavitGraphics", "ACTION_MOVE");
+				Log.e("NavitGraphics", "ACTION_MOVE");
 
 				if (touch_mode == DRAG)
 				{
@@ -318,36 +437,28 @@ public class NavitGraphics
 				{
 					float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
 					float scale = newDist / oldDist;
-					Log.e("NavitGraphics", "New scale = " + scale);
-					if (scale > 1.2)
-					{
-						// zoom in
-						CallbackMessageChannel(1, "");
-						oldDist = newDist;
-						//Log.e("NavitGraphics", "onTouch zoom in");
+					
+					if (newDist > 0f) {
+						zoomFactor = scale;
+						viewInvalidate();
 					}
-					else if (scale < 0.8)
-					{
-						oldDist = newDist;
-						// zoom out
-						CallbackMessageChannel(2, "");
-						//Log.e("NavitGraphics", "onTouch zoom out");
-					}
+	
 				}
 				else if (touch_mode == PRESSED)
 				{
 					Log.e("NavitGraphics", "Start drag mode");
 					if ( spacing(mPressedPosition, new PointF(event.getX(),  event.getY()))  > 20f) {
-						ButtonCallback(ButtonCallbackID, 1, 1, x, y); // down
+						//manThread.addButtonEvent(ButtonCallbackID, 1, 1, x, y); // down
+						ButtonCallback(ButtonCallbackID, 1,1 ,x,y); //down
 						touch_mode = DRAG;
 					}
 				}
 			}
 			else if (switch_value == _ACTION_POINTER_DOWN_)
-			{
+			{/* second finger attached to the screen */
 				//Log.e("NavitGraphics", "ACTION_POINTER_DOWN");
 				oldDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
-				if (oldDist > 2f)
+				if (oldDist > 0f)
 				{
 					touch_mode = ZOOM;
 					//Log.e("NavitGraphics", "--> zoom");
@@ -698,7 +809,9 @@ public class NavitGraphics
 	{
 		if (parent == null)
 		{
-			this.activity = activity;
+			drawThreadPool = new NavitDrawObjectsPool(this, THREAD_NUM);
+			
+			this.activity = activity;			
 			view = new NavitView(activity);
 			//activity.registerForContextMenu(view);
 			view.setClickable(false);
@@ -721,12 +834,17 @@ public class NavitGraphics
 			bitmap_w = w;
 			bitmap_h = h;
 			pos_x = x;
+
 			pos_y = y;
+
 			pos_wraparound = wraparound;
 			draw_canvas = new Canvas(draw_bitmap);
 			parent.overlays.add(this);
 		}
 		parent_graphics = parent;
+
+		//manThread = NavitManagerThread.manThread;
+
 	}
 
 	static public enum msg_type {
@@ -750,6 +868,7 @@ public class NavitGraphics
 					break;
 				case CLB_MOVE:
 					MotionCallback(MotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
+					
 					break;
 				case CLB_SET_DESTINATION:
 					String lat = Float.toString(msg.getData().getFloat("lat"));
@@ -768,9 +887,11 @@ public class NavitGraphics
 					break;
 				case CLB_BUTTON_UP:
 					ButtonCallback(ButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // up
+					//manThread.addButtonEvent(ButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // up
 					break;
 				case CLB_BUTTON_DOWN:
 					ButtonCallback(ButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // down
+					//manThread.addButtonEvent(ButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // down
 					break;
 				case CLB_COUNTRY_CHOOSER:
 					break;
@@ -791,12 +912,15 @@ public class NavitGraphics
 	public native void SizeChangedCallback(int id, int x, int y);
 	public native void KeypressCallback(int id, String s);
 	public native int CallbackMessageChannel(int i, String s);
+	
+	public native int CallbackZoom(float zoomfactor);
+
 	public native void ButtonCallback(int id, int pressed, int button, int x, int y);
 	public native void MotionCallback(int id, int x, int y);
 	public native String GetDefaultCountry(int id, String s);
 	public static native String[][] GetAllCountries();
-	private Canvas	draw_canvas;
-	private Bitmap	draw_bitmap;
+	public Canvas	draw_canvas;
+	public Bitmap	draw_bitmap;
 	private int		SizeChangedCallbackID, ButtonCallbackID, MotionCallbackID, KeypressCallbackID;
 	// private int count;
 
@@ -820,116 +944,211 @@ public class NavitGraphics
 		// set callback id also in main intent (for menus)
 		Navit.setKeypressCallback(id, this);
 	}
-
+	
+	private Paint paint = new Paint();
+	private Path draw_path = new Path();
 
 	protected void draw_polyline(Paint paint, int c[])
 	{
-		int i, ndashes;
-		float [] intervals;
-		//	Log.e("NavitGraphics","draw_polyline");
-		paint.setStrokeWidth(c[0]);
-		paint.setARGB(c[1],c[2],c[3],c[4]);
-		paint.setStyle(Paint.Style.STROKE);
-		//paint.setAntiAlias(true);
-		//paint.setStrokeWidth(0);
-		ndashes=c[5];
-		intervals=new float[ndashes+(ndashes%2)];
-		for (i = 0; i < ndashes; i++)
-			intervals[i]=c[6+i];
+		if(parent_graphics == null && in_map && draw_in_thread)
+			drawThreadPool.add_polyline(paint, c);
+		else {
+			
+			int i, ndashes;
+			float [] intervals;
 
-		if((ndashes%2)==1)
-			intervals[ndashes]=intervals[ndashes-1];
+			paint.setStrokeWidth(c[0]);
+			paint.setARGB(c[1],c[2],c[3],c[4]);
+			paint.setStyle(Paint.Style.STROKE);
+
 			
-		if(ndashes>0)
-			paint.setPathEffect(new android.graphics.DashPathEffect(intervals,0.0f));
+			paint.setStrokeCap(Paint.Cap.ROUND);      
+
+			ndashes=c[5];
+			intervals=new float[ndashes+(ndashes%2)];
+			for (i = 0; i < ndashes; i++)
+				intervals[i]=c[6+i];
+
+			if((ndashes%2)==1)
+				intervals[ndashes]=intervals[ndashes-1];
+
+			if(ndashes>0)
+				paint.setPathEffect(new android.graphics.DashPathEffect(intervals,0.0f));
+
 			
-		Path path = new Path();
-		path.moveTo(c[6+ndashes], c[7+ndashes]);
-		for (i = 8+ndashes; i < c.length; i += 2)
-		{
-			path.lineTo(c[i], c[i + 1]);
+			draw_path.rewind();
+			draw_path.moveTo(c[6+ndashes], c[7+ndashes]);
+			for (i = 8+ndashes; i < c.length; i += 2)
+			{
+				draw_path.lineTo(c[i], c[i + 1]);
+			}
+			//global_path.close();
+			draw_canvas.drawPath(draw_path, paint);
+			
+			paint.setPathEffect(null);	
+			
+			
+			
 		}
-		//global_path.close();
-		draw_canvas.drawPath(path, paint);
-		paint.setPathEffect(null);
 	}
 
 	protected void draw_polygon(Paint paint, int c[])
 	{
-		//Log.e("NavitGraphics","draw_polygon");
-		paint.setStrokeWidth(c[0]);
-		paint.setARGB(c[1],c[2],c[3],c[4]);
-		paint.setStyle(Paint.Style.FILL);
-		//paint.setAntiAlias(true);
-		//paint.setStrokeWidth(0);
-		Path path = new Path();
-		path.moveTo(c[5], c[6]);
-		for (int i = 7; i < c.length; i += 2)
-		{
-			path.lineTo(c[i], c[i + 1]);
+		if(parent_graphics == null && in_map && draw_in_thread)
+			drawThreadPool.add_polygon(paint, c);
+		else {
+			
+			paint.setStrokeWidth(c[0]);
+			paint.setARGB(c[1],c[2],c[3],c[4]);
+			paint.setStyle(Paint.Style.FILL);
+			//paint.setAntiAlias(true);
+			//paint.setStrokeWidth(0);
+			draw_path.rewind();
+			draw_path.moveTo(c[5], c[6]);
+			for (int i = 7; i < c.length; i += 2)
+			{
+				draw_path.lineTo(c[i], c[i + 1]);
+			}
+			//global_path.close();
+			draw_canvas.drawPath(draw_path, paint);
+			
+			
 		}
-		//global_path.close();
-		draw_canvas.drawPath(path, paint);
 	}
+	
+
+	//used for background color
 	protected void draw_rectangle(Paint paint, int x, int y, int w, int h)
 	{
-		//Log.e("NavitGraphics","draw_rectangle");
-		Rect r = new Rect(x, y, x + w, y + h);
-		paint.setStyle(Paint.Style.FILL);
-		paint.setAntiAlias(true);
-		//paint.setStrokeWidth(0);
-		draw_canvas.drawRect(r, paint);
-	}
-	protected void draw_circle(Paint paint, int x, int y, int r)
-	{
-		//Log.e("NavitGraphics","draw_circle");
-		//		float fx = x;
-		//		float fy = y;
-		//		float fr = r / 2;
-		paint.setStyle(Paint.Style.STROKE);
-		draw_canvas.drawCircle(x, y, r / 2, paint);
-	}
-	protected void draw_text(Paint paint, int x, int y, String text, int size, int dx, int dy, int bgcolor)
-	{
-		int oldcolor=paint.getColor();
-		Path path=null;
-	
-		paint.setTextSize(size / 15);
-		paint.setStyle(Paint.Style.FILL);
-
-		if (dx != 0x10000 || dy != 0) {
-			path = new Path();
-			path.moveTo(x, y);
-			path.rLineTo(dx, dy);
-			paint.setTextAlign(android.graphics.Paint.Align.LEFT);
+		if(THREAD_NUM == 0) {
+			draw_in_thread = false;	
+		} else {
+			draw_in_thread = true;	
 		}
 
-		if(bgcolor!=0) {
-			paint.setStrokeWidth(3);
-			paint.setColor(bgcolor);
+		if(parent_graphics == null && in_map && draw_in_thread) {
+			drawThreadPool.setThread_n(THREAD_NUM);
+			
+			//add if only 1 thread is active
+			
+			//drawThreadPool.add_rectangle(paint, x, y, w, h);
+
+			Rect r = new Rect(x, y, x + w, y + h);
+			paint.setStyle(Paint.Style.FILL);
+			paint.setAntiAlias(true);
+
+			draw_canvas.drawRect(r, paint);
+			
+			
+			
+		} else {
+			
+			Rect r = new Rect(x, y, x + w, y + h);
+			paint.setStyle(Paint.Style.FILL);
+			paint.setAntiAlias(true);
+			//paint.setStrokeWidth(0);
+			draw_canvas.drawRect(r, paint);
+			
+			
+			
+		}
+		
+		
+
+	}
+
+	
+	protected void draw_circle(Paint paint, int x, int y, int r)
+	{
+		if(parent_graphics == null && in_map && draw_in_thread)
+			drawThreadPool.add_circle(paint, x, y, r);
+		else {
 			paint.setStyle(Paint.Style.STROKE);
+			draw_canvas.drawCircle(x, y, r / 2, paint);
+		}
+	}
+
+
+	/** draws a text on the screen
+	 *
+	 *
+	 *
+	 * @param x		specifying the x text position
+	 * @param y		specifying the y text position
+	 * @param text		Text to draw
+	 * @param size		specifying the size of the text
+	 * @param dx		specifying the dx position, if text is drawn to a line
+	 * @param dy		specifying the dy position, if text is drawn to a line
+	 * @param bgcolor	specifying the background color
+	 * @param lw		specifying the stroke width
+	 * @param fgcolor	specifying the color of the text
+	 *
+	 * @author ?? edit by Sascha Oedekoven (08/2015)
+	 **/
+	protected void draw_text(int x, int y, String text, int size, int dx, int dy, int bgcolor, int lw, int fgcolor)
+	{
+		if(parent_graphics == null && in_map && draw_in_thread)
+			drawThreadPool.add_text(x,y,text,size,dx,dy,bgcolor, lw, fgcolor);
+		else {
+			
+			//paint.setColor(fgcolor);
+			paint.setStrokeWidth(lw);
+			Path path=null;
+
+			paint.setTextSize(size / 15);
+			paint.setStyle(Paint.Style.FILL);
+
+			if (dx != 0x10000 || dy != 0) {
+				path = new Path();
+				path.moveTo(x, y);
+				path.rLineTo(dx, dy);
+				paint.setTextAlign(android.graphics.Paint.Align.LEFT);
+			}
+
+			if(bgcolor!=0) {
+				paint.setStrokeWidth(3);
+				paint.setColor(bgcolor);
+				paint.setStyle(Paint.Style.STROKE);
+				if(path==null) {
+					draw_canvas.drawText(text, x, y, paint);
+				} else {
+					draw_canvas.drawTextOnPath(text, path, 0, 0, paint);
+				}
+				paint.setStyle(Paint.Style.FILL);
+			}
+			
+			paint.setColor(fgcolor);
+
 			if(path==null) {
 				draw_canvas.drawText(text, x, y, paint);
 			} else {
 				draw_canvas.drawTextOnPath(text, path, 0, 0, paint);
 			}
-			paint.setStyle(Paint.Style.FILL);
-			paint.setColor(oldcolor);
+			paint.clearShadowLayer();
+			
+			
 		}
-
-		if(path==null) {
-			draw_canvas.drawText(text, x, y, paint);
-		} else {
-			draw_canvas.drawTextOnPath(text, path, 0, 0, paint);
-		}
-		paint.clearShadowLayer();
 	}
+
+
+	/** draws an image on the screen
+	 *
+	 *
+	 *
+	 * @param paint		Paint object used to draw the image
+	 * @param x		specifying the x position the image is drawn to
+	 * @param y		specifying the y position the image is drawn to
+	 * @param bitmap	Bitmap object holding the image to draw
+	 *
+	 * @author ?? edit by Sascha Oedekoven (08/2015)
+	 **/
 	protected void draw_image(Paint paint, int x, int y, Bitmap bitmap)
 	{
-		//Log.e("NavitGraphics","draw_image");
-		//		float fx = x;
-		//		float fy = y;
-		draw_canvas.drawBitmap(bitmap, x, y, paint);
+		if(parent_graphics == null && in_map && draw_in_thread)
+			drawThreadPool.add_image(paint, x, y, bitmap);
+		else {
+			draw_canvas.drawBitmap(bitmap, x, y, paint);
+		}
 	}
 
 	/* takes an image and draws it on the screen as a prerendered maptile
@@ -977,22 +1196,36 @@ public class NavitGraphics
 	/* These constants must be synchronized with enum draw_mode_num in graphics.h. */
 	public static final int draw_mode_begin = 0;
 	public static final int draw_mode_end = 1;
+	
 
 	protected void draw_mode(int mode)
 	{
-		//Log.e("NavitGraphics", "draw_mode mode=" + mode + " parent_graphics="
-		//		+ String.valueOf(parent_graphics));
 
-		if (mode == draw_mode_end) {
-			if (parent_graphics == null) {
-				view.invalidate();
-			} else {
-				parent_graphics.view.invalidate(get_rect());
+		
+		if(parent_graphics == null && in_map && draw_in_thread) {
+			//mode == 2 -> change thread
+			//mode == 3 -> sync threads
+			if (mode == draw_mode_end || mode == 2 || mode == 3) {
+				drawThreadPool.draw_to_screen(mode);
+			} else if(mode == draw_mode_begin && parent_graphics == null) {
+				drawThreadPool.cancel_draw();
+			}
+			/*if (mode == draw_mode_begin && parent_graphics != null) {
+				draw_bitmap.eraseColor(0);
+			}*/
+			
+		} else {
+			
+			if( mode == draw_mode_end ) {
+				zoomFactor = 1;
+				viewInvalidate();
+				
+			} else if(in_map && mode == draw_mode_begin && parent_graphics != null) {
+				draw_bitmap.eraseColor(0);
 			}
 		}
-		if (mode == draw_mode_begin && parent_graphics != null) {
-			draw_bitmap.eraseColor(0);
-		}
+
+		
 
 	}
 	protected void draw_drag(int x, int y)
@@ -1003,14 +1236,18 @@ public class NavitGraphics
 	}
 	protected void overlay_disable(int disable)
 	{
-		Log.e("NavitGraphics","overlay_disable: " + disable + "Parent: " + (parent_graphics != null));
+		
 		// assume we are NOT in map view mode!
 		if (parent_graphics == null)
 			in_map = (disable==0);
 		if (overlay_disabled != disable) {
 			overlay_disabled = disable;
 			if (parent_graphics != null) {
-				parent_graphics.view.invalidate(get_rect());
+				//parent_graphics.view.invalidate(get_rect());
+				if(in_map && draw_in_thread)
+					drawThreadPool.draw_to_screen(2); 
+				else
+					viewInvalidate();
 			}
 		}
 	}
@@ -1041,5 +1278,51 @@ public class NavitGraphics
 	 * get localized string
 	 */
 	public static native String CallbackLocalizedString(String s);
+
+
+
+
+
+	/* sends the UI-Thread a Message to redraw */
+
+
+	public void viewInvalidate() {
+
+		if(activity != null)
+		activity.runOnUiThread(new Runnable() {
+
+			public void run() {
+
+				if (parent_graphics == null) {
+					if(view != null)
+						view.invalidate();
+				} else {
+					if(parent_graphics.view != null)
+						parent_graphics.view.invalidate(get_rect());
+				}
+
+			}
+		});
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

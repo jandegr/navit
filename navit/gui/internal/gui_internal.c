@@ -1280,7 +1280,7 @@ gui_internal_cmd_position_do(struct gui_priv *this, struct pcoord *pc_in, struct
 		transform(trans,pc.pro,&c,&p,1,0,0,0);
 		display=navit_get_displaylist(this->nav);
 		dlh=graphics_displaylist_open(display);
-		sel=displaylist_get_selection(display);
+		sel=displaylist_get_selection(display,0);
 		l=displaylist_get_clicked_list(display, &p, this->radius);
 		for(ll=l;ll;ll=g_list_next(ll)) {
 			struct displayitem *di;

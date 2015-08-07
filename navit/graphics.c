@@ -52,6 +52,41 @@
 #include "file.h"
 #include "event.h"
 
+#ifdef HAVE_API_ANDROID
+/* at the moment map-drawing threads has been tested only on android */
+
+#include "pthread.h"
+
+
+/*
+	function to measure time on android
+*/
+double now_ms(void)
+{
+    struct timespec res;
+    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0*res.tv_sec + (double)res.tv_nsec/1e6;
+}
+
+#endif
+
+
+
+/* 	thread count for drawing objects on android.
+	0 - drawing in main thread
+	1 - drawing in one seperated thread, while preparing other objects (recommended) 
+	2 - drawing in two seperated threads, does not work, either the visualization is bad or the performance is bad. did not found a good solution here. */
+int android_drawing_thread_n = 1; 
+
+/* 	used to enable/disable the map loading and drawing thread.
+	0 - loading and drawing map in main thread
+	1 - loading and drawing map in seperated thread */
+int DRAW_MAP_THREAD = 1;
+
+
+
+
+
 
 //##############################################################################################################
 //# Description:
@@ -110,6 +145,7 @@ struct displaylist {
 	struct callback *cb;
 	struct layout *layout, *layout_hashed;
 	struct display_context dc;
+	struct display_context dc_load;	// display context for simultaniously map loading and drawing of last items
 	int order, order_hashed, max_offset;
 	struct mapset *ms;
 	struct mapset_handle *msh;
@@ -121,6 +157,16 @@ struct displaylist {
 	struct event_idle *idle_ev;
 	unsigned int seq;
 	struct hash_entry hash_entries[HASH_SIZE];
+	struct hash_entry hash_entries_load[HASH_SIZE]; // hash_entry for simultaniously map loading and drawing of last items
+#ifdef HAVE_API_ANDROID
+	pthread_t drawing_thread;
+	pthread_t drawing_thread_old;
+#endif
+	int cancel_map_draw;
+	int cancel_map_load;
+	int flags;
+	int waiting_for_mutex;
+
 };
 
 
@@ -133,29 +179,64 @@ static void draw_circle(struct point *pnt, int diameter, int scale, int start, i
 static void graphics_process_selection(struct graphics *gra, struct displaylist *dl);
 static void graphics_gc_init(struct graphics *this_);
 
+
+/**
+ * @brief Clears the hash_entries from the displaylist
+ * @param dl The displaylist which contains the hash_entry.
+ * @author Unknown,  edited by Sascha Oedekoven (06/2015)
+*/
+/*
+clears the hash_entries and hash_entries_load
+*/
 static void
 clear_hash(struct displaylist *dl)
 {
 	int i;
-	for (i = 0 ; i < HASH_SIZE ; i++)
+	for (i = 0 ; i < HASH_SIZE ; i++) {
+		dl->hash_entries_load[i].type=type_none;
 		dl->hash_entries[i].type=type_none;
+	}
 }
 
+/**
+ * @brief Returns a hash_entry from a specific item-type.
+ * @param dl The displaylist which contains the hash_entry.
+ * @param type The item type from the requested hash_entry.
+ * @param load If set to 1, the hash_entry which is used to load a map will returned. Set to 0, the drawing hash_entry will be returned.
+ * @returns entry The hash_entry which contains a linked-list of displayitems from the selected type.
+ * @author Martin Schaller (04/2008) edited by Sascha Oedekoven (06/2015)
+*/
+
 static struct hash_entry *
-get_hash_entry(struct displaylist *dl, enum item_type type)
+get_hash_entry(struct displaylist *dl, enum item_type type, int load)
 {
 	int hashidx=(type*2654435761UL) & (HASH_SIZE-1);
 	int offset=dl->max_offset;
+	
+
 	do {
 		if (!dl->hash_entries[hashidx].type)
 			return NULL;
-		if (dl->hash_entries[hashidx].type == type)
-			return &dl->hash_entries[hashidx];
+		if (dl->hash_entries[hashidx].type == type) {
+			if(load) /* returns an item from the hash_entry which is being used to load a map */
+				return &dl->hash_entries_load[hashidx];
+			else /* returns an item from the hash_entry which should be drawn */
+				return &dl->hash_entries[hashidx];
+		}
 		hashidx=(hashidx+1)&(HASH_SIZE-1);
 	} while (offset-- > 0);
 	return NULL;
+
 }
 
+
+/**
+ * @brief Initializes the hash_entry for a specific item-type
+ * @param dl The displaylist which contains the hash_entry.
+ * @param type The new item type.
+ * @returns entry The hash_entry which contains a linked-list of displayitems from the selected type.
+ * @author Unknown, edited by Sascha Oedekoven (06/2015)
+*/
 static struct hash_entry *
 set_hash_entry(struct displaylist *dl, enum item_type type)
 {
@@ -164,6 +245,7 @@ set_hash_entry(struct displaylist *dl, enum item_type type)
 	for (;;) {
 		if (!dl->hash_entries[hashidx].type) {
 			dl->hash_entries[hashidx].type=type;
+			dl->hash_entries_load[hashidx].type=type;
 			if (dl->max_offset < offset)
 				dl->max_offset=offset;
 			return &dl->hash_entries[hashidx];
@@ -1073,17 +1155,32 @@ struct displayitem {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static void xdisplay_free(struct displaylist *dl)
+static void xdisplay_free(struct displaylist *dl, int load)
 {
 	int i;
-	for (i = 0 ; i < HASH_SIZE ; i++) {
-		struct displayitem *di=dl->hash_entries[i].di;
-		while (di) {
-			struct displayitem *next=di->next;
-			g_free(di);
-			di=next;
+	
+	if(load) {
+		for (i = 0 ; i < HASH_SIZE ; i++) {
+			struct displayitem *di=dl->hash_entries_load[i].di;
+			while (di) {
+				struct displayitem *next=di->next;
+				g_free(di);
+				di=next;
+			}
+			dl->hash_entries_load[i].di=NULL;
 		}
-		dl->hash_entries[i].di=NULL;
+	} else {
+		
+		for (i = 0 ; i < HASH_SIZE ; i++) {
+			struct displayitem *di=dl->hash_entries[i].di;
+			while (di) {
+				struct displayitem *next=di->next;
+				g_free(di);
+				di=next;
+			}
+			dl->hash_entries[i].di=NULL;
+		}
+		
 	}
 }
 
@@ -1761,7 +1858,7 @@ clip_line(struct wpoint *p1, struct wpoint *p2, struct point_rect *clip_rect)
 }
 
 static void
-graphics_draw_polyline_clipped(struct graphics *gra, struct graphics_gc *gc, struct point *pa, int count, int *width, int poly)
+graphics_draw_polyline_clipped(struct graphics *gra, struct graphics_gc *gc, struct point *pa, int count, int *width, int poly, int ddd)
 {
 	struct point *points_to_draw=g_alloca(sizeof(struct point)*(count+1));
 	int *w=g_alloca(sizeof(int)*(count+1));
@@ -1799,11 +1896,13 @@ graphics_draw_polyline_clipped(struct graphics *gra, struct graphics_gc *gc, str
 			if (clip_result != CLIPRES_INVISIBLE) {
 			        dbg(lvl_debug, "....clipped to [%d, %d] - [%d, %d]\n", segment_start.x, segment_start.y, segment_end.x, segment_end.y);
 				if ((i == 1) || (clip_result & CLIPRES_START_CLIPPED)) {
+					//dbg(lvl_error, "start x: %d, y: %d", segment_end.x, segment_end.y);
 					points_to_draw[points_to_draw_cnt].x=segment_start.x;
 					points_to_draw[points_to_draw_cnt].y=segment_start.y;
 					w[points_to_draw_cnt]=segment_start.w;
 					points_to_draw_cnt++;
 				}
+				//dbg(lvl_error, "end x: %d, y: %d", segment_end.x, segment_end.y);
 				points_to_draw[points_to_draw_cnt].x=segment_end.x;
 				points_to_draw[points_to_draw_cnt].y=segment_end.y;
 				w[points_to_draw_cnt]=segment_end.w;
@@ -1812,17 +1911,67 @@ graphics_draw_polyline_clipped(struct graphics *gra, struct graphics_gc *gc, str
 			if ((i == count-1) || (clip_result & CLIPRES_END_CLIPPED)) {
 				// ... then draw the resulting polyline
 				if (points_to_draw_cnt > 1) {
-					if (poly) {
-						graphics_draw_polyline_as_polygon(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt, w, gra->meth.draw_polygon);
-#if 0
+#ifdef HAVE_API_ANDROID
+					if(ddd == 1)
+#endif
+						if (poly) {
+							graphics_draw_polyline_as_polygon(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt, w, gra->meth.draw_polygon);
+	#if 0
+							gra->meth.draw_lines(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt);
+	#endif
+						} else
+							gra->meth.draw_lines(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt);
+#ifdef HAVE_API_ANDROID				
+					else
 						gra->meth.draw_lines(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt);
 #endif
-					} else
-						gra->meth.draw_lines(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt);
+				
+					
+					//dbg(lvl_error, "polyline with %d points drawn", points_to_draw_cnt);
 					points_to_draw_cnt=0;
 				}
 			}
 		}
+	}
+}
+
+
+
+
+
+
+
+
+
+static void
+graphics_draw_polyline_android(struct graphics *gra, struct graphics_gc *gc, struct point *pa, int count, struct point *points_to_draw, int *points_to_draw_cnt)
+{
+ 
+    
+	struct wpoint segment_start,segment_end;
+	int i;
+
+	for (i = 0 ; i < count ; i++) {
+		if (i) {
+			segment_start.x=pa[i-1].x;
+			segment_start.y=pa[i-1].y;
+			segment_end.x=pa[i].x;
+			segment_end.y=pa[i].y;
+           
+            //dbg(lvl_error, "start x: %d, y: %d", segment_end.x, segment_end.y);
+            points_to_draw[*points_to_draw_cnt].x=segment_start.x;
+            points_to_draw[*points_to_draw_cnt].y=segment_start.y;
+            (*points_to_draw_cnt)++;
+
+            //dbg(lvl_error, "end x: %d, y: %d", segment_end.x, segment_end.y);
+            points_to_draw[*points_to_draw_cnt].x=segment_end.x;
+            points_to_draw[*points_to_draw_cnt].y=segment_end.y;
+            (*points_to_draw_cnt)++;
+		
+            
+            
+		}
+        
 	}
 }
 
@@ -2024,7 +2173,9 @@ limit_count(struct coord *c, int count)
 static void
 displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc)
 {
-	int *width=g_alloca(sizeof(int)*dc->maxlen);
+	
+	
+
 	struct point *pa=g_alloca(sizeof(struct point)*dc->maxlen);
 	struct graphics *gra=dc->gra;
 	struct graphics_gc *gc=dc->gc;
@@ -2033,9 +2184,92 @@ displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc
 	struct point p;
 	struct coord *c;
 	char *path;
+    
+    
+    int i,count,mindist;
+    
+#if 0
+  
+  // There are many very small polyline arrays, which will all be drawn seperatly.
+  // Attempt: Consolidate the polylines in one array. This way they can be send to the graphics card together.
+  // The graphics part on the specific platform must handle this format, just tested on android. with one thread it brings a small performance profit, but with more than one it gets slower
+  
+    if(e->type == element_polyline) {
+        
+        struct displayitem *di_dummy = di;
+        int points_to_draw_cnt = 0;
+        int di_count = 0;
+        
+        
+        while(di_dummy) {
+            di_count+=di_dummy->count;
+            di_dummy = di_dummy->next;
+        }
+        
+        if (! gc) {
+            gc=graphics_gc_new(gra);
+            graphics_gc_set_foreground(gc, &e->color);
+            dc->gc=gc;
+        }
+        
+        gc->meth.gc_set_linewidth(gc->priv, e->u.polyline.width);
+        
+        if (e->u.polyline.width > 0 && e->u.polyline.dash_num > 0)
+                    graphics_gc_set_dashes(gc, e->u.polyline.width,
+                                   e->u.polyline.offset,
+                                   e->u.polyline.dash_table,
+                                   e->u.polyline.dash_num);
+        
+        struct point *points_to_draw;
+
+        if( (points_to_draw = malloc(sizeof(struct point)*(di_count*2)) )== 0) {       
+            dbg(lvl_error, "not enough free memory on heap!!");
+            return;
+		}
+     
+        
+        while(di) {
+            
+  
+            count=di->count;
+            mindist=dc->mindist;
+
+
+            if (item_type_is_area(dc->type))
+                count=limit_count(di->c, count);
+            if (dc->type == type_poly_water_tiled)
+                mindist=0;
+            c=di->c;
+
+            //count=transform(dc->trans, dc->pro, c, pa, count, mindist, e->u.polyline.width, width);
+            count=transform(dc->trans, dc->pro, c, pa, count, mindist, 0, NULL);
+
+            graphics_draw_polyline_android(gra, gc, pa, count, points_to_draw, &points_to_draw_cnt);
+   
+            di=di->next;
+            
+        }
+        
+        //dbg(lvl_error, "drawing: %d lines", points_to_draw_cnt);
+        gra->meth.draw_lines(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt);
+        
+        
+        //free(points_to_draw);
+        return;
+    }
+    
+#endif
+    
+    
+    
+    int *width=g_alloca(sizeof(int)*dc->maxlen);
+    
+    
+    
 
 	while (di) {
-	int i,count=di->count,mindist=dc->mindist;
+        count=di->count;
+        mindist=dc->mindist;
 
 	di->z_order=++(gra->current_z_order);
 	
@@ -2069,21 +2303,35 @@ displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc
 	case element_polygon:
 		graphics_draw_polygon_clipped(gra, gc, pa, count);
 		break;
-	case element_polyline:
-		{	
-			gc->meth.gc_set_linewidth(gc->priv, 1);
-			if (e->u.polyline.width > 0 && e->u.polyline.dash_num > 0)
-				graphics_gc_set_dashes(gc, e->u.polyline.width,
-						       e->u.polyline.offset,
-						       e->u.polyline.dash_table,
-						       e->u.polyline.dash_num);
-			for (i = 0 ; i < count ; i++) {
-				if (width[i] < 2)
-					width[i]=2;
-			}
-			graphics_draw_polyline_clipped(gra, gc, pa, count, width, e->u.polyline.width > 1);
-		}
-		break;
+	 case element_polyline:
+            {	
+				
+             #ifdef HAVE_API_ANDROID
+				//drawing polylines as lines, not as polygones
+				//do not use this in 3D mode!
+				if(transform_get_ddd(dc->trans) == 0) {
+                	gc->meth.gc_set_linewidth(gc->priv, e->u.polyline.width);
+				} else 
+			#endif
+				gc->meth.gc_set_linewidth(gc->priv, 1);
+				
+                
+				
+                if (e->u.polyline.width > 0 && e->u.polyline.dash_num > 0)
+                    graphics_gc_set_dashes(gc, e->u.polyline.width,
+                                   e->u.polyline.offset,
+                                   e->u.polyline.dash_table,
+                                   e->u.polyline.dash_num);
+                for (i = 0 ; i < count ; i++) {
+                    if (width[i] < 2)
+                        width[i]=2;
+                }
+
+                graphics_draw_polyline_clipped(gra, gc, pa, count, width, e->u.polyline.width > 1, transform_get_ddd(dc->trans));
+		
+
+            }
+            break;
 	case element_circle:
 		if (count) {
 			if (e->u.circle.width > 1)
@@ -2171,9 +2419,12 @@ displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc
 	default:
 		dbg(lvl_error, "Unhandled element type %d\n", e->type);
 
+        }
+        di=di->next;
 	}
-	di=di->next;
-	}
+    
+    //g_free(width);
+    //g_free(pa);
 }
 /**
  * FIXME
@@ -2189,13 +2440,13 @@ static void xdisplay_draw_elements(struct graphics *gra, struct displaylist *dis
 	struct hash_entry *entry;
 
 	es=itm->elements;
-	while (es) {
+	while (es && (!display_list->cancel_map_draw || DRAW_MAP_THREAD == 0 )) {
 		e=es->data;
 		dc->e=e;
 		types=itm->type;
 		while (types) {
 			dc->type=GPOINTER_TO_INT(types->data);
-			entry=get_hash_entry(display_list, dc->type);
+			entry=get_hash_entry(display_list, dc->type, 0);
 			if (entry && entry->di) {
 				displayitem_draw(entry->di, NULL, dc);
 				display_context_free(dc);
@@ -2258,18 +2509,103 @@ graphics_draw_itemgra(struct graphics *gra, struct itemgra *itm, struct transfor
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
+
 static void xdisplay_draw_layer(struct displaylist *display_list, struct graphics *gra, struct layer *lay, int order)
 {
+	
 	GList *itms;
 	struct itemgra *itm;
-
+	
+	
 	itms=lay->itemgras;
+	
 	while (itms) {
-	       itm=itms->data;
-	       if (order >= itm->order.min && order <= itm->order.max)
-		       xdisplay_draw_elements(gra, display_list, itm);
-	       itms=g_list_next(itms);
+		if(DRAW_MAP_THREAD == 0 || !display_list->cancel_map_draw) {
+			
+		   itm=itms->data;
+			if ( order >= itm->order.min && order <= itm->order.max ) {
+			   xdisplay_draw_elements(gra, display_list, itm);
+			
+				/*if(!display_list->cancel_map_draw) {
+					gra->meth.draw_mode(gra->priv, 2); //2 means: change thread, that way each thread draws one full item - for multi drawing threads - VERY SLOW!!
+
+				}*/
+			}
+			
+		   itms=g_list_next(itms);
+		} else {
+			itms = NULL;
+		}
 	}
+	
+}
+
+
+/**
+ * @brief Map will be drawn step by step (for slower devices, the user will see a process of drawing and not just a frozen device)
+ * @param display_list The displaylist contains the hash_entries which will be drawn.
+ * @param gra The graphics.
+ * @param lay The layout specifies how the items will be drawn.
+ * @param order The order specifies if a item will be drawn or not.
+ * @author Sascha Oedekoven (06/2015)
+*/
+
+static void xdisplay_draw_layer_steps(struct displaylist *display_list, struct graphics *gra, struct layer *lay, int order)
+{
+
+
+	GList *itms;
+	struct itemgra *itm;
+	
+	int t2 = 10;
+
+	int t;
+	
+
+	if(order <= t2)
+		for(t=1; t < t2; t=t+2) {
+			
+			if(order >= t) { // draws itm->order 1-2, 3-4, 5-6, 7-8, 9-10
+				itms=lay->itemgras;
+				while (itms) {
+					if(!display_list->cancel_map_draw) {
+					   itm=itms->data;
+					   if ( (order >= itm->order.min && order <= itm->order.max) && (itm->order.min == t || itm->order.max == t || itm->order.min == (t+1) || itm->order.max == (t+1) ) )
+						   xdisplay_draw_elements(gra, display_list, itm);
+					   itms=g_list_next(itms);
+					} else {
+						t = t2;
+						itms = NULL;
+					}
+				}
+
+				//dbg(0, "t = %d", t);
+				//if(!display_list->cancel_map_draw) {
+					gra->meth.draw_mode(gra->priv, draw_mode_end);
+
+				//}
+
+			}
+		}
+
+	
+	//draws itm->order 11-order
+	itms=lay->itemgras;
+	
+	while (itms) {
+		if(!display_list->cancel_map_draw) {
+			
+		   itm=itms->data;
+		   if ( (order >= itm->order.min && order <= itm->order.max) && (itm->order.max > t2) )
+			   xdisplay_draw_elements(gra, display_list, itm);
+		   itms=g_list_next(itms);
+		} else {
+			itms = NULL;
+		}
+	}
+	
+	
+
 }
 
 
@@ -2292,6 +2628,14 @@ static void xdisplay_draw(struct displaylist *display_list, struct graphics *gra
 			if (lay->ref)
 				lay=lay->ref;
 			xdisplay_draw_layer(display_list, gra, lay, order);
+			//xdisplay_draw_layer_steps(display_list, gra, lay, order);
+			
+			/*
+			if(!display_list->cancel_map_draw) {
+				gra->meth.draw_mode(gra->priv, 3); //3 means just sync layer in a multi-threaded application
+
+			}*/
+			
 		}
 		lays=g_list_next(lays);
 	}
@@ -2344,11 +2688,15 @@ displaylist_update_hash(struct displaylist *displaylist)
  * @brief Returns selection structure based on displaylist transform, projection and order.
  * Use this function to get map selection if you are going to fetch complete item data from the map based on displayitem reference.
  * @param displaylist 
+ * @param load Default: 0. If set to 1, the display_context from threaded loading is used (atm only on android)
  * @returns Pointer to selection structure
  */
-struct map_selection *displaylist_get_selection(struct displaylist *displaylist)
+struct map_selection *displaylist_get_selection(struct displaylist *displaylist, int load)
 {
-	return transform_get_selection(displaylist->dc.trans, displaylist->dc.pro, displaylist->order);	
+	if(load)
+		return transform_get_selection(displaylist->dc_load.trans, displaylist->dc_load.pro, displaylist->order);	
+	else
+		return transform_get_selection(displaylist->dc.trans, displaylist->dc.pro, displaylist->order);	
 }
 
 /**
@@ -2397,8 +2745,11 @@ do_draw(struct displaylist *displaylist, int cancel, int flags)
 	struct coord *ca=g_alloca(sizeof(struct coord)*max);
 	struct attr attr,attr2;
 	enum projection pro;
+	
+	//dbg(0, "do_draw");
 
 	if (displaylist->order != displaylist->order_hashed || displaylist->layout != displaylist->layout_hashed) {
+		
 		displaylist_update_hash(displaylist);
 		displaylist->order_hashed=displaylist->order;
 		displaylist->layout_hashed=displaylist->layout;
@@ -2420,11 +2771,14 @@ do_draw(struct displaylist *displaylist, int cancel, int flags)
 			if (route_selection)
 				displaylist->sel=route_selection;
 			else
-				displaylist->sel=displaylist_get_selection(displaylist);
+				displaylist->sel=displaylist_get_selection(displaylist, 0);
+			
+			
+			
 			displaylist->mr=map_rect_new(displaylist->m, displaylist->sel);
 		}
 		if (displaylist->mr) {
-			while ((item=map_rect_get_item(displaylist->mr))) {
+			while ((item=map_rect_get_item(displaylist->mr)) ) {
 				int label_count=0;
 				char *labels[2];
 				struct hash_entry *entry;
@@ -2434,7 +2788,7 @@ do_draw(struct displaylist *displaylist, int cancel, int flags)
 					else
 						continue;
 				}
-				entry=get_hash_entry(displaylist, item->type);
+				entry=get_hash_entry(displaylist, item->type, 0);
 				if (!entry)
 					continue;
 				count=item_coord_get_within_selection(item, ca, item->type < type_line ? 1: max, displaylist->sel);
@@ -2485,6 +2839,9 @@ do_draw(struct displaylist *displaylist, int cancel, int flags)
 		displaylist->sel=NULL;
 		displaylist->m=NULL;
 	}
+	
+	//double s = now_ms();
+	
 	profile(1,"process_selection\n");
 	if (displaylist->idle_ev)
 		event_remove_idle(displaylist->idle_ev);
@@ -2507,6 +2864,9 @@ do_draw(struct displaylist *displaylist, int cancel, int flags)
 	profile(1,"callback\n");
 	callback_call_1(displaylist->cb, cancel);
 	profile(0,"end\n");
+	
+	
+	//dbg(lvl_error, "draw time: %f", now_ms() - s);
 }
 
 /**
@@ -2547,17 +2907,183 @@ void graphics_displaylist_draw(struct graphics *gra, struct displaylist *display
 		gra->meth.draw_mode(gra->priv, draw_mode_end);
 }
 
+
+
+/**
+ * @brief This function is to be used to load and draw the map in a seperate thread. If one thread is drawing and a new request comes in then the map will be simultaniously loaded and then, if the drawing process has not been finished it will be cancelled and the new one will be started. 
+ * @param ptr The displaylist with the information about the drawing area and zoom level.
+ * @author Sascha Oedekoven (06/2015)
+*/
+
+void* do_draw_thread(void *ptr) {
+		
+#ifdef HAVE_API_ANDROID
+	struct displaylist *displaylist;
+	displaylist = (struct displaylist*) ptr;
+	
+	//dbg(lvl_error, "thread: displaylist->order: %d", displaylist->order);
+	
+	
+	
+	displaylist->busy=1;
+	
+	//double s = now_ms();
+	load_map(displaylist);
+	//double t = now_ms() - s;
+	
+	//dbg(lvl_error, "pthread map load: %f", t);
+	
+	displaylist->cancel_map_draw = 1;
+	displaylist->busy=1;
+	
+	if(pthread_join(displaylist->drawing_thread_old, NULL)) {
+			dbg(lvl_error, "Thread already finished");
+		}
+	
+	// set hash_entries
+	xdisplayfree_update(displaylist);
+	
+	// set display_context
+	displaylist->dc = displaylist->dc_load;
+	
+	
+	
+	
+	if(displaylist->cancel_map_load == 0)
+		displaylist->cancel_map_draw = 0;
+	
+	//this is needed to wait for a cancelled drawing thread after loading a map!
+	displaylist->drawing_thread_old = displaylist->drawing_thread;
+	
+	
+	displaylist->busy=0;
+	
+	
+	if(!displaylist->cancel_map_draw) {
+		
+		//register pthread to javavm
+		event_register_thread(1, android_drawing_thread_n);
+
+		
+		//s = now_ms();
+		
+		dbg(lvl_error, "draw map started");
+		
+		
+		draw_map(displaylist, displaylist->flags);
+
+
+		//t = now_ms() - s;
+		//dbg(lvl_error, "pthread for points: %f", t);
+		
+		//unregister pthread from javavm
+		event_register_thread(1, 0);
+	}
+	
+#endif
+	
+	return NULL;
+}
+
+/**
+ * @brief If DRAW_MAP_THREAD is enabled then the displaylist will be initiated. If another request is still processing the map load, then it will be cancelled and the new process will be started.
+ * @param gra The graphics which contains the information about how the items will be drawn.
+ * @param displaylist The displaylist which will be used to store all the information about the drawing area and zoom level.
+ * @param mapset The mapset contains the selected area.
+ * @param transformation The transformation which will be applied to the items to get the suitable view on the screen.
+ * @param layout The layout contains the rules how the items will be drawn.
+ * @param async Not in use.
+ * @param cb Not in use.
+ * @param flags 
+ * @returns 0 if not drawing in pthread, 1 if drawing in pthread.
+ * @author Sascha Oedekoven (06/2015)
+*/
+int draw_in_pthread(struct graphics *gra, struct displaylist *displaylist, struct mapset *mapset, struct transformation *trans, struct layout *l, int async, struct callback *cb, int flags)
+{
+
+#ifdef HAVE_API_ANDROID
+	
+	
+	if(DRAW_MAP_THREAD == 0)
+		return 0;
+	
+	
+	if(displaylist->busy) {
+		
+		if(displaylist->waiting_for_mutex == 1) {
+			//most likely the route is beeing calculated and the map is not accessable -> cancel the new drawing	
+			return 1;
+		}
+		
+		
+		//still loading a map -> cancel map loading and wait for it
+		displaylist->cancel_map_load = 1;
+		displaylist->cancel_map_draw = 1;
+		
+		if(pthread_join(displaylist->drawing_thread, NULL)) {
+			dbg(lvl_error, "error joining thread");
+		}
+		displaylist->cancel_map_load = 0;
+		displaylist->cancel_map_draw = 0;
+		
+	} else {
+		
+		//displaylist->cancel_map_draw = 0; 
+		displaylist->cancel_map_load = 0;
+	}
+	
+
+	displaylist->flags = flags;
+		
+	//init displaylist
+	int order=transform_get_order(trans);
+
+	xdisplay_free(displaylist, 1);
+
+	displaylist->dc_load.gra=gra;
+	displaylist->ms=mapset;
+	if(displaylist->dc_load.trans && displaylist->dc_load.trans!=trans)
+		transform_destroy(displaylist->dc_load.trans);
+	if(displaylist->dc_load.trans!=trans)
+		displaylist->dc_load.trans=transform_dup(trans);
+	if (l)
+		order+=l->order_delta;
+	displaylist->order=order>0?order:0;
+	displaylist->layout=l;
+
+		
+	if(pthread_create(&displaylist->drawing_thread, NULL, do_draw_thread, (void*)displaylist))  {
+		dbg(lvl_error, "error creating draw thread");
+	} 
+	
+	
+		
+	return 1;
+#endif
+	
+	return 0;
+	
+}
+
 static void graphics_load_mapset(struct graphics *gra, struct displaylist *displaylist, struct mapset *mapset, struct transformation *trans, struct layout *l, int async, struct callback *cb, int flags)
 {
+
+	if(draw_in_pthread(gra, displaylist, mapset, trans, l, async, cb, flags))
+		return;
+
+
+	
+	
+	//init displaylist
 	int order=transform_get_order(trans);
 
 	dbg(lvl_debug,"enter");
-	if (displaylist->busy) {
+	if (displaylist->busy) { 
 		if (async == 1)
 			return;
-		do_draw(displaylist, 1, flags);
+		do_draw(displaylist, 1, flags);	
 	}
-	xdisplay_free(displaylist);
+	xdisplay_free(displaylist, 0);
 	dbg(lvl_debug,"order=%d\n", order);
 
 	displaylist->dc.gra=gra;
@@ -2579,8 +3105,10 @@ static void graphics_load_mapset(struct graphics *gra, struct displaylist *displ
 			displaylist->idle_cb=callback_new_3(callback_cast(do_draw), displaylist, 0, flags);
 		displaylist->idle_ev=event_add_idle(50, displaylist->idle_cb);
 	} else
-		do_draw(displaylist, 0, flags);
+		do_draw(displaylist, 0, flags);	
 }
+
+
 /**
  * FIXME
  * @param <>
@@ -2592,12 +3120,38 @@ void graphics_draw(struct graphics *gra, struct displaylist *displaylist, struct
 	graphics_load_mapset(gra, displaylist, mapset, trans, l, async, cb, flags);
 }
 
+
+
+/**
+ * @brief Cancel map drawing process. Cancel and join if thread is beeing used to draw the map. Otherwise call do_draw with a cancel param.
+ * @param gra Not in use.
+ * @param displaylist The displaylist which contains the information about the actual drawing process which should be cancelled.
+ * @returns 
+ * @author Unknown, edit by Sascha Oedekoven (06/2015)
+*/
 int
 graphics_draw_cancel(struct graphics *gra, struct displaylist *displaylist)
 {
+
+#ifdef HAVE_API_ANDROID
+	if(DRAW_MAP_THREAD == 1) {
+		displaylist->cancel_map_draw = 1;
+		displaylist->cancel_map_load = 1;
+		//join map drawing thread
+		if(pthread_join(displaylist->drawing_thread, NULL)) {
+
+			dbg(lvl_error, "error joining thread");
+
+		}
+		return 1;
+	}
+	
+#else
 	if (!displaylist->busy)
 		return 0;
+
 	do_draw(displaylist, 1, 0);
+#endif
 	return 1;
 }
 
@@ -2679,6 +3233,7 @@ struct displaylist * graphics_displaylist_new(void)
 	struct displaylist *ret=g_new0(struct displaylist, 1);
 
 	ret->dc.maxlen=16384;
+	ret->dc_load.maxlen=16384;
 
 	return ret;
 }
@@ -2978,3 +3533,288 @@ graphics_process_selection(struct graphics *gra, struct displaylist *dl)
 		curr=g_list_next(curr);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @brief Drawing Items from hash_entries to the screen, until the the process is cancelled or all items are drawn.
+ * @param displaylist The displaylist which contains the hash_entries to be drawn.
+ * @param flags Flags to do predraw (vehicle) and postdraw.
+ * @author Sascha Oedekoven (06/2015)
+*/
+
+void draw_map(struct displaylist *displaylist, int flags) 
+{
+	graphics_process_selection(displaylist->dc.gra, displaylist);
+
+	
+	if (displaylist->cancel_map_draw)
+		return;
+	
+
+	struct graphics *gra = displaylist->dc.gra;
+	
+	//dbg(0, "draw_map, transform destroy etc");
+	
+	int order=transform_get_order(displaylist->dc_load.trans);
+	if(displaylist->dc.trans && displaylist->dc.trans!=displaylist->dc_load.trans)
+		transform_destroy(displaylist->dc.trans);
+	if(displaylist->dc.trans!=displaylist->dc_load.trans)
+		displaylist->dc.trans=transform_dup(displaylist->dc_load.trans);	
+	
+	
+	
+	graphics_draw_drag(gra, NULL); // if drawing in thread, drag must be applied here, not in navit.c
+	
+	displaylist->dc.mindist=flags&512?15:2;
+	
+	if (displaylist->layout) {
+		graphics_gc_set_background(gra->gc[0], &displaylist->layout->color);
+		graphics_gc_set_foreground(gra->gc[0], &displaylist->layout->color);
+		g_free(gra->default_font);
+		gra->default_font = g_strdup(displaylist->layout->font);
+	}
+	graphics_background_gc(gra, gra->gc[0]);
+	if (flags & 1)
+		callback_list_call_attr_0(gra->cbl, attr_predraw); 
+	gra->meth.draw_mode(gra->priv, draw_mode_begin);
+	if (!(flags & 2))
+		gra->meth.draw_rectangle(gra->priv, gra->gc[0]->priv, &gra->r.lu, gra->r.rl.x-gra->r.lu.x, gra->r.rl.y-gra->r.lu.y);
+	
+	
+	
+	if (displaylist->layout)	{
+		order+=displaylist->layout->order_delta;
+		xdisplay_draw(displaylist, gra, displaylist->layout, order>0?order:0);
+	}
+	if (flags & 1)
+		callback_list_call_attr_0(gra->cbl, attr_postdraw);
+	if (!(flags & 4))
+		gra->meth.draw_mode(gra->priv, draw_mode_end);
+
+	
+	
+	
+	
+	
+	
+	
+	
+}
+
+
+/**
+ * @brief Loads the map to hash_entries_load
+ * @param displaylist The displaylist where the hash_entries will be inserted.
+ * @author Sascha Oedekoven (06/2015)
+*/
+void load_map(struct displaylist *displaylist)
+{
+	struct item *item;
+	int count,max=displaylist->dc_load.maxlen;
+	struct coord *ca=g_alloca(sizeof(struct coord)*max);
+	struct attr attr,attr2;
+	enum projection pro;
+	
+	
+
+	if (displaylist->order != displaylist->order_hashed || displaylist->layout != displaylist->layout_hashed) {
+		//dbg(0, "map load, update hash etc");
+		displaylist_update_hash(displaylist);
+		displaylist->order_hashed=displaylist->order;
+		displaylist->layout_hashed=displaylist->layout;
+	}
+
+	pro=transform_get_projection(displaylist->dc_load.trans); 
+	while (!displaylist->cancel_map_load) {
+		if (!displaylist->msh) {
+			displaylist->waiting_for_mutex = 1;
+			displaylist->msh=mapset_open(displaylist->ms);
+			displaylist->waiting_for_mutex = 0;
+		}
+		if (!displaylist->m) {
+			displaylist->m=mapset_next(displaylist->msh, 1);
+			if (!displaylist->m) {
+				//mapset_close(displaylist->msh);
+				displaylist->msh=NULL;
+				break;
+			}
+			displaylist->dc_load.pro=map_projection(displaylist->m);
+			displaylist->conv=map_requires_conversion(displaylist->m);
+			if (route_selection)
+				displaylist->sel=route_selection;
+			else
+				displaylist->sel=displaylist_get_selection(displaylist, 1); 
+			
+			
+			
+			displaylist->mr=map_rect_new(displaylist->m, displaylist->sel);
+		}
+		if (displaylist->mr) {
+			while ((item=map_rect_get_item(displaylist->mr)) && !displaylist->cancel_map_load) {
+				int label_count=0;
+				char *labels[2];
+				struct hash_entry *entry;
+				if (item == &busy_item) {
+						continue;
+				}
+				entry=get_hash_entry(displaylist, item->type, 1);
+				if (!entry)
+					continue;
+				count=item_coord_get_within_selection(item, ca, item->type < type_line ? 1: max, displaylist->sel);
+				if (! count)
+					continue;
+				if (displaylist->dc_load.pro != pro)
+					transform_from_to_count(ca, displaylist->dc_load.pro, ca, pro, count); 
+				if (count == max) {
+					dbg(lvl_debug,"point count overflow %d for %s "ITEM_ID_FMT"\n", count,item_to_name(item->type),ITEM_ID_ARGS(*item));
+					displaylist->dc_load.maxlen=max*2;
+				}
+				if (item_is_custom_poi(*item)) {
+					if (item_attr_get(item, attr_icon_src, &attr2))
+						labels[1]=map_convert_string(displaylist->m, attr2.u.str);
+					else
+						labels[1]=NULL;
+					label_count=2;
+				} else {
+					labels[1]=NULL;
+					label_count=0;
+				}
+				if (item_attr_get(item, attr_label, &attr)) {
+					labels[0]=attr.u.str;
+					if (!label_count)
+						label_count=2;
+				} else
+					labels[0]=NULL;
+				if (displaylist->conv && label_count) {
+					labels[0]=map_convert_string(displaylist->m, labels[0]);
+					display_add(entry, item, count, ca, labels, label_count);
+					map_convert_free(labels[0]);
+				} else
+					display_add(entry, item, count, ca, labels, label_count);
+				if (labels[1])
+					map_convert_free(labels[1]);
+			}
+			map_rect_destroy(displaylist->mr);
+		}
+		if (!route_selection)
+			map_selection_destroy(displaylist->sel);
+		displaylist->mr=NULL;
+		displaylist->sel=NULL;
+		displaylist->m=NULL;
+	}
+
+	
+	
+	map_rect_destroy(displaylist->mr);
+	if (!route_selection)
+		map_selection_destroy(displaylist->sel);
+	mapset_close(displaylist->msh);
+	displaylist->mr=NULL;
+	displaylist->sel=NULL;
+	displaylist->m=NULL;
+	displaylist->msh=NULL;
+
+
+}
+
+
+
+/**
+ * @brief Free old hash_entries, transfer entries from hash_entries_load to hash_entries and clear hash_entries_load.
+ * @param displaylist The displaylist which contains the hash_entries and hash_entries_load.
+ * @author Sascha Oedekoven (06/2015)
+*/
+
+void xdisplayfree_update(struct displaylist *dl) {
+	
+	int i;
+	for (i = 0 ; i < HASH_SIZE ; i++) {
+		struct displayitem *di=dl->hash_entries[i].di;
+		while (di) {
+			struct displayitem *next=di->next;
+			g_free(di);
+			di=next;
+		}
+		dl->hash_entries[i].di = dl->hash_entries_load[i].di;
+		
+		dl->hash_entries_load[i].di=NULL;
+	}
+	
+	
+}
+
+
+/**
+ * @brief Temporary function to set the drawing-Threads (from the GUI).
+ * @param n 0 - all deactivated. 1 - draw map in Thread. 2 - draw map in two threads. (recommended) 3 - draw map in three threads (BAD)
+ * @author Sascha Oedekoven (06/2015)
+*/
+
+void setDrawingThreadsTo(int n) {
+	
+	// 0 - all deactivated
+	// 1 - draw map in Thread
+	// 2 - draw map in two Threads (parallel point transformation and drawing)
+	// 3 - draw map in three Threads (parallel point transformation and two drawing threads, BAD!)
+	
+	
+	if(n == 0) {
+		DRAW_MAP_THREAD = 0;
+		android_drawing_thread_n = 0;
+	} else if(n == 1) {
+		DRAW_MAP_THREAD = 1;
+		android_drawing_thread_n = 0;
+	} else if(n == 2) {
+		DRAW_MAP_THREAD = 1;
+		android_drawing_thread_n = 1;
+	} else {
+		DRAW_MAP_THREAD = 1;
+		android_drawing_thread_n = 2;
+	}
+	
+	
+	event_register_thread(0, android_drawing_thread_n);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

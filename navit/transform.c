@@ -486,6 +486,16 @@ transform_points_too_close(struct point screen_point, struct point screen_point_
 	if (!mindist){
 		return 0;
 	}
+	
+	/*dbg(lvl_error, "screen_point.x:%d - screen_point_old.x: %d", screen_point.x, screen_point_old.x);
+	dbg(lvl_error, "screen_point.y:%d - screen_point_old.y: %d", screen_point.y, screen_point_old.y);
+	
+	
+	if(abs(screen_point.x - screen_point_old.x) > 16000000)
+		return 1;
+	if(abs(screen_point.y - screen_point_old.y) > 16000000)
+		return 1;*/
+	
 	// approximation of Euclidean distance
 	return (abs(screen_point.x - screen_point_old.x) +
 	        abs(screen_point.y - screen_point_old.y)) < mindist;
@@ -735,10 +745,10 @@ transform_get_selection(struct transformation *this_, enum projection pro, int o
 		dbg(lvl_debug,"transform rect for %d is %d,%d - %d,%d\n", pro, curro->u.c_rect.lu.x, curro->u.c_rect.lu.y, curro->u.c_rect.rl.x, curro->u.c_rect.rl.y);
 		curro->order+=order;
 #if 0
-		curro->u.c_rect.lu.x-=500;
-		curro->u.c_rect.lu.y+=500;
-		curro->u.c_rect.rl.x+=500;
-		curro->u.c_rect.rl.y-=500;
+		curro->u.c_rect.lu.x-=5000;
+		curro->u.c_rect.lu.y+=5000;
+		curro->u.c_rect.rl.x+=5000;
+		curro->u.c_rect.rl.y-=5000;
 #endif
 		curro->range=item_range_all;
 		curri=curri->next;
@@ -955,8 +965,14 @@ transform_get_scale(struct transformation *t)
 	return (int)(t->scale*16);
 }
 
+float
+transform_get_scalef(struct transformation *t)
+{
+	return (t->scale*16);
+}
+
 void
-transform_set_scale(struct transformation *t, long scale)
+transform_set_scale(struct transformation *t, float scale)
 {
 	t->scale=scale/16.0;
 	transform_setup_matrix(t);
@@ -968,6 +984,11 @@ transform_get_order(struct transformation *t)
 {
 	dbg(lvl_debug,"order %d\n", t->order);
 	return t->order;
+}
+
+int transform_get_ddd(struct transformation *t)
+{
+	return t->ddd;
 }
 
 
