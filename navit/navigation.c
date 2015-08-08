@@ -1842,13 +1842,150 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 	}
 	if (! this_->first)
 		this_->first=ret;
-	if (this_->last) {
+	if (this_->last) 
+	{
 		this_->last->next=ret;
 		ret->prev=this_->last;
-		if (graph_map) {
-			navigation_itm_ways_update(ret,graph_map);
+
+		/* Do a rescan in case it is a roundabout segment instead of relying on the
+		 * map provided by route.c to count all exits and not only those present in
+		 * the route graph
+		 */
+
+		/* todo : handle cases with oneway=-1 involved*/
+
+
+		if (tmap && ret->way.flags && (ret->way.flags & AF_ROUNDABOUT))
+		{
+
+			struct map_selection coord_sel;
+			struct map_rect *g_rect; /* Contains a map rectangle from the route graph's map */
+			struct item *i;
+			struct item *sitem;
+			struct attr sitem_attr,direction_attr;
+			struct navigation_way *w,*l;
+			int dir;
+
+
+			dbg(0,"tmap\n");
+			dbg(0,"x=%i, y=%i\n",c[0].x,c[0].y);
+			navigation_itm_ways_clear(ret);
+
+				coord_sel.next = NULL;
+				coord_sel.u.c_rect.lu = c[0];
+				coord_sel.u.c_rect.rl = c[0];
+				coord_sel.order=18;
+
+				g_rect = map_rect_new(tmap, &coord_sel);
+				w = NULL;
+
+				while (1)
+				{
+					i = map_rect_get_item(g_rect);
+
+					if (!i)
+					{
+						break;
+					}
+					if (!item_is_street(*i))
+					{
+						continue;
+					}
+
+					sitem=i;
+
+					if (sitem->type == type_street_turn_restriction_no || sitem->type == type_street_turn_restriction_only)
+					{
+						if (sitem->type == type_street_turn_restriction_no){
+							dbg(0,"rejecting turn restriction no\n");}
+						else {dbg(0,"rejecting turn restriction only\n");}
+						continue;
+					}
+
+					if (item_is_equal(ret->way.item,*sitem))
+					{
+						dbg(0,"item rejected\n");
+						continue;
+					}
+					if ((ret->prev) && item_is_equal(ret->prev->way.item,*sitem))
+					{
+						dbg(0,"item->pre rejected\n");
+						continue;
+					}
+					dir =0;
+					struct coord dc[3];
+					if (item_coord_get(i, &dc[0], 1))
+					{
+						if ((dc[0].x == c[0].x) && (dc[0].y == c[0].y))
+						{
+							dbg(0,"coord found\n");
+							dbg(0,"streetitem=%s, sitem=%s\n",item_to_name(streetitem->type),item_to_name(sitem->type));
+							dir=1;
+							dbg(0,"dir =1\n");
+						}
+						else
+						{
+							dc[1].x=dc[0].x;
+							dc[1].y=dc[0].y;
+							while (item_coord_get(i, &dc[2], 1))
+							{
+								dc[1].x=dc[2].x;
+								dc[1].y=dc[2].y;
+							}
+							if ((dc[1].x == c[0].x) && (dc[1].y == c[0].y))
+							{
+								dbg(0,"coord found\n");
+								dbg(0,"streetitem=%s, sitem=%s\n",item_to_name(streetitem->type),item_to_name(sitem->type));
+								dir=-1;
+								dbg(0,"dir =-1\n");
+							}
+
+						}
+					}
+					if (dir !=0)
+					{
+						l = w;
+						w = g_new0(struct navigation_way, 1);
+						w->dir = dir;
+						w->item = *sitem;
+						w->next = l;
+
+						/* probably w->angle2 is not needed for roundabout exits,
+						 * but if so, calculate them here on the fly instead
+						 * of calling navitgation_way_init()
+						 */
+						if (item_attr_get(sitem, attr_flags, &attr))
+							w->flags=attr.u.num;
+						else
+							w->flags=0;
+						/*do we really need the names ??*/
+						if (item_attr_get(sitem, attr_street_name, &attr))
+						{
+							w->name=map_convert_string(tmap,attr.u.str);
+							dbg(0,"name=%s\n",w->name);
+						}
+						else
+							w->name=NULL;
+						if (item_attr_get(sitem, attr_street_name_systematic, &attr))
+						{
+							w->name_systematic=map_convert_string(tmap,attr.u.str);
+							dbg(0,"name_systemstic=%s\n",w->name_systematic);
+						}
+						else
+							w->name_systematic=NULL;
+						dbg(0,"flags=%i, dir=%i\n",w->flags, w->dir);
+					}
+				}
+				map_rect_destroy(g_rect);
+				ret->way.next = w;
 		}
+
+		else if (graph_map )
+			{
+				navigation_itm_ways_update(ret,graph_map);
+			}
 	}
+	
 	dbg(lvl_debug,"ret=%p\n", ret);
 	this_->last=ret;
 	return ret;
