@@ -1653,6 +1653,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 	int i=0;
 	struct item *streetitem;
 	struct map *graph_map = NULL;
+	struct map *tmap = NULL;
 	struct attr street_item,direction,route_attr;
 	struct map_rect *mr;
 	struct attr attr;
@@ -1679,7 +1680,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 
 		mr=map_rect_new(streetitem->map, NULL);  
 
-		struct map *tmap = streetitem->map;
+		tmap = streetitem->map;
 
 		if (! (streetitem=map_rect_get_item_byid(mr, streetitem->id_hi, streetitem->id_lo))) {
 			g_free(ret);
