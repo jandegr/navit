@@ -1867,9 +1867,6 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 			struct navigation_way *w,*l;
 			int dir;
 
-
-			dbg(0,"tmap\n");
-			dbg(0,"x=%i, y=%i\n",c[0].x,c[0].y);
 			navigation_itm_ways_clear(ret);
 
 				coord_sel.next = NULL;
@@ -1898,19 +1895,19 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 					if (sitem->type == type_street_turn_restriction_no || sitem->type == type_street_turn_restriction_only)
 					{
 						if (sitem->type == type_street_turn_restriction_no){
-							dbg(0,"rejecting turn restriction no\n");}
-						else {dbg(0,"rejecting turn restriction only\n");}
+							dbg(lvl_debug,"rejecting turn restriction no\n");}
+						else {dbg(lvl_debug,"rejecting turn restriction only\n");}
 						continue;
 					}
 
 					if (item_is_equal(ret->way.item,*sitem))
 					{
-						dbg(0,"item rejected\n");
+						dbg(lvl_debug,"item rejected\n");
 						continue;
 					}
 					if ((ret->prev) && item_is_equal(ret->prev->way.item,*sitem))
 					{
-						dbg(0,"item->pre rejected\n");
+						dbg(lvl_debug,"item->pre rejected\n");
 						continue;
 					}
 					dir =0;
@@ -1919,10 +1916,10 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 					{
 						if ((dc[0].x == c[0].x) && (dc[0].y == c[0].y))
 						{
-							dbg(0,"coord found\n");
-							dbg(0,"streetitem=%s, sitem=%s\n",item_to_name(streetitem->type),item_to_name(sitem->type));
+							dbg(lvl_debug,"coord found\n");
+							dbg(lvl_debug,"streetitem=%s, sitem=%s\n",item_to_name(streetitem->type),item_to_name(sitem->type));
 							dir=1;
-							dbg(0,"dir =1\n");
+							dbg(lvl_debug,"dir =1\n");
 						}
 						else
 						{
@@ -1935,10 +1932,10 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 							}
 							if ((dc[1].x == c[0].x) && (dc[1].y == c[0].y))
 							{
-								dbg(0,"coord found\n");
-								dbg(0,"streetitem=%s, sitem=%s\n",item_to_name(streetitem->type),item_to_name(sitem->type));
+								dbg(lvl_debug,"coord found\n");
+								dbg(lvl_debug,"streetitem=%s, sitem=%s\n",item_to_name(streetitem->type),item_to_name(sitem->type));
 								dir=-1;
-								dbg(0,"dir =-1\n");
+								dbg(lvl_debug,"dir =-1\n");
 							}
 
 						}
@@ -1963,18 +1960,18 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 						if (item_attr_get(sitem, attr_street_name, &attr))
 						{
 							w->name=map_convert_string(tmap,attr.u.str);
-							dbg(0,"name=%s\n",w->name);
+							dbg(lvl_debug,"name=%s\n",w->name);
 						}
 						else
 							w->name=NULL;
 						if (item_attr_get(sitem, attr_street_name_systematic, &attr))
 						{
 							w->name_systematic=map_convert_string(tmap,attr.u.str);
-							dbg(0,"name_systemstic=%s\n",w->name_systematic);
+							dbg(lvl_debug,"name_systemstic=%s\n",w->name_systematic);
 						}
 						else
 							w->name_systematic=NULL;
-						dbg(0,"flags=%i, dir=%i\n",w->flags, w->dir);
+						dbg(lvl_debug,"flags=%i, dir=%i\n",w->flags, w->dir);
 					}
 				}
 				map_rect_destroy(g_rect);
