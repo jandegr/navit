@@ -1852,15 +1852,12 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		 * map provided by route.c to count all exits and not only those present in
 		 * the route graph
 		 */
-
-		/* todo : handle cases with oneway=-1 involved*/
-
-
+		 
 		if (tmap && ret->way.flags && (ret->way.flags & AF_ROUNDABOUT))
 		{
 
 			struct map_selection coord_sel;
-			struct map_rect *g_rect; /* Contains a map rectangle from the route graph's map */
+			struct map_rect *g_rect; 
 			struct item *i;
 			struct item *sitem;
 			struct attr sitem_attr,direction_attr;
@@ -1916,7 +1913,6 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 					{
 						if ((dc[0].x == c[0].x) && (dc[0].y == c[0].y))
 						{
-							dbg(lvl_debug,"coord found\n");
 							dbg(lvl_debug,"streetitem=%s, sitem=%s\n",item_to_name(streetitem->type),item_to_name(sitem->type));
 							dir=1;
 							dbg(lvl_debug,"dir =1\n");
@@ -1932,12 +1928,10 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 							}
 							if ((dc[1].x == c[0].x) && (dc[1].y == c[0].y))
 							{
-								dbg(lvl_debug,"coord found\n");
 								dbg(lvl_debug,"streetitem=%s, sitem=%s\n",item_to_name(streetitem->type),item_to_name(sitem->type));
 								dir=-1;
 								dbg(lvl_debug,"dir =-1\n");
 							}
-
 						}
 					}
 					if (dir !=0)
