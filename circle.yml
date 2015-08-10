@@ -6,14 +6,14 @@ dependencies:
     - mkdir -p ~/assets/binmaps/
     - find  ~/assets/
     - sudo apt-get update
-#    - wget -c -O ~/planet-${MAPCODE}.osm.bz2 ftp://ftp.spline.de/pub/openstreetmap/planet/2015/planet-${MAPCODE}.osm.bz2
-#    - wget -c -O  ~/europe-latest-complete.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
-    - wget -c -O  ~/europe-latest.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
     - sudo apt-get install cmake 
     - sudo apt-get install libpng12-dev 
     - sudo apt-get install libgtk2.0-dev 
     - sudo apt-get install librsvg2-bin 
     - sudo apt-get install g++
+#    - wget -c -O ~/planet-${MAPCODE}.osm.bz2 ftp://ftp.spline.de/pub/openstreetmap/planet/2015/planet-${MAPCODE}.osm.bz2
+#    - wget -c -O  ~/europe-latest-complete.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
+    - wget -c -O  ~/europe-latest.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
     - bash ~/navit/build.sh
     - wget http://m.m.i24.cc/osmconvert.c && gcc osmconvert.c -lz -o osmconvert
   cache_directories:
