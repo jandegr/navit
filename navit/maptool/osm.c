@@ -73,6 +73,7 @@ struct coord coord_buffer[MAX_COORD_COUNT];
 
 struct attr_mapping {
 	enum item_type type;
+	int flag;
 	int attr_present_idx_count;
 	int attr_present_idx[0];
 };
@@ -106,6 +107,8 @@ enum attr_strings_type {
 	attr_string_ref,
 	attr_string_exit_to,
 	attr_string_street_destination,
+	attr_string_street_destination_forward,
+	attr_string_street_destination_backward,
 	attr_string_house_number,
 	attr_string_label,
 	attr_string_postal,
@@ -146,7 +149,7 @@ struct country_table {
 	{ 31,"Azerbaijan"},
 	{ 32,"Argentina,República Argentina,AR "},
 	{ 36,"Australia,AUS"},
-	{ 40,"Austria,Österreich,AUT"},
+	{ 40,"Austria,Österreich,AUT","3s567M"},
 	{ 44,"Bahamas"},
 	{ 48,"Bahrain"},
 	{ 50,"Bangladesh"},
@@ -262,7 +265,7 @@ struct country_table {
 	{ 434,"Libyan Arab Jamahiriya"},
 	{ 438,"Liechtenstein"},
  	{ 440,"Lithuania,Lietuva"},
-	{ 442,"Luxembourg"},
+	{ 442,"Luxembourg","3s5c7M"},
 	{ 446,"Macao"},
 	{ 450,"Madagascar"},
 	{ 454,"Malawi"},
@@ -602,32 +605,32 @@ static char *attrmap={
 	"w	highway=plaza				poly_plaza\n"
 	"w	highway=motorway			highway_land\n"
 	"w	highway=motorway,rural=0		highway_city\n"
-	"w	highway=motorway_link			ramp\n"
+	"w	highway=motorway_link			ramp,AF_LINK\n"
 	"w	highway=trunk				street_n_lanes\n"
-	"w	highway=trunk_link			ramp\n"
+	"w	highway=trunk_link			street_n_lanes,AF_LINK\n"
 	"w	highway=primary				street_4_land\n"
 	"w	highway=primary,name=*,rural=1		street_4_land\n"
 	"w	highway=primary,name=*			street_4_city\n"
 	"w	highway=primary,rural=0			street_4_city\n"
-	"w	highway=primary_link			ramp\n"
+	"w	highway=primary_link			street_4_city,AF_LINK\n" 
 	"w	highway=secondary			street_3_land\n"
 	"w	highway=secondary,name=*,rural=1	street_3_land\n"
 	"w	highway=secondary,name=*		street_3_city\n"
 	"w	highway=secondary,rural=0		street_3_city\n"
 	"w	highway=secondary,area=1		poly_street_3\n"
-	"w	highway=secondary_link			ramp\n"
+	"w	highway=secondary_link			street_3_city,AF_LINK\n"
 	"w	highway=tertiary			street_2_land\n"
 	"w	highway=tertiary,name=*,rural=1		street_2_land\n"
 	"w	highway=tertiary,name=*			street_2_city\n"
 	"w	highway=tertiary,rural=0		street_2_city\n"
 	"w	highway=tertiary,area=1			poly_street_2\n"
-	"w	highway=tertiary_link			ramp\n"
+	"w	highway=tertiary_link			street_2_city,AF_LINK\n"
 	"w	highway=residential			street_1_city\n"
 	"w	highway=residential,area=1		poly_street_1\n"
-	"w	highway=unclassified			street_1_city\n"
+	"w	highway=unclassified			street_1_land\n"
 	"w	highway=unclassified,area=1		poly_street_1\n"
-	"w	highway=road				street_1_city\n"
-	"w	highway=service				street_service\n"
+	"w	highway=road				street_0\n"
+	"w	highway=service				street_service,AF_THROUGH_TRAFFIC_LIMIT\n"
 	"w	highway=service,area=1			poly_service\n"
 	"w	highway=service,service=parking_aisle	street_parking_lane\n"
 	"w	highway=track				track_gravelled\n"
@@ -760,7 +763,7 @@ static char *attrmap={
 static void
 build_attrmap_line(char *line)
 {
-	char *t=NULL,*kvl=NULL,*i=NULL,*p,*kv;
+	char *t=NULL,*kvl=NULL,*i=NULL,*p,*kv,*flagindex=NULL;
 	struct attr_mapping *attr_mapping=g_malloc0(sizeof(struct attr_mapping));
 	int idx,attr_mapping_count=0;
 	t=line;
@@ -783,6 +786,20 @@ build_attrmap_line(char *line)
 		if (! i)
 			i="point_unkn";
 	}
+	
+	flagindex= strrchr(i,',');
+	if (flagindex)
+	{
+		if (strstr(i,"AF_LINK"))
+			attr_mapping->flag = AF_LINK;
+		else
+		{
+			if (strstr(i,"AF_THROUGH_TRAFFIC_LIMIT"))
+				attr_mapping->flag = AF_THROUGH_TRAFFIC_LIMIT;
+		}
+		*flagindex='\0';
+	}
+	
 	attr_mapping->type=item_from_name(i);
 	if (!attr_mapping->type) {
 		printf("no id found for '%s'\n",i);
@@ -996,7 +1013,10 @@ osm_add_tag(char *k, char *v)
 		return;
 	}
 	if (! strcmp(k,"ele"))
+	{
+		attr_strings_save(attr_string_label, v);
 		level=9;
+	}
 	if (! strcmp(k,"time"))
 		level=9;
 	if (! strcmp(k,"created_by"))
@@ -1185,6 +1205,18 @@ osm_add_tag(char *k, char *v)
 			if (in_way)
 				attr_strings_save(attr_string_street_destination, v);
 			level=5;
+	}
+	if (! strcmp(k,"destination:forward")) 
+	{
+		if (in_way)
+			attr_strings_save(attr_string_street_destination_forward, v);
+		level=5;
+	}
+	if (! strcmp(k,"destination:backward")) 
+	{
+		if (in_way)
+			attr_strings_save(attr_string_street_destination_backward, v);
+		level=5;
 	}
 	if (! strcmp(k,"exit_to")) {
 			attr_strings_save(attr_string_exit_to, v);
@@ -1718,6 +1750,24 @@ attr_longest_match(struct attr_mapping **mapping, int mapping_count, enum item_t
 	return ret;
 }
 
+static int
+get_flag(struct attr_mapping **mapping, int mapping_count)
+{
+	int i,j,val,flag=0;
+	struct attr_mapping *curr;
+	for (i = 0 ; i < mapping_count ; i++) {
+		curr=mapping[i];
+		for (j = 0 ; j < curr->attr_present_idx_count ; j++) {
+			val=attr_present[curr->attr_present_idx[j]];
+			if (!val)
+				break;
+			if (curr->flag)
+				flag=curr->flag;
+		}
+	}
+	return flag;
+}
+
 static void
 attr_longest_match_clear(void)
 {
@@ -1769,8 +1819,9 @@ osm_end_way(struct maptool_osm *osm)
 		item_bin_add_coord(item_bin, coord_buffer, coord_count);
 		nodes_ref_item_bin(item_bin);
 		def_flags=item_get_default_flags(types[i]);
-		if (def_flags) {
-			flags_attr_value=((*def_flags & ~flagsa[2]) | flags[0] | flags[1] | flagsa[1]) & ~flags[2];
+		if (def_flags) 
+		{
+			flags_attr_value=((*def_flags & ~flagsa[2]) | flags[0] | flags[1] | flagsa[1]| get_flag(attr_mapping_way, attr_mapping_way_count)) & ~flags[2];
 			if (flags_attr_value != *def_flags)
 				add_flags=1;
 		}
@@ -1778,7 +1829,10 @@ osm_end_way(struct maptool_osm *osm)
 		item_bin_add_attr_string(item_bin, attr_district_name, attr_strings[attr_string_district_name]);
 		item_bin_add_attr_string(item_bin, attr_street_name_systematic, attr_strings[attr_string_street_name_systematic]);
 		item_bin_add_attr_string(item_bin, attr_street_name_systematic_nat, attr_strings[attr_string_street_name_systematic_nat]);
+		item_bin_add_attr_string(item_bin, attr_street_name_systematic_int, attr_strings[attr_string_street_name_systematic_int]);
 		item_bin_add_attr_string(item_bin, attr_street_destination, attr_strings[attr_string_street_destination]);
+		item_bin_add_attr_string(item_bin, attr_street_destination_forward, attr_strings[attr_string_street_destination_forward]);
+		item_bin_add_attr_string(item_bin, attr_street_destination_backward, attr_strings[attr_string_street_destination_backward]);
 		item_bin_add_attr_longlong(item_bin, attr_osm_wayid, osmid_attr_value);
 		if (debug_attr_buffer[0])
 			item_bin_add_attr_string(item_bin, attr_debug, debug_attr_buffer);
