@@ -12,6 +12,8 @@ dependencies:
     - sudo apt-get install librsvg2-bin 
     - sudo apt-get install g++
     - ls -la /usr/include/gtk-2.0
+    - ls -la /usr/include/gtk-2.0/gtk
+    - ls -la /usr/include/gtk-2.0/gdk
     - bash ~/navit/build.sh
 #    - wget -c -O ~/planet-${MAPCODE}.osm.bz2 ftp://ftp.spline.de/pub/openstreetmap/planet/2015/planet-${MAPCODE}.osm.bz2
 #    - wget -c -O  ~/europe-latest-complete.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
