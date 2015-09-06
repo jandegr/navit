@@ -25,6 +25,8 @@ struct roadprofile {
 	NAVIT_OBJECT
         int speed;
         int route_weight;
+        int roundabout_weight;
+        int link_weight;
 	int maxspeed;
 };
 
