@@ -3,7 +3,7 @@ machine:
     ANDROID_HOME: /home/ubuntu/android
     ANDROID_NDK_HOME: /home/ubuntu/android/android-ndk
     ANDROID_SDK_CDN: https://dl.google.com/android
-    ANDROID_SDK_FILE: android-sdk_r24.3.3-linux.tgz
+    ANDROID_SDK_FILE: android-sdk_r24.3.4-linux.tgz
     ANDROID_NDK_CDN: http://dl.google.com/android/ndk
     ANDROID_NDK_FILE: android-ndk-r10e-linux-x86_64.bin
     CMAKE_FILE: ../Toolchain/arm-eabi.cmake
@@ -18,7 +18,7 @@ dependencies:
     - wget -c -O ~/assets/cov-analysis-linux64-7.6.0.tar.gz http://sd-55475.dedibox.fr/cov-analysis-linux64-7.6.0.tar.gz
     - sudo apt-get install cmake
     - sudo apt-get install libpng12-dev 
-    - sudo apt-get install libgtk2.0-dev 
+#    - sudo apt-get install libgtk2.0-dev 
     - sudo apt-get install librsvg2-bin 
     - sudo apt-get install libfreetype6-dev
     - sudo apt-get install libdbus-glib-1-dev
@@ -31,7 +31,7 @@ dependencies:
     - wget -c -N -q $ANDROID_SDK_CDN/$ANDROID_SDK_FILE -O $ANDROID_HOME/$ANDROID_SDK_FILE
     - wget -c -N -q $ANDROID_NDK_CDN/$ANDROID_NDK_FILE -O $ANDROID_HOME/$ANDROID_NDK_FILE
     - sudo apt-get install gettext
-    - sudo apt-get install openjdk-7-jdk
+    - sudo apt-get install openjdk-8-jdk
     - sudo apt-get install ant
     - sudo apt-get install libsaxonb-java
 # for aapt
@@ -43,10 +43,10 @@ dependencies:
     - sudo apt-get install default-jdk nsis
 # for sys/select.h
 #    - sudo apt-get install -y libc6-dev
-    - mkdir win32
-    - cmake -Dbinding/python:BOOL=FALSE -DSAMPLE_MAP=n -DCMAKE_TOOLCHAIN_FILE=../Toolchain/mingw32.cmake ../ && make && make package:
-        pwd: win32/
-    - cp win32/*.exe $CIRCLE_ARTIFACTS/
+#    - mkdir win32
+#    - cmake -Dbinding/python:BOOL=FALSE -DSAMPLE_MAP=n -DCMAKE_TOOLCHAIN_FILE=../Toolchain/mingw32.cmake ../ && make && make package:
+#        pwd: win32/
+#    - cp win32/*.exe $CIRCLE_ARTIFACTS/
 # For python testing with junit reporting
     - sudo pip install junit-xml
 test:

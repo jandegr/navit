@@ -183,22 +183,20 @@ Waypoint</text></img>
 		<!-- For the cumulative displacement filter to be enabled, set cdf_histsize="x" here, with x being an integer somewhere around 4 -->
 		<tracking cdf_histsize="0"/>
 
-		<vehicleprofile name="car" route_depth="4:25%,8:40000,18:10000" flags="0x4000000" flags_forward_mask="0x4000002" flags_reverse_mask="0x4000001" maxspeed_handling="0" route_mode="0" static_speed="5" static_distance="25">
-			<roadprofile item_types="street_0,street_1_city,living_street,street_service,track_gravelled,track_unpaved,street_parking_lane" speed="10" route_weight="10" />
-			<roadprofile item_types="street_2_city,track_paved" speed="30" route_weight="30" />
-			<roadprofile item_types="street_3_city" speed="40" route_weight="40" />
-			<roadprofile item_types="street_4_city" speed="50" route_weight="50" />
-			<roadprofile item_types="highway_city" speed="80" route_weight="80" />
-			<roadprofile item_types="street_1_land" speed="60" route_weight="60" />
-			<roadprofile item_types="street_2_land" speed="65" route_weight="65" />
-			<roadprofile item_types="street_3_land" speed="70" route_weight="70" />
-			<roadprofile item_types="street_4_land" speed="80" route_weight="80" />
-			<roadprofile item_types="street_n_lanes" speed="120" route_weight="120" />
-			<roadprofile item_types="highway_land" speed="120" route_weight="120" />
-			<roadprofile item_types="ramp" speed="40" route_weight="40" />
+		<vehicleprofile name="car" route_depth="4:50000w,8:35000,9:9000" flags="0x4000000" flags_forward_mask="0x4000002" flags_reverse_mask="0x4000001" maxspeed_handling="0" route_mode="0" static_speed="5" static_distance="25" through_traffic_penalty="18000">
+			<roadprofile item_types="street_parking_lane,street_service,track_unpaved" speed="6"  />
+			<roadprofile item_types="street_0,living_street,track_gravelled,track_paved" speed="10"/>
+			<roadprofile item_types="street_1_city" speed="30" route_weight="85" roundabout_weight="80" link_weight="90" />
+			<roadprofile item_types="street_1_land" speed="40" route_weight="90" roundabout_weight="80" link_weight="90" />
+			<roadprofile item_types="street_2_land,street_2_city" speed="50" route_weight="90" roundabout_weight="80" link_weight="90" />
+			<roadprofile item_types="street_3_land,street_3_city" speed="60" route_weight="90" roundabout_weight="80" link_weight="90" />
+			<roadprofile item_types="street_4_land,street_4_city" speed="70" route_weight="95" roundabout_weight="80" link_weight="90"/>
+			<roadprofile item_types="street_n_lanes" speed="90" roundabout_weight="60" link_weight="75"/>
+			<roadprofile item_types="highway_land,highway_city" speed="120"  />
+			<roadprofile item_types="ramp" speed="90" route_weight="90" />
 			<!--roundabout does not apply to OSMaps -->
 			<roadprofile item_types="roundabout" speed="10" route_weight="10"/>
-			<roadprofile item_types="ferry" speed="40" route_weight="40"/>
+			<roadprofile item_types="ferry" speed="40" route_weight="70"/>
 		</vehicleprofile>
 
 		<vehicleprofile name="car_shortest" flags="0x4000000" flags_forward_mask="0x4000002" flags_reverse_mask="0x4000001" maxspeed_handling="0" route_mode="0" static_speed="5" static_distance="25">
@@ -2075,6 +2073,36 @@ Waypoint</text></img>
 				</itemgra>
 				<itemgra item_types="poi_gc_webcam" order="12-">
 					<icon src="gc_webcam.xpm"/>
+				</itemgra>
+				<itemgra item_types="barrier_gate" order="12-">
+					<icon src="gate.png"/>
+				</itemgra>
+				<itemgra item_types="barrier_lift_gate" order="12-">
+					<icon src="lift_gate.png"/>
+				</itemgra>
+				<itemgra item_types="barrier_swing_gate" order="12-">
+					<icon src="gate.png"/>
+				</itemgra>
+				<itemgra item_types="barrier_blocks" order="12-">
+					<icon src="blocks.png"/>
+				</itemgra>
+				<itemgra item_types="barrier_jersey" order="12-">
+					<icon src="blocks.png"/>
+				</itemgra>
+				<itemgra item_types="barrier_stile" order="12-">
+					<icon src="stile.png"/>
+				</itemgra>
+				<itemgra item_types="barrier_kissing_gate" order="12-">
+					<icon src="kissing_gate.png"/>
+				</itemgra>
+				<itemgra item_types="barrier_cycle" order="12-">
+					<icon src="cycle_barrier.png"/>
+				</itemgra>
+				<itemgra item_types="barrier_motorcycle" order="12-">
+					<icon src="cycle_barrier.png"/>
+				</itemgra>
+				<itemgra item_types="barrier_bollard" order="12-">
+					<icon src="bollard.png"/>
 				</itemgra>
 				<itemgra item_types="traffic_signals" order="13-">
 					<icon src="traffic_signals.png"/>
