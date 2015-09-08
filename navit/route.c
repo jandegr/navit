@@ -3680,7 +3680,7 @@ route_graph_update_done(struct route *this, struct callback *cb)
 							new_virtual_edge->end = curr_vertex_virtual_next->root;
 
 
-							new_virtual_edge->reference_seg = curr_vertex_virtual->seg;
+							new_virtual_edge->reference_seg = curr_vertex_virtual_next->seg;
 							new_virtual_edge->delta = 0;
 
 							if (curr_vertex_virtual->seg->start == curr)
