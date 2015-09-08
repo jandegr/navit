@@ -1,3 +1,15 @@
+/* some changes in routng, read :
+ * #630 ???
+ * #876 bad or no route found
+ * #1063 sharp turns
+ * #1085
+ * #1162, #1047, #891 traffic lights
+ * #1189 don't leave motorway over emergency access road
+ * #1205 cost of turns in routing
+ * #1279 some routing problems
+ */
+
+
 /**
  * Navit, a modular navigation system.
  * Copyright (C) 2005-2008 Navit Team
