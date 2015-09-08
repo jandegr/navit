@@ -1900,6 +1900,9 @@ Waypoint</text></img>
 				<itemgra item_types="poi_military" order="11-">
 					<icon src="military.png"/>
 				</itemgra>
+				<itemgra item_types="poi_military_bunker" order="11-">
+					<icon src="military_bunker.png"/>
+				</itemgra>
 				<itemgra item_types="poi_mine" order="12-">
 					<icon src="mine.xpm"/>
 				</itemgra>
