@@ -43,10 +43,10 @@ dependencies:
     - sudo apt-get install default-jdk nsis
 # for sys/select.h
 #    - sudo apt-get install -y libc6-dev
-    - mkdir win32
-    - cmake -Dbinding/python:BOOL=FALSE -DSAMPLE_MAP=n -DCMAKE_TOOLCHAIN_FILE=../Toolchain/mingw32.cmake ../ && make && make package:
-        pwd: win32/
-    - cp win32/*.exe $CIRCLE_ARTIFACTS/
+#    - mkdir win32
+#    - cmake -Dbinding/python:BOOL=FALSE -DSAMPLE_MAP=n -DCMAKE_TOOLCHAIN_FILE=../Toolchain/mingw32.cmake ../ && make && make package:
+#        pwd: win32/
+#    - cp win32/*.exe $CIRCLE_ARTIFACTS/
 # For python testing with junit reporting
     - sudo pip install junit-xml
 test:
