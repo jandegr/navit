@@ -2090,7 +2090,7 @@ navit_init(struct navit *this_)
 				map_a.type=attr_map;
 				map_a.u.map=map;
 				active.type=attr_active;
-				active.u.num=0;
+				active.u.num=1;
 				mapset_add_attr(ms, &map_a);
 				map_set_attr(map, &active);
 			}
