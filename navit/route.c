@@ -7,8 +7,8 @@
  * #1189 don't leave motorway over emergency access road
  * #1205 cost of turns in routing
  * #1279 some routing problems
+ * HOV restriction
  */
-
 
 /**
  * Navit, a modular navigation system.
@@ -97,11 +97,14 @@ enum route_path_flags {
 	route_path_flag_no_rebuild=4,
 };
 
-enum segment_type {
-	segment_type_real=0,
-	segment_type_virtual=1,
-	segment_type_turn_restriction=2,
-};
+
+struct route_graph_common_point {
+      struct route_graph_point *pointref;     /* reference to common point with lowest costs mu */
+       int mu;                                                         /* costs mu with path over this common point */
+       int value_p_min;                                        /* costs of actual point within target to source flooding */
+       int value_p_min_back;                           /* costs of actual point within source to target flooding */
+ };
+
 
 
 /**
@@ -111,52 +114,23 @@ enum segment_type {
  * but there are also points which don't do that (e.g. at the end of a dead-end).
  */
 struct route_graph_point {
-	struct route_graph_point *hash_next; /* Pointer to a chained hashlist of all route_graph_points with this hash */
-	struct route_graph_segment *start;	 /* Pointer to a list of segments of which this point is the start. The links
-										  *  of this linked-list are in route_graph_segment->start_next.*/
-	struct route_graph_segment *end;	 /* Pointer to a list of segments of which this pointer is the end. The links
-	 	 	 	 	 	 	 	 	 	 *  of this linked-list are in route_graph_segment->end_next. */
-	struct coord c;						 /* Coordinates of this point */
-	int flags;						/* Flags for this point (eg traffic distortion) */
-
-	struct route_graph_vertex_virtual *leaves; /*pointer to a linked list of leaves*/
-};
-
-
-/**
- * @brief A virtual point in the route graph
- *
- * This represents a virtual vertex in the route graph, attached to a
- * route_graph_point as a leaf
- *
- */
-struct route_graph_vertex_virtual {
-
-	struct route_graph_segment *start;	 /**< Pointer to a list of segments of which this point is the start. The links
+	struct route_graph_point *hash_next; /**< Pointer to a chained hashlist of all route_graph_points with this hash */
+	struct route_graph_segment *start;	 /**< Pointer to a list of segments of which this point is the start. The links 
 										  *  of this linked-list are in route_graph_segment->start_next.*/
 	struct route_graph_segment *end;	 /**< Pointer to a list of segments of which this pointer is the end. The links
-										  /*  of this linked-list are in route_graph_segment->end_next. */
+										  *  of this linked-list are in route_graph_segment->end_next. */
 	struct route_graph_segment *seg;	 /**< Pointer to the segment one should use to reach the destination at
 										  *  least costs */
 	struct fibheap_el *el;				 /**< When this point is put on a Fibonacci heap, this is a pointer
 										  *  to this point's heap-element */
-	struct route_graph_point *root;	/*pointer to the root point of the stack*/
-	struct route_graph_vertex_virtual *next; /*pointer to the next leaf in the linked list*/
-
-
 	int value;							 /**< The cost at which one can reach the destination from this point on */
+	struct coord c;						 /**< Coordinates of this point */
 	int flags;						/**< Flags for this point (eg traffic distortion) */
-
-
 };
-
-
 
 #define RP_TRAFFIC_DISTORTION 1
 #define RP_TURN_RESTRICTION 2
 #define RP_TURN_RESTRICTION_RESOLVED 4
-#define RP_SEG_FORWARD 16
-#define RP_SEG_BACKWARD 32
 
 /**
  * @brief A segment in the route graph or path
@@ -168,9 +142,6 @@ struct route_segment_data {
 	struct item item;							/**< The item (e.g. street) that this segment represents. */
 	int flags;
 	int len;
-	int angle_start;
-	int angle_end;
-
 
 	/**< Length of this segment */
 	/*NOTE: After a segment, various fields may follow, depending on what flags are set. Order of fields:
@@ -203,15 +174,12 @@ struct route_graph_segment_data {
 	int maxspeed;
 	struct size_weight_limit size_weight;
 	int dangerous_goods;
-	int angle_start;
-	int angle_end;
 };
 
 /**
  * @brief A segment in the route graph
  *
- * This is an edge in the route graph. An edge represents a driveable way,
- * or it can be virtual to handle turn cost and/or turn restrictions.
+ * This is a segment in the route graph. A segment represents a driveable way.
  */
 struct route_graph_segment {
 	struct route_graph_segment *next;			/**< Linked-list pointer to a list of all route_graph_segments */
@@ -221,18 +189,6 @@ struct route_graph_segment {
 												 *  same point. Start of this list is in route_graph_point->end. */
 	struct route_graph_point *start;			/**< Pointer to the point this segment starts at. */
 	struct route_graph_point *end;				/**< Pointer to the point this segment ends at. */
-
-
-	struct route_graph_vertex_virtual *virtual_start;
-	struct route_graph_vertex_virtual *virtual_end;
-	struct route_graph_segment *virtual_start_next;
-	struct route_graph_segment *virtual_end_next;
-
-	struct route_graph_segment *reference_seg;		/*virtual seg's use this to inherit properties*/
-
-	int edge_type;									/*real or virtual*/
-	int delta;										/*the turn of virtual edges*/
-
 	struct route_segment_data data;				/**< The segment data */
 };
 
@@ -369,26 +325,6 @@ struct attr_iter {
 	} u;
 };
 
-
-struct map_rect_priv {
-	struct route_info_handle *ri;
-	enum attr_type attr_next;
-	int pos;
-	struct map_priv *mpriv;
-	struct item item;
-	unsigned int last_coord;
-	struct route_path *path;
-	struct route_path_segment *seg,*seg_next;
-	struct route_graph_point *point;
-	struct route_graph_segment *rseg;
-	char *str;
-	int hash_bucket;
-	struct coord *coord_sel;	/**< Set this to a coordinate if you want to filter for just a single route graph point */
-	struct route_graph_point_iterator it;
-	/* Pointer to current waypoint element of route->destinations */
-	GList *dest;
-};
-
 static struct route_info * route_find_nearest_street(struct vehicleprofile *vehicleprofile, struct mapset *ms, struct pcoord *c);
 static struct route_graph_point *route_graph_get_point(struct route_graph *this, struct coord *c);
 static void route_graph_update(struct route *this, struct callback *cb, int async);
@@ -398,7 +334,8 @@ static void route_graph_add_item(struct route_graph *this, struct item *item, st
 static void route_graph_destroy(struct route_graph *this);
 static void route_path_update(struct route *this, int cancel, int async);
 static int route_time_seg(struct vehicleprofile *profile, struct route_segment_data *over, struct route_traffic_distortion *dist);
-static void route_dijkstra_extended_graph(struct route_graph *this, struct route_info *dst, struct vehicleprofile *profile, struct callback *cb);
+static void route_graph_flood(struct route_graph *this, struct route_info *dst, struct vehicleprofile *profile, struct callback *cb);
+static void route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struct route_info *pos, struct vehicleprofile *profile, struct callback *cb);
 static void route_graph_reset(struct route_graph *this);
 static struct route_graph_segment * route_graph_get_segment(struct route_graph *graph, struct street_data *sd, struct route_graph_segment *last);
 
@@ -410,6 +347,14 @@ inline double now_ms()
     gettimeofday(&tv, NULL);
     return tv.tv_sec*1000. + tv.tv_usec/1000.;
 }
+
+
+
+
+
+
+
+
 
 
 /**
@@ -905,8 +850,7 @@ route_path_update_done(struct route *this, int new_graph)
 			this->link_path=1;
 			this->current_dst=prev_dst;
 			route_graph_reset(this->graph);
-			route_dijkstra_extended_graph(this->graph, this->current_dst, this->vehicleprofile, this->route_graph_flood_done_cb);
-/*			route_graph_flood(this->graph, this->current_dst, this->vehicleprofile, this->route_graph_flood_done_cb);*/
+			route_graph_flood(this->graph, this->current_dst, this->vehicleprofile, this->route_graph_flood_done_cb);
 /*			route_graph_flood_frugal(this->graph, this->current_dst, this->pos, this->vehicleprofile, this->route_graph_flood_done_cb); */
 			return;
 		}
@@ -960,7 +904,6 @@ route_path_update_flags(struct route *this, enum route_path_flags flags)
 	}
 	if (!this->graph || (!this->path2 && !(flags & route_path_flag_no_rebuild))) {
 		dbg(lvl_debug,"rebuild graph %p %p\n",this->graph,this->path2);
-		/*heeft die callback wel een correcte naam ??*/
 		if (! this->route_graph_flood_done_cb)
 			this->route_graph_flood_done_cb=callback_new_2(callback_cast(route_path_update_done), this, (long)1);
 		dbg(lvl_debug,"route_graph_update\n");
@@ -971,7 +914,7 @@ route_path_update_flags(struct route *this, enum route_path_flags flags)
 static void
 route_path_update(struct route *this, int cancel, int async)
 {
-	enum route_path_flags flags=(cancel ? route_path_flag_cancel:0);
+	enum route_path_flags flags=(cancel ? route_path_flag_cancel:0)|(async ? route_path_flag_async:0);
 	route_path_update_flags(this, flags);
 }
 
@@ -1439,8 +1382,7 @@ route_remove_waypoint(struct route *this)
 		this->reached_destinations_count++;
 		route_graph_reset(this->graph);
 		this->current_dst = this->destinations->data;
-		route_dijkstra_extended_graph(this->graph, this->current_dst, this->vehicleprofile, this->route_graph_flood_done_cb);
-/*		route_graph_flood(this->graph, this->current_dst, this->vehicleprofile,	this->route_graph_flood_done_cb); */
+		route_graph_flood(this->graph, this->current_dst, this->vehicleprofile,	this->route_graph_flood_done_cb);
 /*		route_graph_flood_frugal(this->graph, this->current_dst, this->pos, this->vehicleprofile,	this->route_gr/aph_flood_done_cb); */
 
 	}
@@ -1521,9 +1463,8 @@ route_graph_point_new(struct route_graph *this, struct coord *f)
 	p=g_slice_new0(struct route_graph_point);
 	p->hash_next=this->hash[hashval];
 	this->hash[hashval]=p;
-//	p->value=INT_MAX;
+	p->value=INT_MAX;
 	p->c=*f;
-	p->leaves = NULL;
 	return p;
 }
 
@@ -1557,29 +1498,17 @@ static void
 route_graph_free_points(struct route_graph *this)
 {
 	struct route_graph_point *curr,*next;
-	struct route_graph_vertex_virtual *virt, *virt_next;
 	int i;
-	for (i = 0 ; i < HASH_SIZE ; i++)
-	{
+	for (i = 0 ; i < HASH_SIZE ; i++) {
 		curr=this->hash[i];
-		while (curr)
-		{
+		while (curr) {
 			next=curr->hash_next;
-			virt = curr->leaves;
-			while (virt)
-			{
-				virt_next = virt->next;
-				g_slice_free(struct route_graph_vertex_virtual, virt);
-				virt = virt_next;
-			}
 			g_slice_free(struct route_graph_point, curr);
 			curr=next;
 		}
 		this->hash[i]=NULL;
 	}
 }
-
-
 
 /**
  * @brief Resets all nodes
@@ -1590,23 +1519,13 @@ static void
 route_graph_reset(struct route_graph *this)
 {
 	struct route_graph_point *curr;
-	struct route_graph_vertex_virtual *virt_curr;
 	int i;
-	for (i = 0 ; i < HASH_SIZE ; i++)
-	{
+	for (i = 0 ; i < HASH_SIZE ; i++) {
 		curr=this->hash[i];
-		while (curr)
-		{
-			if (curr->leaves)
-			{
-				virt_curr = curr->leaves;
-				while (virt_curr)
-				{
-					virt_curr->value=INT_MAX;
-					virt_curr->seg = NULL;
-					virt_curr->el = NULL;
-				}
-			}
+		while (curr) {
+			curr->value=INT_MAX;
+			curr->seg=NULL;
+			curr->el=NULL;
 			curr=curr->hash_next;
 		}
 	}
@@ -1680,12 +1599,9 @@ route_graph_segment_is_duplicate(struct route_graph_point *start, struct route_g
 	struct route_graph_segment *s;
 	s=start->start;
 	while (s) {
-		if (item_is_equal(*data->item, s->data.item))
-		{
-			if (data->flags & AF_SEGMENTED)
-			{
-				if (RSD_OFFSET(&s->data) == data->offset)
-				{
+		if (item_is_equal(*data->item, s->data.item)) {
+			if (data->flags & AF_SEGMENTED) {
+				if (RSD_OFFSET(&s->data) == data->offset) {
 					return 1;
 				}
 			} else
@@ -1701,8 +1617,6 @@ route_graph_segment_is_duplicate(struct route_graph_point *start, struct route_g
  *
  * This function performs a check if a segment for the item specified already exists, and inserts
  * a new segment representing this item if it does not.
- *
- * segment type is real by default
  *
  * @param this The route graph to insert the segment into
  * @param start The graph point which should be connected to the start of this segment
@@ -1736,14 +1650,6 @@ route_graph_add_segment(struct route_graph *this, struct route_graph_point *star
 	s->data.len=data->len;
 	s->data.item=*data->item;
 	s->data.flags=data->flags;
-
-
-	s->data.angle_start=data->angle_start;
-	s->data.angle_end=data->angle_end;
-
-
-	/*in case you want a virtual one, change the setting after the segment is returned*/
-	s->edge_type = segment_type_real;
 
 	if (data->flags & AF_SPEED_LIMIT) 
 		RSD_MAXSPEED(&s->data)=data->maxspeed;
@@ -1785,10 +1691,6 @@ static int get_item_seg_coords(struct item *i, struct coord *c, int max,
 	struct item *item;
 	int rc = 0, p = 0;
 	struct coord c1;
-
-	if (!i || !i->map)
-		return 0;
-
 	mr=map_rect_new(i->map, NULL);
 	if (!mr)
 		return 0;
@@ -2077,9 +1979,9 @@ route_graph_destroy(struct route_graph *this)
  * @return The estimated speed
  */
 static int
-route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over_data, struct route_traffic_distortion *dist)
+route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over, struct route_traffic_distortion *dist)
 {
-	struct roadprofile *roadprofile=vehicleprofile_get_roadprofile(profile, over_data->item.type);
+	struct roadprofile *roadprofile=vehicleprofile_get_roadprofile(profile, over->item.type);
 	int speed,maxspeed;
 	int route_averaging = 100;
 	if (!roadprofile || !roadprofile->speed)
@@ -2087,36 +1989,30 @@ route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over_
 	/* maxspeed_handling: 0=always, 1 only if maxspeed restricts the speed,
 	 *  2 never
 	 *  */
-//	dbg(0,"road speed = %i\n",roadprofile->speed);
+
 
 	if (roadprofile->route_weight)
 		route_averaging =roadprofile->route_weight;
 
-	if ((over_data->flags & AF_ROUNDABOUT) && roadprofile->roundabout_weight)
+	if ((over->flags & AF_ROUNDABOUT) && roadprofile->roundabout_weight)
 		route_averaging = (route_averaging * roadprofile->roundabout_weight)/100;
 	else
-		if ((over_data->flags & AF_LINK) && roadprofile->link_weight)
+		if ((over->flags & AF_LINK) && roadprofile->link_weight)
 			{
 			route_averaging = (route_averaging * roadprofile->link_weight)/100;
 		/*	dbg (0,"link weight=%i\n",roadprofile->link_weight); */
 			}
 	speed=(roadprofile->speed * route_averaging)/100 ;
-
-//	dbg(0,"road speed-2 = %i\n",speed);
-
 	if (profile->maxspeed_handling != 2)
 	{
-		if (over_data->flags & AF_SPEED_LIMIT)
+		if (over->flags & AF_SPEED_LIMIT)
 		{
-			maxspeed=RSD_MAXSPEED(over_data);
-//			dbg(0,"maxspeed = %i\n",maxspeed);
-			if (profile->maxspeed_handling == 0) /*always use maxspeed*/
+			maxspeed=RSD_MAXSPEED(over);
+			if (!profile->maxspeed_handling) /*always handle maxspeed*/
 				maxspeed=(maxspeed * route_averaging)/100 ;
 		}
 		else
 			maxspeed=INT_MAX;
-
-
 
 		if (dist && maxspeed > dist->maxspeed)
 			maxspeed=dist->maxspeed;
@@ -2127,18 +2023,13 @@ route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over_
 	}
 	else /* handling=2, don't use maxspeed*/
 		speed=(roadprofile->speed * route_averaging)/100 ;
-
-//	dbg(0,"road speed-3 = %i\n",speed);
-
-	if (over_data->flags & AF_DANGEROUS_GOODS)
+	if (over->flags & AF_DANGEROUS_GOODS)
 	{
-//		dbg(0,"road speed-4 = %i\n",speed);
-		if (profile->dangerous_goods & RSD_DANGEROUS_GOODS(over_data))
+		if (profile->dangerous_goods & RSD_DANGEROUS_GOODS(over))
 			return 0;
 	}
-	if (over_data->flags & AF_SIZE_OR_WEIGHT_LIMIT) {
-//		dbg(0,"road speed-5 = %i\n",speed);
-		struct size_weight_limit *size_weight=&RSD_SIZE_WEIGHT(over_data);
+	if (over->flags & AF_SIZE_OR_WEIGHT_LIMIT) {
+		struct size_weight_limit *size_weight=&RSD_SIZE_WEIGHT(over);
 		if (size_weight->width != -1 && profile->width != -1 && profile->width > size_weight->width)
 			return 0;
 		if (size_weight->height != -1 && profile->height != -1 && profile->height > size_weight->height)
@@ -2150,9 +2041,6 @@ route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over_
 		if (size_weight->axle_weight != -1 && profile->axle_weight != -1 && profile->axle_weight > size_weight->axle_weight)
 			return 0;
 	}
-
-//	dbg(0,"road speed-6 = %i\n",speed);
-
 	return speed;
 }
 
@@ -2172,13 +2060,8 @@ static int
 route_time_seg(struct vehicleprofile *profile, struct route_segment_data *over, struct route_traffic_distortion *dist)
 {
 	int speed=route_seg_speed(profile, over, dist);
-
-//	dbg(0,"speed = %i\n",speed);
-
 	if (!speed)
 		return INT_MAX;
-
-//	dbg(0,"len = %i\n",over->len);
 	return over->len*36/speed+(dist ? dist->delay : 0);
 }
 
@@ -2217,169 +2100,46 @@ route_through_traffic_allowed(struct vehicleprofile *profile, struct route_graph
 	return (seg->data.flags & AF_THROUGH_TRAFFIC_LIMIT) == 0;
 }
 
-
-
 /**
  * @brief Returns the "costs" of driving from point from over segment over in direction dir
- *
- * MODIFIED version of route_value_seg() for the extended graph
  *
  * @param profile The routing preferences
  * @param from The point where we are starting
  * @param over The segment we are using
  * @param dir The direction of segment which we are driving
  * @return The "costs" needed to drive len on item
- */
+ */  
 
 static int
-route_value_seg_virtual(struct vehicleprofile *profile, struct route_graph_vertex_virtual *from, struct route_graph_segment *over, int dir)
+route_value_seg(struct vehicleprofile *profile, struct route_graph_point *from, struct route_graph_segment *over, int dir)
 {
-
-
-
-	/* up to now there is not much for a virtual edge
-	 * it is allowed or not
-	 * */
-
-//	dbg(0,"type = %i\n",over->edge_type);
-
-	if (over->edge_type == segment_type_virtual && from && from->seg->edge_type == segment_type_virtual)
-		return INT_MAX;
-
-	if (over->edge_type == segment_type_virtual)
-	{
-//		dbg(0,"dir = %i\n",dir);
-
-		if (from && from->seg==over)
-		{
-//			dbg(0,"rejected virtual from segment\n");
-			return INT_MAX;
-		}
-
-		if ((dir < 0)) /*gets called with +2 or -2 from route_path_new !!*/
-		{
-			if (from && from == over->virtual_start)
-			return 0;
-		}
-
-		if ((dir > 0))
-		{
-			if (from && from == over->virtual_end)
-			return 0;
-		}
-
-		return INT_MAX;
-	}
-
-
-	/*the real edges are still calculated as before*/
-
-
 	int ret;
-	int delta=0;
 	struct route_traffic_distortion dist,*distp=NULL;
-//	dbg(0,"data.flags 0x%x mask 0x%x profile.flags 0x%x\n", over->data.flags, dir >= 0 ? profile->flags_forward_mask : profile->flags_reverse_mask, profile->flags);
+	dbg(lvl_debug,"flags 0x%x mask 0x%x flags 0x%x\n", over->data.flags, dir >= 0 ? profile->flags_forward_mask : profile->flags_reverse_mask, profile->flags);
 	if ((over->data.flags & (dir >= 0 ? profile->flags_forward_mask : profile->flags_reverse_mask)) != profile->flags)
 		return INT_MAX;
-
-//	dbg(0,"test turn restrictions\n");
-
-	/*turn restrictions could be removed IMHO*/
 	if (dir > 0 && (over->start->flags & RP_TURN_RESTRICTION))
 		return INT_MAX;
 	if (dir < 0 && (over->end->flags & RP_TURN_RESTRICTION))
 		return INT_MAX;
-
-//	dbg(0,"test segment\n");
-
 	if (from && from->seg == over)
 		return INT_MAX;
-
-//	dbg(0,"test traffic distortion\n");
-
-	/*traffic distortions might be broken by the changes, not tested*/
-	if ((over->start->flags & RP_TRAFFIC_DISTORTION) && (over->end->flags & RP_TRAFFIC_DISTORTION) &&
+	if ((over->start->flags & RP_TRAFFIC_DISTORTION) && (over->end->flags & RP_TRAFFIC_DISTORTION) && 
 		route_get_traffic_distortion(over, &dist) && dir != 2 && dir != -2) {
 			distp=&dist;
 	}
 	if (profile->mode != 3)/*not new shortest*/
 	{
 		ret=route_time_seg(profile, &over->data, distp);
-
-//		dbg(0,"route time = %i\n",ret);
-
-		/*below are remains of the earlier experiment with turn costs,
-		 * to be reworked now
-		 * */
-
-
-		if (from)
-		{
-			if (dir > 0)
-
-			{
-				if (from->flags & RP_SEG_FORWARD)
-				{
-					delta= from->seg->data.angle_start - over->data.angle_end;
-			//		dbg(0,"SEG_FORWARD dir positief, delta=%i,seg_angle_start=%i, over_angle_end=%i\n",delta,from->seg->data.angle_start,over->data.angle_end);
-				}
-				else if (from->flags & RP_SEG_BACKWARD)
-				{
-					delta=  (from->seg->data.angle_end - 180) - over->data.angle_end;
-			//		dbg(0,"SEG_BACKWARD dir positief, delta=%i, over_angle_end=%i, seg_angle_end=%i\n",delta,over->data.angle_end,from->seg->data.angle_end);
-				}
-			//	else dbg(0,"SEG_UNKNOWN dir positief\n");
-			}
-
-
-			else if (dir < 0)
-
-			{
-				if (from->flags & RP_SEG_FORWARD)
-				{
-					delta= from->seg->data.angle_start - (over->data.angle_start - 180);
-				//	dbg(0,"SEG_FORWARD dir negatief, delta=%i, seg_angle_start=%i, over_angle_start=%i\n",delta,from->seg->data.angle_start,over->data.angle_start);
-				}
-				else if (from->flags & RP_SEG_BACKWARD)
-				{
-					/* would the compiler optimize the line below so we can leave it as it is for
-					 * clarity or do we have to simplify it ourselves ?
-					 */
-					delta= (from->seg->data.angle_end -180) - (over->data.angle_start - 180);
-				//	dbg(0,"SEG_BACK dir negatief, delta=%i, over_angle_start=%i, from_angle_end=%i\n",delta,over->data.angle_start,from->seg->data.angle_end);
-				}
-			//	else dbg(0,"SEG_UNKNOWN dir negatief\n");
-			}
-
-			if (delta < -180)
-				delta+=360;
-			if (delta > 180)
-				delta-=360;
-			if (abs(delta) > 30)
-
-
-				/*don't add anything of the old penalties anymore*/
-				/*awaiting a new solution with the extended graph*/
-			{
-				/*add 1 tenth of a  second per 3 degrees above threshold */
-			//	ret=ret+((abs((delta-30)*10)/30));
-			//	dbg(0,"from=%s, over=%s\n",item_to_name(from->seg->data.item.type),item_to_name(over->data.item.type));
-			//	dbg(0,"dir =%i, added %i tenths of seconds, cost=%i, delta=%i\n",dir,abs((delta-30)*10)/30,ret,delta);
-			}
-		}
 	}
 	else ret = over->data.len; /*new shortest mode*/
 
-//	dbg(0,"ret before ret final = %i\n",ret);
-
 	if (ret == INT_MAX)
 		return ret;
-	if (!route_through_traffic_allowed(profile, over) && from
-			&& route_through_traffic_allowed(profile, from->seg->reference_seg))
+	if (!route_through_traffic_allowed(profile, over) && from && route_through_traffic_allowed(profile, from->seg))
 		ret+=profile->through_traffic_penalty;
 	return ret;
 }
-
 
 static int
 route_graph_segment_match(struct route_graph_segment *s1, struct route_graph_segment *s2)
@@ -2407,7 +2167,7 @@ route_graph_set_traffic_distortion(struct route_graph *this, struct route_graph_
 					memset(&item, 0, sizeof(item));
 					item.type=type_traffic_distortion;
 					data.item=&item;
-					data.len=delay;	/*???????????*/
+					data.len=delay;
 					s->start->flags |= RP_TRAFFIC_DISTORTION;
 					s->end->flags |= RP_TRAFFIC_DISTORTION;
 					route_graph_add_segment(this, s->start, s->end, &data);
@@ -2440,18 +2200,15 @@ route_process_traffic_distortion(struct route_graph *this, struct item *item)
 	data.offset=1;
 	data.maxspeed = INT_MAX;
 
-	if (item_coord_get(item, &l, 1))
-	{
+	if (item_coord_get(item, &l, 1)) {
 		s_pnt=route_graph_add_point(this,&l);
-		while (item_coord_get(item, &c, 1))
-		{
+		while (item_coord_get(item, &c, 1)) {
 			l=c;
 		}
 		e_pnt=route_graph_add_point(this,&l);
 		s_pnt->flags |= RP_TRAFFIC_DISTORTION;
 		e_pnt->flags |= RP_TRAFFIC_DISTORTION;
-		if (item_attr_get(item, attr_maxspeed, &maxspeed_attr))
-		{
+		if (item_attr_get(item, attr_maxspeed, &maxspeed_attr)) {
 			data.flags |= AF_SPEED_LIMIT;
 			data.maxspeed=maxspeed_attr.u.num;
 		}
@@ -2492,10 +2249,7 @@ route_process_turn_restriction(struct route_graph *this, struct item *item)
 
 
 	route_graph_add_segment(this, pnt[0], pnt[1], &data);
-	this->route_segments->edge_type = segment_type_turn_restriction;
 	route_graph_add_segment(this, pnt[1], pnt[2], &data);
-	this->route_segments->edge_type = segment_type_turn_restriction;
-
 #if 1
 	if (count == 4) {
 		pnt[1]->flags |= RP_TURN_RESTRICTION;
@@ -2534,8 +2288,6 @@ route_graph_add_item(struct route_graph *this, struct item *item, struct vehicle
 	data.offset=1;
 	data.maxspeed=-1;
 	data.item=item;
-	data.angle_end=-361;
-	data.angle_start=-361;
 
 	roadp = vehicleprofile_get_roadprofile(profile, item->type);
 	if (!roadp)
@@ -2604,19 +2356,13 @@ route_graph_add_item(struct route_graph *this, struct item *item, struct vehicle
 	{
 		if (item_coord_get(item, &c, 1))
 		{
-			data.angle_start=transform_get_angle_delta(&l,&c,1);
-			dbg(lvl_debug,"angle_start=%i, l.x=%i, l.y=%i, c.x=%i, c.y=%i\n",data.angle_start,(&l)->x,(&l)->y,(&c)->x,(&c)->y);
-
-
 			while (1)
 			{
 				len+=transform_distance(map_projection(item->map), &l, &c);
-				data.angle_end=transform_get_angle_delta(&l,&c,1);
 				l=c;
 				if (!item_coord_get(item, &c, 1))
 					break;
 			}
-			dbg(lvl_debug,"angle_end=%i\n",data.angle_end);
 		}
 
 		e_pnt=route_graph_add_point(this,&l);
@@ -2683,67 +2429,57 @@ route_graph_get_segment(struct route_graph *graph, struct street_data *sd, struc
 	return NULL;
 }
 
+
 /**
- * @brief Calculates the routing costs for each point on an extended graph
+ * @brief Calculates the routing costs for each point
  *
  * This function is the heart of routing. It assigns each point in the route graph a
  * cost at which one can reach the destination from this point on. Additionally it assigns
  * each point a segment one should follow from this point on to reach the destination at the
  * stated costs.
+ * 
+ * This function uses Dijkstra's algorithm to do the routing. To understand it you should have a look
+ * at this algorithm.
  *
- * This function uses Dijkstra's algorithm on an extended graph to do the routing.
+ * This version uses the cost of an already found path as upper limit for further exploration
  *
- * This version calculates everything, even if the cost is higher than and already found path
+ *
  *
  */
 static void
-route_dijkstra_extended_graph(struct route_graph *this, struct route_info *dst, struct vehicleprofile *profile, struct callback *cb)
+route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struct route_info *pos, struct vehicleprofile *profile, struct callback *cb)
 {
-	struct route_graph_vertex_virtual *p_min;
+	struct route_graph_point *p_min;
 	struct route_graph_segment *s=NULL;
+	struct route_graph_segment *pos_segment=NULL;
 	int min,new,val;
 	struct fibheap *heap; /* This heap will hold all points with "temporarily" calculated costs */
 	int edges_count=0;
-	double timestamp_graph_flood = now_ms();
+	int max_cost= INT_MAX;
+
+	dbg(0,"starting route_graph_flood_frugal\n");
+
+	pos_segment=route_graph_get_segment(this, pos->street, pos_segment);
 
 	heap = fh_makekeyheap();
 
 	while ((s=route_graph_get_segment(this, dst->street, s)))
 	{
-
-		val=route_value_seg_virtual(profile, NULL, s, -1);
-//		dbg(0,"value backward raw dst =%i\n",val);
+		val=route_value_seg(profile, NULL, s, -1);
 		if (val != INT_MAX)
 		{
 			val=val*(100-dst->percent)/100;
-	//		s->end->seg=s;
-			s->virtual_end->seg=s;
-	//		s->end->value=val;
-			s->virtual_end->value=val;
-	//		s->end->flags = s->end->flags &(~RP_SEG_FORWARD) ;
-	//		s->virtual_end->flags = s->virtual_end->flags &(~RP_SEG_FORWARD) ;
-	//		s->end->flags = s->end->flags | RP_SEG_BACKWARD ;
-	//		s->virtual_end->flags = s->virtual_end->flags | RP_SEG_BACKWARD ;
-	//		s->end->el=fh_insertkey(heap, s->end->value, s->end);
-			s->virtual_end->el = fh_insertkey(heap, s->virtual_end->value, s->virtual_end);
-//			dbg(0,"value backward proportional =%i\n",val);
+			s->end->seg=s;
+			s->end->value=val;
+			s->end->el=fh_insertkey(heap, s->end->value, s->end);
 		}
-		val=route_value_seg_virtual(profile, NULL, s, 1);
-//		dbg(0,"value forward raw dst =%i\n",val);
+		val=route_value_seg(profile, NULL, s, 1);
 		if (val != INT_MAX)
 		{
 			val=val*dst->percent/100;
-	//		s->start->seg=s;
-			s->virtual_start->seg=s;
-	//		s->start->value=val;
-			s->virtual_start->value=val;
-	//		s->start->flags = s->start->flags &(~RP_SEG_BACKWARD) ;
-	//		s->virtual_start->flags = s->virtual_start->flags &(~RP_SEG_BACKWARD) ;
-	//		s->start->flags = s->start->flags | RP_SEG_FORWARD ;
-	//		s->virtual_start->flags = s->virtual_start->flags | RP_SEG_FORWARD ;
-	//		s->start->el=fh_insertkey(heap, s->start->value, s->start);
-			s->virtual_start->el=fh_insertkey(heap, s->virtual_start->value, s->virtual_start);
-//			dbg(0,"value forward proportional =%i\n",val);
+			s->start->seg=s;
+			s->start->value=val;
+			s->start->el=fh_insertkey(heap, s->start->value, s->start);
 		}
 	}
 	for (;;)
@@ -2752,28 +2488,14 @@ route_dijkstra_extended_graph(struct route_graph *this, struct route_info *dst, 
 		if (! p_min) /* There are no more points with temporarily calculated costs, Dijkstra has finished */
 			break;
 		min=p_min->value;
-//		dbg(0,"p_min value=%i\n",min);
+		dbg(lvl_debug,"extract p=%p free el=%p min=%d, 0x%x, 0x%x\n", p_min, p_min->el, min, p_min->c.x, p_min->c.y);
 		p_min->el=NULL; /* This point is permanently calculated now, we've taken it out of the heap */
 		s=p_min->start;
 		while (s)
 		{ /* Iterating all the segments leading away from our point to update the points at their ends */
 			edges_count ++;
-			val=route_value_seg_virtual(profile, p_min, s, -1);
-//			dbg(0,"value backward raw =%i\n",val);
-
-
-		//	if (val != INT_MAX
-		//			&& s->edge_type == segment_type_virtual && p_min->seg->edge_type == segment_type_virtual
-		//			)
-		//	{
-		//						val=INT_MAX;
-		//	}
-
-
-
-			if (val != INT_MAX
-					&& s->edge_type == segment_type_real && p_min->seg->edge_type == segment_type_real
-					&& item_is_equal(s->data.item,p_min->seg->data.item))
+			val=route_value_seg(profile, p_min, s, -1);
+			if (val != INT_MAX && item_is_equal(s->data.item,p_min->seg->data.item))
 			{
 				if (profile->turn_around_penalty2)
 					val+=profile->turn_around_penalty2;
@@ -2783,51 +2505,42 @@ route_dijkstra_extended_graph(struct route_graph *this, struct route_info *dst, 
 			if (val != INT_MAX)
 			{
 				new=min+val;
-//				dbg(0,"new = %i\n",new);
-				if (s)
-					if ( s->virtual_end)
-						if (s->virtual_end->value)
-							if ( (new < s->virtual_end->value))
-				{ /* We've found a less costly way to reach the end of s, update it */
-					s->virtual_end->value=new;
-					s->virtual_end->seg=s;
-			//		s->virtual_end->flags = s->virtual_end->flags &(~RP_SEG_FORWARD) ;
-			//		s->virtual_end->flags = s->virtual_end->flags | RP_SEG_BACKWARD ;
-					if (! s->virtual_end->el)
-					{
-						s->virtual_end->el=fh_insertkey(heap, new, s->virtual_end);
+				if (new <= max_cost) /*check if it is worth exploring */
+				{
+					dbg(lvl_debug,"begin %d len %d vs %d (0x%x,0x%x)\n",new,val,s->end->value, s->end->c.x, s->end->c.y);
+					if (new < s->end->value)
+					{ /* We've found a less costly way to reach the end of s, update it */
+						s->end->value=new;
+						s->end->seg=s;
+						if (! s->end->el)
+						{
+							dbg(lvl_debug,"insert_end p=%p el=%p val=%d ", s->end, s->end->el, s->end->value);
+							s->end->el=fh_insertkey(heap, new, s->end);
+						}
+						else
+						{
+							dbg(lvl_debug,"replace_end p=%p el=%p val=%d\n", s->end, s->end->el, s->end->value);
+							fh_replacekey(heap, s->end->el, new);
+						}
 					}
-					else
+					if (item_is_equal(pos_segment->data.item,s->data.item))
 					{
-						fh_replacekey(heap, s->virtual_end->el, new);
+						max_cost=new;
+						dbg(lvl_debug,"new shortest path cost = %i\n",new)
 					}
 				}
 
 			}
-			s=s->virtual_start_next;
-//			dbg (0,"edges_count = %i\n",edges_count);
+			s=s->start_next;
 		}
+
 
 		s=p_min->end;
 		while (s)
 		{ /* Doing the same as above with the segments leading towards our point */
 			edges_count ++;
-			val=route_value_seg_virtual(profile, p_min, s, 1);
-//			dbg(0,"value forward raw =%i\n",val);
-
-
-		//	if (val != INT_MAX
-		//						&& s->edge_type == segment_type_virtual && p_min->seg->edge_type == segment_type_virtual
-		//						)
-		//				{
-		//									val=INT_MAX;
-		//				}
-
-
-
-			if (val != INT_MAX
-					&& s->edge_type == segment_type_real && p_min->seg->edge_type == segment_type_real
-					&& item_is_equal(s->data.item,p_min->seg->data.item))
+			val=route_value_seg(profile, p_min, s, 1);
+			if (val != INT_MAX && item_is_equal(s->data.item,p_min->seg->data.item))
 			{
 				if (profile->turn_around_penalty2)
 					val+=profile->turn_around_penalty2;
@@ -2837,34 +2550,178 @@ route_dijkstra_extended_graph(struct route_graph *this, struct route_info *dst, 
 			if (val != INT_MAX)
 			{
 				new=min+val;
-//				dbg(0,"new = %i\n",new);
-				if (new < s->virtual_start->value)
+				if (new <= max_cost)
 				{
-					s->virtual_start->value=new;
-					s->virtual_start->seg=s;
-			//		s->virtual_start->flags = s->virtual_start->flags &(~RP_SEG_BACKWARD) ;
-			//		s->virtual_start->flags = s->virtual_start->flags | RP_SEG_FORWARD ;
-					if (! s->virtual_start->el)
+					dbg(lvl_debug,"end %d len %d vs %d (0x%x,0x%x)\n",new,val,s->start->value,s->start->c.x, s->start->c.y);
+					if (new < s->start->value)
 					{
-						s->virtual_start->el=fh_insertkey(heap, new, s->virtual_start);
+						s->start->value=new;
+						s->start->seg=s;
+						if (! s->start->el)
+						{
+							dbg(lvl_debug,"insert_start p=%p el=%p val=%d ", s->start, s->start->el, s->start->value);
+							s->start->el=fh_insertkey(heap, new, s->start);
+						}
+						else
+						{
+							dbg(lvl_debug,"replace_start p=%p el=%p val=%d\n", s->start, s->start->el, s->start->value);
+							fh_replacekey(heap, s->start->el, new);
+						}
 					}
-					else
+					if (item_is_equal(pos_segment->data.item,s->data.item))
 					{
-						fh_replacekey(heap, s->virtual_start->el, new);
+						max_cost=new;
+						dbg(lvl_debug,"new shortest path cost = %i\n",new)
 					}
 				}
 			}
-			s=s->virtual_end_next;
+			s=s->end_next;
 		}
-//		dbg (0,"edges_count = %i\n",edges_count);
 	}
 	dbg(0,"number of edges visited =%i\n",edges_count);
-	dbg(0,"route_dijkstra_extended_graph took: %.3f ms\n", now_ms() - timestamp_graph_flood);
 	fh_deleteheap(heap);
 	callback_call_0(cb);
 	dbg(lvl_debug,"return\n");
 }
 
+
+/**
+ * @brief Calculates the routing costs for each point
+ *
+ * This function is the heart of routing. It assigns each point in the route graph a
+ * cost at which one can reach the destination from this point on. Additionally it assigns
+ * each point a segment one should follow from this point on to reach the destination at the
+ * stated costs.
+ *
+ * This function uses Dijkstra's algorithm to do the routing. To understand it you should have a look
+ * at this algorithm.
+ *
+ * This version calculates everything, even if the cost is higher than and already found path
+ *
+ */
+static void
+route_graph_flood(struct route_graph *this, struct route_info *dst, struct vehicleprofile *profile, struct callback *cb)
+{
+	struct route_graph_point *p_min;
+	struct route_graph_segment *s=NULL;
+	int min,new,val;
+	struct fibheap *heap; /* This heap will hold all points with "temporarily" calculated costs */
+	int edges_count=0;
+	double timestamp_graph_flood = now_ms();
+
+	heap = fh_makekeyheap();   
+
+	while ((s=route_graph_get_segment(this, dst->street, s)))
+	{
+
+		val=route_value_seg(profile, NULL, s, -1);
+		if (val != INT_MAX)
+		{
+			val=val*(100-dst->percent)/100;
+			s->end->seg=s;
+			s->end->value=val;
+			s->end->el=fh_insertkey(heap, s->end->value, s->end);
+		}
+		val=route_value_seg(profile, NULL, s, 1);
+		if (val != INT_MAX)
+		{
+			val=val*dst->percent/100;
+			s->start->seg=s;
+			s->start->value=val;
+			s->start->el=fh_insertkey(heap, s->start->value, s->start);
+		}
+	}
+	for (;;) {
+		p_min=fh_extractmin(heap); /* Starting Dijkstra by selecting the point with the minimum costs on the heap */
+		if (! p_min) /* There are no more points with temporarily calculated costs, Dijkstra has finished */
+			break;
+		min=p_min->value;
+		if (debug_route)
+			printf("extract p=%p free el=%p min=%d, 0x%x, 0x%x\n", p_min, p_min->el, min, p_min->c.x, p_min->c.y);
+		p_min->el=NULL; /* This point is permanently calculated now, we've taken it out of the heap */
+		s=p_min->start;
+		while (s)
+		{ /* Iterating all the segments leading away from our point to update the points at their ends */
+			edges_count ++;
+			val=route_value_seg(profile, p_min, s, -1);
+			if (val != INT_MAX && item_is_equal(s->data.item,p_min->seg->data.item))
+			{
+				if (profile->turn_around_penalty2)
+					val+=profile->turn_around_penalty2;
+				else
+					val=INT_MAX;
+			}
+			if (val != INT_MAX)
+			{
+				new=min+val;
+				if (debug_route)
+					printf("begin %d len %d vs %d (0x%x,0x%x)\n",new,val,s->end->value, s->end->c.x, s->end->c.y);
+				if (new < s->end->value) { /* We've found a less costly way to reach the end of s, update it */
+					s->end->value=new;
+					s->end->seg=s;
+					if (! s->end->el)
+					{
+						if (debug_route)
+							printf("insert_end p=%p el=%p val=%d ", s->end, s->end->el, s->end->value);
+						s->end->el=fh_insertkey(heap, new, s->end);
+						if (debug_route)
+							printf("el new=%p\n", s->end->el);
+					}
+					else
+					{
+						if (debug_route)
+							printf("replace_end p=%p el=%p val=%d\n", s->end, s->end->el, s->end->value);
+						fh_replacekey(heap, s->end->el, new);
+					}
+				}
+				if (debug_route)
+					printf("\n");
+			}
+			s=s->start_next;
+		}
+
+		s=p_min->end;
+		while (s) { /* Doing the same as above with the segments leading towards our point */
+			edges_count ++;
+			val=route_value_seg(profile, p_min, s, 1);
+			if (val != INT_MAX && item_is_equal(s->data.item,p_min->seg->data.item)) {
+				if (profile->turn_around_penalty2)
+					val+=profile->turn_around_penalty2;
+				else
+					val=INT_MAX;
+			}
+			if (val != INT_MAX) {
+				new=min+val;
+				if (debug_route)
+					printf("end %d len %d vs %d (0x%x,0x%x)\n",new,val,s->start->value,s->start->c.x, s->start->c.y);
+				if (new < s->start->value) {
+					s->start->value=new;
+					s->start->seg=s;
+					if (! s->start->el) {
+						if (debug_route)
+							printf("insert_start p=%p el=%p val=%d ", s->start, s->start->el, s->start->value);
+						s->start->el=fh_insertkey(heap, new, s->start);
+						if (debug_route)
+							printf("el new=%p\n", s->start->el);
+					}
+					else {
+						if (debug_route)
+							printf("replace_start p=%p el=%p val=%d\n", s->start, s->start->el, s->start->value);
+						fh_replacekey(heap, s->start->el, new);
+					}
+				}
+				if (debug_route)
+					printf("\n");
+			}
+			s=s->end_next;
+		}
+	}
+	dbg(0,"number of edges visited =%i\n",edges_count);
+	dbg(0,"route_graph_flood took: %.3f ms\n", now_ms() - timestamp_graph_flood);
+	fh_deleteheap(heap);
+	callback_call_0(cb);
+	dbg(lvl_debug,"return\n");
+}
 
 /**
  * @brief Starts an "offroad" path
@@ -2950,7 +2807,7 @@ route_get_coord_dist(struct route *this_, int dist)
 }
 
 /**
- * @brief Creates a new route path (modded for extended graph)
+ * @brief Creates a new route path
  * 
  * This creates a new non-trivial route. It therefore needs the routing information created by route_graph_flood, so
  * make sure to run route_graph_flood() after changing the destination before using this function.
@@ -2966,7 +2823,7 @@ static struct route_path *
 route_path_new(struct route_graph *this, struct route_path *oldpath, struct route_info *pos, struct route_info *dst, struct vehicleprofile *profile)
 {
 	struct route_graph_segment *s=NULL,*s1=NULL,*s2=NULL;
-	struct route_graph_vertex_virtual *start;
+	struct route_graph_point *start;
 	struct route_info *posinfo, *dstinfo;
 	int segs=0,dir;
 	int val1=INT_MAX,val2=INT_MAX;
@@ -2974,45 +2831,38 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 	struct route_path *ret;
 
 	if (! pos->street || ! dst->street) {
-//		dbg(0,"pos or dest not set\n");
+		dbg(lvl_error,"pos or dest not set\n");
 		return NULL;
 	}
 
 	if (profile->mode == 2 || (profile->mode == 0 && pos->lenextra + dst->lenextra > transform_distance(map_projection(pos->street->item.map), &pos->c, &dst->c)))
 		return route_path_new_offroad(this, pos, dst);
 	if (profile->mode != 3) /*not shortest on-road*/{
-	while ((s=route_graph_get_segment(this, pos->street, s)))
-	{
-		val=route_value_seg_virtual(profile, NULL, s, 2);
-//		dbg(0,"pos segment found, val forward =%i, virtual_end value=%i\n",val,s->virtual_end->value);
-		if (val != INT_MAX && s->virtual_end->value != INT_MAX)
-		{
+	while ((s=route_graph_get_segment(this, pos->street, s))) {
+		val=route_value_seg(profile, NULL, s, 2);
+		if (val != INT_MAX && s->end->value != INT_MAX) {
 			val=val*(100-pos->percent)/100;
-//			dbg(0,"val1 %d\n",val);
+			dbg(lvl_debug,"val1 %d\n",val);
 			if (route_graph_segment_match(s,this->avoid_seg) && pos->street_direction < 0)
 				val+=profile->turn_around_penalty;
-//			dbg(0,"val1 %d\n",val);
-			val1_new=s->virtual_end->value+val;
-//			dbg(0,"val1 +%d=%d\n",s->virtual_end->value,val1_new);
-			if (val1_new < val1)
-			{
+			dbg(lvl_debug,"val1 %d\n",val);
+			val1_new=s->end->value+val;
+			dbg(lvl_debug,"val1 +%d=%d\n",s->end->value,val1_new);
+			if (val1_new < val1) {
 				val1=val1_new;
 				s1=s;
 			}
 		}
-		val=route_value_seg_virtual(profile, NULL, s, -2);
-//		dbg(0,"pos segment found, val backward =%i, virtual_start value=%i\n",val,s->virtual_start->value);
-		if (val != INT_MAX && s->virtual_start->value != INT_MAX)
-		{
+		val=route_value_seg(profile, NULL, s, -2);
+		if (val != INT_MAX && s->start->value != INT_MAX) {
 			val=val*pos->percent/100;
-//			dbg(0,"val2 %d\n",val);
+			dbg(lvl_debug,"val2 %d\n",val);
 			if (route_graph_segment_match(s,this->avoid_seg) && pos->street_direction > 0)
 				val+=profile->turn_around_penalty;
-//			dbg(0,"val2 %d\n",val);
-			val2_new=s->virtual_start->value+val;
-//			dbg(0,"val2 +%d=%d\n",s->virtual_start->value,val2_new);
-			if (val2_new < val2)
-			{
+			dbg(lvl_debug,"val2 %d\n",val);
+			val2_new=s->start->value+val;
+			dbg(lvl_debug,"val2 +%d=%d\n",s->start->value,val2_new);
+			if (val2_new < val2) {
 				val2=val2_new;
 				s2=s;
 			}
@@ -3024,14 +2874,13 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 		dbg(lvl_debug,"experimental shortest route calc\n")
 		while ((s=route_graph_get_segment(this, pos->street, s)))
 		{
-
 			val = s->data.len;
-			if (val != INT_MAX && s->virtual_end->value != INT_MAX)
+			if (val != INT_MAX && s->end->value != INT_MAX)
 			{
 				val=val*(100-pos->percent)/100;
 				dbg(lvl_debug,"val1 %d\n",val);
-				val1_new=s->virtual_end->value+val;
-				dbg(lvl_debug,"val1 +%d=%d\n",s->virtual_end->value,val1_new);
+				val1_new=s->end->value+val;
+				dbg(lvl_debug,"val1 +%d=%d\n",s->end->value,val1_new);
 				if (val1_new < val1)
 				{
 					val1=val1_new;
@@ -3040,12 +2889,12 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 			}
 			dbg(lvl_debug,"val=%i\n",val);
 			val = s->data.len;
-			if (val != INT_MAX && s->virtual_start->value != INT_MAX)
+			if (val != INT_MAX && s->start->value != INT_MAX)
 			{
 				val=val*pos->percent/100;
 				dbg(lvl_debug,"val2 %d\n",val);
-				val2_new=s->virtual_start->value+val;
-				dbg(lvl_debug,"val2 +%d=%d\n",s->virtual_start->value,val2_new);
+				val2_new=s->start->value+val;
+				dbg(lvl_debug,"val2 +%d=%d\n",s->start->value,val2_new);
 				if (val2_new < val2)
 				{
 					val2=val2_new;
@@ -3056,40 +2905,32 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 	}
 
 
-	if (val1 == INT_MAX && val2 == INT_MAX)
-	{
+	if (val1 == INT_MAX && val2 == INT_MAX) {
 		dbg(lvl_error,"no route found, pos blocked\n");
 		return NULL;
 	}
-	if (val1 == val2)
-	{
-		val1=s1->virtual_end->value;
-		val2=s2->virtual_start->value;
+	if (val1 == val2) {
+		val1=s1->end->value;
+		val2=s2->start->value;
 	}
-	if (val1 < val2)
-	{
-		start=s1->virtual_start;
+	if (val1 < val2) {
+		start=s1->start;
 		s=s1;
 		dir=1;
-	}
-	else
-	{
-		start=s2->virtual_end;
+	} else {
+		start=s2->end;
 		s=s2;
 		dir=-1;
 	}
-	if (pos->street_direction && dir != pos->street_direction && profile->turn_around_penalty)
-	{
-		if (!route_graph_segment_match(this->avoid_seg,s))
-		{
+	if (pos->street_direction && dir != pos->street_direction && profile->turn_around_penalty) {
+		if (!route_graph_segment_match(this->avoid_seg,s)) {
 			dbg(lvl_debug,"avoid current segment\n");
 			if (this->avoid_seg)
 				route_graph_set_traffic_distortion(this, this->avoid_seg, 0);
 			this->avoid_seg=s;
 			route_graph_set_traffic_distortion(this, this->avoid_seg, profile->turn_around_penalty);
 			route_graph_reset(this);
-			route_dijkstra_extended_graph(this, dst, profile, NULL);
-	/*		route_graph_flood(this, dst, profile, NULL); */
+			route_graph_flood(this, dst, profile, NULL);
 	/*		route_graph_flood_frugal(this, dst, pos, profile, NULL); */
 			return route_path_new(this, oldpath, pos, dst, profile);
 		}
@@ -3102,44 +2943,37 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 	ret->path_hash=item_hash_new();
 	dstinfo=NULL;
 	posinfo=pos;
-	while (s && !dstinfo)
-	{ /* following start->seg, which indicates the least costly way to reach our destination */
+	while (s && !dstinfo) { /* following start->seg, which indicates the least costly way to reach our destination */
 		segs++;
 #if 0
 		printf("start->value=%d 0x%x,0x%x\n", start->value, start->c.x, start->c.y);
 #endif
-		if (s->virtual_start == start)
-		{
-			if (item_is_equal(s->data.item, dst->street->item) && (s->virtual_end->seg == s || !posinfo))
+		if (s->start == start) {		
+			if (item_is_equal(s->data.item, dst->street->item) && (s->end->seg == s || !posinfo))
 				dstinfo=dst;
 			if (!route_path_add_item_from_graph(ret, oldpath, s, 1, posinfo, dstinfo))
 				ret->updated=0;
-			start=s->virtual_end;
-			s=s->virtual_end->seg;
-		}
-		else
-		{
-			if (item_is_equal(s->data.item, dst->street->item) && (s->virtual_start->seg == s || !posinfo))
+			start=s->end;
+		} else {
+			if (item_is_equal(s->data.item, dst->street->item) && (s->start->seg == s || !posinfo))
 				dstinfo=dst;
 			if (!route_path_add_item_from_graph(ret, oldpath, s, -1, posinfo, dstinfo))
 				ret->updated=0;
-			start=s->virtual_start;
-			s=s->virtual_start->seg;
+			start=s->start;
 		}
 		posinfo=NULL;
-	//	s=start->seg;
+		s=start->seg;
 	}
 	if (dst->lenextra) 
 		route_path_add_line(ret, &dst->lp, &dst->c, dst->lenextra);
-//	dbg(0, "%d segments\n", segs);
+	dbg(lvl_debug, "%d segments\n", segs);
 	return ret;
 }
 
 static int
 route_graph_build_next_map(struct route_graph *rg)
 {
-	do
-	{
+	do {
 		rg->m=mapset_next(rg->h, 2);
 		if (! rg->m)
 			return 0;
@@ -3167,10 +3001,10 @@ is_turn_allowed(struct route_graph_point *p, struct route_graph_segment *from, s
 	else
 		next=to->start;
 	tmp1=p->end;
-	while (tmp1)
-	{
-		if (tmp1->start->c.x == prev->c.x && tmp1->start->c.y == prev->c.y && (tmp1->data.item.type == type_street_turn_restriction_no || tmp1->data.item.type == type_street_turn_restriction_only))
-		{
+	while (tmp1) {
+		if (tmp1->start->c.x == prev->c.x && tmp1->start->c.y == prev->c.y &&
+			(tmp1->data.item.type == type_street_turn_restriction_no ||
+			tmp1->data.item.type == type_street_turn_restriction_only)) {
 			tmp2=p->start;
 			dbg(lvl_debug,"found %s (0x%x,0x%x) (0x%x,0x%x)-(0x%x,0x%x) %p-%p\n",item_to_name(tmp1->data.item.type),tmp1->data.item.id_hi,tmp1->data.item.id_lo,tmp1->start->c.x,tmp1->start->c.y,tmp1->end->c.x,tmp1->end->c.y,tmp1->start,tmp1->end);
 			while (tmp2) {
@@ -3203,17 +3037,13 @@ static void
 route_graph_clone_segment(struct route_graph *this, struct route_graph_segment *s, struct route_graph_point *start, struct route_graph_point *end, int flags)
 {
 	struct route_graph_segment_data data;
-	data.flags=s->data.flags|flags|AF_IS_CLONE;
+	data.flags=s->data.flags|flags
+		//	|AF_IS_CLONE
+			;
 	data.offset=1;
 	data.maxspeed=-1;
 	data.item=&s->data.item;
-	data.len=s->data.len+1; /*maybe to make it more costly than the original*/
-
-	/*is dit zinnig ? anders wel van die bogus entries*/
-
-
-	data.angle_end=s->data.angle_end;
-	data.angle_start=s->data.angle_start;
+	data.len=s->data.len+1;
 
 	if (s->data.flags & AF_SPEED_LIMIT)
 		data.maxspeed=RSD_MAXSPEED(&s->data);
@@ -3221,7 +3051,6 @@ route_graph_clone_segment(struct route_graph *this, struct route_graph_segment *
 		data.offset=RSD_OFFSET(&s->data);
 	dbg(lvl_debug,"cloning segment from %p (0x%x,0x%x) to %p (0x%x,0x%x)\n",start,start->c.x,start->c.y, end, end->c.x, end->c.y);
 	route_graph_add_segment(this, start, end, &data);
-	this->route_segments->edge_type = segment_type_turn_restriction;
 }
 
 static void
@@ -3354,7 +3183,7 @@ route_graph_build_idle(struct route_graph *rg, struct vehicleprofile *profile)
 				break;
 			if (!route_graph_build_next_map(rg))
 			{
-//				dbg(0,"build_idle final: %.3f ms\n", now_ms() - timestamp_build_idle);
+				dbg(0,"build_idle final: %.3f ms\n", now_ms() - timestamp_build_idle);
 				route_graph_build_done(rg, 0);
 				return;
 			}
@@ -3409,384 +3238,10 @@ route_graph_build(struct mapset *ms, struct coord *c, int count, struct callback
 	return ret;
 }
 
-
-/*now contains a test to extend the route graph*/
 static void
 route_graph_update_done(struct route *this, struct callback *cb)
 {
-	struct route_graph_segment *realedge;
-	struct route_graph_point *realvertex;
-	struct route_graph_vertex_virtual *virtualvertex;
-	int realedge_counter = 0;							/*for debugging use only*/
-
-//	dbg(0,"Zou dit een goede plaats zijn om postprocessing te doen ?\n");
-		/*extending graph with virtual vertices*/
-
-		/*nog ceck of dit wel bestaat*/
-		realedge = this->graph->route_segments;
-
-		while (realedge) /*free this stuff somewhere !*/
-		{
-			/*de virtuele nodes opzetten*/
-
-			if (realedge->data.item.type != type_street_turn_restriction_no
-					&& realedge->data.item.type != type_street_turn_restriction_only)
-			{
-
-
-				/*het start gedeelte*/
-
-				realedge_counter ++;
-				realedge->edge_type = segment_type_real;
-
-				realvertex = realedge->start;
-
-				virtualvertex=g_slice_new0(struct route_graph_vertex_virtual);
-
-				virtualvertex->value=INT_MAX;
-				virtualvertex->root = realvertex;
-				virtualvertex->start = realedge;	/*list of seg's with same startpoint*/
-				virtualvertex->end = NULL;			/*list of seg's with same endpoint*/
-
-				virtualvertex->next = realvertex->leaves; /*pointer to next leaf*/
-				realvertex->leaves = virtualvertex;
-				virtualvertex->seg = realedge;
-
-				realedge->virtual_start = virtualvertex;
-
-				/*het end gedeelte*/
-
-				realvertex = realedge->end;
-
-				virtualvertex=g_slice_new0(struct route_graph_vertex_virtual);
-				virtualvertex->value = INT_MAX;
-				virtualvertex->root = realvertex;
-				virtualvertex->start = NULL;
-				virtualvertex->end = realedge;
-
-	//			realedge->end_next = NULL;
-
-				virtualvertex->next = realvertex->leaves;
-				realvertex->leaves = virtualvertex;
-				virtualvertex->seg = realedge;
-
-				realedge->virtual_end = virtualvertex;
-
-				realedge->virtual_start_next = NULL;
-				realedge->virtual_end_next = NULL;
-
-			}
-			realedge = realedge->next;
-		}
-
-
-		dbg(0,"worked over %i real edges\n",realedge_counter);
-
-
-		/*insert virtual edges between the virtual vertices*/
-
-		struct route_graph_point *curr;
-		struct route_graph_vertex_virtual *curr_vertex_virtual,*curr_vertex_virtual_next;
-		int i;
-		int virtualedge_counter;
-
-		virtualedge_counter = 0;
-		for (i = 0 ; i < HASH_SIZE ; i++)
-		{
-			curr=this->graph->hash[i];
-			while (curr)
-			{
-				curr_vertex_virtual = curr->leaves;
-
-//				dbg(0,"virtualedge_counter = %i\n",virtualedge_counter);
-
-				while (curr_vertex_virtual)
-				{
-					if (curr_vertex_virtual)
-						curr_vertex_virtual_next= curr_vertex_virtual->next;
-
-					while (curr_vertex_virtual_next)
-					{
-//						dbg(0,"probeer een virt edge \n");
-//						dbg(0,"data.flags 0x%x mask 0x%x profile.flags 0x%x\n", curr_vertex_virtual_next->seg->data.flags, this->vehicleprofile->flags_forward_mask, this->vehicleprofile->flags);
-
-						if (is_turn_allowed(curr,curr_vertex_virtual->seg,curr_vertex_virtual_next->seg)
-						//		&&	(curr_vertex_virtual_next->seg->data.flags & (this->vehicleprofile->flags_forward_mask) == this->vehicleprofile->flags)
-						//			&& 	(curr_vertex_virtual_next->seg->start == curr_vertex_virtual_next->root)
-
-						// don't drive into a oneway the wrong way
-							&! ((curr_vertex_virtual_next->seg->data.flags & AF_ONEWAY) && (curr_vertex_virtual_next->seg->end == curr_vertex_virtual_next->root))
-							&! ((curr_vertex_virtual_next->seg->data.flags & AF_ONEWAYREV) && (curr_vertex_virtual_next->seg->start == curr_vertex_virtual_next->root))
-
-						// don't drive out of a oneway the wrong way
-							&! ((curr_vertex_virtual->seg->data.flags & AF_ONEWAY) && (curr_vertex_virtual->seg->start == curr_vertex_virtual->root))
-							&! ((curr_vertex_virtual->seg->data.flags & AF_ONEWAYREV) && (curr_vertex_virtual->seg->end == curr_vertex_virtual->root))
-
-
-
-							)
-						{
-
-//							dbg(0,"turn accepted, insert a virtual edge for it \n");
-
-
-							/*based on vanilla route_graph_add_segment()*/
-
-							struct route_graph_segment *new_virtual_edge;
-							int size;
-
-							size = sizeof(struct route_graph_segment)
-						//			-sizeof(struct route_segment_data)
-						//			+route_segment_data_size(data->flags)
-									;
-							new_virtual_edge = g_slice_alloc0(size);
-
-							/*for now suppose it always works
-							* if (!new_virtual_edge) {
-							* 	printf("%s:Out of memory\n", __FUNCTION__);
-							* 	return;
-							* }
-							*/
-
-
-							/*let it be known that it is a virtual edge*/
-							new_virtual_edge->edge_type = segment_type_virtual;
-
-							/*now we use the virtual vertices stacked onto the same route_graph_point*/
-							/*curr_vertex_virtual is the start*/
-							/*curr_vertex_virtual_next is the end*/
-
-
-							new_virtual_edge->virtual_start=curr_vertex_virtual;
-							new_virtual_edge->virtual_end=curr_vertex_virtual_next;
-							new_virtual_edge->virtual_start_next=curr_vertex_virtual->start;
-							curr_vertex_virtual->start=new_virtual_edge;
-
-							new_virtual_edge->virtual_end_next=curr_vertex_virtual_next->end;
-							curr_vertex_virtual_next->end=new_virtual_edge;
-
-
-							/*not sure if we actually use those for something ?*/
-							new_virtual_edge->start = curr_vertex_virtual->root;
-							new_virtual_edge->end = curr_vertex_virtual_next->root;
-
-
-							new_virtual_edge->reference_seg = curr_vertex_virtual->seg;
-							new_virtual_edge->delta = 0;
-
-							if (curr_vertex_virtual->seg->start == curr)
-							{
-								if (curr_vertex_virtual_next->seg->start == curr)
-								{
-									new_virtual_edge->delta = curr_vertex_virtual_next->seg->data.angle_start - curr_vertex_virtual->seg->data.angle_start + 180;
-								}
-								else if (curr_vertex_virtual_next->seg->end == curr)
-								{
-									new_virtual_edge->delta = curr_vertex_virtual_next->seg->data.angle_end - curr_vertex_virtual->seg->data.angle_start;
-								}
-							}
-
-							if (curr_vertex_virtual->seg->end == curr)
-							{
-								if (curr_vertex_virtual_next->seg->start == curr)
-								{
-									new_virtual_edge->delta = curr_vertex_virtual_next->seg->data.angle_start - curr_vertex_virtual->seg->data.angle_end;
-								}
-								else if (curr_vertex_virtual_next->seg->end == curr)
-								{
-									new_virtual_edge->delta = curr_vertex_virtual_next->seg->data.angle_end - curr_vertex_virtual->seg->data.angle_end;
-								}
-							}
-
-							if (new_virtual_edge->delta < -180)
-								new_virtual_edge->delta = new_virtual_edge->delta + 360;
-
-		//					dbg(0,"delta = %i\n",new_virtual_edge->delta);
-
-
-
-							/* We don't have data yet for these virtual edges
-							 * and for now they are oneway, we will assume so
-							 * when calculating their cost based on the type being
-							 * segment_type_virtual
-							 *
-							 * */
-
-
-
-							new_virtual_edge->next=this->graph->route_segments;
-							this->graph->route_segments=new_virtual_edge;
-
-							virtualedge_counter ++;
-
-						}
-
-						else
-						{
-//							dbg(0,"rejected because of turn restriction \n");
-						}
-
-//						dbg(0,"data.flags 0x%x mask 0x%x profile.flags 0x%x\n", curr_vertex_virtual_next->seg->data.flags, this->vehicleprofile->flags_forward_mask, this->vehicleprofile->flags);
-
-						if (is_turn_allowed(curr,curr_vertex_virtual_next->seg,curr_vertex_virtual->seg)
-						//		&&	(curr_vertex_virtual->seg->data.flags & (this->vehicleprofile->flags_forward_mask) == this->vehicleprofile->flags)
-						//			&& 	(curr_vertex_virtual->seg->start == curr_vertex_virtual->root)
-
-								// don't drive out of a  oneway the wrong way
-									&! ((curr_vertex_virtual_next->seg->data.flags & AF_ONEWAY) && (curr_vertex_virtual_next->seg->start == curr_vertex_virtual_next->root))
-									&! ((curr_vertex_virtual_next->seg->data.flags & AF_ONEWAYREV) && (curr_vertex_virtual_next->seg->end == curr_vertex_virtual_next->root))
-
-								// don't drive into a oneway the wrong way
-									&! ((curr_vertex_virtual->seg->data.flags & AF_ONEWAY) && (curr_vertex_virtual->seg->end == curr_vertex_virtual->root))
-									&! ((curr_vertex_virtual->seg->data.flags & AF_ONEWAYREV) && (curr_vertex_virtual->seg->start == curr_vertex_virtual->root))
-
-
-
-
-
-								)
-						{
-
-//							dbg(0,"turn accepted, insert a virtual edge for it \n");
-
-							/*similar as above, but now swap start and end as it is in the if statement
-							 * as well
-							 * */
-
-
-							struct route_graph_segment *new_virtual_edge;
-							int size;
-
-							size = sizeof(struct route_graph_segment)
-							//		-sizeof(struct route_segment_data)
-							//		+route_segment_data_size(data->flags)
-									;
-							new_virtual_edge = g_slice_alloc0(size);
-
-							/*for now suppose it always works
-							* if (!new_virtual_edge) {
-							* 	printf("%s:Out of memory\n", __FUNCTION__);
-							* 	return;
-							* }
-							*/
-
-
-							/*let it be known that it is a virtual edge*/
-							new_virtual_edge->edge_type = segment_type_virtual;
-
-							/*now we use the virtual vertices stacked onto the same route_graph_point*/
-							/*curr_vertex_virtual is the start*/
-							/*curr_vertex_virtual_next is the end*/
-
-							new_virtual_edge->virtual_start=curr_vertex_virtual_next;
-							new_virtual_edge->virtual_end=curr_vertex_virtual;
-							new_virtual_edge->virtual_start_next = curr_vertex_virtual_next->start;
-							curr_vertex_virtual_next->start=new_virtual_edge;
-
-							new_virtual_edge->virtual_end_next = curr_vertex_virtual->end;
-							curr_vertex_virtual->end=new_virtual_edge;
-//							curr_vertex_virtual->end=NULL;
-
-							/*not sure if we actually use those for something ?*/
-							new_virtual_edge->start = curr_vertex_virtual->root;
-							new_virtual_edge->end = curr_vertex_virtual_next->root;
-
-
-							new_virtual_edge->reference_seg = curr_vertex_virtual_next->seg;
-							new_virtual_edge->delta = 0;
-
-							if (curr_vertex_virtual->seg->start == curr)
-							{
-								if (curr_vertex_virtual_next->seg->start == curr)
-								{
-									new_virtual_edge->delta = curr_vertex_virtual->seg->data.angle_start - curr_vertex_virtual_next->seg->data.angle_start -180;
-								}
-								else if (curr_vertex_virtual_next->seg->end == curr)
-								{
-									new_virtual_edge->delta = curr_vertex_virtual->seg->data.angle_start - curr_vertex_virtual_next->seg->data.angle_end;
-								}
-							}
-
-							if (curr_vertex_virtual->seg->end == curr)
-							{
-								if (curr_vertex_virtual_next->seg->start == curr)
-								{
-									new_virtual_edge->delta = curr_vertex_virtual_next->seg->data.angle_end - curr_vertex_virtual->seg->data.angle_start -180;
-								}
-								else if (curr_vertex_virtual_next->seg->end == curr)
-								{
-									new_virtual_edge->delta = curr_vertex_virtual_next->seg->data.angle_end - curr_vertex_virtual_next->seg->data.angle_end;
-								}
-							}
-
-							if (new_virtual_edge->delta < -180)
-								new_virtual_edge->delta = new_virtual_edge->delta + 360;
-
-				//			dbg(0,"delta = %i\n",new_virtual_edge->delta);
-
-
-
-							/* We don't have data yet for these virtual edges
-							* and for now they are oneway, we will assume so
-							* when calculating their cost based on the type being
-							* segment_type_virtual
-							*
-							* */
-
-
-
-							//		dbg_assert(data->len >= 0);
-
-							//		new_virtual_edge->data.len=data->len;
-							//		new_virtual_edge->data.item=*data->item;
-							//		new_virtual_edge->data.flags=data->flags;
-
-							//		if (data->flags & AF_SPEED_LIMIT)
-							//			RSD_MAXSPEED(&s->data)=data->maxspeed;
-							//		if (data->flags & AF_SEGMENTED)
-							//			RSD_OFFSET(&s->data)=data->offset;
-							//		if (data->flags & AF_SIZE_OR_WEIGHT_LIMIT)
-							//			RSD_SIZE_WEIGHT(&s->data)=data->size_weight;
-							//		if (data->flags & AF_DANGEROUS_GOODS)
-							//			RSD_DANGEROUS_GOODS(&s->data)=data->dangerous_goods;
-
-							new_virtual_edge->next=this->graph->route_segments;
-							this->graph->route_segments=new_virtual_edge;
-
-							/*-------------------------------------------------------------*/
-
-							virtualedge_counter ++;
-						}
-						else
-						{
-//							dbg(0,"rejected because of turn restriction \n");
-						}
-
-						if (curr_vertex_virtual_next)
-							curr_vertex_virtual_next = curr_vertex_virtual_next->next;
-						else curr_vertex_virtual_next = NULL;
-					}
-					if (curr_vertex_virtual)
-						curr_vertex_virtual=curr_vertex_virtual->next;
-					else curr_vertex_virtual = NULL;
-				}
-
-				if (curr && curr->hash_next)
-						curr=curr->hash_next;
-				else
-				{
-					curr = NULL;
-		//			dbg(0,"no hash_next\n");
-				}
-
-			}
-
-		}
-
-//		dbg(0,"Inserted %i virtual edges\n",virtualedge_counter);
-
-	route_dijkstra_extended_graph(this->graph, this->current_dst, this->vehicleprofile, cb);
-/*	route_graph_flood(this->graph, this->current_dst, this->vehicleprofile, cb); */
+	route_graph_flood(this->graph, this->current_dst, this->vehicleprofile, cb);
 /*	route_graph_flood_frugal(this->graph, this->current_dst, this->pos, this->vehicleprofile, cb); */
 }
 
@@ -3795,7 +3250,7 @@ route_graph_update_done(struct route *this, struct callback *cb)
  *
  * This updates the route graph after settings in the route have changed. It also
  * adds routing information afterwards by calling route_graph_flood().
- *
+ * 
  * @param this The route to update the graph for
  */
 static void
@@ -3805,7 +3260,6 @@ route_graph_update(struct route *this, struct callback *cb, int async)
 	struct coord *c=g_alloca(sizeof(struct coord)*(1+g_list_length(this->destinations)));
 	int i=0;
 	GList *tmp;
-
 
 	route_status.type=attr_route_status;
 	route_graph_destroy(this->graph);
@@ -3822,16 +3276,12 @@ route_graph_update(struct route *this, struct callback *cb, int async)
 		tmp=g_list_next(tmp);
 	}
 
-
-	dbg(0,"async = %i\n",async);
 	this->graph=route_graph_build(this->ms, c, i, this->route_graph_done_cb, async, this->vehicleprofile);
 	if (! async)
 	{
-		while (this->graph->busy)
+		while (this->graph->busy) 
 			route_graph_build_idle(this->graph, this->vehicleprofile);
 	}
-
-
 }
 
 /**
@@ -3849,9 +3299,11 @@ street_get_data (struct item *item)
 	const int step = 128;
 	int c;
 
-	do {
+	do
+	{
 		ret1=g_realloc(ret, sizeof(struct street_data)+(count+step)*sizeof(struct coord));
-		if (!ret1) {
+		if (!ret1)
+		{
 			if (ret)
 				g_free(ret);
 			return NULL;
@@ -3859,7 +3311,8 @@ street_get_data (struct item *item)
 		ret = ret1;
 		c = item_coord_get(item, &ret->c[count], step);
 		count += c;
-	} while (c && c == step);
+	}
+	while (c && c == step);
 
 	ret1=g_realloc(ret, sizeof(struct street_data)+count*sizeof(struct coord));
 	if (ret1)
@@ -3868,7 +3321,8 @@ street_get_data (struct item *item)
 	ret->count=count;
 	if (item_attr_get(item, attr_flags, &flags_attr)) 
 		ret->flags=flags_attr.u.num;
-	else {
+	else
+	{
 		flags=item_get_default_flags(item->type);
 		if (flags)
 			ret->flags=*flags;
@@ -3877,8 +3331,10 @@ street_get_data (struct item *item)
 	}
 
 	ret->maxspeed = -1;
-	if (ret->flags & AF_SPEED_LIMIT) {
-		if (item_attr_get(item, attr_maxspeed, &maxspeed_attr)) {
+	if (ret->flags & AF_SPEED_LIMIT)
+	{
+		if (item_attr_get(item, attr_maxspeed, &maxspeed_attr))
+		{
 			ret->maxspeed = maxspeed_attr.u.num;
 		}
 	}
@@ -4059,7 +3515,24 @@ route_crossings_get(struct route *this, struct coord *c)
 #endif
 
 
-
+struct map_rect_priv {
+	struct route_info_handle *ri;
+	enum attr_type attr_next;
+	int pos;
+	struct map_priv *mpriv;
+	struct item item;
+	unsigned int last_coord;
+	struct route_path *path;
+	struct route_path_segment *seg,*seg_next;
+	struct route_graph_point *point;
+	struct route_graph_segment *rseg;
+	char *str;
+	int hash_bucket;
+	struct coord *coord_sel;	/**< Set this to a coordinate if you want to filter for just a single route graph point */
+	struct route_graph_point_iterator it;
+	/* Pointer to current waypoint element of route->destinations */
+	GList *dest;
+};
 
 static void
 rm_coord_rewind(void *priv_data)
@@ -4246,40 +3719,12 @@ rp_attr_get(void *priv_data, enum attr_type attr_type, struct attr *attr)
 		attr->type = attr_label;
 		if (mr->str)
 			g_free(mr->str);
-
-		/*some temporary version for the virtual extending*/
-		/*change to properly free*/
-
-		if (mr->item.type == type_rg_point)
-		{
-			if (p->leaves)
-			{
-
-				struct route_graph_vertex_virtual *curr_virt;
-				curr_virt = p->leaves;
-
-				if (curr_virt->value != INT_MAX)
-					mr->str=g_strdup_printf("%d", curr_virt->value);
-				else
-					mr->str=g_strdup_printf("*");
-				curr_virt = curr_virt->next;
-
-				while (curr_virt)
-				{
-					if (curr_virt->value != INT_MAX)
-						if (curr_virt->next)
-							mr->str=g_strdup_printf("%d -- %s", curr_virt->value, mr->str);
-					else
-						mr->str=g_strdup_printf("* -- %s",mr->str);
-
-					curr_virt = curr_virt->next;
-				}
-			}
+		if (mr->item.type == type_rg_point) {
+			if (p->value != INT_MAX)
+				mr->str=g_strdup_printf("%d", p->value);
 			else
-				mr->str=g_strdup("--");
-		}
-		else
-		{
+				mr->str=g_strdup("-");
+		} else {
 			int len=seg->data.len;
 			int speed=route_seg_speed(route->vehicleprofile, &seg->data, NULL);
 			int time=route_time_seg(route->vehicleprofile, &seg->data, NULL);
@@ -4287,8 +3732,7 @@ rp_attr_get(void *priv_data, enum attr_type attr_type, struct attr *attr)
 				mr->str=g_strdup_printf("%dm %dkm/h %d.%ds",len,speed,time/10,time%10);
 			else if (len)
 				mr->str=g_strdup_printf("%dm",len);
-			else
-			{
+			else {
 				mr->str=NULL;
 				return 0;
 			}
@@ -4384,67 +3828,47 @@ rp_coord_get(void *priv_data, struct coord *c, int count)
 	struct map_rect_priv *mr = priv_data;
 	struct route_graph_point *p = mr->point;
 	struct route_graph_segment *seg = mr->rseg;
-	int coord_count = 0;
-	int i,dir;
+	int rc = 0,i,dir;
 	struct route *r = mr->mpriv->route;
 	enum projection pro = route_projection(r);
 
 	if (pro == projection_none)
 		return 0;
-//	dbg(0,"item type = %s, count =%i\n",item_to_name(mr->item.type),count);
-	for (i=0; i < count; i++)
-	{
-
-		if (mr->item.type == type_rg_point)
-		{
-//			dbg(0,"is rg_point\n");
+	for (i=0; i < count; i++) {
+		if (mr->item.type == type_rg_point) {
 			if (mr->last_coord >= 1)
 				break;
 			if (pro != projection_mg)
 				transform_from_to(&p->c, pro,
 					&c[i],projection_mg);
 			else
-		//		if (p->root)
-					c[i] = p->c;
-		}
-		if (mr->item.type != type_rg_point)
-	//	else /*not type_rg_point*/
-		{
+				c[i] = p->c;
+		} else {
 			if (mr->last_coord >= 2)
 				break;
 			dir=0;
-			// ???
-			if (seg && seg->virtual_end && seg->virtual_end->seg && (seg->virtual_end->seg == seg))
+			if (seg->end->seg == seg)
 				dir=1;
 			if (mr->last_coord)
 				dir=1-dir;
-			if (dir)
-			{
+			if (dir) {
 				if (pro != projection_mg)
 					transform_from_to(&seg->end->c, pro,
 						&c[i],projection_mg);
 				else
 					c[i] = seg->end->c;
-			}
-			else /*not type_rg_point and no dir*/
-			{
+			} else {
 				if (pro != projection_mg)
 					transform_from_to(&seg->start->c, pro,
 						&c[i],projection_mg);
 				else
-			//		if (seg && seg->virtual_start && (seg->virtual_start->root))
-
-						{
-						//	dbg(0,"not rg_point and no dir\n");
-						//	c[i] = seg->virtual_start->root->c;
-							c[i] = (seg->start->c);
-						}
+					c[i] = seg->start->c;
 			}
 		}
 		mr->last_coord++;
-		coord_count ++;
+		rc++;
 	}
-	return coord_count;
+	return rc;
 }
 
 static struct item_methods methods_point_item = {
@@ -4557,38 +3981,30 @@ rp_get_item(struct map_rect_priv *mr)
 	struct route_graph_point *p = mr->point;
 	struct route_graph_segment *seg = mr->rseg;
 
-	if (mr->item.type == type_rg_point)
-	{
-//		dbg(0,"rp_get_item type_rg_point\n");
-		if (mr->coord_sel)
-		{
+
+
+	if (mr->item.type == type_rg_point) {
+
+		dbg(lvl_debug,"rp_get_item type_rg_point\n");
+
+		if (mr->coord_sel) {
 			// We are supposed to return only the point at one specified coordinate...
-			if (!p)
-			{
+			if (!p) {
 				p = route_graph_get_point_last(r->graph, mr->coord_sel);
-				if (!p)
-				{
+				if (!p) {
 					mr->point = NULL; // This indicates that no point has been found
-				}
-				else
-				{
+				} else {
 					mr->it = rp_iterator_new(p);
 				}
-			}
-			else
-			{
+			} else {
 				p = NULL;
 			}
-		}
-		else
-		{
-			if (!p)
-			{
+		} else {
+			if (!p) {
 				mr->hash_bucket=0;
 				p = r->graph->hash[0];
-			}
-			else
-				p=p->hash_next; // ???????????
+			} else 
+				p=p->hash_next;
 			while (!p) {
 				mr->hash_bucket++;
 				if (mr->hash_bucket >= HASH_SIZE)
@@ -4596,8 +4012,7 @@ rp_get_item(struct map_rect_priv *mr)
 				p = r->graph->hash[mr->hash_bucket];
 			}
 		}
-		if (p)
-		{
+		if (p) {
 			mr->point = p;
 			mr->item.id_lo++;
 			rm_coord_rewind(mr);
@@ -4607,16 +4022,12 @@ rp_get_item(struct map_rect_priv *mr)
 			mr->item.type = type_rg_segment;
 	}
 
-	if (mr->coord_sel)
-	{
-		if (!mr->point)
-		{ /* This means that no point has been found */
+	if (mr->coord_sel) {
+		if (!mr->point) { /* This means that no point has been found */
 			return NULL;
 		}
 		seg = rp_iterator_next(&(mr->it));
-	}
-	else
-	{
+	} else {
 		if (!seg)
 			seg=r->graph->route_segments;
 		else
@@ -4625,8 +4036,7 @@ rp_get_item(struct map_rect_priv *mr)
 	
 	mr->item.id_hi = 0;
 
-	if (seg)
-	{
+	if (seg) {
 
 		mr->rseg = seg;
 		dbg(lvl_debug,"rp_get_item id_lo = %i, len=%i type= %s\n",mr->item.id_lo,(seg->data.len
@@ -4634,11 +4044,12 @@ rp_get_item(struct map_rect_priv *mr)
 		mr->item.id_lo++;
 		rm_coord_rewind(mr);
 		rp_attr_rewind(mr);
-	//	if (seg->data.flags & AF_IS_CLONE)
-	//	{
-	//		mr->item.id_hi = 1;
-	//		dbg(lvl_debug,"tainted clone\n");
-	//	}
+//		if (seg->data.flags & AF_IS_CLONE)
+//			{
+//				mr->item.id_hi = 1;
+//				dbg(lvl_debug,"tainted clone\n");
+//			}
+
 		return &mr->item;
 	}
 	return NULL;
@@ -4660,15 +4071,13 @@ rm_get_item(struct map_rect_priv *mr)
 	struct route *route=mr->mpriv->route;
 	void *id=0;
 
-	switch (mr->item.type)
-	{
+	switch (mr->item.type) {
 	case type_none:
 		if (route->pos && route->pos->street_direction && route->pos->street_direction != route->pos->dir)
 			mr->item.type=type_route_start_reverse;
 		else
 			mr->item.type=type_route_start;
-		if (route->pos)
-		{
+		if (route->pos) {
 			id=route->pos;
 			break;
 		}
@@ -4682,8 +4091,7 @@ rm_get_item(struct map_rect_priv *mr)
 			mr->dest=g_list_next(mr->dest);
 		mr->item.type=type_street_route;
 		mr->seg=mr->seg_next;
-		if (!mr->seg && mr->path && mr->path->next)
-		{
+		if (!mr->seg && mr->path && mr->path->next) {
 			struct route_path *p=NULL;
 			mr->path->in_use--;
 			if (!mr->path->in_use)
@@ -4693,22 +4101,19 @@ rm_get_item(struct map_rect_priv *mr)
 			mr->seg=mr->path->path;
 			if (p)
 				g_free(p);
-			if (mr->dest)
-			{
+			if (mr->dest) {
 				id=mr->dest;
 				mr->item.type=type_waypoint;
 				mr->seg_next=mr->seg;
 				break;
 			}
 		}
-		if (mr->seg)
-		{
+		if (mr->seg) {
 			mr->seg_next=mr->seg->next;
 			id=mr->seg;
 			break;
 		}
-		if (mr->dest && g_list_next(mr->dest))
-		{
+		if (mr->dest && g_list_next(mr->dest)) {
 			id=mr->dest;
 			mr->item.type=type_waypoint;
 			break;
