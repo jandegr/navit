@@ -97,16 +97,6 @@ enum route_path_flags {
 	route_path_flag_no_rebuild=4,
 };
 
-
-struct route_graph_common_point {
-      struct route_graph_point *pointref;     /* reference to common point with lowest costs mu */
-       int mu;                                                         /* costs mu with path over this common point */
-       int value_p_min;                                        /* costs of actual point within target to source flooding */
-       int value_p_min_back;                           /* costs of actual point within source to target flooding */
- };
-
-
-
 /**
  * @brief A point in the route graph
  *
