@@ -11,9 +11,6 @@ dependencies:
 #    - sudo apt-get install libgtk2.0-dev 
     - sudo apt-get install librsvg2-bin 
     - sudo apt-get install g++
-    - ls -la /usr/include/gtk-2.0
-    - ls -la /usr/include/gtk-2.0/gtk
-    - ls -la /usr/include/gtk-2.0/gdk
     - bash ~/navit/build.sh
 #    - wget -c -O ~/planet-${MAPCODE}.osm.bz2 ftp://ftp.spline.de/pub/openstreetmap/planet/2015/planet-${MAPCODE}.osm.bz2
 #    - wget -c -O  ~/europe-latest-complete.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
@@ -27,22 +24,22 @@ test:
 #    - ./osmconvert --complete-ways --drop-author --verbose ~/europe-latest-complete.osm.pbf -b=-40,0,20,75 -o=/home/ubuntu/europe-latest.osm.pbf:
 #        timeout: 7200
     - ls -la /home/ubuntu
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin:
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin:
         timeout: 7200
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s2 -e2 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s3 -e3 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s4 -e4 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-#    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s5 -e5 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s6 -e6 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin:
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s2 -e2 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s3 -e3 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s4 -e4 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+#    - ./bin/navit/maptool/maptool -P  -6 -n -k -s5 -e5 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s6 -e6 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin:
        timeout: 7200
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s7 -e7 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s8 -e8 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s9 -e9 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s10 -e10 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -S 1800000000 -s11 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s7 -e7 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s8 -e8 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s9 -e9 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s10 -e10 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s11 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
     - cp tilesdir_.tmp $CIRCLE_ARTIFACTS
     - ls -la $CIRCLE_ARTIFACTS
-#    - ./bin/navit/maptool/maptool -P  -6 -k -S 1800000000 -s12 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
+#    - ./bin/navit/maptool/maptool -P  -6 -k -s12 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
 #    - bzcat ~/planet-${MAPCODE}.osm.bz2 | ./bin/navit/maptool/maptool -s 1 -e 1 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin:
 #        timeout: 10800
 #    - ./bin/navit/maptool/maptool -s 2 -e 2 $CIRCLE_ARTIFACTS/planet-${MAPCODE}.bin 
