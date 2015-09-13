@@ -10,6 +10,7 @@
  * HOV restriction
  */
 
+
 /**
  * Navit, a modular navigation system.
  * Copyright (C) 2005-2008 Navit Team
@@ -96,6 +97,7 @@ enum route_path_flags {
 	route_path_flag_async=2,
 	route_path_flag_no_rebuild=4,
 };
+
 
 /**
  * @brief A point in the route graph
@@ -337,15 +339,6 @@ inline double now_ms()
     gettimeofday(&tv, NULL);
     return tv.tv_sec*1000. + tv.tv_usec/1000.;
 }
-
-
-
-
-
-
-
-
-
 
 /**
  * @brief Returns the projection used for this route
@@ -640,7 +633,8 @@ route_set_mapset(struct route *this, struct mapset *ms)
 void
 route_set_profile(struct route *this, struct vehicleprofile *prof)
 {
-	if (this->vehicleprofile != prof) {
+	if (this->vehicleprofile != prof)
+	{
 		int dest_count = g_list_length(this->destinations);
 		struct pcoord *pc;
 		this->vehicleprofile = prof;
@@ -801,42 +795,51 @@ route_path_update_done(struct route *this, int new_graph)
 	struct attr route_status;
 	struct route_info *prev_dst;
 	route_status.type=attr_route_status;
-	if (this->path2 && (this->path2->in_use>1)) {
+	if (this->path2 && (this->path2->in_use>1))
+	{
 		this->path2->update_required=1+new_graph;
 		return;
 	}
 	route_status.u.num=route_status_building_path;
 	route_set_attr(this, &route_status);
 	prev_dst=route_previous_destination(this);
-	if (this->link_path) {
+	if (this->link_path)
+	{
 		this->path2=route_path_new(this->graph, NULL, prev_dst, this->current_dst, this->vehicleprofile);
 		if (this->path2)
 		    this->path2->next=oldpath;
 		else
 		    route_path_destroy(oldpath,0);
-	} else {
+	}
+	else
+	{
 		this->path2=route_path_new(this->graph, oldpath, prev_dst, this->current_dst, this->vehicleprofile);
-		if (oldpath && this->path2) {
+		if (oldpath && this->path2)
+		{
 			this->path2->next=oldpath->next;
 			route_path_destroy(oldpath,0);
 		}
 	}
-	if (this->path2) {
+	if (this->path2)
+	{
 		struct route_path_segment *seg=this->path2->path;
 		int path_time=0,path_len=0;
 		while (seg) {
 			/* FIXME */
 			int seg_time=route_time_seg(this->vehicleprofile, seg->data, NULL);
-			if (seg_time == INT_MAX) {
+			if (seg_time == INT_MAX)
+			{
 				dbg(lvl_debug,"error\n");
-			} else
+			}
+			else
 				path_time+=seg_time;
 			path_len+=seg->data->len;
 			seg=seg->next;
 		}
 		this->path2->path_time=path_time;
 		this->path2->path_len=path_len;
-		if (prev_dst != this->pos) {
+		if (prev_dst != this->pos)
+		{
 			this->link_path=1;
 			this->current_dst=prev_dst;
 			route_graph_reset(this->graph);
@@ -848,7 +851,8 @@ route_path_update_done(struct route *this, int new_graph)
 			route_status.u.num=route_status_path_done_incremental;
 		else
 			route_status.u.num=route_status_path_done_new;
-	} else 
+	}
+	else
 		route_status.u.num=route_status_not_found;
 	this->link_path=0;
 	route_set_attr(this, &route_status);
@@ -990,7 +994,8 @@ route_set_position_from_tracking(struct route *this, struct tracking *tracking, 
 	dbg(lvl_info,"enter\n");
 	c=tracking_get_pos(tracking);
 	ret=g_new0(struct route_info, 1);
-	if (!ret) {
+	if (!ret)
+	{
 		printf("%s:Out of memory\n", __FUNCTION__);
 		return;
 	}
@@ -1002,7 +1007,8 @@ route_set_position_from_tracking(struct route *this, struct tracking *tracking, 
 	ret->pos=tracking_get_segment_pos(tracking);
 	ret->street_direction=tracking_get_street_direction(tracking);
 	sd=tracking_get_street_data(tracking);
-	if (sd) {
+	if (sd)
+	{
 		ret->street=street_data_dup(sd);
 		route_info_distances(ret, pro);
 	}
@@ -1140,7 +1146,8 @@ static void
 route_free_selection(struct map_selection *sel)
 {
 	struct map_selection *next;
-	while (sel) {
+	while (sel)
+	{
 		next=sel->next;
 		g_free(sel);
 		sel=next;
@@ -1317,10 +1324,12 @@ route_set_destination(struct route *this, struct pcoord *dst, int async)
 void
 route_append_destination(struct route *this, struct pcoord *dst, int async)
 {
-	if (dst){
+	if (dst)
+	{
 		struct route_info *dsti;
 		dsti=route_find_nearest_street(this->vehicleprofile, this->ms, &dst[0]);
-		if(dsti) {
+		if(dsti)
+		{
 			route_info_distances(dsti, dst->pro);
 			this->destinations=g_list_append(this->destinations, dsti);
 		}
@@ -1329,7 +1338,9 @@ route_append_destination(struct route *this, struct pcoord *dst, int async)
 		this->graph=NULL;
 		this->current_dst=route_get_dst(this);
 		route_path_update(this, 1, async);
-	}else{
+	}
+	else
+	{
 		route_set_destinations(this, NULL, 0, async);
 	}
 }
@@ -1988,10 +1999,9 @@ route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over,
 		route_averaging = (route_averaging * roadprofile->roundabout_weight)/100;
 	else
 		if ((over->flags & AF_LINK) && roadprofile->link_weight)
-			{
+		{
 			route_averaging = (route_averaging * roadprofile->link_weight)/100;
-		/*	dbg (0,"link weight=%i\n",roadprofile->link_weight); */
-			}
+		}
 	speed=(roadprofile->speed * route_averaging)/100 ;
 	if (profile->maxspeed_handling != 2)
 	{
@@ -1999,7 +2009,29 @@ route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over,
 		{
 			maxspeed=RSD_MAXSPEED(over);
 			if (!profile->maxspeed_handling) /*always handle maxspeed*/
-				maxspeed=(maxspeed * route_averaging)/100 ;
+			{
+				if (roadprofile->route_weight)
+				{
+						route_averaging =roadprofile->route_weight;
+						if (maxspeed > (roadprofile->speed * 0.7))
+						{
+							route_averaging = ((100 - roadprofile->route_weight)
+									* ((maxspeed - (roadprofile->speed * 0.7) )/30))
+									+ 100;
+						}
+						else
+							route_averaging = 100;
+						maxspeed=(maxspeed * route_averaging)/100 ;
+				}
+
+				if ((over->flags & AF_ROUNDABOUT) && roadprofile->roundabout_weight)
+						maxspeed = (maxspeed * roadprofile->roundabout_weight)/100;
+				else
+						if ((over->flags & AF_LINK) && roadprofile->link_weight)
+						{
+							maxspeed = (maxspeed * roadprofile->link_weight)/100;
+						}
+			}
 		}
 		else
 			maxspeed=INT_MAX;
