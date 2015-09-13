@@ -191,7 +191,7 @@ Waypoint</text></img>
 			<roadprofile item_types="street_2_land,street_2_city" speed="50" route_weight="90" roundabout_weight="80" link_weight="90" />
 			<roadprofile item_types="street_3_land,street_3_city" speed="60" route_weight="90" roundabout_weight="80" link_weight="90" />
 			<roadprofile item_types="street_4_land,street_4_city" speed="70" route_weight="95" roundabout_weight="80" link_weight="90"/>
-			<roadprofile item_types="street_n_lanes" speed="90" roundabout_weight="60" link_weight="75"/>
+			<roadprofile item_types="street_n_lanes" speed="90" route_weight="95" roundabout_weight="60" link_weight="75"/>
 			<roadprofile item_types="highway_land,highway_city" speed="120"  />
 			<roadprofile item_types="ramp" speed="90" route_weight="90" />
 			<!--roundabout does not apply to OSMaps -->
