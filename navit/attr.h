@@ -74,6 +74,7 @@ enum attr_format {
 #define AF_FORD			(1<<13)
 #define AF_UNDERGROUND		(1<<14)
 #define AF_LINK			(1<<16)
+#define AF_HIGH_OCCUPANCY_CAR_ONLY	(1<<18)
 #define AF_DANGEROUS_GOODS	(1<<19)
 #define AF_EMERGENCY_VEHICLES	(1<<20)
 #define AF_TRANSPORT_TRUCK	(1<<21)
