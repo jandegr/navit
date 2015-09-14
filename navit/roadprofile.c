@@ -36,6 +36,12 @@ roadprofile_set_attr_do(struct roadprofile *this, struct attr *attr)
 	case attr_route_weight:
 		this->route_weight=attr->u.num;
 		break;
+	case attr_roundabout_weight:
+		this->roundabout_weight=attr->u.num;
+		break;
+	case attr_link_weight:
+		this->link_weight=attr->u.num;
+		break;
 	default:
 		break;
 	}
