@@ -2012,16 +2012,19 @@ route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over,
 			{
 				if (roadprofile->route_weight)
 				{
+					route_averaging = 100;
+					if (maxspeed > (roadprofile->speed * 0.7) && (maxspeed < roadprofile->speed))
+					{
+						route_averaging =
+							(((roadprofile->route_weight -100) * (maxspeed - (roadprofile->speed * 0.7)))
+							/(30 * roadprofile->speed))
+							+ 100;
+					}
+					else if (maxspeed >= roadprofile->speed)
+					{
 						route_averaging =roadprofile->route_weight;
-						if (maxspeed > (roadprofile->speed * 0.7))
-						{
-							route_averaging = ((100 - roadprofile->route_weight)
-									* ((maxspeed - (roadprofile->speed * 0.7) )/30))
-									+ 100;
-						}
-						else
-							route_averaging = 100;
-						maxspeed=(maxspeed * route_averaging)/100 ;
+					}
+					maxspeed=(maxspeed * route_averaging)/100 ;
 				}
 
 				if ((over->flags & AF_ROUNDABOUT) && roadprofile->roundabout_weight)
