@@ -1084,11 +1084,20 @@ osm_add_tag(char *k, char *v)
 		level=5;
 	}
 	if (! strcmp(k,"vehicle")) {
-		flags[access_value(v)] |= AF_DANGEROUS_GOODS|AF_EMERGENCY_VEHICLES|AF_TRANSPORT_TRUCK|AF_DELIVERY_TRUCK|AF_PUBLIC_BUS|AF_TAXI|AF_HIGH_OCCUPANCY_CAR|AF_CAR|AF_MOTORCYCLE|AF_MOPED|AF_BIKE;
+		/*todo : find some way to make clear that the limitation is for cars only */
+		/* acces_value() has to be reviewed for destination as well */
+		if (! strcmp(v,"destination"))
+			flags[0] |= AF_THROUGH_TRAFFIC_LIMIT;
+		else
+			flags[access_value(v)] |= AF_DANGEROUS_GOODS|AF_EMERGENCY_VEHICLES|AF_TRANSPORT_TRUCK|AF_DELIVERY_TRUCK|AF_PUBLIC_BUS|AF_TAXI|AF_HIGH_OCCUPANCY_CAR|AF_CAR|AF_MOTORCYCLE|AF_MOPED|AF_BIKE;
 		level=5;
 	}
 	if (! strcmp(k,"motor_vehicle")) {
-		flags[access_value(v)] |= AF_DANGEROUS_GOODS|AF_EMERGENCY_VEHICLES|AF_TRANSPORT_TRUCK|AF_DELIVERY_TRUCK|AF_PUBLIC_BUS|AF_TAXI|AF_HIGH_OCCUPANCY_CAR|AF_CAR|AF_MOTORCYCLE|AF_MOPED;
+		/*todo : find some way to make clear that the limitation is for cars only*/
+		if (! strcmp(v,"destination"))
+			flags[0] |= AF_THROUGH_TRAFFIC_LIMIT;
+		else
+			flags[access_value(v)] |= AF_DANGEROUS_GOODS|AF_EMERGENCY_VEHICLES|AF_TRANSPORT_TRUCK|AF_DELIVERY_TRUCK|AF_PUBLIC_BUS|AF_TAXI|AF_HIGH_OCCUPANCY_CAR|AF_CAR|AF_MOTORCYCLE|AF_MOPED;
 		level=5;
 	}
 	if (! strcmp(k,"bicycle")) {
