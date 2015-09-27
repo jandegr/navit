@@ -13,30 +13,30 @@ dependencies:
     - sudo apt-get install g++
     - bash ~/navit/build.sh
 #    - wget -c -O ~/planet-${MAPCODE}.osm.bz2 ftp://ftp.spline.de/pub/openstreetmap/planet/2015/planet-${MAPCODE}.osm.bz2
-#    - wget -c -O  ~/europe-latest-complete.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
-    - wget -c -O  ~/europe-latest.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
+    - wget -c -O  ~/europe-latest-complete.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
+#    - wget -c -O  ~/europe-latest.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
     - wget http://m.m.i24.cc/osmconvert.c && gcc osmconvert.c -lz -o osmconvert
   cache_directories:
     - "~/assets/"
 test:
   post:
 #    - ./osmconvert -h
-#    - ./osmconvert --complete-ways --drop-author --verbose ~/europe-latest-complete.osm.pbf -b=-40,0,20,75 -o=/home/ubuntu/europe-latest.osm.pbf:
-#        timeout: 7200
-    - ls -la /home/ubuntu
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin:
+    - ./osmconvert --complete-ways --drop-author --verbose ~/europe-latest-complete.osm.pbf -B=BNLFR.poly -o=/home/ubuntu/europe-latest.osm.pbf:
         timeout: 7200
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s2 -e2 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s3 -e3 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s4 -e4 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-#    - ./bin/navit/maptool/maptool -P  -6 -n -k -s5 -e5 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s6 -e6 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin:
+    - ls -la /home/ubuntu
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin:
+        timeout: 7200
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s2 -e2 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s3 -e3 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s4 -e4 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s5 -e5 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s6 -e6 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin:
        timeout: 7200
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s7 -e7 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s8 -e8 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s9 -e9 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s10 -e10 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s11 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/western_europe.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s7 -e7 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s8 -e8 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s9 -e9 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s10 -e10 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
+    - ./bin/navit/maptool/maptool -P  -6 -n -k -s11 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
     - cp tilesdir_.tmp $CIRCLE_ARTIFACTS
     - ls -la $CIRCLE_ARTIFACTS
 #    - ./bin/navit/maptool/maptool -P  -6 -k -s12 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/planet.bin
