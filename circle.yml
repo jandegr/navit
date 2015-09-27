@@ -21,7 +21,7 @@ dependencies:
 test:
   post:
 #    - ./osmconvert -h
-    - ./osmconvert --complete-ways --drop-author --verbose ~/europe-latest-complete.osm.pbf -B=BNLFR.poly -o=/home/ubuntu/europe-latest.osm.pbf:
+    - ./osmconvert --complete-ways --drop-author --verbose ~/europe-latest-complete.osm.pbf -B=~/navit/BNLFR.poly -o=/home/ubuntu/europe-latest.osm.pbf:
         timeout: 7200
     - ls -la /home/ubuntu
     - ./bin/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin:
