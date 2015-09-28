@@ -96,169 +96,169 @@ w	highway=parking_lane	street_parking_lane
 w	highway=path				path
 w	highway=path,bicycle=designated		cycleway
 w	highway=path,bicycle=official		cycleway
-	"w	highway=path,bicycle=designated,foot=designated		cycleway\n"
-	"w	highway=path,bicycle=official,foot=official		cycleway\n"
-	"w	highway=path,foot=designated		footway\n"
-	"w	highway=path,foot=official		footway\n"
-	"w	highway=path,horse=designated		bridleway\n"
-	"w	highway=path,horse=official		bridleway\n"
-	"w	highway=path,sac_scale=alpine_hiking			hiking_alpine\n"
-	"w	highway=path,sac_scale=demanding_alpine_hiking		hiking_alpine_demanding\n"
-	"w	highway=path,sac_scale=demanding_mountain_hiking	hiking_mountain_demanding\n"
-	"w	highway=path,sac_scale=difficult_alpine_hiking		hiking_alpine_difficult\n"
-	"w	highway=path,sac_scale=hiking				hiking\n"
-	"w	highway=path,sac_scale=mountain_hiking			hiking_mountain\n"
-	"w	highway=pedestrian			street_pedestrian\n"
-	"w	highway=pedestrian,area=1		poly_pedestrian\n"
-	"w	highway=plaza				poly_plaza\n"
-	"w	highway=motorway			highway_land\n"
-	"w	highway=motorway,rural=0		highway_city\n"
-	"w	highway=motorway_link			ramp,AF_LINK\n"
-	"w	highway=trunk				street_n_lanes\n"
-	"w	highway=trunk_link			street_n_lanes,AF_LINK\n"
-	"w	highway=primary				street_4_land\n"
-	"w	highway=primary,name=*,rural=1		street_4_land\n"
-	"w	highway=primary,name=*			street_4_city\n"
-	"w	highway=primary,rural=0			street_4_city\n"
-	"w	highway=primary_link			street_4_city,AF_LINK\n" 
-	"w	highway=secondary			street_3_land\n"
-	"w	highway=secondary,name=*,rural=1	street_3_land\n"
-	"w	highway=secondary,name=*		street_3_city\n"
-	"w	highway=secondary,rural=0		street_3_city\n"
-	"w	highway=secondary,area=1		poly_street_3\n"
-	"w	highway=secondary_link			street_3_city,AF_LINK\n"
-	"w	highway=tertiary			street_2_land\n"
-	"w	highway=tertiary,name=*,rural=1		street_2_land\n"
-	"w	highway=tertiary,name=*			street_2_city\n"
-	"w	highway=tertiary,rural=0		street_2_city\n"
-	"w	highway=tertiary,area=1			poly_street_2\n"
-	"w	highway=tertiary_link			street_2_city,AF_LINK\n"
-	"w	highway=residential			street_1_city\n"
-	"w	highway=residential,area=1		poly_street_1\n"
-	"w	highway=unclassified			street_1_land\n"
-	"w	highway=unclassified,area=1		poly_street_1\n"
-	"w	highway=road				street_0\n"
-	"w	highway=service				street_service,AF_THROUGH_TRAFFIC_LIMIT\n"
-	"w	highway=service,area=1			poly_service\n"
-	"w	highway=service,service=parking_aisle	street_parking_lane\n"
-	"w	highway=track				track_gravelled\n"
-	"w	highway=track,surface=grass		track_grass\n"
-	"w	highway=track,surface=gravel		track_gravelled\n"
-	"w	highway=track,surface=ground		track_ground\n"
-	"w	highway=track,surface=paved		track_paved\n"
-	"w	highway=track,surface=unpaved		track_unpaved\n"
-	"w	highway=track,tracktype=grade1		track_paved\n"
-	"w	highway=track,tracktype=grade2		track_gravelled\n"
-	"w	highway=track,tracktype=grade3		track_unpaved\n"
-	"w	highway=track,tracktype=grade4		track_ground\n"
-	"w	highway=track,tracktype=grade5		track_grass\n"
-	"w	highway=track,surface=paved,tracktype=grade1		track_paved\n"
-	"w	highway=track,surface=gravel,tracktype=grade2		track_gravelled\n"
-	"w	highway=track,surface=unpaved,tracktype=grade3		track_unpaved\n"
-	"w	highway=track,surface=ground,tracktype=grade4		track_ground\n"
-	"w	highway=track,surface=grass,tracktype=grade5		track_grass\n"
-	"w	highway=unsurfaced			track_gravelled\n"
-	"w	highway=steps				steps\n"
+w	highway=path,bicycle=designated,foot=designated		cycleway
+w	highway=path,bicycle=official,foot=official		cycleway
+w	highway=path,foot=designated		footway
+w	highway=path,foot=official		footway
+w	highway=path,horse=designated		bridleway
+w	highway=path,horse=official		bridleway
+w	highway=path,sac_scale=alpine_hiking			hiking_alpine
+w	highway=path,sac_scale=demanding_alpine_hiking		hiking_alpine_demanding
+w	highway=path,sac_scale=demanding_mountain_hiking	hiking_mountain_demanding
+w	highway=path,sac_scale=difficult_alpine_hiking		hiking_alpine_difficult
+w	highway=path,sac_scale=hiking				hiking
+w	highway=path,sac_scale=mountain_hiking			hiking_mountain
+w	highway=pedestrian			street_pedestrian
+w	highway=pedestrian,area=1		poly_pedestrian
+w	highway=plaza				poly_plaza
+w	highway=motorway			highway_land
+w	highway=motorway,rural=0		highway_city
+w	highway=motorway_link			ramp,AF_LINK
+w	highway=trunk				street_n_lanes
+w	highway=trunk_link			street_n_lanes,AF_LINK
+w	highway=primary				street_4_land
+w	highway=primary,name=*,rural=1		street_4_land
+w	highway=primary,name=*			street_4_city
+w	highway=primary,rural=0			street_4_city
+w	highway=primary_link			street_4_city,AF_LINK
+w	highway=secondary			street_3_land
+w	highway=secondary,name=*,rural=1	street_3_land
+w	highway=secondary,name=*		street_3_city
+w	highway=secondary,rural=0		street_3_city
+w	highway=secondary,area=1		poly_street_3
+w	highway=secondary_link			street_3_city,AF_LINK
+w	highway=tertiary			street_2_land
+w	highway=tertiary,name=*,rural=1		street_2_land
+w	highway=tertiary,name=*			street_2_city
+w	highway=tertiary,rural=0		street_2_city
+w	highway=tertiary,area=1			poly_street_2
+w	highway=tertiary_link			street_2_city,AF_LINK
+w	highway=residential			street_1_city
+w	highway=residential,area=1		poly_street_1
+w	highway=unclassified			street_1_land
+w	highway=unclassified,area=1		poly_street_1
+w	highway=road				street_0
+w	highway=service				street_service,AF_THROUGH_TRAFFIC_LIMIT
+w	highway=service,area=1			poly_service
+w	highway=service,service=parking_aisle	street_parking_lane
+w	highway=track				track_gravelled
+w	highway=track,surface=grass		track_grass
+w	highway=track,surface=gravel		track_gravelled
+w	highway=track,surface=ground		track_ground
+w	highway=track,surface=paved		track_paved
+w	highway=track,surface=unpaved		track_unpaved
+w	highway=track,tracktype=grade1		track_paved
+w	highway=track,tracktype=grade2		track_gravelled
+w	highway=track,tracktype=grade3		track_unpaved
+w	highway=track,tracktype=grade4		track_ground
+w	highway=track,tracktype=grade5		track_grass
+w	highway=track,surface=paved,tracktype=grade1		track_paved
+w	highway=track,surface=gravel,tracktype=grade2		track_gravelled
+w	highway=track,surface=unpaved,tracktype=grade3		track_unpaved
+w	highway=track,surface=ground,tracktype=grade4		track_ground
+w	highway=track,surface=grass,tracktype=grade5		track_grass
+w	highway=unsurfaced			track_gravelled
+w	highway=steps				steps
 w	historic=town_gate	poly_building
-	"w	landuse=basin		poly_basin\n"
-	"w	landuse=brownfield	poly_brownfield\n"
-	"w	landuse=cemetery	poly_cemetery\n"
-	"w	landuse=commercial	poly_commercial\n"
-	"w	landuse=construction	poly_construction\n"
-	"w	landuse=farm		poly_farm\n"
-	"w	landuse=farmland	poly_farm\n"
-	"w	landuse=farmyard	poly_town\n"
-	"w	landuse=forest		poly_wood\n"
-	"w	landuse=greenfield	poly_greenfield\n"
-	"w	landuse=industrial	poly_industry\n"
-	"w	landuse=landfill	poly_landfill\n"
-	"w	landuse=military	poly_military\n"
-	"w	landuse=meadow		poly_meadow\n"
-	"w	landuse=plaza		poly_plaza\n"
-	"w	landuse=quarry		poly_quarry\n"
-	"w	landuse=railway		poly_railway\n"
-	"w	landuse=recreation_ground		poly_recreation_ground\n"
-	"w	landuse=reservoir	poly_reservoir\n"
-	"w	landuse=residential	poly_town\n"
-	"w	landuse=residential,area=1	poly_town\n"
-	"w	landuse=retail		poly_retail\n"
-	"w	landuse=village_green	poly_village_green\n"
-	"w	landuse=vineyard	poly_farm\n"
-	"w	leisure=common		poly_common\n"
-	"w	leisure=fishing		poly_fishing\n"
-	"w	leisure=garden		poly_garden\n"
-	"w	leisure=golf_course	poly_golf_course\n"
-	"w	leisure=marina		poly_marina\n"
-	"w	leisure=nature_reserve	poly_nature_reserve\n"
-	"w	leisure=park		poly_park\n"
-	"w	leisure=pitch		poly_sports_pitch\n"
-	"w	leisure=playground	poly_playground\n"
-	"w	leisure=sports_centre	poly_sport\n"
-	"w	leisure=stadium		poly_sports_stadium\n"
-	"w	leisure=track		poly_sports_track\n"
-	"w	leisure=water_park	poly_water_park\n"
-	"w	military=airfield	poly_airfield\n"
-	"w	military=barracks	poly_barracks\n"
-	"w	military=danger_area	poly_danger_area\n"
-	"w	military=naval_base	poly_naval_base\n"
-	"w	military=range		poly_range\n"
-	"w	natural=beach		poly_beach\n"
-	"w	natural=coastline	water_line\n"
-	"w	natural=fell		poly_fell\n"
-	"w	natural=glacier		poly_glacier\n"
-	"w	natural=heath		poly_heath\n"
-	"w	natural=land		poly_land\n"
-	"w	natural=marsh		poly_marsh\n"
-	"w	natural=meadow		poly_meadow\n"
-	"w	natural=mud		poly_mud\n"
-	"w	natural=scree		poly_scree\n"
-	"w	natural=scrub		poly_scrub\n"
-	"w	natural=water		poly_water\n"
-	"w	natural=wood		poly_wood\n"
-	"w	piste:type=downhill,piste:difficulty=advanced		piste_downhill_advanced\n"
-	"w	piste:type=downhill,piste:difficulty=easy		piste_downhill_easy\n"
-	"w	piste:type=downhill,piste:difficulty=expert		piste_downhill_expert\n"
-	"w	piste:type=downhill,piste:difficulty=freeride		piste_downhill_freeride\n"
-	"w	piste:type=downhill,piste:difficulty=intermediate	piste_downhill_intermediate\n"
-	"w	piste:type=downhill,piste:difficulty=novice		piste_downhill_novice\n"
-	"w	piste:type=nordic	piste_nordic\n"
-	"w	place=suburb		poly_place1\n"
-	"w	place=hamlet		poly_place2\n"
-	"w	place=isolated_dwelling	poly_place2\n"
-	"w	place=locality		poly_place2\n"
-	"w	place=village		poly_place3\n"
-	"w	place=municipality	poly_place4\n"
-	"w	place=town		poly_place5\n"
-	"w	place=city		poly_place6\n"
-	"w	de:place=city		poly_place6\n"
-	"w	power=line		powerline\n"
-	"w	railway=abandoned	rail_abandoned\n"
-	"w	railway=disused		rail_disused\n"
-	"w	railway=light_rail	rail_light\n"
-	"w	railway=monorail	rail_mono\n"
-	"w	railway=narrow_gauge	rail_narrow_gauge\n"
-	"w	railway=preserved	rail_preserved\n"
-	"w	railway=rail		rail\n"
-	"w	railway=subway		rail_subway\n"
-	"w	railway=tram		rail_tram\n"
-	"w	route=ferry		ferry\n"
-	"w	route=ski		piste_nordic\n"
-	"w	sport=*			poly_sport\n"
-	"w	tourism=artwork		poly_artwork\n"
-	"w	tourism=attraction	poly_attraction\n"
-	"w	tourism=camp_site	poly_camp_site\n"
-	"w	tourism=caravan_site	poly_caravan_site\n"
-	"w	tourism=picnic_site	poly_picnic_site\n"
-	"w	tourism=theme_park	poly_theme_park\n"
-	"w	tourism=zoo		poly_zoo\n"
-	"w	waterway=canal		water_canal\n"
-	"w	waterway=drain		water_drain\n"
-	"w	waterway=river		water_river\n"
-	"w	waterway=riverbank	poly_water\n"
-	"w	waterway=stream		water_stream\n"
- 	"w	barrier=ditch	ditch\n"
-	"w	barrier=hedge	hedge\n"
-	"w	barrier=fence	fence\n"
-	"w	barrier=wall	wall\n"
-	"w	barrier=retaining_wall	retaining_wall\n"
-	"w	barrier=city_wall	city_wall\n"
+w	landuse=basin		poly_basin
+w	landuse=brownfield	poly_brownfield
+w	landuse=cemetery	poly_cemetery
+w	landuse=commercial	poly_commercial
+w	landuse=construction	poly_construction
+w	landuse=farm		poly_farm
+w	landuse=farmland	poly_farm
+w	landuse=farmyard	poly_town
+w	landuse=forest		poly_wood
+w	landuse=greenfield	poly_greenfield
+w	landuse=industrial	poly_industry
+w	landuse=landfill	poly_landfill
+w	landuse=military	poly_military
+w	landuse=meadow		poly_meadow
+w	landuse=plaza		poly_plaza
+w	landuse=quarry		poly_quarry
+w	landuse=railway		poly_railway
+w	landuse=recreation_ground		poly_recreation_ground
+w	landuse=reservoir	poly_reservoir
+w	landuse=residential	poly_town
+w	landuse=residential,area=1	poly_town
+w	landuse=retail		poly_retail
+w	landuse=village_green	poly_village_green
+w	landuse=vineyard	poly_farm
+w	leisure=common		poly_common
+w	leisure=fishing		poly_fishing
+w	leisure=garden		poly_garden
+w	leisure=golf_course	poly_golf_course
+w	leisure=marina		poly_marina
+w	leisure=nature_reserve	poly_nature_reserve
+w	leisure=park		poly_park
+w	leisure=pitch		poly_sports_pitch
+w	leisure=playground	poly_playground
+w	leisure=sports_centre	poly_sport
+w	leisure=stadium		poly_sports_stadium
+w	leisure=track		poly_sports_track
+w	leisure=water_park	poly_water_park
+w	military=airfield	poly_airfield
+w	military=barracks	poly_barracks
+w	military=danger_area	poly_danger_area
+w	military=naval_base	poly_naval_base
+w	military=range		poly_range
+w	natural=beach		poly_beach
+w	natural=coastline	water_line
+w	natural=fell		poly_fell
+w	natural=glacier		poly_glacier
+w	natural=heath		poly_heath
+w	natural=land		poly_land
+w	natural=marsh		poly_marsh
+w	natural=meadow		poly_meadow
+w	natural=mud		poly_mud
+w	natural=scree		poly_scree
+w	natural=scrub		poly_scrub
+w	natural=water		poly_water
+w	natural=wood		poly_wood
+w	piste:type=downhill,piste:difficulty=advanced		piste_downhill_advanced
+w	piste:type=downhill,piste:difficulty=easy		piste_downhill_easy
+w	piste:type=downhill,piste:difficulty=expert		piste_downhill_expert
+w	piste:type=downhill,piste:difficulty=freeride		piste_downhill_freeride
+w	piste:type=downhill,piste:difficulty=intermediate	piste_downhill_intermediate
+w	piste:type=downhill,piste:difficulty=novice		piste_downhill_novice
+w	piste:type=nordic	piste_nordic
+w	place=suburb		poly_place1
+w	place=hamlet		poly_place2
+w	place=isolated_dwelling	poly_place2
+w	place=locality		poly_place2
+w	place=village		poly_place3
+w	place=municipality	poly_place4
+w	place=town		poly_place5
+w	place=city		poly_place6
+w	de:place=city		poly_place6
+w	power=line		powerline
+w	railway=abandoned	rail_abandoned
+w	railway=disused		rail_disused
+w	railway=light_rail	rail_light
+w	railway=monorail	rail_mono
+w	railway=narrow_gauge	rail_narrow_gauge
+w	railway=preserved	rail_preserved
+w	railway=rail		rail
+w	railway=subway		rail_subway
+w	railway=tram		rail_tram
+w	route=ferry		ferry
+w	route=ski		piste_nordic
+w	sport=*			poly_sport
+w	tourism=artwork		poly_artwork
+w	tourism=attraction	poly_attraction
+w	tourism=camp_site	poly_camp_site
+w	tourism=caravan_site	poly_caravan_site
+w	tourism=picnic_site	poly_picnic_site
+w	tourism=theme_park	poly_theme_park
+w	tourism=zoo		poly_zoo
+w	waterway=canal		water_canal
+w	waterway=drain		water_drain
+w	waterway=river		water_river
+w	waterway=riverbank	poly_water
+w	waterway=stream		water_stream
+w	barrier=ditch	ditch
+w	barrier=hedge	hedge
+w	barrier=fence	fence
+w	barrier=wall	wall
+w	barrier=retaining_wall	retaining_wall
+w	barrier=city_wall	city_wall
