@@ -1854,7 +1854,7 @@ osm_end_way(struct maptool_osm *osm)
 		item_bin_add_attr_string(item_bin, attr_street_destination, attr_strings[attr_string_street_destination]);
 		item_bin_add_attr_string(item_bin, attr_street_destination_forward, attr_strings[attr_string_street_destination_forward]);
 		item_bin_add_attr_string(item_bin, attr_street_destination_backward, attr_strings[attr_string_street_destination_backward]);
-		item_bin_add_attr_longlong(item_bin, attr_osm_wayid, osmid_attr_value);
+/*		item_bin_add_attr_longlong(item_bin, attr_osm_wayid, osmid_attr_value); */
 		if (debug_attr_buffer[0])
 			item_bin_add_attr_string(item_bin, attr_debug, debug_attr_buffer);
 		if (add_flags)
@@ -1890,7 +1890,7 @@ osm_end_way(struct maptool_osm *osm)
 			item_bin_add_attr_string(item_bin, attr_email, attr_strings[attr_string_email]);
 			item_bin_add_attr_string(item_bin, attr_county_name, attr_strings[attr_string_county_name]); 
 			item_bin_add_attr_string(item_bin, attr_url, attr_strings[attr_string_url]);
-			item_bin_add_attr_longlong(item_bin, attr_osm_wayid, osmid_attr_value);
+/*			item_bin_add_attr_longlong(item_bin, attr_osm_wayid, osmid_attr_value); */
 			item_bin_write(item_bin, count_areas<=count_lines ? osm->line2poi:osm->poly2poi);
 		}
 	}
@@ -1934,7 +1934,7 @@ osm_end_node(struct maptool_osm *osm)
 		item_bin_add_attr_string(item_bin, attr_email, attr_strings[attr_string_email]);
 		item_bin_add_attr_string(item_bin, attr_county_name, attr_strings[attr_string_county_name]);
 		item_bin_add_attr_string(item_bin, attr_url, attr_strings[attr_string_url]);
-		item_bin_add_attr_longlong(item_bin, attr_osm_nodeid, osmid_attr_value);
+/*		item_bin_add_attr_longlong(item_bin, attr_osm_nodeid, osmid_attr_value); */
 		item_bin_add_attr_string(item_bin, attr_ref, attr_strings[attr_string_ref]);
 		item_bin_add_attr_string(item_bin, attr_exit_to, attr_strings[attr_string_exit_to]);
 		item_bin_add_attr_string(item_bin, attr_debug, debug_attr_buffer);
