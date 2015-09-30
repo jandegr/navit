@@ -140,7 +140,7 @@ w	highway=unclassified,area=1		poly_street_1
 w	highway=road				street_0
 w	highway=service				street_service,AF_THROUGH_TRAFFIC_LIMIT
 w	highway=service,area=1			poly_service
-w	highway=service,service=parking_aisle	street_parking_lane
+w	highway=service,service=parking_aisle	street_parking_lane,AF_THROUGH_TRAFFIC_LIMIT
 w	highway=track				track_gravelled
 w	highway=track,surface=grass		track_grass
 w	highway=track,surface=gravel		track_gravelled
