@@ -201,8 +201,10 @@ item_order_by_type(enum item_type type)
 		case type_district_label_5e4:
 		case type_district_label_2e4:
 		case type_district_label_1e4:
-		case type_poly_water_tiled:
 			max=9;
+			break;
+		case type_poly_water_tiled:
+			max=10;
 			break;
 		case type_town_label_5e3:
 		case type_town_label_2e3:
