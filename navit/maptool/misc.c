@@ -204,6 +204,7 @@ item_order_by_type(enum item_type type)
 			max=9;
 			break;
 		case type_poly_water_tiled:
+		case type_highway_exit:
 			max=10;
 			break;
 		case type_town_label_5e3:
