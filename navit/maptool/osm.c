@@ -1162,7 +1162,7 @@ osm_add_tag(char *k, char *v)
 		level=5;
 	}
 	if (! strcmp(k,"addr:email")) {
-		attr_strings_save(attr_string_email, v);
+/*		attr_strings_save(attr_string_email, v); */
 		level=5;
 	}
 	if (! strcmp(k,"addr:suburb")) {
@@ -1178,11 +1178,11 @@ osm_add_tag(char *k, char *v)
 		level=5;
 	}
 	if (! strcmp(k,"phone")) {
-		attr_strings_save(attr_string_phone, v);
+/*		attr_strings_save(attr_string_phone, v); */
 		level=5;
 	}
 	if (! strcmp(k,"fax")) {
-		attr_strings_save(attr_string_fax, v);
+/*		attr_strings_save(attr_string_fax, v); */
 		level=5;
 	}
 	if (! strcmp(k,"postal_code")) {
