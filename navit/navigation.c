@@ -1758,6 +1758,13 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		ret->start=c[0];
 		ret->end=c[i];
 
+		if(item_attr_get(routeitem, attr_route, &route_attr))
+			graph_map = route_get_graph_map(route_attr.u.route);
+		if (graph_map )
+		{
+			navigation_itm_ways_update(ret,graph_map);
+		}
+
 		/* If we have a ramp, check the map for higway_exit info,
 		 * but only on the first node of the ramp.
 		 * We are doing the same for motorway-like roads because some
@@ -1830,10 +1837,6 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 				}
 			}
 		}
-
-		if(item_attr_get(routeitem, attr_route, &route_attr))
-			graph_map = route_get_graph_map(route_attr.u.route);
-
 		dbg(lvl_debug,"i=%d start %d end %d '%s' \n", i, ret->way.angle2, ret->angle_end, ret->way.name_systematic);
 		map_rect_destroy(mr);
 	} else {
@@ -1845,9 +1848,6 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 	if (this_->last) {
 		this_->last->next=ret;
 		ret->prev=this_->last;
-		if (graph_map) {
-			navigation_itm_ways_update(ret,graph_map);
-		}
 	}
 	dbg(lvl_debug,"ret=%p\n", ret);
 	this_->last=ret;
