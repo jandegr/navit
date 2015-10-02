@@ -1776,7 +1776,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		 * from the map.
 		 */
 		if ((streetitem->type == type_ramp) || (
-		//	ret->way.next && 
+			ret->way.next && ret->way.next->next &&
 			((streetitem->type == type_highway_land)
 			|| (streetitem->type == type_highway_city) || (streetitem->type == type_street_n_lanes))))
 		{
