@@ -1802,12 +1802,12 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 						if (attr.type && attr.type == attr_label)
 						{
 							dbg(lvl_debug,"exit_label=%s\n",attr.u.str);
-							ret->way.exit_label= map_convert_string(streetitem->map,attr.u.str);
+							ret->way.exit_label= map_convert_string(tmap,attr.u.str);
 						}
 						if (attr.type == attr_ref)
 						{
 							dbg(lvl_debug,"exit_ref=%s\n",attr.u.str);
-							ret->way.exit_ref= map_convert_string(streetitem->map,attr.u.str);
+							ret->way.exit_ref= map_convert_string(tmap,attr.u.str);
 						}
 						if (attr.type == attr_exit_to)
 						{
@@ -1821,7 +1821,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 									&& (this_->last)
 									&& (!(this_->last->way.item.type == type_ramp))) {
 								char *destination_raw;
-								destination_raw=map_convert_string(streetitem->map,attr.u.str);
+								destination_raw=map_convert_string(tmap,attr.u.str);
 								dbg(lvl_debug,"destination_raw from exit_to =%s\n",destination_raw);
 								if ((split_string_to_list(&(ret->way),destination_raw, ';')) < 2)
 								/*
