@@ -1775,10 +1775,9 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		 * If present, obtain exit_ref, exit_label and exit_to
 		 * from the map.
 		 */
-		if (   (streetitem->type == type_ramp)
-		    || (streetitem->type == type_highway_land)
-		    || (streetitem->type == type_highway_city)
-		    || (streetitem->type == type_street_n_lanes)) {
+		if ((streetitem->type == type_ramp) || (ret->way->next && ((streetitem->type == type_highway_land)
+			|| (streetitem->type == type_highway_city) || (streetitem->type == type_street_n_lanes))))
+		{
 			struct map_selection mselexit;
 			struct item *rampitem;
 			dbg(lvl_debug,"test ramp\n");
