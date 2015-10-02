@@ -1787,7 +1787,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 			mselexit.u.c_rect.lu = c[0] ;
 			mselexit.u.c_rect.rl = c[0] ;
 			mselexit.range = item_range_all;
-			mselexit.order = 18;
+			mselexit.order =10;
 
 			map_rect_destroy(mr);
 			mr = map_rect_new(tmap, &mselexit);
