@@ -1577,6 +1577,19 @@ navigation_itm_update(struct navigation_itm *itm, struct item *ritem)
 }
 
 /**
+ * @brief Checks whether a way is a ramp
+ *
+ * @param way The way to be examined
+ * @return True for ramp, false otherwise
+ */
+static inline int
+is_ramp(struct navigation_way *way) {
+	if (way->item.type == type_ramp || (way->item.type == type_street_n_lanes && way->flags && (way->flags & AF_LINK)))
+		return 1;
+	return 0;
+}
+
+/**
  * @brief Creates and adds a new navigation_itm to a linked list of such
  *
  * routeitem has an attr. streetitem, but that is only and id and a map,
@@ -1720,7 +1733,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		 * If present, obtain exit_ref, exit_label and exit_to
 		 * from the map.
 		 */
-		if (ret->way.next && ((streetitem->type == type_ramp) || (streetitem->type == type_highway_land)
+		if (ret->way.next && (is_ramp(&(ret->way)) || (streetitem->type == type_highway_land)
 			|| (streetitem->type == type_highway_city) || (streetitem->type == type_street_n_lanes)))
 		{
 			struct map_selection mselexit;
@@ -1760,9 +1773,9 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 							 */
 							if (attr.u.str
 									&& !ret->way.destination
-									&& (ret->way.item.type == type_ramp)
+									&& (is_ramp(&(ret->way)))
 									&& (this_->last)
-									&& (!(this_->last->way.item.type == type_ramp))) {
+									&& (!is_ramp(&(this_->last->way)))) {
 								char *destination_raw;
 								destination_raw=map_convert_string(tmap,attr.u.str);
 								dbg(lvl_debug,"destination_raw from exit_to =%s\n",destination_raw);
@@ -1917,6 +1930,8 @@ static int maneuver_category(enum item_type type)
 	case type_street_4_land:
 		return 5;
 	case type_street_n_lanes:
+		if (is_ramp(way))
+			return 0;
 		return 6;
 	case type_highway_land:
 		return 7;
@@ -1983,22 +1998,9 @@ is_way_allowed(struct navigation *nav, struct navigation_way *way, int mode)
 static int
 is_motorway_like(struct navigation_way *way, int extended)
 {
-	if ((way->item.type == type_highway_land) || (way->item.type == type_highway_city) || ((way->item.type == type_street_n_lanes) && (way->flags & AF_ONEWAYMASK)))
+	if ((way->item.type == type_highway_land) || (way->item.type == type_highway_city) || ((way->item.type == type_street_n_lanes) && (way->flags & AF_ONEWAYMASK))!is_ramp(way))
 		return 1;
-	if ((extended) && ((way->item.type == type_ramp) || (way->item.type == type_street_service)))
-		return 1;
-	return 0;
-}
-
-/**
- * @brief Checks whether a way is a ramp
- *
- * @param way The way to be examined
- * @return True for ramp, false otherwise
- */
-static int
-is_ramp(struct navigation_way *way) {
-	if (way->item.type == type_ramp)
+	if ((extended) && (is_ramp(way) || (way->item.type == type_street_service)))
 		return 1;
 	return 0;
 }
@@ -2066,7 +2068,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 	if (!new->way.next || (new->way.next && (new->way.next->angle2 == new->way.angle2) && !new->way.next->next)) {
 		/* No announcement necessary (with extra magic to eliminate duplicate ways) */
 		r="no: Only one possibility";
-	} else if (!new->way.next->next && new->way.next->item.type == type_ramp && !is_way_allowed(nav,new->way.next,1)) {
+	} else if (!new->way.next->next && is_ramp(new->way.next) && !is_way_allowed(nav,new->way.next,1)) {
 		/* If the other way is only a ramp and it is one-way in the wrong direction, no announcement necessary */
 		r="no: Only ramp and unallowed direction ";
 		ret=0;
@@ -2135,7 +2137,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 					}
 					if (w != &(new->way)) {
 						/* if we're exiting from a motorway, check which side of the ramp the motorway is on */
-						if (is_motorway_like(w, 0) && is_motorway_like(&(old->way), 0) && new->way.item.type == type_ramp) {
+						if (is_motorway_like(w, 0) && is_motorway_like(&(old->way), 0) && is_ramp(&(new->way))) {
 							if (dw < m.delta)
 								motorways_left++;
 							else
@@ -2174,7 +2176,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 						 * a ramp always creates a maneuver, we don't expect the workaround to have any unwanted
 						 * side effects.
 						 */
-						if (m.is_same_street && is_same_street2(old->way.name, old->way.name_systematic, w->name, w->name_systematic) && (!is_motorway_like(&(old->way), 0) || (!is_motorway_like(w, 0) && w->item.type != type_ramp)) && is_way_allowed(nav,w,2))
+						if (m.is_same_street && is_same_street2(old->way.name, old->way.name_systematic, w->name, w->name_systematic) && (!is_motorway_like(&(old->way), 0) || (!is_motorway_like(w, 0) && !is_ramp(w))) && is_way_allowed(nav,w,2))
 							//if (m.is_same_street && is_same_street2(old->way.name, old->way.name_systematic, w->name, w->name_systematic) && (!is_motorway_like(&(old->way), 0) || !is_motorway_like(w, 1)) && is_way_allowed(nav,w,2))
 							m.is_same_street=0;
 						/* If the route category changes to a lower one but another road has the same route category as old,
@@ -2187,7 +2189,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 				} else {
 					/* If we're merging onto a motorway, check which side of the ramp the motorway is on.
 					 * This requires examining the candidate ways which are NOT allowed. */
-					if (is_motorway_like(w, 0) && is_motorway_like(&(new->way), 0) && old->way.item.type == type_ramp) {
+					if (is_motorway_like(w, 0) && is_motorway_like(&(new->way), 0) && is_ramp(&(old->way))) {
 						if (dw < 0)
 							motorways_left++;
 						else
@@ -2287,7 +2289,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 			r="yes: motorway interchange (name changes)";
 			m.merge_or_exit = mex_interchange;
 			ret=1;
-		} else if ((new->way.item.type == type_ramp) && ((m.num_other_ways == 0) || (abs(m.delta) >= min_turn_limit)) && ((m.left > -90) || (m.right < 90))) {
+		} else if ((is_ramp(&(new->way))) && ((m.num_other_ways == 0) || (abs(m.delta) >= min_turn_limit)) && ((m.left > -90) || (m.right < 90))) {
 			/* Motorway ramps can be confusing, therefore we need to lower the bar for announcing a maneuver.
 			 * When the new way is a ramp, we check for the following criteria:
 			 * - All available ways are either motorway-like or ramps.
@@ -2351,7 +2353,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 	}
 
 	if (m.merge_or_exit == mex_none) {
-		if (old->way.item.type == type_ramp && is_motorway_like(&(new->way), 0)) {
+		if (is_ramp(&(old->way)) && is_motorway_like(&(new->way), 0)) {
 			if (motorways_left)
 				m.merge_or_exit = mex_merge_left;
 			else if (motorways_right)
@@ -2364,7 +2366,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 				if (!r)
 					r = "yes: merging onto motorway-like road";
 			}
-		} else if (is_motorway_like(&(old->way), 1) && (new->way.item.type == type_ramp)) {
+		} else if (is_motorway_like(&(old->way), 1) && is_ramp(&(new->way))) {
 			/* Detect interchanges - if:
 			 * - we're entering a ramp,
 			 * - we're coming from a motorway-like road (directly or via ramps),
@@ -2375,7 +2377,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 			 * access ramp for opposite direction) from being misinterpreted as interchanges. */
 			ni = old;
 			coming_from_motorway = 1;
-			while (coming_from_motorway && ni && (ni->way.item.type == type_ramp)) {
+			while (coming_from_motorway && ni && is_ramp(&(ni->way))) {
 				w = &(ni->way);
 				while (coming_from_motorway && w) {
 					coming_from_motorway = is_motorway_like(w, 1);
