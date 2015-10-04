@@ -1,41 +1,3 @@
-/* some changes in navigation.c
- *
- *
- *
- * some relate to (partially or in whole)
- * #1265 from mvglaslow
- * #1271 from jandegr
- * #1274 from jandegr
- * #1174 from arnaud le meur
- * #1082 from robotaxi
- * #921 from psoding
- * #795 from user:ps333
- * #694 from user:nop
- * #660 from user:polarbear_n
- *
- * and an incomplete list of more navigation.c related tickets
- * #1190
- * #1160
- * #1161
- * #1095
- * #1087
- * #880
- * #870
- * (#519)
- *
- */
-
-/* KNOWN ISSUES
- *
- *
- *  in navigation_itm_new() : If a way splits in 2, exit_to info ends up on
- *	both continuations of the ramp, sometimes leading to wrong guidance
- *	The case where a ramp itself splits in 2 is already covered by ignoring exit_to info
- *	in such cases.
- *
- *
- */
-
 /**
  * Navit, a modular navigation system.
  * Copyright (C) 2005-2015 Navit Team
@@ -1424,41 +1386,6 @@ navigation_way_get_max_delta(struct navigation_way *w, enum projection pro, int 
 	return ret;
 }
 
-
-/**
- * @brief Returns the time (in seconds) one will drive between two navigation items
- *
- * This function returns the time needed to drive between two items, including both of them,
- * in seconds.
- *
- * @param from The first item
- * @param to The last item
- * @return The travel time in seconds, or -1 on error
- */
-static int
-navigation_time(struct navigation_itm *from, struct navigation_itm *to)
-{
-	struct navigation_itm *cur;
-	int time;
-
-	time = 0;
-	cur = from;
-	while (cur) {
-		time += cur->time;
-
-		if (cur == to) {
-			break;
-		}
-		cur = cur->next;
-	}
-
-	if (!cur) {
-		return -1;
-	}
-
-	return time;
-}
-
 /**
  * @brief Clears the ways one can drive from itm
  *
@@ -1639,7 +1566,7 @@ navigation_itm_update(struct navigation_itm *itm, struct item *ritem)
 		return;
 	}
 	if (! item_attr_get(ritem, attr_speed, &speed)) {
-		dbg(lvl_error,"no time\n");
+		dbg(lvl_error,"no speed\n");
 		return;
 	}
 
@@ -1654,6 +1581,12 @@ navigation_itm_update(struct navigation_itm *itm, struct item *ritem)
  *
  * routeitem has an attr. streetitem, but that is only and id and a map,
  * allowing to fetch the actual streetitem, that will live under the same name.
+ *
+ * Known issue:
+ * If a way splits in 2, exit_to info ends up on both continuations of the ramp, sometimes
+ * leading to wrong guidance.
+ * The case where a ramp itself splits in 2 is already covered by ignoring exit_to info
+ * in such cases.
  *
  * @param this_ the navigation object
  * @param routeitem the routeitem from which to create a navigation item
@@ -1691,7 +1624,6 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		item_hash_insert(this_->hash, streetitem, ret);
 
 		mr=map_rect_new(streetitem->map, NULL);
-
 		struct map *tmap = streetitem->map;
 
 		if (! (streetitem=map_rect_get_item_byid(mr, streetitem->id_hi, streetitem->id_lo))) {
@@ -1746,9 +1678,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 					}
 				}
 			}
-
 		navigation_itm_update(ret, routeitem);
-
 
 		while (item_coord_get(routeitem, &c[i], 1))
 		{
@@ -1771,6 +1701,15 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		ret->start=c[0];
 		ret->end=c[i];
 
+		if(item_attr_get(routeitem, attr_route, &route_attr))
+			graph_map = route_get_graph_map(route_attr.u.route);
+		if (graph_map )
+		{	
+			if (this_->last)
+				ret->prev=this_->last;
+			navigation_itm_ways_update(ret,graph_map);
+		}
+
 		/* If we have a ramp, check the map for higway_exit info,
 		 * but only on the first node of the ramp.
 		 * We are doing the same for motorway-like roads because some
@@ -1781,10 +1720,9 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		 * If present, obtain exit_ref, exit_label and exit_to
 		 * from the map.
 		 */
-		if (   (streetitem->type == type_ramp)
-		    || (streetitem->type == type_highway_land)
-		    || (streetitem->type == type_highway_city)
-		    || (streetitem->type == type_street_n_lanes)) {
+		if (ret->way.next && ((streetitem->type == type_ramp) || (streetitem->type == type_highway_land)
+			|| (streetitem->type == type_highway_city) || (streetitem->type == type_street_n_lanes)))
+		{
 			struct map_selection mselexit;
 			struct item *rampitem;
 			dbg(lvl_debug,"test ramp\n");
@@ -1792,7 +1730,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 			mselexit.u.c_rect.lu = c[0] ;
 			mselexit.u.c_rect.rl = c[0] ;
 			mselexit.range = item_range_all;
-			mselexit.order = 18;
+			mselexit.order =18;
 
 			map_rect_destroy(mr);
 			mr = map_rect_new(tmap, &mselexit);
@@ -1807,12 +1745,12 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 						if (attr.type && attr.type == attr_label)
 						{
 							dbg(lvl_debug,"exit_label=%s\n",attr.u.str);
-							ret->way.exit_label= map_convert_string(streetitem->map,attr.u.str);
+							ret->way.exit_label= map_convert_string(tmap,attr.u.str);
 						}
 						if (attr.type == attr_ref)
 						{
 							dbg(lvl_debug,"exit_ref=%s\n",attr.u.str);
-							ret->way.exit_ref= map_convert_string(streetitem->map,attr.u.str);
+							ret->way.exit_ref= map_convert_string(tmap,attr.u.str);
 						}
 						if (attr.type == attr_exit_to)
 						{
@@ -1826,7 +1764,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 									&& (this_->last)
 									&& (!(this_->last->way.item.type == type_ramp))) {
 								char *destination_raw;
-								destination_raw=map_convert_string(streetitem->map,attr.u.str);
+								destination_raw=map_convert_string(tmap,attr.u.str);
 								dbg(lvl_debug,"destination_raw from exit_to =%s\n",destination_raw);
 								if ((split_string_to_list(&(ret->way),destination_raw, ';')) < 2)
 								/*
@@ -1843,10 +1781,6 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 				}
 			}
 		}
-
-		if(item_attr_get(routeitem, attr_route, &route_attr))
-			graph_map = route_get_graph_map(route_attr.u.route);
-
 		dbg(lvl_debug,"i=%d start %d end %d '%s' \n", i, ret->way.angle2, ret->angle_end, ret->way.name_systematic);
 		map_rect_destroy(mr);
 	} else {
@@ -1858,9 +1792,6 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 	if (this_->last) {
 		this_->last->next=ret;
 		ret->prev=this_->last;
-		if (graph_map) {
-			navigation_itm_ways_update(ret,graph_map);
-		}
 	}
 	dbg(lvl_debug,"ret=%p\n", ret);
 	this_->last=ret;
@@ -2402,7 +2333,17 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 		if (!m.is_same_street && m.is_unambiguous < 1) { /* FIXME: why < 1? */
 			ret=1;
 			r="yes: different street and ambiguous";
-		} else
+		} 
+		/* we should have cat of the candidate within dlim
+		 * instead of testing against max_cat.
+		 * The highest cat road might be well outside dlim
+		 */
+		else if (m.max_cat >= m.new_cat && m.is_unambiguous < 1)
+		{
+			ret = 1;
+			r="yes: ambiguous because of other candidates within dlim";
+		}
+		else
 			r="no: same street or unambiguous";
 #ifdef DEBUG
 		r=g_strdup_printf("%s: d %d left %d right %d dlim=%d cat old:%d new:%d max:%d unambiguous=%d same_street=%d", ret==1?"yes":"no", m.delta, m.left, m.right, dlim, m.old_cat, m.new_cat, m.max_cat, m.is_unambiguous, m.is_same_street);
@@ -3386,6 +3327,9 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 			case level_now:
 				/* TRANSLATORS: first arg. is the manieth exit, second arg. is the destination to follow */
 				return g_strdup_printf(_("Leave the roundabout at the %1$s %2$s"), get_exit_count_str(count_roundabout),street_destination_announce);
+			default :
+				dbg(lvl_error,"unexpected announcement level %d\n", level);
+				return g_strdup_printf("internal error");
 		}
 	}
 
@@ -3661,7 +3605,7 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 			break;
 		default :
 			ret= g_strdup_printf(("%1$s %2$s"),instruction,street_destination_announce);
-			dbg(lvl_error,"unevaluated announcement level\n");
+			dbg(lvl_error,"unexpected announcement level %d\n", level);
 			break;
 	}
 
