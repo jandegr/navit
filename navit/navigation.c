@@ -1998,7 +1998,7 @@ is_way_allowed(struct navigation *nav, struct navigation_way *way, int mode)
 static int
 is_motorway_like(struct navigation_way *way, int extended)
 {
-	if ((way->item.type == type_highway_land) || (way->item.type == type_highway_city) || ((way->item.type == type_street_n_lanes) && (way->flags & AF_ONEWAYMASK))!is_ramp(way))
+	if ((way->item.type == type_highway_land) || (way->item.type == type_highway_city) || ((way->item.type == type_street_n_lanes) && (way->flags & AF_ONEWAYMASK))&& !is_ramp(way))
 		return 1;
 	if ((extended) && (is_ramp(way) || (way->item.type == type_street_service)))
 		return 1;
