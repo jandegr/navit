@@ -1,41 +1,3 @@
-/* some changes in navigation.c
- *
- *
- *
- * some relate to (partially or in whole)
- * #1265 from mvglaslow
- * #1271 from jandegr
- * #1274 from jandegr
- * #1174 from arnaud le meur
- * #1082 from robotaxi
- * #921 from psoding
- * #795 from user:ps333
- * #694 from user:nop
- * #660 from user:polarbear_n
- *
- * and an incomplete list of more navigation.c related tickets
- * #1190
- * #1160
- * #1161
- * #1095
- * #1087
- * #880
- * #870
- * (#519)
- *
- */
- 
-/* KNOWN ISSUES
- *
- *
- *  in navigation_itm_new() : If a way splits in 2, exit_to info ends up on
- *	both continuations of the ramp, sometimes leading to wrong guidance
- *	The case where a ramp itself splits in 2 is already covered by ignoring exit_to info
- *	in such cases.
- *
- *
- */
-
 /**
  * Navit, a modular navigation system.
  * Copyright (C) 2005-2015 Navit Team
@@ -111,7 +73,7 @@ static int min_turn_limit = 25;
  * robotaxi:
  * suggested limits derived from 'simple turn rules' in bugfix/enhancement #1095:
  * 25-45-110-165.
- * taken over from here: 25 (straight limit) and 165 (u-turn-limit used for very strong turn) 
+ * taken over from here: 25 (straight limit) and 165 (u-turn-limit used for very strong turn)
  */
 
 /** Minimum absolute delta for a turn of "normal" strength (which is always just announced as "turn left/right" even when strength is required).
@@ -126,6 +88,18 @@ static int sharp_turn_limit = 110;
  * Maneuvers whose absolute delta is less than this (but at least {@code min_turn_limit}) will always be announced as turns.
  * Note that, depending on other conditions, even maneuvers whose delta exceeds the threshold may still be announced as (sharp) turns. */
 static int u_turn_limit = 165;
+
+/** Enum that defines the different states in announcing a turn.
+ *  These states are dependent on the current distance to the turn;
+ *  the distances are configured in navit.xml for every type of highway. */
+enum announcement_level {
+	level_connect = -2,
+	level_error   = -1,
+	level_now     = 0,
+	level_meters  = 1,
+	level_soon    = 2,
+	level_follow  = 3
+};
 
 enum gender {unknown, masculine, feminine, neuter};
 
@@ -357,7 +331,7 @@ static void navigation_flush(struct navigation *this_);
  * @param angle1 The first angle
  * @param angle2 The second angle
  * @return The difference between the angles, see description
- */ 
+ */
 static int
 angle_delta(int angle1, int angle2)
 {
@@ -698,9 +672,9 @@ navigation_get_attr(struct navigation *this_, enum attr_type type, struct attr *
 		mr=map_rect_new(this_->map, NULL);
 		while ((item=map_rect_get_item(mr))) {
 			if (item->type != type_nav_none && item->type != type_nav_position) {
-				if (type == attr_item_type) 
+				if (type == attr_item_type)
 					attr->u.item_type=item->type;
-				else { 
+				else {
 					if (!item_attr_get(item, type, attr))
 						item=NULL;
 				}
@@ -775,7 +749,7 @@ navigation_new(struct attr *parent, struct attr **attrs)
 	if ((attr=attr_search(attrs, NULL, attr_flags))) {
 		ret->flags = attr->u.num;
 	}
-	return ret;	
+	return ret;
 }
 
 int
@@ -786,38 +760,39 @@ navigation_set_announce(struct navigation *this_, enum item_type type, int *leve
 		dbg(lvl_debug,"street type %d out of range [%d,%d]", type, route_item_first, route_item_last);
 		return 0;
 	}
-	for (i = 0 ; i < 3 ; i++) 
+	for (i = 0 ; i < 3 ; i++)
 		this_->announce[type-route_item_first][i]=level[i];
 	return 1;
 }
 
-static int
+static enum announcement_level
 navigation_get_announce_level(struct navigation *this_, enum item_type type, int dist)
 {
-	int i;
+	enum announcement_level level;
 
 	if (type < route_item_first || type > route_item_last)
 	{
 		dbg(lvl_error," item outside routable range\n");
-		return -1;
+		return level_error;
 	}
-	for (i = 0 ; i < 3 ; i++) {
-		if (dist <= this_->announce[type-route_item_first][i])
-			return i;
+	for (level = level_now ; level < level_follow ; level++) {
+		if (dist <= this_->announce[type-route_item_first][level])
+			return level;
 	}
-	return i;
+	return level;
 }
 
 static int is_way_allowed(struct navigation *nav, struct navigation_way *way, int mode);
 
-static int
+static enum announcement_level
 navigation_get_announce_level_cmd(struct navigation *this_, struct navigation_itm *itm, struct navigation_command *cmd, int distance)
 {
-	int level2,level=navigation_get_announce_level(this_, itm->way.item.type, distance);
+	enum announcement_level level2,level=navigation_get_announce_level(this_, itm->way.item.type, distance);
 	if (this_->cmd_first->itm->prev) {
 		level2=navigation_get_announce_level(this_, cmd->itm->prev->way.item.type, distance);
-		if (level2 > level)
-			level=level2;
+		if (level2 > level) {
+			level = level2;
+		}
 	}
 	return level;
 }
@@ -841,7 +816,7 @@ road_angle(struct coord *c1, struct coord *c2, int dir)
 }
 
 static const char
-*get_count_str(int n) 
+*get_count_str(int n)
 {
 	switch (n) {
 	case 0:
@@ -859,13 +834,13 @@ static const char
 		return _("fifth");
 	case 6:
 		return _("sixth");
-	default: 
+	default:
 		return NULL;
 	}
 }
 
 static const char
-*get_exit_count_str(int n) 
+*get_exit_count_str(int n)
 {
 	switch (n) {
 	case 0:
@@ -883,7 +858,7 @@ static const char
 		return _("fifth exit");
 	case 6:
 		return _("sixth exit");
-	default: 
+	default:
 		return NULL;
 	}
 }
@@ -927,7 +902,7 @@ distance_set_last()
 {
 	static int i=0;
 	if (i == 0) {
-		while (distances[i] > 0) 
+		while (distances[i] > 0)
 			i++;
 	}
 	return distances[i-1];
@@ -957,7 +932,7 @@ round_distance_reduced( int dist )
 			break;
 		i++;
 	}
-	dbg(lvl_debug,"converted %d to %d with factor %d\n",dist,distances[m],factor);	
+	dbg(lvl_debug,"converted %d to %d with factor %d\n",dist,distances[m],factor);
 	return distances[m] * factor;
 
 }
@@ -967,10 +942,10 @@ round_distance_reduced( int dist )
 *   Considers the configuration of 'imperial' units and 'vocabulary_distances'.
 *   'imperial' if set distinguishes the distance statement between miles and feet. Maximum distance in feet is 500.
 *   'vocabulary_distances' if set constrains the distance values to a set of simple pronounceable numbers.
-*   
+*
 *   @param nav       The navigation object.
 *   @param dist      Distance in meters.
-*   @param type      The type of announcement precision. 
+*   @param type      The type of announcement precision.
 *   @param is_length 1 for length statement, 0 for distance statement.
 *   @return          String with length/distance statement.
 */
@@ -978,7 +953,7 @@ static char *
 get_distance_str(struct navigation *nav, int dist_meters, enum attr_type type, int is_length)
 {
 	int imperial=0,vocabulary=1; /* default configuration */
-	
+
 	/* Get configuration */
 	struct attr attr;
 	if (navit_get_attr(nav->navit, attr_imperial, &attr, NULL))
@@ -1031,7 +1006,7 @@ get_distance_str(struct navigation *nav, int dist_meters, enum attr_type type, i
 				return g_strdup_printf(_("in %d.%d miles"), dist_miles, rem);
 		}
 
-		if (is_length) 
+		if (is_length)
 			return g_strdup_printf(navit_nls_ngettext("one mile","%d miles", dist_miles), dist_miles);
 		else
 			return g_strdup_printf(navit_nls_ngettext("in one mile","in %d miles", dist_miles), dist_miles);
@@ -1124,19 +1099,19 @@ navigation_way_init(struct navigation_way *w)
 		w->name_systematic=map_convert_string(realitem->map,attr.u.str);
 	else
 		w->name_systematic=NULL;
-		
+
 	if (w->dir < 0) {
 		if (item_coord_get(realitem, cbuf, 2) != 2) {
 			dbg(lvl_warning,"Using calculate_angle() with a less-than-two-coords-item?\n");
 			map_rect_destroy(mr);
 			return;
 		}
-			
+
 		while (item_coord_get(realitem, &c, 1)) {
 			cbuf[0] = cbuf[1];
 			cbuf[1] = c;
 		}
-		
+
 	} else {
 		if (item_coord_get(realitem, cbuf, 2) != 2) {
 			dbg(lvl_warning,"Using calculate_angle() with a less-than-two-coords-item?\n");
@@ -1411,41 +1386,6 @@ navigation_way_get_max_delta(struct navigation_way *w, enum projection pro, int 
 	return ret;
 }
 
-
-/**
- * @brief Returns the time (in seconds) one will drive between two navigation items
- *
- * This function returns the time needed to drive between two items, including both of them,
- * in seconds.
- *
- * @param from The first item
- * @param to The last item
- * @return The travel time in seconds, or -1 on error
- */
-static int
-navigation_time(struct navigation_itm *from, struct navigation_itm *to)
-{
-	struct navigation_itm *cur;
-	int time;
-
-	time = 0;
-	cur = from;
-	while (cur) {
-		time += cur->time;
-
-		if (cur == to) {
-			break;
-		}
-		cur = cur->next;
-	}
-
-	if (!cur) {
-		return -1;
-	}
-
-	return time;
-}
-
 /**
  * @brief Clears the ways one can drive from itm
  *
@@ -1475,10 +1415,10 @@ navigation_itm_ways_clear(struct navigation_itm *itm)
  * and the next navigation item are excluded.
  *
  * @param itm The item that should be updated
- * @param graph_map The route graph's map that these items are on 
+ * @param graph_map The route graph's map that these items are on
  */
 static void
-navigation_itm_ways_update(struct navigation_itm *itm, struct map *graph_map) 
+navigation_itm_ways_update(struct navigation_itm *itm, struct map *graph_map)
 {
 	struct map_selection coord_sel;
 	struct map_rect *g_rect; /* Contains a map rectangle from the route graph's map */
@@ -1495,9 +1435,9 @@ navigation_itm_ways_update(struct navigation_itm *itm, struct map *graph_map)
 	coord_sel.u.c_rect.lu = itm->start;
 	coord_sel.u.c_rect.rl = itm->start;
 	/* the selection's order is ignored */
-	
+
 	g_rect = map_rect_new(graph_map, &coord_sel);
-	
+
 	i = map_rect_get_item(g_rect);
 	if (!i || i->type != type_rg_point) { /* probably offroad? */
 		map_rect_destroy(g_rect);
@@ -1505,22 +1445,22 @@ navigation_itm_ways_update(struct navigation_itm *itm, struct map *graph_map)
 	}
 
 	w = NULL;
-	
+
 	while (1) {
 		i = map_rect_get_item(g_rect);
 
 		if (!i) {
 			break;
 		}
-		
+
 		if (i->type != type_rg_segment) {
 			continue;
 		}
-		
+
 		if (!item_attr_get(i,attr_street_item,&sitem_attr)) {
 			dbg(lvl_warning, "Got no street item for route graph item in entering_straight()\n");
 			continue;
-		}		
+		}
 
 		if (!item_attr_get(i,attr_direction,&direction_attr)) {
 			continue;
@@ -1556,7 +1496,7 @@ navigation_itm_ways_update(struct navigation_itm *itm, struct map *graph_map)
 	}
 
 	map_rect_destroy(g_rect);
-	
+
 	itm->way.next = w;
 }
 
@@ -1596,7 +1536,7 @@ navigation_destroy_itms_cmds(struct navigation *this_, struct navigation_itm *en
 				g_free(cmd->maneuver);
 			g_free(cmd);
 		}
-	
+
 		map_convert_free(itm->way.name);
 		map_convert_free(itm->way.name_systematic);
 		map_convert_free(itm->way.exit_ref);
@@ -1607,7 +1547,7 @@ navigation_destroy_itms_cmds(struct navigation *this_, struct navigation_itm *en
 	}
 	if (! this_->first)
 		this_->last=NULL;
-	if (! this_->first && end) 
+	if (! this_->first && end)
 		dbg(lvl_error,"end wrong\n");
 	dbg(lvl_info,"ret this_->first=%p this_->cmd_first=%p\n",this_->first, this_->cmd_first);
 }
@@ -1626,7 +1566,7 @@ navigation_itm_update(struct navigation_itm *itm, struct item *ritem)
 		return;
 	}
 	if (! item_attr_get(ritem, attr_speed, &speed)) {
-		dbg(lvl_error,"no time\n");
+		dbg(lvl_error,"no speed\n");
 		return;
 	}
 
@@ -1641,6 +1581,12 @@ navigation_itm_update(struct navigation_itm *itm, struct item *ritem)
  *
  * routeitem has an attr. streetitem, but that is only and id and a map,
  * allowing to fetch the actual streetitem, that will live under the same name.
+ *
+ * Known issue:
+ * If a way splits in 2, exit_to info ends up on both continuations of the ramp, sometimes
+ * leading to wrong guidance.
+ * The case where a ramp itself splits in 2 is already covered by ignoring exit_to info
+ * in such cases.
  *
  * @param this_ the navigation object
  * @param routeitem the routeitem from which to create a navigation item
@@ -1677,8 +1623,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		ret->way.item=*streetitem;
 		item_hash_insert(this_->hash, streetitem, ret);
 
-		mr=map_rect_new(streetitem->map, NULL);  
-
+		mr=map_rect_new(streetitem->map, NULL);
 		struct map *tmap = streetitem->map;
 
 		if (! (streetitem=map_rect_get_item_byid(mr, streetitem->id_hi, streetitem->id_lo))) {
@@ -1733,9 +1678,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 					}
 				}
 			}
-		
 		navigation_itm_update(ret, routeitem);
-
 
 		while (item_coord_get(routeitem, &c[i], 1))
 		{
@@ -1761,7 +1704,9 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		if(item_attr_get(routeitem, attr_route, &route_attr))
 			graph_map = route_get_graph_map(route_attr.u.route);
 		if (graph_map )
-		{
+		{	
+			if (this_->last)
+				ret->prev=this_->last;
 			navigation_itm_ways_update(ret,graph_map);
 		}
 
@@ -1775,10 +1720,8 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		 * If present, obtain exit_ref, exit_label and exit_to
 		 * from the map.
 		 */
-		if ((streetitem->type == type_ramp) || (
-			ret->way.next && ret->way.next->next &&
-			((streetitem->type == type_highway_land)
-			|| (streetitem->type == type_highway_city) || (streetitem->type == type_street_n_lanes))))
+		if (ret->way.next && ((streetitem->type == type_ramp) || (streetitem->type == type_highway_land)
+			|| (streetitem->type == type_highway_city) || (streetitem->type == type_street_n_lanes)))
 		{
 			struct map_selection mselexit;
 			struct item *rampitem;
@@ -1787,7 +1730,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 			mselexit.u.c_rect.lu = c[0] ;
 			mselexit.u.c_rect.rl = c[0] ;
 			mselexit.range = item_range_all;
-			mselexit.order =10;
+			mselexit.order =18;
 
 			map_rect_destroy(mr);
 			mr = map_rect_new(tmap, &mselexit);
@@ -1856,7 +1799,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 }
 
 /**
- * @brief Counts how many times a driver could turn right/left 
+ * @brief Counts how many times a driver could turn right/left
  *
  * This function counts how many times the driver theoretically could
  * turn right/left between two navigation items, not counting the final
@@ -1890,7 +1833,7 @@ count_possible_turns(struct navigation *nav, struct navigation_itm *from, struct
 					if (angle_delta(curr->prev->angle_end, w->angle2) > 0) {
 						count++;
 						break;
-					}				
+					}
 				}
 			}
 			w = w->next;
@@ -2390,12 +2333,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 		if (!m.is_same_street && m.is_unambiguous < 1) { /* FIXME: why < 1? */
 			ret=1;
 			r="yes: different street and ambiguous";
-		}
-		else if (m.new_cat < m.old_cat)
-		{
-			ret=1;
-			r="yes: different street and lower cat.";
-		}
+		} 
 		/* we should have cat of the candidate within dlim
 		 * instead of testing against max_cat.
 		 * The highest cat road might be well outside dlim
@@ -3175,7 +3113,7 @@ navigation_item_destination(struct navigation *nav, struct navigation_command *c
 			ret=g_strdup_printf(_("%sinto %s%s%s|neuter form"), prefix, name1, sep, name2);
 			break;
 		}
-			
+
 	} else
 		/* TRANSLATORS: gives the name of the next road to turn into (into the E17) */
 		ret=g_strdup_printf(_("%sinto the %s"),prefix,name_systematic);
@@ -3267,50 +3205,61 @@ navigation_cmd_get_exit_announce(struct navigation_command *this_, char *street_
  * in..., then turn right"
  */
 static char *
-show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigation_command *cmd, enum attr_type type, int connect)
+show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigation_command *cmd, enum attr_type type, enum announcement_level level)
 {
 
 	int distance=itm->dest_length-cmd->itm->dest_length;
 	char *d=NULL,*ret=NULL;
 	char *street_destination_announce=NULL;
-	int level;
 	int skip_roads = 0;
 	int count_roundabout;
 	struct navigation_itm *cur;
+	struct navigation_way *candidate_way;
 	int tellstreetname = 0;
-	char * at = NULL;        /* Motorway junction name */
-	char * direction = NULL; /* The direction-dependent part of the maneuver */
+	char *at = NULL;        /* Motorway junction name */
+	char *direction = NULL; /* The direction-dependent part of the maneuver */
 	char *destination = NULL;
 	char *street_destination = NULL;
-	char * instruction = NULL;
-	char * strength = NULL;  /* Strength of the turn */
-
-	if (connect)
-		level = -2; /* level = -2 means "connect to another maneuver via 'then ...'" */
-	else
-		level = 1;
+	char *instruction = NULL;
+	char *strength = NULL;  /* Strength of turn like 'easily', 'strongly', etc. */
 
 
 	if (type != attr_navigation_long_exact)
 		distance=round_distance(distance);
-	if (type == attr_navigation_speech)
-	{
-		if (nav->turn_around && nav->turn_around == nav->turn_around_limit)
-		{
-			navigation_set_turnaround(nav, nav->turn_around_count+1);
-			return g_strdup(_("When possible, please turn around"));
+
+	if (type == attr_navigation_speech) {
+		if (nav->turn_around && nav->turn_around == nav->turn_around_limit) {
+			if (level == level_connect) {
+				return g_strdup(""); /* there is no ',then turn around' */
+			} else {
+				navigation_set_turnaround(nav, nav->turn_around_count+1);
+				return g_strdup(_("When possible, please turn around"));
+			}
 		}
 		navigation_set_turnaround(nav, 0);
-		if (!connect)
-			level=navigation_get_announce_level_cmd(nav, itm, cmd, distance-cmd->length);
 		dbg(lvl_debug,"distance=%d level=%d type=0x%x\n", distance, level, itm->way.item.type);
 	}
 
 
 	street_destination=select_announced_destinations(cmd);
 	if (street_destination)
-		/* TRANSLATORS: the argument is the destination to follow */
-		street_destination_announce=g_strdup_printf(_("towards %s"),street_destination);
+		if (level == level_connect) {
+			/* for the connected announcement suppress the destination, if this is the same as in the first part of the announcement */
+			if (cmd->prev) {
+				char *street_destination_previous = select_announced_destinations(cmd->prev);
+				if (street_destination_previous && strstr(street_destination_previous, street_destination)) { /* doesn't have any new information? */
+					street_destination_announce=g_strdup("");
+				} else {
+					/* TRANSLATORS: the argument is the destination to follow */
+					street_destination_announce=g_strdup_printf(_("towards %s"),street_destination);
+				}
+				g_free(street_destination_previous);
+			} else {
+				street_destination_announce=g_strdup_printf(_("towards %s"),street_destination);
+			}
+		} else {
+			street_destination_announce=g_strdup_printf(_("towards %s"),street_destination);
+		}
 	else street_destination_announce=g_strdup("");
 	g_free(street_destination);
 
@@ -3320,30 +3269,67 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 		count_roundabout = 0;
 		while (cur && (cur->way.flags & AF_ROUNDABOUT))
 		{
-			if (cur->next->way.next && is_way_allowed(nav,cur->next->way.next,3))
-			/* If the next segment has no exit or the exit isn't allowed, don't count it */
-				count_roundabout++;
+			candidate_way=cur->next->way.next;
+			while (candidate_way)
+			{
+				if (candidate_way && is_way_allowed(nav,candidate_way,3))
+				/* If the next segment has no exit or the exit isn't allowed, don't count it */
+				{
+					count_roundabout++;
+					/* As soon as we have an allowed one on this node,
+					 * stop further counting for this node.
+					 */
+					break;
+				}
+				candidate_way=candidate_way->next;
+			}
 			cur = cur->prev;
 		}
+
+		/*try to figure out if the entry node has a usable exit as well
+		*
+		* this will fail for left-hand driving areas
+		*/
+		if (cur && cur->next)
+		{
+			candidate_way=cur->next->way.next;
+			while (candidate_way)
+			{
+				if (candidate_way && is_way_allowed(nav,candidate_way,3)
+					/*&& (angle_delta(cur->angle_end,candidate_way->angle2) > 0) && ( angle_delta(candidate_way->angle2,cur->next->way.angle2) < 0 )*/)
+					/*for right-hand traffic, exits should be to the right anyway to allow smooth turns, so leave this out until we find a counterexample :)*/
+				{
+					count_roundabout++;
+					/* As soon as we have an allowed one on this node,
+					* stop further counting for this node.
+					*/
+					break;
+				}
+				candidate_way=candidate_way->next;
+			}
+		}
+
 		switch (level)
 		{
-			case 3:
+			case level_follow:
 				d=get_distance_str(nav, distance, type, 1);
 				return g_strdup_printf(_("Follow the road for the next %s"), d);
-			case 2:
+			case level_soon:
 				return g_strdup(_("Enter the roundabout soon"));
-			case 1:
+			case level_meters:
 				d = get_distance_str(nav, distance, attr_navigation_short, 0);
-				/* TRANSLATORS: first arg. is the distance to the roundabout, second arg. is the manieth exit  */
-				ret = g_strdup_printf(_("Enter the roundabout %1$s and leave at the %2$s"), d,get_exit_count_str(count_roundabout));
+				/* TRANSLATORS: %s is the distance to the roundabout */
+				ret = g_strdup_printf(_("Enter the roundabout %s"), d);
 				g_free(d);
 				return ret;
-			case -2:
-				/* TRANSLATORS: first arg. is the manieth exit, second arg. is the destination to follow */
-				return g_strdup_printf(_("then leave the roundabout at the %1$s %2$s"), get_exit_count_str(count_roundabout),street_destination_announce);
-			case 0:
+			case level_connect:
+				return g_strdup(_("then enter the roundabout"));
+			case level_now:
 				/* TRANSLATORS: first arg. is the manieth exit, second arg. is the destination to follow */
 				return g_strdup_printf(_("Leave the roundabout at the %1$s %2$s"), get_exit_count_str(count_roundabout),street_destination_announce);
+			default :
+				dbg(lvl_error,"unexpected announcement level %d\n", level);
+				return g_strdup_printf("internal error");
 		}
 	}
 
@@ -3353,20 +3339,23 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 		{
 			if(type == attr_navigation_speech)
 			{ /* In voice mode */
-			/* In Voice Mode only tell the street name in level 1 or in level 0 if level 1	was skipped */
-				if (level == 1)
+			/* In Voice Mode only tell the street name in level_meters or in level_ if level 1	was skipped */
+				if (level == level_meters)
 				{ /* we are close to the intersection */
 					cmd->itm->streetname_told = 1; /* remember to be checked when we turn */
 					tellstreetname = 1;	       /* Ok, so we tell the name of the street */
 				}
-				if (level == 0)
+				else if (level == level_now)
 				{
 					if(cmd->itm->streetname_told == 0) /* we are right at the intersection */
 						tellstreetname = 1;
 					else
 						cmd->itm->streetname_told = 0;  /* reset just in case we come to the same street again */
 				}
-
+				else if (level == level_connect)
+				{
+				  	tellstreetname = 1;
+				}
 			}
 			else
 				tellstreetname = 1;
@@ -3375,16 +3364,16 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 
 		switch (level)
 		{
-			case 2 :
+			case level_soon :
 				d=g_strdup(_("soon"));
 				break;
-			case 1 :
+			case level_meters :
 				d=get_distance_str(nav, distance, attr_navigation_short, 0);
 				break;
-			case 0 :
+			case level_now :
 				d=g_strdup(_("now"));
 				break;
-			case -2 :
+			case level_connect :
 				d=g_strdup(_("then"));
 				break;
 			default :
@@ -3401,10 +3390,10 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 			char *exit_announce=NULL;
 
 			 /* interchange or exit announcement shall be a long distance information only.
-			    But if so, exit_label shall not be announced in case it is a substring 
+			    But if so, exit_label shall not be announced in case it is a substring
 			    of destination info to avoid redundancy and not let the sentence become too long.
-			    Otherwise, if there is no additional destination info, just say it at level 1. */
-			if ((level == 2) || ((level == 1) && (!street_destination_announce && !destination)) || (type != attr_navigation_speech)) {
+			    Otherwise, if there is no additional destination info, just say it at level_meters. */
+			if ((level == level_soon) || ((level == level_meters) && (!street_destination_announce && !destination)) || (type != attr_navigation_speech)) {
 				exit_announce = navigation_cmd_get_exit_announce(cmd, street_destination_announce);
 			}
 
@@ -3413,16 +3402,16 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 				case mex_merge_left:
 				case mex_merge_right:
 					if (cmd->maneuver->merge_or_exit == mex_merge_right) {
-						if (level == -2)
+						if (level == level_connect)
 							/* TRANSLATORS: the arg. is the phrase 'onto ...'. Right merge, the stuff after | doesn't have to be included. */
-							instruction = g_strdup_printf(_("then merge%1$s|right"), d);
+							instruction = g_strdup_printf(_("then merge%1$s|right"), destination);
 						else
 							/* TRANSLATORS: the first arg. is distance, the second is the phrase 'onto ...'. Right merge, the stuff after | doesn't have to be included. */
 							instruction = g_strdup_printf(_("Merge %1$s%2$s|right"), d, destination);
 					} else {
-						if (level == -2)
+						if (level == level_connect)
 							/* TRANSLATORS: the arg. is the phrase 'onto ...'. Left merge, the stuff after | doesn't have to be included. */
-							instruction = g_strdup_printf(_("then merge%1$s|left"), d);
+							instruction = g_strdup_printf(_("then merge%1$s|left"), destination);
 						else
 							/* TRANSLATORS: the first arg. is distance, the second is the phrase 'onto ...'. Left merge, the stuff after | doesn't have to be included. */
 							instruction = g_strdup_printf(_("Merge %1$s%2$s|left"), d, destination);
@@ -3455,7 +3444,7 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 				at = g_strdup("");
 			switch (cmd->maneuver->type) {
 				case type_nav_straight :
-					if (level == -2)
+					if (level == level_connect)
 						/* TRANSLATORS: the arg. is where to do the maneuver */
 						instruction = g_strdup_printf(_("then continue straight%1$s"), at);
 					else
@@ -3463,7 +3452,7 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 						instruction = g_strdup_printf(_("Continue straight %1$s%2$s%3$s"), d, at, destination);
 					break;
 				case type_nav_keep_right :
-					if (level == -2)
+					if (level == level_connect)
 						/* TRANSLATORS: the arg. is where to do the maneuver */
 						instruction = g_strdup_printf(_("then keep right%1$s"), at);
 					else
@@ -3471,7 +3460,7 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 						instruction = g_strdup_printf(_("Keep right %1$s%2$s%3$s"), d, at, destination);
 					break;
 				case type_nav_keep_left :
-					if (level == -2)
+					if (level == level_connect)
 						/* TRANSLATORS: the arg. is where to do the maneuver */
 						instruction = g_strdup_printf(_("then keep left%1$s"), at);
 					else
@@ -3491,16 +3480,21 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 					case type_nav_right_3 :
 						/* TRANSLATORS: "right" as in "turn right" */
 						direction = g_strdup(_("right"));
-						if (level==-2 || level == 0)
-							skip_roads = count_possible_turns(nav,cmd->prev ? cmd->prev->itm : nav->first,cmd->itm,90);
+						if (level == level_now)
+							skip_roads = count_possible_turns(nav, cmd->prev ? cmd->prev->itm : nav->first, cmd->itm, 90);
+						else if (level == level_connect)
+							/* Robotaxi: todo - must tidy up skip_roads == -1 issue */
+							skip_roads = count_possible_turns(nav, itm->next ? itm->next : itm, cmd->itm, 90);
 						break;
 					case type_nav_left_1 :
 					case type_nav_left_2 :
 					case type_nav_left_3 :
 						/* TRANSLATORS: "left" as in "turn left" */
 						direction = g_strdup(_("left"));
-						if (level==-2 || level == 0)
-							skip_roads = count_possible_turns(nav,cmd->prev ? cmd->prev->itm : nav->first,cmd->itm,-90);
+						if (level == level_now)
+							skip_roads = count_possible_turns(nav, cmd->prev ? cmd->prev->itm : nav->first, cmd->itm, -90);
+						else if (level == level_connect)
+							skip_roads = count_possible_turns(nav, itm->next ? itm->next : itm, cmd->itm, -90);
 						break;
 					default:
 						direction = g_strdup("");
@@ -3521,22 +3515,28 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 						strength = g_strdup("");
 						break;
 					}
-					if (skip_roads) {
-						if (skip_roads < 6)
-							instruction = g_strdup_printf(_("Take the %1$s road to the %2$s"), get_count_str(skip_roads+1), direction);
-							/*and preserve skip_roads to signal we already have an instruction*/
-						else {
+					/* Robotaxi: todo - must tidy up skip_roads == -1 issue */
+					if (skip_roads > 0) {
+						if (skip_roads < 6) {
+							if (level == level_connect)
+								instruction = g_strdup_printf(_("then take the %1$s road to the %2$s"), get_count_str(skip_roads+1), direction);
+							else
+								instruction = g_strdup_printf(_("Take the %1$s road to the %2$s"), get_count_str(skip_roads+1), direction);
+							/*and preserve skip_roads to signal that we already have an instruction*/
+						} else {
 							g_free(d);
 							d=g_strdup_printf(_("after %i roads"),skip_roads);
 							skip_roads = 0; /*signal an instruction still has to be created*/
 						}
 					}
-					if (!skip_roads) /* cave: no else - may come from 'if (skip_roads)' above ! */
+					 /* cave: no else - may come from 'if (skip_roads)' above ! */
+					if (skip_roads <= 0) {
 						/* TRANSLATORS: the first arg. is strength, the second is direction, the third is distance, the fourth is destination  */
 						instruction = g_strdup_printf(_("Turn %1$s%2$s %3$s%4$s"), strength, direction, d, destination);
+					}
 					break;
 				case type_nav_turnaround_left:
-					if (level == -2)
+					if (level == level_connect)
 						/* TRANSLATORS: Left U-turn, the stuff after | doesn't have to be included. */
 						instruction = g_strdup(_("then make a U-turn|left"));
 					else
@@ -3544,7 +3544,7 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 						instruction = g_strdup_printf(_("Make a U-turn %1$s|left"), d);
 					break;
 				case type_nav_turnaround_right:
-					if (level == -2)
+					if (level == level_connect)
 						/* TRANSLATORS: Right U-turn, the stuff after | doesn't have to be included. */
 						instruction = g_strdup(_("then make a U-turn|right"));
 					else
@@ -3559,7 +3559,7 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 					 * in cases where relevant destination info is available.
 					 * Even if there is no driving command to be announced, in some cases
 					 * there is an overhead roadsign in preparation of an upcoming road-split,
-					 * and then we can give usefull info to the driver.
+					 * and then we can give useful info to the driver.
 					 *
 					 *  UNTESTED !
 					 *
@@ -3568,13 +3568,13 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 					break;
 				case type_nav_destination:
 					/* the old code used to clear the route destination when this was the only
-					 * instruction left. Was that usefull ?
+					 * instruction left. Was that useful ?
 					 * Should be tested with the old code what happens if the driver
 					 * 'overshoots' the destination and the route destination is already cleared.
 					 * I suppose it will now keep guiding the user to destination untill another one
 					 * is set or a 'stop navigation' action is done using the gui.
 					 */
-					if (level == -2)
+					if (level == level_connect)
 						instruction=g_strdup(_("then you have reached your destination."));
 					else
 						/* TRANSLATORS: the arg. is distance  */
@@ -3588,28 +3588,24 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 	}
 	switch (level)
 	{
-		case 3:
+		case level_follow:
 			d=get_distance_str(nav, distance, type, 1);
 			ret=g_strdup_printf(_("Follow the road for the next %s"), d);
 			break;
-		case 2:
+		case level_soon:
 			if (at) /* 'at' contains interchange or exit information that shall not be combined with street_destination_announce */
 				ret= g_strdup_printf(("%1$s %2$s"),instruction,"");
 			else
 				ret= g_strdup_printf(("%1$s %2$s"),instruction,street_destination_announce);
 			break;
-		case 1:
-			ret= g_strdup_printf(("%1$s %2$s"),instruction,street_destination_announce);
-			break;
-		case -2:
-			ret= g_strdup_printf(("%1$s %2$s"),instruction,street_destination_announce);
-			break;
-		case 0:
+		case level_meters:
+		case level_connect:
+		case level_now:
 			ret= g_strdup_printf(("%1$s %2$s"),instruction,street_destination_announce);
 			break;
 		default :
 			ret= g_strdup_printf(("%1$s %2$s"),instruction,street_destination_announce);
-			dbg(lvl_error,"unevaluated speech level\n");
+			dbg(lvl_error,"unexpected announcement level %d\n", level);
 			break;
 	}
 
@@ -3648,77 +3644,60 @@ show_maneuver(struct navigation *nav, struct navigation_itm *itm, struct navigat
 static char *
 show_next_maneuvers(struct navigation *nav, struct navigation_itm *itm, struct navigation_command *cmd, enum attr_type type)
 {
-	struct navigation_command *cur,*prev;
-	int distance=itm->dest_length-cmd->itm->dest_length;
-	int level, i, time;
-	int speech_time,time2nav;
-	char *ret,*old,*buf,*next;
+	int distance = itm->dest_length-cmd->itm->dest_length; // distance from e.g. current GPS position to next announced turn position
+	enum announcement_level level;
+	char *ret,*buf,*next;
+
 
 	if (type != attr_navigation_speech) {
-		return show_maneuver(nav, itm, cmd, type, 0); /* We accumulate maneuvers only in speech navigation */
+		return show_maneuver(nav, itm, cmd, type, level_meters); /* We only accumulate maneuvers in speech navigation */
 	}
 
-	level=navigation_get_announce_level(nav, itm->way.item.type, distance-cmd->length);
 
-	if (level > 1) {
-		return show_maneuver(nav, itm, cmd, type, 0); /* We accumulate maneuvers only if they are close */
+	level = navigation_get_announce_level_cmd(nav, itm, cmd, distance-cmd->length);
+
+	if (level > level_soon) {
+		/* suppress the 'follow the road..' announcement, if the next 'soon' announcement is just a few meters away, so just quit */
+		if ((distance - cmd->length) < (nav->announce[itm->way.item.type - route_item_first][2] + 2 * nav->announce[itm->way.item.type - route_item_first][0])) {
+			/* a few meters away is defined by two times the distance of the 'now'-distance. */
+			return g_strdup("");
+		}
 	}
-
-	if (cmd->itm->told) {
+	else if ((level == level_soon) && (itm->told == 1)) {
+		/* suppress the 'soon' announcement, if the last announcement already concatenated this, so just quit */
 		return g_strdup("");
 	}
-
-	ret = show_maneuver(nav, itm, cmd, type, 0);
-	time2nav = navigation_time(itm,cmd->itm->prev);
-	old = NULL;
-
-	cur = cmd->next;
-	prev = cmd;
-	i = 0;
-	while (cur && cur->itm) {
-		/* We don't merge more than 3 announcements... */
-		if (i > 1) { /* if you change this, please also change the value below, that is used to terminate the loop */
-			break;
+	else if ((level == level_meters) && (itm->told == 1)) {
+		/* suppress the 'in xx meters..' announcement, if the 'soon' announcement is just a few meters away, so just quit */
+		if ((distance - cmd->length) < (nav->announce[itm->way.item.type - route_item_first][1] + 2 * nav->announce[itm->way.item.type - route_item_first][0])) {
+			/* a few meters away is defined by two times the distance of the 'now'-distance. */
+			return g_strdup("");
 		}
-		
-		next = show_maneuver(nav,prev->itm, cur, type, 0);
-		if (nav->speech)
-			speech_time = speech_estimate_duration(nav->speech,next);
-		else
-			speech_time = -1;
-		g_free(next);
-
-		if (speech_time == -1) { /* user didn't set cps */
-			speech_time = 30; /* assume 3 seconds */
-		}
-
-		time = navigation_time(prev->itm,cur->itm->prev);
-
-		if (time >= (speech_time + 30)) { /* 3 seconds for understanding what has been said */
-			break;
-		}
-
-		old = ret;
-		buf = show_maneuver(nav, prev->itm, cur, type, 1);
-		ret = g_strdup_printf("%s, %s", old, buf);
-		g_free(buf);
-		if (nav->speech && speech_estimate_duration(nav->speech,ret) > time2nav) {
-			g_free(ret);
-			ret = old;
-			i = 2; /* This will terminate the loop */
-		} else {
-			g_free(old);
-		}
-
-		/* If the two maneuvers are *really* close, we shouldn't tell the second one again, because TTS won't be fast enough */
-		if (time <= speech_time) {
-			cur->itm->told = 1;
-		}
-
-		prev = cur;
-		cur = cur->next;
-		i++;
 	}
+
+	ret = show_maneuver(nav, itm, cmd, type, level);
+	
+	if (level > level_meters) {
+		return ret; /* We only concatenate maneuvers that are close each other, so quit here */ 
+	}
+
+	if (cmd->next && cmd->itm) {
+		// determine the level of the command that comes immediately after that.
+		enum announcement_level nextlevel = navigation_get_announce_level(nav, cmd->itm->way.item.type, cmd->itm->dest_length - cmd->next->itm->dest_length);
+
+		// If this level starts with 1 or 0 concatenate the following announcement to the current:
+		if (nextlevel <= level_soon) {
+			next = show_maneuver(nav, cmd->itm, cmd->next, type, level_connect);
+			if (*next != '\0') /* is the second announcement not an empty string? */
+			{
+				cmd->itm->told = 1;
+				buf = ret;
+				ret = g_strdup_printf("%s, %s", buf, next); // concatenate both announcements
+				g_free(buf);
+			}
+			g_free(next);
+		}
+        }
 
 	return ret;
 }
@@ -3732,7 +3711,7 @@ navigation_call_callbacks(struct navigation *this_, int force_speech)
 		return;
 	callback_list_call(this_->callback, 1, &p);
 	dbg(lvl_debug,"force_speech=%d turn_around=%d turn_around_limit=%d\n", force_speech, this_->turn_around, this_->turn_around_limit);
-	distance=round_distance(this_->first->dest_length-this_->cmd_first->itm->dest_length);
+	distance=this_->first->dest_length-this_->cmd_first->itm->dest_length;
 	if (this_->turn_around_limit && this_->turn_around == this_->turn_around_limit) {
 		dbg(lvl_debug,"distance=%d distance_turn=%d\n", distance, this_->distance_turn);
 		while (distance > this_->distance_turn) {
@@ -3795,11 +3774,11 @@ navigation_update(struct navigation *this_, struct route *route, struct attr *at
 		return;
 
 	dbg(lvl_debug,"enter %d\n", mode);
-	if (attr->u.num == route_status_no_destination || attr->u.num == route_status_not_found || attr->u.num == route_status_path_done_new) 
+	if (attr->u.num == route_status_no_destination || attr->u.num == route_status_not_found || attr->u.num == route_status_path_done_new)
 		navigation_flush(this_);
 	if (attr->u.num != route_status_path_done_new && attr->u.num != route_status_path_done_incremental)
 		return;
-		
+
 	if (! this_->route)
 		return;
 	map=route_get_map(this_->route);
@@ -3842,7 +3821,7 @@ navigation_update(struct navigation *this_, struct route *route, struct attr *at
 		navigation_itm_new(this_, ritem);
 	}
 	dbg(lvl_info,"turn_around=%d\n", this_->turn_around);
-	if (first) 
+	if (first)
 		navigation_destroy_itms_cmds(this_, NULL);
 	else {
 		if (! ritem) {
@@ -3905,7 +3884,7 @@ navigation_get_map(struct navigation *this_)
 	data.u.str="";
 	description.type=attr_description;
 	description.u.str="Navigation";
-	
+
 	attrs[0]=&type;
 	attrs[1]=&navigation;
 	attrs[2]=&data;
@@ -4045,7 +4024,7 @@ navigation_map_item_attr_get(void *priv_data, enum attr_type attr_type, struct a
 		return 0;
 	case attr_street_name_systematic:
 		attr->u.str=itm->way.name_systematic;
-		this_->attr_next=attr_street_destination; 
+		this_->attr_next=attr_street_destination;
 		if (attr->u.str){
 			return 1;}
 		return 0;
@@ -4150,7 +4129,7 @@ navigation_map_item_attr_get(void *priv_data, enum attr_type attr_type, struct a
 						maneuver->delta);
 				return 1;
 			}
-			
+
 		default:
 			this_->attr_next=attr_none;
 			return 0;
@@ -4249,7 +4228,7 @@ navigation_map_get_item(struct map_rect_priv *priv)
 	priv->cmd_itm=priv->cmd_itm_next;
 	if (!priv->cmd)
 		return NULL;
-	if (!priv->show_all && priv->itm->prev != NULL) 
+	if (!priv->show_all && priv->itm->prev != NULL)
 		priv->itm=priv->cmd->itm;
 	priv->itm_next=priv->itm->next;
 	if (priv->itm->prev)
@@ -4319,7 +4298,7 @@ navigation_map_get_item_byid(struct map_rect_priv *priv, int id_hi, int id_lo)
 	struct item *ret;
 	navigation_map_rect_init(priv);
 	while ((ret=navigation_map_get_item(priv))) {
-		if (ret->id_hi == id_hi && ret->id_lo == id_lo) 
+		if (ret->id_hi == id_hi && ret->id_lo == id_lo)
 			return ret;
 	}
 	return NULL;
