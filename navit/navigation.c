@@ -1905,9 +1905,10 @@ calculate_dest_distance(struct navigation *this_, int incr)
 	dbg(lvl_debug,"len %d time %d\n", len, time);
 }
 
-
-static int maneuver_category(enum item_type type)
+static int maneuver_category(struct navigation_way *way)
 {
+	enum item_type type = way->item.type;
+
 	switch (type) {
 	case type_street_0:
 		return 1;
@@ -1930,9 +1931,9 @@ static int maneuver_category(enum item_type type)
 	case type_street_4_land:
 		return 5;
 	case type_street_n_lanes:
-		if (is_ramp(way))
-			return 0;
-		return 6;
+			if (is_ramp(way))
+				return 0;
+			return 6;
 	case type_highway_land:
 		return 7;
 	case type_ramp:
@@ -1944,8 +1945,6 @@ static int maneuver_category(enum item_type type)
 	default:
 		return 0;
 	}
-
-
 }
 
 /**
@@ -1998,7 +1997,7 @@ is_way_allowed(struct navigation *nav, struct navigation_way *way, int mode)
 static int
 is_motorway_like(struct navigation_way *way, int extended)
 {
-	if (((way->item.type == type_highway_land) || (way->item.type == type_highway_city) || (way->item.type == type_street_n_lanes && (way->flags & AF_ONEWAYMASK))) && !is_ramp(way))
+	if ((way->item.type == type_highway_land) || (way->item.type == type_highway_city) || (way->item.type == type_street_n_lanes && (way->flags & AF_ONEWAYMASK) && !is_ramp(way)))
 		return 1;
 	if ((extended) && (is_ramp(way) || (way->item.type == type_street_service)))
 		return 1;
@@ -2050,8 +2049,8 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 	m.num_new_motorways = 0;
 	m.num_other_ways = 0;
 	m.num_similar_ways = 0;
-	m.old_cat = maneuver_category(old->way.item.type);
-	m.new_cat = maneuver_category(new->way.item.type);
+	m.old_cat = maneuver_category(&(old->way));
+	m.new_cat = maneuver_category(&(new->way));
 	m.max_cat = -1;
 	m.left = -180;
 	m.right = 180;
@@ -2102,7 +2101,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 					dbg(lvl_debug, "- Examining allowed way: %s %s %s, delta=%i\n", item_to_name(w->item.type), w->name_systematic, w->name, dw);
 					m.num_options++;
 					/* ways of similar category */
-					if (maneuver_category(w->item.type) == m.old_cat) {
+					if (maneuver_category(w) == m.old_cat) {
 						/* TODO: considering a maneuver_category difference of 1 to be similar, e.g.
 						 * if (abs(maneuver_category(w->item.type) - m.old_cat) <= 1)
 						 * will improve things in some cases but also introduce some junk maneuvers,
@@ -2157,7 +2156,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 						 * to motorized traffic. Exceptions apply when the new way itself has a maneuver category of 0.
 						 * Note that this is in addition for the dlim calculations we do further below, as they fail to
 						 * catch some ambiguous cases for very low deltas. */
-						if ((dw > -min_turn_limit) && (dw < min_turn_limit) && ((maneuver_category(w->item.type) != 0) || (maneuver_category(new->way.item.type) == 0)))
+						if ((dw > -min_turn_limit) && (dw < min_turn_limit) && ((maneuver_category(w) != 0) || (maneuver_category(&(new->way)) == 0)))
 							m.is_unambiguous = 0;
 
 						if (dw < 0) {
@@ -2167,7 +2166,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 							if (dw < min_turn_limit && m.delta > 0 && m.delta < min_turn_limit)
 								dc=dw;
 						}
-						wcat=maneuver_category(w->item.type);
+						wcat=maneuver_category(w);
 						/* If any other street has the same name, we can't use the same name criterion.
 						 * Exceptions apply if we're coming from a motorway-like road and:
 						 * - the other road is motorway-like (a motorway might split up temporarily) or
@@ -2255,7 +2254,8 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 		r="yes: delta over 75";
 		ret=1;
 	} else if (!r && abs(m.delta) >= min_turn_limit) {
-		if ((m.new_cat >= maneuver_category(type_street_2_city)) && (m.num_similar_ways > 1)) {
+		/*cat of street_2 is hardcoded below*/
+		if ((m.new_cat >= 3) && (m.num_similar_ways > 1)) {
 			/* When coming from street_2_* or higher category road, check if
 			 * - we have multiple options of the same category and
 			 * - we have to make a considerable turn (at least min_turn_limit)
