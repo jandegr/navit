@@ -15,7 +15,7 @@ dependencies:
   pre:
     - "[ -d ~/assets ] || mkdir ~/assets"
     - "[ -d ~/android ] || mkdir ~/android"
-    - wget -c -O ~/assets/cov-analysis-linux64-7.6.0.tar.gz http://sd-55475.dedibox.fr/cov-analysis-linux64-7.6.0.tar.gz
+#    - wget -c -O ~/assets/cov-analysis-linux64-7.6.0.tar.gz http://sd-55475.dedibox.fr/cov-analysis-linux64-7.6.0.tar.gz
     - sudo apt-get install cmake
     - sudo apt-get install libpng12-dev 
 #    - sudo apt-get install libgtk2.0-dev 
@@ -25,7 +25,7 @@ dependencies:
     - sudo apt-get install g++
     - bash ci/build.sh
     - sed -i '/INTEGER/d' bin/po/navit.pot
-    - cp bin/po/navit.pot $CIRCLE_ARTIFACTS/
+#    - cp bin/po/navit.pot $CIRCLE_ARTIFACTS/
 #    - "curl \"https://translations.launchpad.net/navit/${CIRCLE_BRANCH}/+translations-upload\" -H \"$lp_cookie\" -H \"Referer: https://translations.launchpad.net/navit/${CIRCLE_BRANCH}/+translations-upload\" -F file=@bin/po/navit.pot | grep title"
 # Android build    
     - wget -c -N -q $ANDROID_SDK_CDN/$ANDROID_SDK_FILE -O $ANDROID_HOME/$ANDROID_SDK_FILE
@@ -66,8 +66,3 @@ test:
     - import -window root $CIRCLE_ARTIFACTS/default.png
     - python ci/dbus_tests.py $CIRCLE_TEST_REPORTS/
     - dbus-send  --print-reply --session --dest=org.navit_project.navit /org/navit_project/navit/default_navit org.navit_project.navit.navit.quit
-deployment:
-  merge_into_master:
-    branch: trunk
-    commands:
-      - git push origin $CIRCLE_SHA1:refs/heads/master
