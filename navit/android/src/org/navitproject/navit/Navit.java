@@ -681,10 +681,7 @@ public class Navit extends Activity
 	{
 		super.onDestroy();
 		Log.e("Navit", "OnDestroy");
-		// TODO next call will kill our app the hard way. This should not be necessary, but ensures navit is
-		// properly restarted and no resources are wasted with navit in background. Remove this call after 
-		// code review
-		NavitDestroy();
+		this.exit();
 	}
 	
 	public void fullscreen(int fullscreen) {
