@@ -215,6 +215,7 @@ w	natural=scree		poly_scree
 w	natural=scrub		poly_scrub
 w	natural=water		poly_water
 w	natural=wood		poly_wood
+w	natural=riverbank	poly_water
 w	piste:type=downhill,piste:difficulty=advanced		piste_downhill_advanced
 w	piste:type=downhill,piste:difficulty=easy		piste_downhill_easy
 w	piste:type=downhill,piste:difficulty=expert		piste_downhill_expert
