@@ -843,8 +843,8 @@ route_path_update_done(struct route *this, int new_graph)
 			this->link_path=1;
 			this->current_dst=prev_dst;
 			route_graph_reset(this->graph);
-			route_graph_flood(this->graph, this->current_dst, this->vehicleprofile, this->route_graph_flood_done_cb);
-/*			route_graph_flood_frugal(this->graph, this->current_dst, this->pos, this->vehicleprofile, this->route_graph_flood_done_cb); */
+//			route_graph_flood(this->graph, this->current_dst, this->vehicleprofile, this->route_graph_flood_done_cb);
+			route_graph_flood_frugal(this->graph, this->current_dst, this->pos, this->vehicleprofile, this->route_graph_flood_done_cb);
 			return;
 		}
 		if (!new_graph && this->path2->updated)
@@ -1383,8 +1383,8 @@ route_remove_waypoint(struct route *this)
 		this->reached_destinations_count++;
 		route_graph_reset(this->graph);
 		this->current_dst = this->destinations->data;
-		route_graph_flood(this->graph, this->current_dst, this->vehicleprofile,	this->route_graph_flood_done_cb);
-/*		route_graph_flood_frugal(this->graph, this->current_dst, this->pos, this->vehicleprofile,	this->route_gr/aph_flood_done_cb); */
+//		route_graph_flood(this->graph, this->current_dst, this->vehicleprofile,	this->route_graph_flood_done_cb);
+		route_graph_flood_frugal(this->graph, this->current_dst, this->pos, this->vehicleprofile, this->route_graph_flood_done_cb);
 
 	}
 }
@@ -2466,8 +2466,8 @@ route_graph_get_segment(struct route_graph *graph, struct street_data *sd, struc
  * This function uses Dijkstra's algorithm to do the routing. To understand it you should have a look
  * at this algorithm.
  *
- * This version uses the cost of an already found path as upper limit for further exploration
- *
+ * This version uses the cost of an already found path as upper limit for further exploration or
+ * reduce further by setting A_star = 1;
  *
  *
  */
@@ -2481,6 +2481,13 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	struct fibheap *heap; /* This heap will hold all points with "temporarily" calculated costs */
 	int edges_count=0;
 	int max_cost= INT_MAX;
+
+	int est_time_to_pos= INT_MAX;
+	int A_star = 1;
+
+
+	double timestamp_graph_flood = now_ms();
+
 
 	dbg(0,"starting route_graph_flood_frugal\n");
 
@@ -2496,7 +2503,16 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			val=val*(100-dst->percent)/100;
 			s->end->seg=s;
 			s->end->value=val;
-			s->end->el=fh_insertkey(heap, s->end->value, s->end);
+			if (A_star)
+			{
+				est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/140;
+				s->end->el=fh_insertkey(heap, est_time_to_pos, s->end);
+				dbg(0,"check destination segment, val =%i\n",val);
+			}
+			else
+			{
+				s->end->el=fh_insertkey(heap, val, s->end);
+			}
 		}
 		val=route_value_seg(profile, NULL, s, 1);
 		if (val != INT_MAX)
@@ -2504,7 +2520,16 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			val=val*dst->percent/100;
 			s->start->seg=s;
 			s->start->value=val;
-			s->start->el=fh_insertkey(heap, s->start->value, s->start);
+			if (A_star)
+			{
+				est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/140;
+				s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
+				dbg(0,"check destination segment, val =%i\n",val);
+			}
+			else
+			{
+				s->start->el=fh_insertkey(heap, val, s->start);
+			}
 		}
 	}
 	for (;;)
@@ -2516,7 +2541,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 		dbg(lvl_debug,"extract p=%p free el=%p min=%d, 0x%x, 0x%x\n", p_min, p_min->el, min, p_min->c.x, p_min->c.y);
 		p_min->el=NULL; /* This point is permanently calculated now, we've taken it out of the heap */
 		s=p_min->start;
-		while (s)
+		while (s && max_cost == INT_MAX)
 		{ /* Iterating all the segments leading away from our point to update the points at their ends */
 			edges_count ++;
 			val=route_value_seg(profile, p_min, s, -1);
@@ -2537,21 +2562,31 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 					{ /* We've found a less costly way to reach the end of s, update it */
 						s->end->value=new;
 						s->end->seg=s;
+
+						if (A_star)
+							est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/140;
+
+
 						if (! s->end->el)
 						{
-							dbg(lvl_debug,"insert_end p=%p el=%p val=%d ", s->end, s->end->el, s->end->value);
+							if (A_star)
+								s->end->el=fh_insertkey(heap, est_time_to_pos, s->end);
+							else
 							s->end->el=fh_insertkey(heap, new, s->end);
 						}
 						else
 						{
-							dbg(lvl_debug,"replace_end p=%p el=%p val=%d\n", s->end, s->end->el, s->end->value);
+							if (A_star)
+								fh_replacekey(heap, s->end->el, est_time_to_pos);
+							else
 							fh_replacekey(heap, s->end->el, new);
 						}
 					}
 					if (item_is_equal(pos_segment->data.item,s->data.item))
 					{
 						max_cost=new;
-						dbg(lvl_debug,"new shortest path cost = %i\n",new)
+						dbg(0,"new shortest path cost = %i\n",new)
+						dbg(0,"number of edges visited =%i\n",edges_count);
 					}
 				}
 
@@ -2561,7 +2596,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 
 
 		s=p_min->end;
-		while (s)
+		while (s && max_cost == INT_MAX)
 		{ /* Doing the same as above with the segments leading towards our point */
 			edges_count ++;
 			val=route_value_seg(profile, p_min, s, 1);
@@ -2582,33 +2617,45 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 					{
 						s->start->value=new;
 						s->start->seg=s;
+
+						if (A_star)
+							est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/140;
+
 						if (! s->start->el)
 						{
-							dbg(lvl_debug,"insert_start p=%p el=%p val=%d ", s->start, s->start->el, s->start->value);
-							s->start->el=fh_insertkey(heap, new, s->start);
+							if (A_star)
+								s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
+							else
+								s->start->el=fh_insertkey(heap, new, s->start);
 						}
 						else
 						{
-							dbg(lvl_debug,"replace_start p=%p el=%p val=%d\n", s->start, s->start->el, s->start->value);
-							fh_replacekey(heap, s->start->el, new);
+							if (A_star)
+								fh_replacekey(heap, s->start->el, est_time_to_pos);
+							else
+								fh_replacekey(heap, s->start->el, new);
 						}
 					}
 					if (item_is_equal(pos_segment->data.item,s->data.item))
 					{
 						max_cost=new;
-						dbg(lvl_debug,"new shortest path cost = %i\n",new)
+						dbg(0,"new shortest path cost = %i\n",new)
+						dbg(0,"number of edges visited =%i\n",edges_count);
 					}
 				}
 			}
 			s=s->end_next;
 		}
+
+		if (!max_cost == INT_MAX)
+			break;
 	}
 	dbg(0,"number of edges visited =%i\n",edges_count);
+	dbg(0,"route_graph_flood FRUGAL took: %.3f ms\n", now_ms() - timestamp_graph_flood);
 	fh_deleteheap(heap);
 	callback_call_0(cb);
 	dbg(lvl_debug,"return\n");
 }
-
 
 /**
  * @brief Calculates the routing costs for each point
@@ -2955,8 +3002,8 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 			this->avoid_seg=s;
 			route_graph_set_traffic_distortion(this, this->avoid_seg, profile->turn_around_penalty);
 			route_graph_reset(this);
-			route_graph_flood(this, dst, profile, NULL);
-	/*		route_graph_flood_frugal(this, dst, pos, profile, NULL); */
+//			route_graph_flood(this, dst, profile, NULL);
+			route_graph_flood_frugal(this, dst, pos, profile, NULL); 
 			return route_path_new(this, oldpath, pos, dst, profile);
 		}
 	}
@@ -3266,8 +3313,8 @@ route_graph_build(struct mapset *ms, struct coord *c, int count, struct callback
 static void
 route_graph_update_done(struct route *this, struct callback *cb)
 {
-	route_graph_flood(this->graph, this->current_dst, this->vehicleprofile, cb);
-/*	route_graph_flood_frugal(this->graph, this->current_dst, this->pos, this->vehicleprofile, cb); */
+//	route_graph_flood(this->graph, this->current_dst, this->vehicleprofile, cb);
+	route_graph_flood_frugal(this->graph, this->current_dst, this->pos, this->vehicleprofile, cb);
 }
 
 /**
