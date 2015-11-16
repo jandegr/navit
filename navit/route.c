@@ -10,6 +10,7 @@
  * HOV restriction
  */
 
+/* jandegr 2015 */
 
 /**
  * Navit, a modular navigation system.
@@ -90,6 +91,8 @@ struct map_priv {
 };
 
 int debug_route=0;
+
+int heuristic_speed = INT_MAX; // in km/h for A*
 
 enum route_path_flags {
 	route_path_flag_none=0,
@@ -2053,6 +2056,7 @@ route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over,
 		if (profile->dangerous_goods & RSD_DANGEROUS_GOODS(over))
 			return 0;
 	}
+	/*verkeerde plaats om dit te checken*/
 	if (over->flags & AF_SIZE_OR_WEIGHT_LIMIT) {
 		struct size_weight_limit *size_weight=&RSD_SIZE_WEIGHT(over);
 		if (size_weight->width != -1 && profile->width != -1 && profile->width > size_weight->width)
@@ -2066,6 +2070,8 @@ route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over,
 		if (size_weight->axle_weight != -1 && profile->axle_weight != -1 && profile->axle_weight > size_weight->axle_weight)
 			return 0;
 	}
+	if (speed > heuristic_speed)
+		return heuristic_speed;
 	return speed;
 }
 
@@ -2456,20 +2462,14 @@ route_graph_get_segment(struct route_graph *graph, struct street_data *sd, struc
 
 
 /**
- * @brief Calculates the routing costs for each point
+ * @brief Calculates the route with the least cost.
  *
- * This function is the heart of routing. It assigns each point in the route graph a
- * cost at which one can reach the destination from this point on. Additionally it assigns
- * each point a segment one should follow from this point on to reach the destination at the
- * stated costs.
+ * It assigns each point a segment one should follow from that point on to reach
+ * the destination at the stated costs.
  * 
- * This function uses Dijkstra's algorithm to do the routing. To understand it you should have a look
- * at this algorithm.
+ * This function uses A* algorithm to do the routing.
  *
- * This version uses the cost of an already found path as upper limit for further exploration or
- * reduce further by setting A_star = 1;
- *
- *
+ * todo : check maxspeed <= heuristic_speed
  */
 static void
 route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struct route_info *pos, struct vehicleprofile *profile, struct callback *cb)
@@ -2481,10 +2481,8 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	struct fibheap *heap; /* This heap will hold all points with "temporarily" calculated costs */
 	int edges_count=0;
 	int max_cost= INT_MAX;
-
 	int est_time_to_pos= INT_MAX;
-	int A_star = 1;
-
+	heuristic_speed = 125; // in km/h
 
 	double timestamp_graph_flood = now_ms();
 
@@ -2503,16 +2501,9 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			val=val*(100-dst->percent)/100;
 			s->end->seg=s;
 			s->end->value=val;
-			if (A_star)
-			{
-				est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/140;
-				s->end->el=fh_insertkey(heap, est_time_to_pos, s->end);
-				dbg(0,"check destination segment, val =%i\n",val);
-			}
-			else
-			{
-				s->end->el=fh_insertkey(heap, val, s->end);
-			}
+			est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+			s->end->el=fh_insertkey(heap, est_time_to_pos, s->end);
+			dbg(lvl_debug,"check destination segment, val =%i\n",val);
 		}
 		val=route_value_seg(profile, NULL, s, 1);
 		if (val != INT_MAX)
@@ -2520,16 +2511,9 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			val=val*dst->percent/100;
 			s->start->seg=s;
 			s->start->value=val;
-			if (A_star)
-			{
-				est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/140;
-				s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
-				dbg(0,"check destination segment, val =%i\n",val);
-			}
-			else
-			{
-				s->start->el=fh_insertkey(heap, val, s->start);
-			}
+			est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
+			s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
+			dbg(lvl_debug,"check destination segment, val =%i\n",val);
 		}
 	}
 	for (;;)
@@ -2538,8 +2522,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 		if (! p_min) /* There are no more points with temporarily calculated costs, Dijkstra has finished */
 			break;
 		min=p_min->value;
-		dbg(lvl_debug,"extract p=%p free el=%p min=%d, 0x%x, 0x%x\n", p_min, p_min->el, min, p_min->c.x, p_min->c.y);
-		p_min->el=NULL; /* This point is permanently calculated now, we've taken it out of the heap */
+		p_min->el=NULL; /* This point is going to be permanently calculated, we take it out of the heap */
 		s=p_min->start;
 		while (s && max_cost == INT_MAX)
 		{ /* Iterating all the segments leading away from our point to update the points at their ends */
@@ -2557,29 +2540,18 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 				new=min+val;
 				if (new <= max_cost) /*check if it is worth exploring */
 				{
-					dbg(lvl_debug,"begin %d len %d vs %d (0x%x,0x%x)\n",new,val,s->end->value, s->end->c.x, s->end->c.y);
 					if (new < s->end->value)
 					{ /* We've found a less costly way to reach the end of s, update it */
 						s->end->value=new;
 						s->end->seg=s;
-
-						if (A_star)
-							est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/140;
-
-
+						est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
 						if (! s->end->el)
 						{
-							if (A_star)
 								s->end->el=fh_insertkey(heap, est_time_to_pos, s->end);
-							else
-							s->end->el=fh_insertkey(heap, new, s->end);
 						}
 						else
 						{
-							if (A_star)
 								fh_replacekey(heap, s->end->el, est_time_to_pos);
-							else
-							fh_replacekey(heap, s->end->el, new);
 						}
 					}
 					if (item_is_equal(pos_segment->data.item,s->data.item))
@@ -2612,28 +2584,19 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 				new=min+val;
 				if (new <= max_cost)
 				{
-					dbg(lvl_debug,"end %d len %d vs %d (0x%x,0x%x)\n",new,val,s->start->value,s->start->c.x, s->start->c.y);
 					if (new < s->start->value)
 					{
 						s->start->value=new;
 						s->start->seg=s;
-
-						if (A_star)
-							est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/140;
+						est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
 
 						if (! s->start->el)
 						{
-							if (A_star)
-								s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
-							else
-								s->start->el=fh_insertkey(heap, new, s->start);
+							s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
 						}
 						else
 						{
-							if (A_star)
-								fh_replacekey(heap, s->start->el, est_time_to_pos);
-							else
-								fh_replacekey(heap, s->start->el, new);
+							fh_replacekey(heap, s->start->el, est_time_to_pos);
 						}
 					}
 					if (item_is_equal(pos_segment->data.item,s->data.item))
@@ -2647,15 +2610,15 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			s=s->end_next;
 		}
 
-		if (!max_cost == INT_MAX)
+		if (!(max_cost == INT_MAX))
 			break;
 	}
 	dbg(0,"number of edges visited =%i\n",edges_count);
 	dbg(0,"route_graph_flood FRUGAL took: %.3f ms\n", now_ms() - timestamp_graph_flood);
 	fh_deleteheap(heap);
 	callback_call_0(cb);
-	dbg(lvl_debug,"return\n");
 }
+
 
 /**
  * @brief Calculates the routing costs for each point
@@ -3002,8 +2965,8 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 			this->avoid_seg=s;
 			route_graph_set_traffic_distortion(this, this->avoid_seg, profile->turn_around_penalty);
 			route_graph_reset(this);
-//			route_graph_flood(this, dst, profile, NULL);
-			route_graph_flood_frugal(this, dst, pos, profile, NULL); 
+	//		route_graph_flood(this, dst, profile, NULL);
+			route_graph_flood_frugal(this, dst, pos, profile, NULL);
 			return route_path_new(this, oldpath, pos, dst, profile);
 		}
 	}
