@@ -35,7 +35,7 @@ dependencies:
     - sudo apt-get install ant
     - sudo apt-get install libsaxonb-java
 # for aapt
-    - sudo apt-get install lib32stdc++6
+#    - sudo apt-get install lib32stdc++6
     - sudo apt-get install lib32z1
     - bash ci/build_android.sh
 # Windows build
