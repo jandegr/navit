@@ -184,7 +184,19 @@ struct route_graph_segment {
 												 *  same point. Start of this list is in route_graph_point->end. */
 	struct route_graph_point *start;			/**< Pointer to the point this segment starts at. */
 	struct route_graph_point *end;				/**< Pointer to the point this segment ends at. */
+
+	int seg_start_out_cost;
+	int seg_end_out_cost;
+
+	struct route_graph_segment *start_from_seg;
+	struct route_graph_segment *end_from_seg;
+
+	struct fibheap_el *el_start;
+	struct fibheap_el *el_end;
+
 	struct route_segment_data data;				/**< The segment data */
+
+
 };
 
 /**
@@ -1644,6 +1656,8 @@ route_graph_add_segment(struct route_graph *this, struct route_graph_point *star
 		printf("%s:Out of memory\n", __FUNCTION__);
 		return;
 	}
+	s->seg_end_out_cost = INT_MAX;
+	s->seg_start_out_cost = INT_MAX;
 	s->start=start;
 	s->start_next=start->start;
 	start->start=s;
@@ -2477,6 +2491,8 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	struct route_graph_point *p_min;
 	struct route_graph_segment *s=NULL;
 	struct route_graph_segment *pos_segment=NULL;
+	struct route_graph_segment *dest_segment=NULL;
+	struct route_graph_segment *s_min=NULL;
 	int min,new,val;
 	struct fibheap *heap; /* This heap will hold all points with "temporarily" calculated costs */
 	int edges_count=0;
@@ -2495,72 +2511,150 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 
 	while ((s=route_graph_get_segment(this, dst->street, s)))
 	{
+		dbg(0,"found destination segment\n");
 		val=route_value_seg(profile, NULL, s, -1);
 		if (val != INT_MAX)
 		{
 			val=val*(100-dst->percent)/100;
-			s->end->seg=s;
-			s->end->value=val;
-			est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
-			s->end->el=fh_insertkey(heap, est_time_to_pos, s->end);
-			dbg(lvl_debug,"check destination segment, val =%i\n",val);
+	//		s->end->seg=s;
+	//		s->end->value=val;
+	//		est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+	//		s->end->el=fh_insertkey(heap, est_time_to_pos, s->end);
+			s->seg_end_out_cost = val;
+	//		s->el_end=fh_insertkey(heap, est_time_to_pos, s);
+			s->el_end=fh_insertkey(heap, val, s);
+			dbg(0,"check destination segment end , val =%i, est_time = %i\n",val,est_time_to_pos);
 		}
 		val=route_value_seg(profile, NULL, s, 1);
 		if (val != INT_MAX)
 		{
 			val=val*dst->percent/100;
-			s->start->seg=s;
-			s->start->value=val;
-			est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
-			s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
-			dbg(lvl_debug,"check destination segment, val =%i\n",val);
+	//		s->start->seg=s;
+	//		s->start->value=val;
+	//		est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
+	//		s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
+			s->seg_start_out_cost = val;
+	//		s->el_start=fh_insertkey(heap, est_time_to_pos, s);
+			s->el_start=fh_insertkey(heap, val, s);
+			dbg(0,"check destination segment start , val =%i, est_time =%i\n",val,est_time_to_pos);
 		}
+		dest_segment = s;
 	}
+	dbg(0,"aantal heapelementen = %i\n",fh_ret_count(heap));
+
 	for (;;)
 	{
-		p_min=fh_extractmin(heap); /* Starting Dijkstra by selecting the point with the minimum costs on the heap */
-		if (! p_min) /* There are no more points with temporarily calculated costs, Dijkstra has finished */
+//		dbg(0,"aantal heapelementen = %i\n",fh_ret_count(heap));
+		s_min=fh_extractmin(heap);
+//		dbg(0,"aantal heapelementen na extractie = %i\n",fh_ret_count(heap));
+		if (! s_min)
 			break;
-		min=p_min->value;
-		p_min->el=NULL; /* This point is going to be permanently calculated, we take it out of the heap */
+
+		if (s_min->el_end)
+		{
+			min=s_min->seg_end_out_cost;
+			if (s_min->el_start && (s_min->seg_start_out_cost < min))
+			{
+				//			dbg(0,"WAS min = s_min_end out cost =%i\n",min);
+							min=s_min->seg_start_out_cost;
+							p_min = s_min->start;
+							s_min->el_start = NULL;
+				//			dbg(0,"NU min = s_min_start_out cost =%i\n",min);
+
+							if (item_is_equal(dest_segment->data.item,s_min->data.item))
+							{
+//								dbg(0,"destination segment popped from heap\n");
+//								dbg(0,"WAS min = s_min_end out cost =%i\n",min);
+								dbg(0,"number of edges visited =%i\n",edges_count);
+							}
+			}
+			else
+			{
+				p_min = s_min->end;
+				s_min->el_end = NULL;
+
+				if (item_is_equal(dest_segment->data.item,s_min->data.item))
+				{
+//					dbg(0,"destination segment popped from heap\n");
+//					dbg(0,"s_min_end out cost =%i\n",min);
+					dbg(0,"number of edges visited =%i\n",edges_count);
+				}
+			}
+		}
+		else
+		{
+			min=s_min->seg_start_out_cost;
+			p_min = s_min->start;
+			s_min->el_start = NULL;
+//			dbg(0,"s_min_start_out cost =%i\n",min);
+
+				if (item_is_equal(dest_segment->data.item,s_min->data.item))
+				{
+//					dbg(0,"destination segment popped from heap\n");
+//					dbg(0,"s_min_start_out cost =%i\n",min);
+					dbg(0,"number of edges visited =%i\n",edges_count);
+				}
+		}
+
+		// en wat als ze gelijk zijn ???
+
+
+
+
+	//	p_min=fh_extractmin(heap); /* Starting Dijkstra by selecting the point with the minimum costs on the heap */
+
+	//	min=p_min->value;
+	//	p_min->el=NULL; /* This point is going to be permanently calculated, we take it out of the heap */
 		s=p_min->start;
-		while (s && max_cost == INT_MAX)
+		p_min->seg=s_min; //for the sake of the calculations only !!
+		while (s
+			//	&& max_cost == INT_MAX
+				)
 		{ /* Iterating all the segments leading away from our point to update the points at their ends */
 			edges_count ++;
 			val=route_value_seg(profile, p_min, s, -1);
-			if (val != INT_MAX && item_is_equal(s->data.item,p_min->seg->data.item))
+			if (val != INT_MAX && item_is_equal(s->data.item,s_min->data.item))
 			{
 				if (profile->turn_around_penalty2)
 					val+=profile->turn_around_penalty2;
 				else
 					val=INT_MAX;
 			}
+	//		dbg(0,"val leading away= %i\n",val);
 			if (val != INT_MAX)
 			{
 				new=min+val;
-				if (new <= max_cost) /*check if it is worth exploring */
-				{
-					if (new < s->end->value)
-					{ /* We've found a less costly way to reach the end of s, update it */
-						s->end->value=new;
-						s->end->seg=s;
-						est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
-						if (! s->end->el)
+//				if (new <= max_cost) /*check if it is worth exploring */
+//				{
+					if (new < s->seg_end_out_cost)
+					{
+
+						s->seg_end_out_cost=new;
+						s->start_from_seg=s_min;
+	//					est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+	//					dbg(0,"new short value for seg_end_out =%i, est time =%i\n",new,est_time_to_pos);
+						if (! s->el_end)
 						{
-								s->end->el=fh_insertkey(heap, est_time_to_pos, s->end);
+	//						dbg(0,"insert new fib el\n");
+	//							s->el_end=fh_insertkey(heap, est_time_to_pos, s);
+								s->el_end=fh_insertkey(heap, new, s);
+	//							dbg(0,"aantal heapelementen na insert =%i\n",fh_ret_count(heap));
 						}
 						else
 						{
-								fh_replacekey(heap, s->end->el, est_time_to_pos);
+	//						dbg(0,"replacekey\n");
+	//							fh_replacekey(heap, s->el_end, est_time_to_pos);
+							fh_replacekey(heap, s->el_end, new);
+	//						dbg(0,"aantal heapelementen na replace =%i\n",fh_ret_count(heap));
 						}
 					}
 					if (item_is_equal(pos_segment->data.item,s->data.item))
-					{
+					{	// todo : calculate both ends of pos_segment if using A* ?
 						max_cost=new;
-						dbg(0,"new shortest path cost = %i\n",new)
+						dbg(0,"new shortest path cost via end_out= %i\n",new);
 						dbg(0,"number of edges visited =%i\n",edges_count);
 					}
-				}
+//				}
 
 			}
 			s=s->start_next;
@@ -2572,46 +2666,53 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 		{ /* Doing the same as above with the segments leading towards our point */
 			edges_count ++;
 			val=route_value_seg(profile, p_min, s, 1);
-			if (val != INT_MAX && item_is_equal(s->data.item,p_min->seg->data.item))
+			if (val != INT_MAX && item_is_equal(s->data.item,s_min->data.item))
 			{
 				if (profile->turn_around_penalty2)
 					val+=profile->turn_around_penalty2;
 				else
 					val=INT_MAX;
 			}
+		//	dbg(0,"val leading towards = %i\n",val);
 			if (val != INT_MAX)
 			{
 				new=min+val;
-				if (new <= max_cost)
-				{
-					if (new < s->start->value)
+//				if (new <= max_cost)
+//				{
+					if (new < s->seg_start_out_cost)
 					{
-						s->start->value=new;
-						s->start->seg=s;
-						est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
-
-						if (! s->start->el)
+						s->seg_start_out_cost=new;
+						s->end_from_seg=s_min;
+			//			est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
+			//			dbg(0,"new short value for seg_start_out =%i, est time =%i\n",new,est_time_to_pos);
+						if (! s->el_start)
 						{
-							s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
+			//				dbg(0,"insert new fib el\n");
+			//				s->el_start=fh_insertkey(heap, est_time_to_pos, s);
+							s->el_start=fh_insertkey(heap, new, s);
+			//				dbg(0,"aantal heapelementen na insert =%i\n",fh_ret_count(heap));
 						}
 						else
 						{
-							fh_replacekey(heap, s->start->el, est_time_to_pos);
+			//				dbg(0,"replacekey\n");
+			//				fh_replacekey(heap, s->el_start, est_time_to_pos);
+							fh_replacekey(heap, s->el_start, new);
+			//				dbg(0,"aantal heapelementen na replace =%i\n",fh_ret_count(heap));
 						}
 					}
 					if (item_is_equal(pos_segment->data.item,s->data.item))
-					{
+					{	// todo : calculate both ends of pos_segment if using A* ?
 						max_cost=new;
-						dbg(0,"new shortest path cost = %i\n",new)
+						dbg(0,"new shortest path cost via start_out= %i\n",new);
 						dbg(0,"number of edges visited =%i\n",edges_count);
 					}
-				}
+//				}
 			}
 			s=s->end_next;
 		}
 
-		if (!(max_cost == INT_MAX))
-			break;
+//		if (!(max_cost == INT_MAX))
+//			break;
 	}
 	dbg(0,"number of edges visited =%i\n",edges_count);
 	dbg(0,"route_graph_flood FRUGAL took: %.3f ms\n", now_ms() - timestamp_graph_flood);
@@ -2872,37 +2973,47 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 
 	if (profile->mode == 2 || (profile->mode == 0 && pos->lenextra + dst->lenextra > transform_distance(map_projection(pos->street->item.map), &pos->c, &dst->c)))
 		return route_path_new_offroad(this, pos, dst);
-	if (profile->mode != 3) /*not shortest on-road*/{
-	while ((s=route_graph_get_segment(this, pos->street, s))) {
-		val=route_value_seg(profile, NULL, s, 2);
-		if (val != INT_MAX && s->end->value != INT_MAX) {
-			val=val*(100-pos->percent)/100;
-			dbg(lvl_debug,"val1 %d\n",val);
-			if (route_graph_segment_match(s,this->avoid_seg) && pos->street_direction < 0)
-				val+=profile->turn_around_penalty;
-			dbg(lvl_debug,"val1 %d\n",val);
-			val1_new=s->end->value+val;
-			dbg(lvl_debug,"val1 +%d=%d\n",s->end->value,val1_new);
-			if (val1_new < val1) {
-				val1=val1_new;
-				s1=s;
+	if (profile->mode != 3) /*not shortest on-road*/
+	{
+		while ((s=route_graph_get_segment(this, pos->street, s)))
+		{
+			dbg(0,"seg_start_out_cost = %i\n",s->seg_start_out_cost);
+			val=route_value_seg(profile, NULL, s, 2);
+			dbg(0,"position street value forward =%i\n",val);
+			dbg(0,"seg_start_out_cost = %i\n",s->seg_start_out_cost);
+			if (val != INT_MAX && s->seg_start_out_cost != INT_MAX)
+			{
+				val=val*(pos->percent)/100; // cost om naar het andere uiteinde te rijden !!
+				dbg(0,"val %d\n",val);
+				if (route_graph_segment_match(s,this->avoid_seg) && pos->street_direction < 0)
+					val+=profile->turn_around_penalty;
+				dbg(0,"seg_start_out_cost = %i, val = %d\n",s->seg_start_out_cost,val);
+				val1_new=s->seg_start_out_cost - val;
+				dbg(0,"%d - val = %d\n",s->seg_start_out_cost,val1_new);
+				if (val1_new < val1)
+				{
+					val1=val1_new;
+					s1=s;
+				}
+			}
+			val=route_value_seg(profile, NULL, s, -2);
+			dbg(0,"position street value backward =%i\n",val);
+			if (val != INT_MAX && s->seg_end_out_cost != INT_MAX)
+			{
+				val=val*(100-pos->percent)/100;
+				dbg(lvl_debug,"val2 %d\n",val);
+				if (route_graph_segment_match(s,this->avoid_seg) && pos->street_direction > 0)
+					val+=profile->turn_around_penalty;
+				dbg(0,"val %d\n",val);
+				val2_new=s->seg_end_out_cost - val;
+				dbg(0,"%d - val2 = %d\n",s->seg_end_out_cost,val2_new);
+				if (val2_new < val2)
+				{
+					val2=val2_new;
+					s2=s;
+				}
 			}
 		}
-		val=route_value_seg(profile, NULL, s, -2);
-		if (val != INT_MAX && s->start->value != INT_MAX) {
-			val=val*pos->percent/100;
-			dbg(lvl_debug,"val2 %d\n",val);
-			if (route_graph_segment_match(s,this->avoid_seg) && pos->street_direction > 0)
-				val+=profile->turn_around_penalty;
-			dbg(lvl_debug,"val2 %d\n",val);
-			val2_new=s->start->value+val;
-			dbg(lvl_debug,"val2 +%d=%d\n",s->start->value,val2_new);
-			if (val2_new < val2) {
-				val2=val2_new;
-				s2=s;
-			}
-		}
-	}
 	}
 	else /*experimental shortest route*/
 	{
@@ -2940,26 +3051,46 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 	}
 
 
-	if (val1 == INT_MAX && val2 == INT_MAX) {
+	// val1 en s1 = goedkoopst voorwaarts
+	// val2 en s2 = goedkoppst achterwaards
+
+	if (val1 == INT_MAX && val2 == INT_MAX)
+	{
 		dbg(lvl_error,"no route found, pos blocked\n");
 		return NULL;
 	}
-	if (val1 == val2) {
-		val1=s1->end->value;
-		val2=s2->start->value;
+	if (val1 == val2)
+	{
+		// wat is het doel hiervan ?
+
+		dbg(0,"val1 == val2\n");
+	//	val1=s1->end->value;
+	//	val2=s2->start->value;
+
+		val1=s1->seg_end_out_cost;
+		val2=s2->seg_start_out_cost;
+
+
 	}
-	if (val1 < val2) {
+	if (val1 < val2)
+	{
+		dbg(0,"val1 < val2\n");
 		start=s1->start;
 		s=s1;
 		dir=1;
-	} else {
+	}
+	else
+	{
+		dbg(0,"else\n");
 		start=s2->end;
 		s=s2;
 		dir=-1;
 	}
-	if (pos->street_direction && dir != pos->street_direction && profile->turn_around_penalty) {
-		if (!route_graph_segment_match(this->avoid_seg,s)) {
-			dbg(lvl_debug,"avoid current segment\n");
+	if (pos->street_direction && dir != pos->street_direction && profile->turn_around_penalty)
+	{
+		if (!route_graph_segment_match(this->avoid_seg,s))
+		{
+			dbg(0,"avoid current segment\n");
 			if (this->avoid_seg)
 				route_graph_set_traffic_distortion(this, this->avoid_seg, 0);
 			this->avoid_seg=s;
@@ -2978,26 +3109,33 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 	ret->path_hash=item_hash_new();
 	dstinfo=NULL;
 	posinfo=pos;
-	while (s && !dstinfo) { /* following start->seg, which indicates the least costly way to reach our destination */
+	while (s && !dstinfo)
+	{ /* following start->seg, which indicates the least costly way to reach our destination */
 		segs++;
-#if 0
-		printf("start->value=%d 0x%x,0x%x\n", start->value, start->c.x, start->c.y);
-#endif
-		if (s->start == start) {		
-			if (item_is_equal(s->data.item, dst->street->item) && (s->end->seg == s || !posinfo))
+		if (s->start == start)
+		{
+	//		dbg(0,"add forward segment\n");
+			if (item_is_equal(s->data.item, dst->street->item) && (s->end_from_seg == s || !posinfo))
 				dstinfo=dst;
 			if (!route_path_add_item_from_graph(ret, oldpath, s, 1, posinfo, dstinfo))
 				ret->updated=0;
 			start=s->end;
-		} else {
-			if (item_is_equal(s->data.item, dst->street->item) && (s->start->seg == s || !posinfo))
+			s=s->end_from_seg;
+
+		}
+		else
+		{
+	//		dbg(0,"add backward segment\n");
+			if (item_is_equal(s->data.item, dst->street->item) && (s->start_from_seg == s || !posinfo))
 				dstinfo=dst;
 			if (!route_path_add_item_from_graph(ret, oldpath, s, -1, posinfo, dstinfo))
 				ret->updated=0;
 			start=s->start;
+			s=s->start_from_seg;
 		}
 		posinfo=NULL;
-		s=start->seg;
+	//	s=start->seg;
+
 	}
 	if (dst->lenextra) 
 		route_path_add_line(ret, &dst->lp, &dst->c, dst->lenextra);
