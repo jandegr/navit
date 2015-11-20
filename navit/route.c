@@ -2540,7 +2540,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 		}
 		dest_segment = s;
 	}
-	dbg(0,"aantal heapelementen = %i\n",fh_ret_count(heap));
+//	dbg(0,"aantal heapelementen = %i\n",fh_ret_count(heap));
 
 	for (;;)
 	{
