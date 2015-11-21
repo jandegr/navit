@@ -2531,7 +2531,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			s->seg_start_out_cost = val;
 			if (A_star)
 			{
-				estimate = val + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+				estimate = val + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
 			}
 			else
 				estimate = val;
@@ -2642,7 +2642,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 						s->seg_start_out_cost=new;
 						s->end_from_seg=s_min;
 						if (A_star)
-							estimate = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+							estimate = new + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
 						else
 							estimate = new;
 						if (! s->el_start)
