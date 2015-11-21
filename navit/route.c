@@ -2082,7 +2082,7 @@ route_seg_speed(struct vehicleprofile *profile, struct route_segment_data *over,
 		if (size_weight->axle_weight != -1 && profile->axle_weight != -1 && profile->axle_weight > size_weight->axle_weight)
 			return 0;
 	}
-	if (speed > heuristic_speed)
+	if (speed > heuristic_speed) /*for A_star*/
 		return heuristic_speed;
 	return speed;
 }
@@ -2479,7 +2479,7 @@ route_graph_get_segment(struct route_graph *graph, struct street_data *sd, struc
  * It assigns each point a segment one should follow from that point on to reach
  * the destination at the stated costs.
  * 
- * This function uses A* algorithm to do the routing.
+ * This function uses dijkstra or A* algorithm to do the routing.
  *
  */
 static void
@@ -2494,7 +2494,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	int edges_count=0;
 	int max_cost= INT_MAX;
 	int estimate= INT_MAX;
-	int A_star = 0;			/*0=dijkstra, 1=A_star*/
+	int A_star = 0;			/*0=dijkstra, 1=A*/
 	heuristic_speed = 130; // in km/h
 
 	double timestamp_graph_flood = now_ms();
@@ -2586,34 +2586,29 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			if (val != INT_MAX)
 			{
 				new=min+val;
-				if (new <= max_cost) /*check if it is worth exploring */
+				if (new < s->seg_end_out_cost)
 				{
-					if (new < s->seg_end_out_cost)
+					s->seg_end_out_cost=new;
+					s->start_from_seg=s_min;
+					if (A_star)
+						estimate = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+					else
+						estimate = new;
+					if (! s->el_end)
 					{
-
-						s->seg_end_out_cost=new;
-						s->start_from_seg=s_min;
-						if (A_star)
-							estimate = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
-						else
-							estimate = new;
-						if (! s->el_end)
-						{
-							s->el_end=fh_insertkey(heap, estimate, s);
-						}
-						else
-						{
-							fh_replacekey(heap, s->el_end, estimate);
-						}
+						s->el_end=fh_insertkey(heap, estimate, s);
 					}
-					if (item_is_equal(pos_segment->data.item,s->data.item))
-					{	// todo : calculate both ends of pos_segment if using A* ?
-						max_cost=new;
-						dbg(0,"new shortest path cost via end_out= %i\n",new);
-						dbg(0,"number of edges visited =%i\n",edges_count);
+					else
+					{
+						fh_replacekey(heap, s->el_end, estimate);
 					}
 				}
-
+				if (item_is_equal(pos_segment->data.item,s->data.item))
+				{	// todo : calculate both ends of pos_segment if using A* ?
+					max_cost=new;
+					dbg(0,"new shortest path cost via end_out= %i\n",new);
+					dbg(0,"number of edges visited =%i\n",edges_count);
+				}
 			}
 			s=s->start_next;
 		}
@@ -2634,31 +2629,28 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			if (val != INT_MAX)
 			{
 				new=min+val;
-				if (new <= max_cost)
+				if (new < s->seg_start_out_cost)
 				{
-					if (new < s->seg_start_out_cost)
+					s->seg_start_out_cost=new;
+					s->end_from_seg=s_min;
+					if (A_star)
+						estimate = new + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
+					else
+						estimate = new;
+					if (! s->el_start)
 					{
-						s->seg_start_out_cost=new;
-						s->end_from_seg=s_min;
-						if (A_star)
-							estimate = new + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
-						else
-							estimate = new;
-						if (! s->el_start)
-						{
-							s->el_start=fh_insertkey(heap, estimate, s);
-						}
-						else
-						{
-							fh_replacekey(heap, s->el_start, estimate);
-						}
+						s->el_start=fh_insertkey(heap, estimate, s);
 					}
-					if (item_is_equal(pos_segment->data.item,s->data.item))
-					{	// todo : calculate both ends of pos_segment if using A* ?
-						max_cost=new;
-						dbg(0,"new shortest path cost via start_out= %i\n",new);
-						dbg(0,"number of edges visited =%i\n",edges_count);
+					else
+					{
+						fh_replacekey(heap, s->el_start, estimate);
 					}
+				}
+				if (item_is_equal(pos_segment->data.item,s->data.item))
+				{	// todo : calculate both ends of pos_segment if using A* ?
+					max_cost=new;
+					dbg(0,"new shortest path cost via start_out= %i\n",new);
+					dbg(0,"number of edges visited =%i\n",edges_count);
 				}
 			}
 			s=s->end_next;
