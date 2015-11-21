@@ -114,11 +114,8 @@ struct route_graph_point {
 										  *  of this linked-list are in route_graph_segment->start_next.*/
 	struct route_graph_segment *end;	 /**< Pointer to a list of segments of which this pointer is the end. The links
 										  *  of this linked-list are in route_graph_segment->end_next. */
-	struct route_graph_segment *seg;	 /**< Pointer to the segment one should use to reach the destination at
-										  *  least costs */
 	struct fibheap_el *el;				 /**< When this point is put on a Fibonacci heap, this is a pointer
 										  *  to this point's heap-element */
-	int value;							 /**< The cost at which one can reach the destination from this point on */
 	struct coord c;						 /**< Coordinates of this point */
 	int flags;						/**< Flags for this point (eg traffic distortion) */
 };
@@ -1479,7 +1476,6 @@ route_graph_point_new(struct route_graph *this, struct coord *f)
 	p=g_slice_new0(struct route_graph_point);
 	p->hash_next=this->hash[hashval];
 	this->hash[hashval]=p;
-	p->value=INT_MAX;
 	p->c=*f;
 	return p;
 }
@@ -1531,6 +1527,10 @@ route_graph_free_points(struct route_graph *this)
  *
  * @param this The route graph to reset
  */
+
+// todo : make it reset the cost values of the segments as well ?
+
+
 static void
 route_graph_reset(struct route_graph *this)
 {
@@ -1539,8 +1539,6 @@ route_graph_reset(struct route_graph *this)
 	for (i = 0 ; i < HASH_SIZE ; i++) {
 		curr=this->hash[i];
 		while (curr) {
-			curr->value=INT_MAX;
-			curr->seg=NULL;
 			curr->el=NULL;
 			curr=curr->hash_next;
 		}
@@ -2156,7 +2154,7 @@ route_through_traffic_allowed(struct vehicleprofile *profile, struct route_graph
  */  
 
 static int
-route_value_seg(struct vehicleprofile *profile, struct route_graph_point *from, struct route_graph_segment *over, int dir)
+route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from, struct route_graph_segment *over, int dir)
 {
 	int ret;
 	struct route_traffic_distortion dist,*distp=NULL;
@@ -2167,7 +2165,7 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_point *from, 
 		return INT_MAX;
 	if (dir < 0 && (over->end->flags & RP_TURN_RESTRICTION))
 		return INT_MAX;
-	if (from && from->seg == over)
+	if (from && from == over)
 		return INT_MAX;
 	if ((over->start->flags & RP_TRAFFIC_DISTORTION) && (over->end->flags & RP_TRAFFIC_DISTORTION) && 
 		route_get_traffic_distortion(over, &dist) && dir != 2 && dir != -2) {
@@ -2181,7 +2179,7 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_point *from, 
 
 	if (ret == INT_MAX)
 		return ret;
-	if (!route_through_traffic_allowed(profile, over) && from && route_through_traffic_allowed(profile, from->seg))
+	if (!route_through_traffic_allowed(profile, over) && from && route_through_traffic_allowed(profile, from))
 		ret+=profile->through_traffic_penalty;
 	return ret;
 }
@@ -2491,13 +2489,13 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	struct route_graph_point *p_min;
 	struct route_graph_segment *s=NULL;
 	struct route_graph_segment *pos_segment=NULL;
-	struct route_graph_segment *dest_segment=NULL;
 	struct route_graph_segment *s_min=NULL;
 	int min,new,val;
 	struct fibheap *heap; /* This heap will hold all points with "temporarily" calculated costs */
 	int edges_count=0;
 	int max_cost= INT_MAX;
-	int est_time_to_pos= INT_MAX;
+	int estimate= INT_MAX;
+	int A_star = 1;			/*0=dijkstra, 1=A_star*/
 	heuristic_speed = 130; // in km/h
 
 	double timestamp_graph_flood = now_ms();
@@ -2516,37 +2514,35 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 		if (val != INT_MAX)
 		{
 			val=val*(100-dst->percent)/100;
-	//		s->end->seg=s;
-	//		s->end->value=val;
-	//		est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
-	//		s->end->el=fh_insertkey(heap, est_time_to_pos, s->end);
 			s->seg_end_out_cost = val;
-	//		s->el_end=fh_insertkey(heap, est_time_to_pos, s);
-			s->el_end=fh_insertkey(heap, val, s);
-			dbg(0,"check destination segment end , val =%i, est_time = %i\n",val,est_time_to_pos);
+			if (A_star)
+			{
+				estimate = val + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+			}
+			else
+				estimate = val;
+			s->el_end=fh_insertkey(heap, estimate, s);
+			dbg(0,"check destination segment end , val =%i, est_time = %i\n",val,estimate);
 		}
 		val=route_value_seg(profile, NULL, s, 1);
 		if (val != INT_MAX)
 		{
 			val=val*dst->percent/100;
-	//		s->start->seg=s;
-	//		s->start->value=val;
-	//		est_time_to_pos = val + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
-	//		s->start->el=fh_insertkey(heap, est_time_to_pos, s->start);
 			s->seg_start_out_cost = val;
-	//		s->el_start=fh_insertkey(heap, est_time_to_pos, s);
-			s->el_start=fh_insertkey(heap, val, s);
-			dbg(0,"check destination segment start , val =%i, est_time =%i\n",val,est_time_to_pos);
+			if (A_star)
+			{
+				estimate = val + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+			}
+			else
+				estimate = val;
+			s->el_start=fh_insertkey(heap, estimate, s);
+			dbg(0,"check destination segment start , val =%i, est_time =%i\n",val,estimate);
 		}
-		dest_segment = s;
 	}
-//	dbg(0,"aantal heapelementen = %i\n",fh_ret_count(heap));
 
 	for (;;)
 	{
-//		dbg(0,"aantal heapelementen = %i\n",fh_ret_count(heap));
 		s_min=fh_extractmin(heap);
-//		dbg(0,"aantal heapelementen na extractie = %i\n",fh_ret_count(heap));
 		if (! s_min)
 			break;
 
@@ -2555,30 +2551,14 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			min=s_min->seg_end_out_cost;
 			if (s_min->el_start && (s_min->seg_start_out_cost < min))
 			{
-				//			dbg(0,"WAS min = s_min_end out cost =%i\n",min);
-							min=s_min->seg_start_out_cost;
-							p_min = s_min->start;
-							s_min->el_start = NULL;
-				//			dbg(0,"NU min = s_min_start_out cost =%i\n",min);
-
-							if (item_is_equal(dest_segment->data.item,s_min->data.item))
-							{
-//								dbg(0,"destination segment popped from heap\n");
-//								dbg(0,"WAS min = s_min_end out cost =%i\n",min);
-								dbg(0,"number of edges visited =%i\n",edges_count);
-							}
+				min=s_min->seg_start_out_cost;
+				p_min = s_min->start;
+				s_min->el_start = NULL;
 			}
 			else
 			{
 				p_min = s_min->end;
 				s_min->el_end = NULL;
-
-				if (item_is_equal(dest_segment->data.item,s_min->data.item))
-				{
-//					dbg(0,"destination segment popped from heap\n");
-//					dbg(0,"s_min_end out cost =%i\n",min);
-					dbg(0,"number of edges visited =%i\n",edges_count);
-				}
 			}
 		}
 		else
@@ -2586,33 +2566,17 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			min=s_min->seg_start_out_cost;
 			p_min = s_min->start;
 			s_min->el_start = NULL;
-//			dbg(0,"s_min_start_out cost =%i\n",min);
-
-				if (item_is_equal(dest_segment->data.item,s_min->data.item))
-				{
-//					dbg(0,"destination segment popped from heap\n");
-//					dbg(0,"s_min_start_out cost =%i\n",min);
-					dbg(0,"number of edges visited =%i\n",edges_count);
-				}
 		}
 
 		// en wat als ze gelijk zijn ???
 
-
-
-
-	//	p_min=fh_extractmin(heap); /* Starting Dijkstra by selecting the point with the minimum costs on the heap */
-
-	//	min=p_min->value;
-	//	p_min->el=NULL; /* This point is going to be permanently calculated, we take it out of the heap */
 		s=p_min->start;
-		p_min->seg=s_min; //for the sake of the calculations only !!
 		while (s
 			//	&& max_cost == INT_MAX
 				)
 		{ /* Iterating all the segments leading away from our point to update the points at their ends */
 			edges_count ++;
-			val=route_value_seg(profile, p_min, s, -1);
+			val=route_value_seg(profile, s_min, s, -1);
 			if (val != INT_MAX && item_is_equal(s->data.item,s_min->data.item))
 			{
 				if (profile->turn_around_penalty2)
@@ -2620,32 +2584,27 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 				else
 					val=INT_MAX;
 			}
-	//		dbg(0,"val leading away= %i\n",val);
 			if (val != INT_MAX)
 			{
 				new=min+val;
-//				if (new <= max_cost) /*check if it is worth exploring */
-//				{
+				if (new <= max_cost) /*check if it is worth exploring */
+				{
 					if (new < s->seg_end_out_cost)
 					{
 
 						s->seg_end_out_cost=new;
 						s->start_from_seg=s_min;
-	//					est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
-	//					dbg(0,"new short value for seg_end_out =%i, est time =%i\n",new,est_time_to_pos);
+						if (A_star)
+							estimate = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+						else
+							estimate = new;
 						if (! s->el_end)
 						{
-	//						dbg(0,"insert new fib el\n");
-	//							s->el_end=fh_insertkey(heap, est_time_to_pos, s);
-								s->el_end=fh_insertkey(heap, new, s);
-	//							dbg(0,"aantal heapelementen na insert =%i\n",fh_ret_count(heap));
+							s->el_end=fh_insertkey(heap, estimate, s);
 						}
 						else
 						{
-	//						dbg(0,"replacekey\n");
-	//							fh_replacekey(heap, s->el_end, est_time_to_pos);
-							fh_replacekey(heap, s->el_end, new);
-	//						dbg(0,"aantal heapelementen na replace =%i\n",fh_ret_count(heap));
+							fh_replacekey(heap, s->el_end, estimate);
 						}
 					}
 					if (item_is_equal(pos_segment->data.item,s->data.item))
@@ -2654,7 +2613,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 						dbg(0,"new shortest path cost via end_out= %i\n",new);
 						dbg(0,"number of edges visited =%i\n",edges_count);
 					}
-//				}
+				}
 
 			}
 			s=s->start_next;
@@ -2665,7 +2624,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 		while (s && max_cost == INT_MAX)
 		{ /* Doing the same as above with the segments leading towards our point */
 			edges_count ++;
-			val=route_value_seg(profile, p_min, s, 1);
+			val=route_value_seg(profile, s_min, s, 1);
 			if (val != INT_MAX && item_is_equal(s->data.item,s_min->data.item))
 			{
 				if (profile->turn_around_penalty2)
@@ -2673,31 +2632,26 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 				else
 					val=INT_MAX;
 			}
-		//	dbg(0,"val leading towards = %i\n",val);
 			if (val != INT_MAX)
 			{
 				new=min+val;
-//				if (new <= max_cost)
-//				{
+				if (new <= max_cost)
+				{
 					if (new < s->seg_start_out_cost)
 					{
 						s->seg_start_out_cost=new;
 						s->end_from_seg=s_min;
-			//			est_time_to_pos = new + ((int)transform_distance(projection_mg, (&(s->start->c)), (&(pos->c))))*36/heuristic_speed;
-			//			dbg(0,"new short value for seg_start_out =%i, est time =%i\n",new,est_time_to_pos);
+						if (A_star)
+							estimate = new + ((int)transform_distance(projection_mg, (&(s->end->c)), (&(pos->c))))*36/heuristic_speed;
+						else
+							estimate = new;
 						if (! s->el_start)
 						{
-			//				dbg(0,"insert new fib el\n");
-			//				s->el_start=fh_insertkey(heap, est_time_to_pos, s);
-							s->el_start=fh_insertkey(heap, new, s);
-			//				dbg(0,"aantal heapelementen na insert =%i\n",fh_ret_count(heap));
+							s->el_start=fh_insertkey(heap, estimate, s);
 						}
 						else
 						{
-			//				dbg(0,"replacekey\n");
-			//				fh_replacekey(heap, s->el_start, est_time_to_pos);
-							fh_replacekey(heap, s->el_start, new);
-			//				dbg(0,"aantal heapelementen na replace =%i\n",fh_ret_count(heap));
+							fh_replacekey(heap, s->el_start, estimate);
 						}
 					}
 					if (item_is_equal(pos_segment->data.item,s->data.item))
@@ -2706,13 +2660,12 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 						dbg(0,"new shortest path cost via start_out= %i\n",new);
 						dbg(0,"number of edges visited =%i\n",edges_count);
 					}
-//				}
+				}
 			}
 			s=s->end_next;
 		}
-
-//		if (!(max_cost == INT_MAX))
-//			break;
+		if (A_star && !(max_cost == INT_MAX))
+			break;
 	}
 	dbg(0,"number of edges visited =%i\n",edges_count);
 	dbg(0,"route_graph_flood FRUGAL took: %.3f ms\n", now_ms() - timestamp_graph_flood);
@@ -2720,7 +2673,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	callback_call_0(cb);
 }
 
-
+#if 0
 /**
  * @brief Calculates the routing costs for each point
  *
@@ -2858,6 +2811,8 @@ route_graph_flood(struct route_graph *this, struct route_info *dst, struct vehic
 	callback_call_0(cb);
 	dbg(lvl_debug,"return\n");
 }
+#endif
+
 
 /**
  * @brief Starts an "offroad" path
@@ -3021,12 +2976,14 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 		while ((s=route_graph_get_segment(this, pos->street, s)))
 		{
 			val = s->data.len;
-			if (val != INT_MAX && s->end->value != INT_MAX)
+			if (val != INT_MAX
+	//				&& s->end->value != INT_MAX
+					)
 			{
 				val=val*(100-pos->percent)/100;
 				dbg(lvl_debug,"val1 %d\n",val);
-				val1_new=s->end->value+val;
-				dbg(lvl_debug,"val1 +%d=%d\n",s->end->value,val1_new);
+	//			val1_new=s->end->value+val;
+	//			dbg(lvl_debug,"val1 +%d=%d\n",s->end->value,val1_new);
 				if (val1_new < val1)
 				{
 					val1=val1_new;
@@ -3035,12 +2992,14 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 			}
 			dbg(lvl_debug,"val=%i\n",val);
 			val = s->data.len;
-			if (val != INT_MAX && s->start->value != INT_MAX)
+			if (val != INT_MAX
+	//				&& s->start->value != INT_MAX
+					)
 			{
 				val=val*pos->percent/100;
 				dbg(lvl_debug,"val2 %d\n",val);
-				val2_new=s->start->value+val;
-				dbg(lvl_debug,"val2 +%d=%d\n",s->start->value,val2_new);
+	//			val2_new=s->start->value+val;
+	//			dbg(lvl_debug,"val2 +%d=%d\n",s->start->value,val2_new);
 				if (val2_new < val2)
 				{
 					val2=val2_new;
@@ -3893,9 +3852,9 @@ rp_attr_get(void *priv_data, enum attr_type attr_type, struct attr *attr)
 		if (mr->str)
 			g_free(mr->str);
 		if (mr->item.type == type_rg_point) {
-			if (p->value != INT_MAX)
-				mr->str=g_strdup_printf("%d", p->value);
-			else
+//			if (p->value != INT_MAX)
+//				mr->str=g_strdup_printf("%d", p->value);
+//			else
 				mr->str=g_strdup("-");
 		} else {
 			int len=seg->data.len;
@@ -3987,6 +3946,8 @@ rp_attr_get(void *priv_data, enum attr_type attr_type, struct attr *attr)
 	}
 }
 
+
+
 /**
  * @brief Returns the coordinates of a route graph item
  *
@@ -4007,8 +3968,10 @@ rp_coord_get(void *priv_data, struct coord *c, int count)
 
 	if (pro == projection_none)
 		return 0;
-	for (i=0; i < count; i++) {
-		if (mr->item.type == type_rg_point) {
+	for (i=0; i < count; i++)
+	{
+		if (mr->item.type == type_rg_point)
+		{
 			if (mr->last_coord >= 1)
 				break;
 			if (pro != projection_mg)
@@ -4016,21 +3979,26 @@ rp_coord_get(void *priv_data, struct coord *c, int count)
 					&c[i],projection_mg);
 			else
 				c[i] = p->c;
-		} else {
+		}
+		else
+		{
 			if (mr->last_coord >= 2)
 				break;
 			dir=0;
-			if (seg->end->seg == seg)
-				dir=1;
+//			if (seg->end->seg == seg)
+//				dir=1;
 			if (mr->last_coord)
 				dir=1-dir;
-			if (dir) {
-				if (pro != projection_mg)
-					transform_from_to(&seg->end->c, pro,
-						&c[i],projection_mg);
-				else
-					c[i] = seg->end->c;
-			} else {
+//			if (dir)
+//			{
+//				if (pro != projection_mg)
+//					transform_from_to(&seg->end->c, pro,
+//						&c[i],projection_mg);
+//				else
+//					c[i] = seg->end->c;
+//			}
+//			else
+			{
 				if (pro != projection_mg)
 					transform_from_to(&seg->start->c, pro,
 						&c[i],projection_mg);
@@ -4043,6 +4011,7 @@ rp_coord_get(void *priv_data, struct coord *c, int count)
 	}
 	return rc;
 }
+
 
 static struct item_methods methods_point_item = {
 	rm_coord_rewind,
