@@ -1003,7 +1003,7 @@ route_set_position_from_tracking(struct route *this, struct tracking *tracking, 
 	struct route_info *ret;
 	struct street_data *sd;
 
-	dbg(lvl_info,"enter\n");
+	dbg(0,"enter\n");
 	c=tracking_get_pos(tracking);
 	ret=g_new0(struct route_info, 1);
 	if (!ret)
@@ -1018,6 +1018,7 @@ route_set_position_from_tracking(struct route *this, struct tracking *tracking, 
 	ret->lp=*c;
 	ret->pos=tracking_get_segment_pos(tracking);
 	ret->street_direction=tracking_get_street_direction(tracking);
+	dbg(0,"street_direction = %i\n",ret->street_direction);
 	sd=tracking_get_street_data(tracking);
 	if (sd)
 	{
@@ -1845,11 +1846,14 @@ route_path_add_item_from_graph(struct route_path *this, struct route_path *oldpa
 		offset=RSD_OFFSET(&rgs->data);
 
 	dbg(lvl_debug,"enter (0x%x,0x%x) dir=%d pos=%p dst=%p\n", rgs->data.item.id_hi, rgs->data.item.id_lo, dir, pos, dst);
-	if (oldpath) {
+	if (oldpath)
+	{
 		segment=item_hash_lookup(oldpath->path_hash, &rgs->data.item);
-		if (segment && segment->direction == dir) {
+		if (segment && segment->direction == dir)
+		{
 			segment = route_extract_segment_from_path(oldpath, &rgs->data.item, offset);
-			if (segment) {
+			if (segment)
+			{
 				ret=1;
 				if (!pos)
 					goto linkold;
@@ -1858,37 +1862,49 @@ route_path_add_item_from_graph(struct route_path *this, struct route_path *oldpa
 		}
 	}
 
-	if (pos) {
-		if (dst) {
+	if (pos)
+	{
+		if (dst)
+		{
 			extra=2;
-			if (dst->lenneg >= pos->lenneg) {
+			if (dst->lenneg >= pos->lenneg)
+			{
 				dir=1;
 				ccnt=dst->pos-pos->pos;
 				c=pos->street->c+pos->pos+1;
 				len=dst->lenneg-pos->lenneg;
-			} else {
+			}
+			else
+			{
 				dir=-1;
 				ccnt=pos->pos-dst->pos;
 				c=pos->street->c+dst->pos+1;
 				len=pos->lenneg-dst->lenneg;
 			}
-		} else {
+		}
+		else
+		{
 			extra=1;
 			dbg(lvl_debug,"pos dir=%d\n", dir);
 			dbg(lvl_debug,"pos pos=%d\n", pos->pos);
 			dbg(lvl_debug,"pos count=%d\n", pos->street->count);
-			if (dir > 0) {
+			if (dir > 0)
+			{
 				c=pos->street->c+pos->pos+1;
 				ccnt=pos->street->count-pos->pos-1;
 				len=pos->lenpos;
-			} else {
+			}
+			else
+			{
 				c=pos->street->c;
 				ccnt=pos->pos+1;
 				len=pos->lenneg;
 			}
 		}
 		pos->dir=dir;
-	} else 	if (dst) {
+	}
+	else 	if (dst)
+	{
 		extra=1;
 		dbg(lvl_debug,"dst dir=%d\n", dir);
 		dbg(lvl_debug,"dst pos=%d\n", dst->pos);
@@ -1896,12 +1912,16 @@ route_path_add_item_from_graph(struct route_path *this, struct route_path *oldpa
 			c=dst->street->c;
 			ccnt=dst->pos+1;
 			len=dst->lenneg;
-		} else {
+		}
+		else
+		{
 			c=dst->street->c+dst->pos+1;
 			ccnt=dst->street->count-dst->pos-1;
 			len=dst->lenpos;
 		}
-	} else {
+	}
+	else
+	{
 		ccnt=get_item_seg_coords(&rgs->data.item, ca, 2047, &rgs->start->c, &rgs->end->c);
 		c=ca;
 	}
@@ -1909,7 +1929,7 @@ route_path_add_item_from_graph(struct route_path *this, struct route_path *oldpa
 	seg_dat_size=route_segment_data_size(rgs->data.flags);
 	segment=g_malloc0(seg_size + seg_dat_size);
 	segment->data=(struct route_segment_data *)((char *)segment+seg_size);
-	segment->direction=dir;
+	segment->direction=dir; //
 	cd=segment->c;
 	if (pos && (c[0].x != pos->lp.x || c[0].y != pos->lp.y))
 		*cd++=pos->lp;
@@ -2495,6 +2515,8 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	int max_cost= INT_MAX;
 	int estimate= INT_MAX;
 	int A_star = 0;			/*0=dijkstra, 1=A*/
+
+
 	heuristic_speed = 130; // in km/h
 
 	double timestamp_graph_flood = now_ms();
@@ -2570,9 +2592,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 		// en wat als ze gelijk zijn ???
 
 		s=p_min->start;
-		while (s
-			//	&& max_cost == INT_MAX
-				)
+		while (s)
 		{ /* Iterating all the segments leading away from our point to update the points at their ends */
 			edges_count ++;
 			val=route_value_seg(profile, s_min, s, -1);
@@ -2612,7 +2632,6 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			}
 			s=s->start_next;
 		}
-
 
 		s=p_min->end;
 		while (s && max_cost == INT_MAX)
@@ -2917,6 +2936,10 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 		return NULL;
 	}
 
+	// street direction from tracking
+	dbg(0,"street_direction = %i\n",pos->street_direction);
+
+
 	if (profile->mode == 2 || (profile->mode == 0 && pos->lenextra + dst->lenextra > transform_distance(map_projection(pos->street->item.map), &pos->c, &dst->c)))
 		return route_path_new_offroad(this, pos, dst);
 	if (profile->mode != 3) /*not shortest on-road*/
@@ -2926,15 +2949,19 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 			dbg(0,"seg_start_out_cost = %i\n",s->seg_start_out_cost);
 			val=route_value_seg(profile, NULL, s, 2);
 			dbg(0,"position street value forward =%i\n",val);
-			dbg(0,"seg_start_out_cost = %i\n",s->seg_start_out_cost);
 			if (val != INT_MAX && s->seg_start_out_cost != INT_MAX)
 			{
 				val=val*(pos->percent)/100; // cost om naar het andere uiteinde te rijden !!
-				dbg(0,"val %d\n",val);
+			//	dbg(0,"val %d\n",val);
 				if (route_graph_segment_match(s,this->avoid_seg) && pos->street_direction < 0)
 					val+=profile->turn_around_penalty;
 				dbg(0,"seg_start_out_cost = %i, val = %d\n",s->seg_start_out_cost,val);
 				val1_new=s->seg_start_out_cost - val;
+				if (pos->street_direction == -1)
+				{
+					val1_new = val1_new + 4000;
+					dbg(0,"added 4000 to cost via start_out\n");
+				}
 				dbg(0,"%d - val = %d\n",s->seg_start_out_cost,val1_new);
 				if (val1_new < val1)
 				{
@@ -2942,6 +2969,7 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 					s1=s;
 				}
 			}
+			dbg(0,"seg_end_out_cost = %i\n",s->seg_end_out_cost);
 			val=route_value_seg(profile, NULL, s, -2);
 			dbg(0,"position street value backward =%i\n",val);
 			if (val != INT_MAX && s->seg_end_out_cost != INT_MAX)
@@ -2950,8 +2978,15 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 				dbg(lvl_debug,"val2 %d\n",val);
 				if (route_graph_segment_match(s,this->avoid_seg) && pos->street_direction > 0)
 					val+=profile->turn_around_penalty;
-				dbg(0,"val %d\n",val);
+				dbg(0,"seg_end_out_cost = %i, val = %d\n",s->seg_end_out_cost,val);
 				val2_new=s->seg_end_out_cost - val;
+
+				if (pos->street_direction == 1)
+				{
+					val2_new = val2_new + 4000;
+					dbg(0,"added 4000 to cost via end_out\n");
+				}
+
 				dbg(0,"%d - val2 = %d\n",s->seg_end_out_cost,val2_new);
 				if (val2_new < val2)
 				{
@@ -3887,11 +3922,16 @@ rp_attr_get(void *priv_data, enum attr_type attr_type, struct attr *attr)
 		// segment returned last is connected to this point via its start (1) or its end (-1)
 		if (!mr->coord_sel || (mr->item.type != type_rg_segment))
 			return 0;
-		if (seg->start == mr->point) {
+		if (seg->start == mr->point)
+		{
 			attr->u.num=1;
-		} else if (seg->end == mr->point) {
+		}
+		else if (seg->end == mr->point)
+		{
 			attr->u.num=-1;
-		} else {
+		}
+		else
+		{
 			return 0;
 		}
 		return 1;
@@ -3976,6 +4016,7 @@ rp_coord_get(void *priv_data, struct coord *c, int count)
 			if (mr->last_coord >= 2)
 				break;
 			dir=0;
+
 //			if (seg->end->seg == seg)
 //				dir=1;
 			if (mr->last_coord)
