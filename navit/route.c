@@ -3758,7 +3758,7 @@ rp_attr_get(void *priv_data, enum attr_type attr_type, struct attr *attr)
 			}
 			if (p->end && p->end->seg_end_out_cost < lowest_cost)
 			{
-				lowest_cost = p->start->seg_end_out_cost;
+				lowest_cost = p->end->seg_end_out_cost;
 			}
 
 			if (lowest_cost < INT_MAX)
