@@ -122,6 +122,8 @@ struct route_graph_point {
 #define RP_TURN_RESTRICTION 2
 #define RP_TURN_RESTRICTION_RESOLVED 4
 
+#define SF_IS_CLONE				(1<<16)
+
 /**
  * @brief A segment in the route graph or path
  *
@@ -1137,20 +1139,19 @@ route_calc_selection(struct coord *c, int count, struct vehicleprofile *profile)
 		int order=0, dist=0;
 		sscanf(tok,"%d:%d",&order,&dist);
 		if(strchr(tok,'w'))
-					ret=route_rect_add(ret, order, &r.lu, &r.rl, 0,dist);
+			ret=route_rect_add(ret, order, &r.lu, &r.rl, 0,dist);
 		else
 		{
-			if(strchr(tok,'%'))
-				ret=route_rect_add(ret, order, &r.lu, &r.rl, dist, 0);
-			else
-				for (i = 0 ; i < count ; i++)
-				{
-					ret=route_rect_add(ret, order, &c[i], &c[i], 0, dist);
-				}
+		if(strchr(tok,'%'))
+			ret=route_rect_add(ret, order, &r.lu, &r.rl, dist, 0);
+		else
+			for (i = 0 ; i < count ; i++)
+			{
+				ret=route_rect_add(ret, order, &c[i], &c[i], 0, dist);
+			}
 		}
 		str=NULL;
 	}
-	
 	g_free(depth);
 	
 	return ret;
@@ -1534,22 +1535,40 @@ route_graph_free_points(struct route_graph *this)
  * @param this The route graph to reset
  */
 
-// todo : make it reset the cost values of the segments ?
-
 
 static void
 route_graph_reset(struct route_graph *this)
 {
 	struct route_graph_point *curr;
+	struct route_graph_segment *seg;
 	int i;
-	for (i = 0 ; i < HASH_SIZE ; i++) {
+	for (i = 0 ; i < HASH_SIZE ; i++)
+	{
 		curr=this->hash[i];
-		while (curr) {
-//			curr->el=NULL;
+		while (curr)
+		{
+			seg = curr->start;
+			while (seg)
+			{
+				seg->end_from_seg = NULL;
+				seg->start_from_seg = NULL;
+				seg->seg_end_out_cost = INT_MAX;
+				seg->seg_start_out_cost = INT_MAX;
+				seg = seg->start_next;
+			}
+			seg = curr->end;
+			// overdaad ?
+			while (seg)
+			{
+				seg->end_from_seg = NULL;
+				seg->start_from_seg = NULL;
+				seg->seg_end_out_cost = INT_MAX;
+				seg->seg_start_out_cost = INT_MAX;
+				seg = seg->end_next;
+			}
 			curr=curr->hash_next;
 		}
 	}
-
 }
 
 /**
@@ -2519,6 +2538,7 @@ route_graph_get_segment(struct route_graph *graph, struct street_data *sd, struc
  * the destination at the stated costs.
  * 
  * This function uses dijkstra or A* algorithm to do the routing.
+ * A* will probably never get really used, but I absolutely wanted to test
  *
  */
 static void
@@ -2533,7 +2553,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	int edges_count=0;
 	int max_cost= INT_MAX;
 	int estimate= INT_MAX;
-	int A_star = 0;			/*0=dijkstra, 1=A*/
+	int A_star = 1;			/*0=dijkstra, 1=A*/
 
 
 	heuristic_speed = 130; // in km/h
@@ -2549,7 +2569,9 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 
 	while ((s=route_graph_get_segment(this, dst->street, s)))
 	{
-		dbg(0,"found destination segment\n");
+		if (!(s->data.flags & SF_IS_CLONE))
+			{dbg(0,"found destination segment\n");}
+		else {dbg(0,"found CLONED destination segment\n");}
 		val=route_value_seg(profile, NULL, s, -1);
 		if (val != INT_MAX)
 		{
@@ -2562,8 +2584,8 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			else
 				estimate = val;
 			s->el_end=fh_insertkey(heap, estimate, s);
-			dbg(0,"check destination segment end , val =%i, est_time = %i\n",val,estimate);
 		}
+		dbg(0,"check destination segment end , val =%i, est_time = %i\n",val,estimate);
 		val=route_value_seg(profile, NULL, s, 1);
 		if (val != INT_MAX)
 		{
@@ -2576,8 +2598,8 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			else
 				estimate = val;
 			s->el_start=fh_insertkey(heap, estimate, s);
-			dbg(0,"check destination segment start , val =%i, est_time =%i\n",val,estimate);
 		}
+		dbg(0,"check destination segment start , val =%i, est_time =%i\n",val,estimate);
 	}
 
 	for (;;)
@@ -2823,6 +2845,8 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 		return route_path_new_offroad(this, pos, dst);
 	if (profile->mode != 3) /*not shortest on-road*/
 	{
+
+		// the integer 4000 below is a kind of turn around penalty with a hardcoded value for now
 		while ((s=route_graph_get_segment(this, pos->street, s)))
 		{
 			dbg(0,"seg_start_out_cost = %i\n",s->seg_start_out_cost);
@@ -3066,9 +3090,7 @@ static void
 route_graph_clone_segment(struct route_graph *this, struct route_graph_segment *s, struct route_graph_point *start, struct route_graph_point *end, int flags)
 {
 	struct route_graph_segment_data data;
-	data.flags=s->data.flags|flags
-		//	|AF_IS_CLONE
-			;
+	data.flags=s->data.flags|flags|SF_IS_CLONE;
 	data.offset=1;
 	data.maxspeed=-1;
 	data.item=&s->data.item;
@@ -3094,36 +3116,45 @@ route_graph_process_restriction_segment(struct route_graph *this, struct route_g
 	c.y+=dy;
 	dbg(lvl_debug,"From %s %d,%d\n",item_to_name(s->data.item.type),dx,dy);
 	pn=route_graph_point_new(this, &c);
-	if (dir > 0) { /* going away */
+	if (dir > 0)
+	{ /* going away */
 		dbg(lvl_debug,"other 0x%x,0x%x\n",s->end->c.x,s->end->c.y);
-		if (s->data.flags & AF_ONEWAY) {
+		if (s->data.flags & AF_ONEWAY)
+		{
 			dbg(lvl_debug,"Not possible\n");
 			return;
 		}
 		route_graph_clone_segment(this, s, pn, s->end, AF_ONEWAYREV);
-	} else { /* coming in */
+	}
+	else
+	{ /* coming in */
 		dbg(lvl_debug,"other 0x%x,0x%x\n",s->start->c.x,s->start->c.y);
-		if (s->data.flags & AF_ONEWAYREV) {
+		if (s->data.flags & AF_ONEWAYREV)
+		{
 			dbg(lvl_debug,"Not possible\n");
 			return;
 		}
 		route_graph_clone_segment(this, s, s->start, pn, AF_ONEWAY);
 	}
 	tmp=p->start;
-	while (tmp) {
+	while (tmp)
+	{
 		if (tmp != s && tmp->data.item.type != type_street_turn_restriction_no &&
 			tmp->data.item.type != type_street_turn_restriction_only &&
-			!(tmp->data.flags & AF_ONEWAYREV) && is_turn_allowed(p, s, tmp)) {
+			!(tmp->data.flags & AF_ONEWAYREV) && is_turn_allowed(p, s, tmp))
+		{
 			route_graph_clone_segment(this, tmp, pn, tmp->end, AF_ONEWAY);
 			dbg(lvl_debug,"To start %s\n",item_to_name(tmp->data.item.type));
 		}
 		tmp=tmp->start_next;
 	}
 	tmp=p->end;
-	while (tmp) {
+	while (tmp)
+	{
 		if (tmp != s && tmp->data.item.type != type_street_turn_restriction_no &&
 			tmp->data.item.type != type_street_turn_restriction_only &&
-			!(tmp->data.flags & AF_ONEWAY) && is_turn_allowed(p, s, tmp)) {
+			!(tmp->data.flags & AF_ONEWAY) && is_turn_allowed(p, s, tmp))
+		{
 			route_graph_clone_segment(this, tmp, tmp->start, pn, AF_ONEWAYREV);
 			dbg(lvl_debug,"To end %s\n",item_to_name(tmp->data.item.type));
 		}
@@ -3134,21 +3165,23 @@ route_graph_process_restriction_segment(struct route_graph *this, struct route_g
 static void
 route_graph_process_restriction_point(struct route_graph *this, struct route_graph_point *p)
 {
-	struct route_graph_segment *tmp;
-	tmp=p->start;
+	struct route_graph_segment *seg;
+	seg=p->start;
 	dbg(lvl_debug,"node 0x%x,0x%x\n",p->c.x,p->c.y);
-	while (tmp) {
-		if (tmp->data.item.type != type_street_turn_restriction_no &&
-			tmp->data.item.type != type_street_turn_restriction_only)
-			route_graph_process_restriction_segment(this, p, tmp, 1);
-		tmp=tmp->start_next;
+	while (seg)
+	{
+		if (seg->data.item.type != type_street_turn_restriction_no &&
+			seg->data.item.type != type_street_turn_restriction_only)
+			route_graph_process_restriction_segment(this, p, seg, 1);
+		seg=seg->start_next;
 	}
-	tmp=p->end;
-	while (tmp) {
-		if (tmp->data.item.type != type_street_turn_restriction_no &&
-			tmp->data.item.type != type_street_turn_restriction_only)
-			route_graph_process_restriction_segment(this, p, tmp, -1);
-		tmp=tmp->end_next;
+	seg=p->end;
+	while (seg)
+	{
+		if (seg->data.item.type != type_street_turn_restriction_no &&
+			seg->data.item.type != type_street_turn_restriction_only)
+			route_graph_process_restriction_segment(this, p, seg, -1);
+		seg=seg->end_next;
 	}
 	p->flags |= RP_TURN_RESTRICTION_RESOLVED;
 }
@@ -3159,9 +3192,11 @@ route_graph_process_restrictions(struct route_graph *this)
 	struct route_graph_point *curr;
 	int i;
 	dbg(lvl_debug,"enter\n");
-	for (i = 0 ; i < HASH_SIZE ; i++) {
+	for (i = 0 ; i < HASH_SIZE ; i++)
+	{
 		curr=this->hash[i];
-		while (curr) {
+		while (curr)
+		{
 			if (curr->flags & RP_TURN_RESTRICTION) 
 				route_graph_process_restriction_point(this, curr);
 			curr=curr->hash_next;
