@@ -12,6 +12,14 @@
 
 /* jandegr 2015 */
 
+/* known issue : when consecutive nodes are each a via member in a turn restriction, smth.
+ * goes wrong
+ * 
+ */
+
+
+
+
 /**
  * Navit, a modular navigation system.
  * Copyright (C) 2005-2008 Navit Team
