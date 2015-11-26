@@ -2561,7 +2561,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	int edges_count=0;
 	int max_cost= INT_MAX;
 	int estimate= INT_MAX;
-	int A_star = 1;			/*0=dijkstra, 1=A*/
+	int A_star = 0;			/*0=dijkstra, 1=A*/
 
 
 	heuristic_speed = 130; // in km/h
