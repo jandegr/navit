@@ -7,17 +7,12 @@
  * #1189 don't leave motorway over emergency access road
  * #1205 cost of turns in routing
  * #1279 some routing problems
+ * #1323
+ *
  * HOV restriction
  */
 
 /* jandegr 2015 */
-
-/* known issue : when consecutive nodes are each a via member in a turn restriction, smth.
- * goes wrong
- * 
- */
-
-
 
 
 /**
@@ -130,7 +125,7 @@ struct route_graph_point {
 #define RP_TURN_RESTRICTION 2
 #define RP_TURN_RESTRICTION_RESOLVED 4
 
-#define SF_IS_CLONE				(1<<16)
+// #define SF_IS_CLONE				(1<<16)
 
 /**
  * @brief A segment in the route graph or path
@@ -349,6 +344,7 @@ static int route_time_seg(struct vehicleprofile *profile, struct route_segment_d
 static void route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struct route_info *pos, struct vehicleprofile *profile, struct callback *cb);
 static void route_graph_reset(struct route_graph *this);
 static struct route_graph_segment * route_graph_get_segment(struct route_graph *graph, struct street_data *sd, struct route_graph_segment *last);
+static int is_turn_allowed(struct route_graph_point *p, struct route_graph_segment *from, struct route_graph_segment *to);
 
 
 
@@ -432,7 +428,7 @@ static struct route_graph_segment
 
 	return ret;
 }
-
+#if 0
 /**
  * @brief Checks if the last segment returned from a route_graph_point_iterator comes from the end
  *
@@ -447,6 +443,7 @@ rp_iterator_end(struct route_graph_point_iterator *it) {
 		return 0;
 	}
 }
+#endif
 
 static void
 route_path_get_distances(struct route_path *path, struct coord *c, int count, int *distances)
@@ -555,6 +552,8 @@ route_dup(struct route *orig)
 	return this;
 }
 
+#if 0
+
 /**
  * @brief Checks if a segment is part of a roundabout
  *
@@ -629,6 +628,8 @@ route_check_roundabout(struct route_graph_segment *seg, int level, int direction
 
 	return 0;
 }
+
+#endif
 
 /**
  * @brief Sets the mapset of the route passwd
@@ -849,7 +850,8 @@ route_path_update_done(struct route *this, int new_graph)
 	{
 		struct route_path_segment *seg=this->path2->path;
 		int path_time=0,path_len=0;
-		while (seg) {
+		while (seg)
+		{
 			/* FIXME */
 			int seg_time=route_time_seg(this->vehicleprofile, seg->data, NULL);
 			if (seg_time == INT_MAX)
@@ -1061,7 +1063,8 @@ route_rect(int order, struct coord *c1, struct coord *c2, int rel, int abs)
 {
 	int dx,dy,sx=1,sy=1,d,m;
 	struct map_selection *sel=g_new(struct map_selection, 1);
-	if (!sel) {
+	if (!sel)
+	{
 		printf("%s:Out of memory\n", __FUNCTION__);
 		return sel;
 	}
@@ -1213,16 +1216,21 @@ route_set_destinations(struct route *this, struct pcoord *dst, int count, int as
 
 	profile(0,NULL);
 	route_clear_destinations(this);
-	if (dst && count) {
-		for (i = 0 ; i < count ; i++) {
+	if (dst && count)
+	{
+		for (i = 0 ; i < count ; i++)
+		{
 			dsti=route_find_nearest_street(this->vehicleprofile, this->ms, &dst[i]);
-			if(dsti) {
+			if(dsti)
+			{
 				route_info_distances(dsti, dst->pro);
 				this->destinations=g_list_append(this->destinations, dsti);
 			}
 		}
 		route_status.u.num=route_status_destination_set;
-	} else  {
+	}
+	else
+	{
 		this->reached_destinations_count=0;
 		route_status.u.num=route_status_no_destination;
 	}
@@ -1243,7 +1251,8 @@ route_get_destinations(struct route *this, struct pcoord *pc, int count)
 {
 	int ret=0;
 	GList *l=this->destinations;
-	while (l && ret < count) {
+	while (l && ret < count)
+	{
 		struct route_info *dst=l->data;
 		pc->x=dst->c.x;
 		pc->y=dst->c.y;
@@ -1294,25 +1303,36 @@ route_get_destination_description(struct route *this, int n)
 
 	type=g_strdup(item_to_name(dst->street->item.type));
 
-	while(item_attr_get(item, attr_any, &attr)) {
-		if (attr.type==attr_street_name_systematic ){
+	while(item_attr_get(item, attr_any, &attr))
+	{
+		if (attr.type==attr_street_name_systematic )
+		{
 			g_free(type);
 			type=attr_to_text(&attr, item->map, 1);
-		} else if (attr.type==attr_label){
+		}
+		else if (attr.type==attr_label)
+		{
 			g_free(label);
 			label=attr_to_text(&attr, item->map, 1);
-		} else if (attr.type==attr_osm_wayid && !label){
+		}
+		else if (attr.type==attr_osm_wayid && !label)
+		{
 			char *tmp=attr_to_text(&attr, item->map, 1);
 			label=g_strdup_printf("WayID %s", tmp);
 			g_free(tmp);
 		}
 	}
 
-	if(!label && !type) {
+	if(!label && !type)
+	{
 		desc=g_strdup(_("unknown street"));
-	} else if (!label || strcmp(type, label)==0){
+	}
+	else if (!label || strcmp(type, label)==0)
+	{
 		desc=g_strdup(type);
-	} else {
+	}
+	else
+	{
 		desc=g_strdup_printf("%s %s", type, label);
 	}
 
@@ -1526,9 +1546,11 @@ route_graph_free_points(struct route_graph *this)
 {
 	struct route_graph_point *curr,*next;
 	int i;
-	for (i = 0 ; i < HASH_SIZE ; i++) {
+	for (i = 0 ; i < HASH_SIZE ; i++)
+	{
 		curr=this->hash[i];
-		while (curr) {
+		while (curr)
+		{
 			next=curr->hash_next;
 			g_slice_free(struct route_graph_point, curr);
 			curr=next;
@@ -1666,6 +1688,8 @@ route_graph_segment_is_duplicate(struct route_graph_point *start, struct route_g
  * This function performs a check if a segment for the item specified already exists, and inserts
  * a new segment representing this item if it does not.
  *
+ * fixme : -jandegr- IMHO this does not check if it already exists, contrary to the lines above
+ *
  * @param this The route graph to insert the segment into
  * @param start The graph point which should be connected to the start of this segment
  * @param end The graph point which should be connected to the end of this segment
@@ -1762,7 +1786,9 @@ static int get_item_seg_coords(struct item *i, struct coord *c, int max,
 }
 
 /**
- * @brief Returns and removes one segment from a path
+ * @brief Returns (and removes one segment from a path)
+ *
+ * edit : does not remove it anymore
  *
  * @param path The path to take the segment from
  * @param item The item whose segment to remove
@@ -1997,9 +2023,12 @@ route_path_add_item_from_graph(struct route_path *this, struct route_path *oldpa
 
 	/* We check if the route graph segment is part of a roundabout here, because this
 	 * only matters for route graph segments which form parts of the route path */
-	if (!(rgs->data.flags & AF_ROUNDABOUT)) { // We identified this roundabout earlier
-		route_check_roundabout(rgs, 13, (dir < 1), NULL);
-	}
+
+// no need for OSM
+//	if (!(rgs->data.flags & AF_ROUNDABOUT)) {
+		// We identified this roundabout earlier
+//		route_check_roundabout(rgs, 13, (dir < 1), NULL);
+//	}
 
 	memcpy(segment->data, &rgs->data, seg_dat_size);
 	segment->data->len=len;
@@ -2227,10 +2256,27 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 	dbg(lvl_debug,"flags 0x%x mask 0x%x flags 0x%x\n", over->data.flags, dir >= 0 ? profile->flags_forward_mask : profile->flags_reverse_mask, profile->flags);
 	if ((over->data.flags & (dir >= 0 ? profile->flags_forward_mask : profile->flags_reverse_mask)) != profile->flags)
 		return INT_MAX;
-	if (dir > 0 && (over->start->flags & RP_TURN_RESTRICTION))
-		return INT_MAX;
-	if (dir < 0 && (over->end->flags & RP_TURN_RESTRICTION))
-		return INT_MAX;
+//	if (dir > 0 && (over->start->flags & RP_TURN_RESTRICTION))
+//		return INT_MAX;
+//	if (dir < 0 && (over->end->flags & RP_TURN_RESTRICTION))
+//		return INT_MAX;
+	if (dir > 0 && from && (over->end->flags & RP_TURN_RESTRICTION))
+	{
+		if (!is_turn_allowed(over->end,over,from))
+		{
+			return INT_MAX;
+		}
+
+	}
+	if (dir < 0 && from && (over->start->flags & RP_TURN_RESTRICTION))
+	{
+		if (!is_turn_allowed(over->start,over,from))
+		{
+			return INT_MAX;
+		}
+
+	}
+
 	if (from && from == over)
 		return INT_MAX;
 	if ((over->start->flags & RP_TRAFFIC_DISTORTION) && (over->end->flags & RP_TRAFFIC_DISTORTION) && 
@@ -2342,31 +2388,32 @@ route_process_turn_restriction(struct route_graph *this, struct item *item)
 	struct route_graph_segment_data data;
 
 	count=item_coord_get(item, c, 5);
-	if (count != 3 && count != 4) {
+	if (count != 3 && count != 4)
+	{
 		dbg(lvl_debug,"wrong count %d\n",count);
 		return;
 	}
-//	if (count == 4)
-//		return;
+	if (count == 4)
+		return;
 	for (i = 0 ; i < count ; i++) 
+		// bestaand punt of een nieuw indien nodig
 		pnt[i]=route_graph_add_point(this,&c[i]);
 	dbg(lvl_debug,"%s: (0x%x,0x%x)-(0x%x,0x%x)-(0x%x,0x%x) %p-%p-%p count=%i\n",item_to_name(item->type),c[0].x,c[0].y,c[1].x,c[1].y,c[2].x,c[2].y,pnt[0],pnt[1],pnt[2],count);
 	data.item=item;
 	data.flags=0;
 	data.len=0;
-
-
-
 	route_graph_add_segment(this, pnt[0], pnt[1], &data);
 	route_graph_add_segment(this, pnt[1], pnt[2], &data);
-#if 1
-	if (count == 4) {
+#if 0
+	if (count == 4)
+	{
 		pnt[1]->flags |= RP_TURN_RESTRICTION;
 		pnt[2]->flags |= RP_TURN_RESTRICTION;
 		route_graph_add_segment(this, pnt[2], pnt[3], &data);
-	} else 
+	}
+	else
+#endif
 		pnt[1]->flags |= RP_TURN_RESTRICTION;
-#endif	
 }
 
 /**
@@ -2577,7 +2624,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 
 	while ((s=route_graph_get_segment(this, dst->street, s)))
 	{
-		if (!(s->data.flags & SF_IS_CLONE))
+		if (!(s->data.flags))
 			{dbg(0,"found destination segment\n");}
 		else {dbg(0,"found CLONED destination segment\n");}
 		val=route_value_seg(profile, NULL, s, -1);
@@ -3062,20 +3109,24 @@ is_turn_allowed(struct route_graph_point *p, struct route_graph_segment *from, s
 	else
 		next=to->start;
 	tmp1=p->end;
-	while (tmp1) {
+	while (tmp1)
+	{
 		if (tmp1->start->c.x == prev->c.x && tmp1->start->c.y == prev->c.y &&
 			(tmp1->data.item.type == type_street_turn_restriction_no ||
-			tmp1->data.item.type == type_street_turn_restriction_only)) {
+			tmp1->data.item.type == type_street_turn_restriction_only))
+		{
 			tmp2=p->start;
 			dbg(lvl_debug,"found %s (0x%x,0x%x) (0x%x,0x%x)-(0x%x,0x%x) %p-%p\n",item_to_name(tmp1->data.item.type),tmp1->data.item.id_hi,tmp1->data.item.id_lo,tmp1->start->c.x,tmp1->start->c.y,tmp1->end->c.x,tmp1->end->c.y,tmp1->start,tmp1->end);
-			while (tmp2) {
+			while (tmp2)
+			{
 				dbg(lvl_debug,"compare %s (0x%x,0x%x) (0x%x,0x%x)-(0x%x,0x%x) %p-%p\n",item_to_name(tmp2->data.item.type),tmp2->data.item.id_hi,tmp2->data.item.id_lo,tmp2->start->c.x,tmp2->start->c.y,tmp2->end->c.x,tmp2->end->c.y,tmp2->start,tmp2->end);
 				if (item_is_equal(tmp1->data.item, tmp2->data.item)) 
 					break;
 				tmp2=tmp2->start_next;
 			}
 			dbg(lvl_debug,"tmp2=%p\n",tmp2);
-			if (tmp2) {
+			if (tmp2)
+			{
 				dbg(lvl_debug,"%s tmp2->end=%p next=%p\n",item_to_name(tmp1->data.item.type),tmp2->end,next);
 			}
 			if (tmp1->data.item.type == type_street_turn_restriction_no && tmp2 && tmp2->end->c.x == next->c.x && tmp2->end->c.y == next->c.y) {
@@ -3093,6 +3144,7 @@ is_turn_allowed(struct route_graph_point *p, struct route_graph_segment *from, s
 	return 1;
 }
 
+#if 0
 
 static void
 route_graph_clone_segment(struct route_graph *this, struct route_graph_segment *s, struct route_graph_point *start, struct route_graph_point *end, int flags)
@@ -3111,6 +3163,8 @@ route_graph_clone_segment(struct route_graph *this, struct route_graph_segment *
 	dbg(lvl_debug,"cloning segment from %p (0x%x,0x%x) to %p (0x%x,0x%x)\n",start,start->c.x,start->c.y, end, end->c.x, end->c.y);
 	route_graph_add_segment(this, start, end, &data);
 }
+
+
 
 static void
 route_graph_process_restriction_segment(struct route_graph *this, struct route_graph_point *p, struct route_graph_segment *s, int dir)
@@ -3170,6 +3224,9 @@ route_graph_process_restriction_segment(struct route_graph *this, struct route_g
 	}
 }
 
+
+
+
 static void
 route_graph_process_restriction_point(struct route_graph *this, struct route_graph_point *p)
 {
@@ -3212,6 +3269,8 @@ route_graph_process_restrictions(struct route_graph *this)
 	}
 }
 
+#endif
+
 static void
 route_graph_build_done(struct route_graph *rg, int cancel)
 {
@@ -3229,7 +3288,7 @@ route_graph_build_done(struct route_graph *rg, int cancel)
 	rg->h=NULL;
 	rg->sel=NULL;
 	if (! cancel) {
-		route_graph_process_restrictions(rg);
+//		route_graph_process_restrictions(rg);
 		callback_call_0(rg->done_cb);
 	}
 	rg->busy=0;
