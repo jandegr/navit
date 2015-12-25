@@ -123,9 +123,8 @@ struct route_graph_point {
 
 #define RP_TRAFFIC_DISTORTION 1
 #define RP_TURN_RESTRICTION 2
-#define RP_TURN_RESTRICTION_RESOLVED 4
+//#define RP_TURN_RESTRICTION_RESOLVED 4
 
-// #define SF_IS_CLONE				(1<<16)
 
 /**
  * @brief A segment in the route graph or path
@@ -137,6 +136,8 @@ struct route_segment_data {
 	struct item item;							/**< The item (e.g. street) that this segment represents. */
 	int flags;
 	int len;
+	int angle_start;
+	int angle_end;
 
 	/**< Length of this segment */
 	/*NOTE: After a segment, various fields may follow, depending on what flags are set. Order of fields:
@@ -169,6 +170,8 @@ struct route_graph_segment_data {
 	int maxspeed;
 	struct size_weight_limit size_weight;
 	int dangerous_goods;
+	int angle_start;
+	int angle_end;
 };
 
 /**
@@ -1724,7 +1727,8 @@ route_graph_add_segment(struct route_graph *this, struct route_graph_point *star
 	s->data.len=data->len;
 	s->data.item=*data->item;
 	s->data.flags=data->flags;
-
+	s->data.angle_start=data->angle_start;
+	s->data.angle_end=data->angle_end;
 	if (data->flags & AF_SPEED_LIMIT) 
 		RSD_MAXSPEED(&s->data)=data->maxspeed;
 	if (data->flags & AF_SEGMENTED) 
@@ -2252,6 +2256,7 @@ static int
 route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from, struct route_graph_segment *over, int dir)
 {
 	int ret;
+	int delta=0;
 	struct route_traffic_distortion dist,*distp=NULL;
 	dbg(lvl_debug,"flags 0x%x mask 0x%x flags 0x%x\n", over->data.flags, dir >= 0 ? profile->flags_forward_mask : profile->flags_reverse_mask, profile->flags);
 	if ((over->data.flags & (dir >= 0 ? profile->flags_forward_mask : profile->flags_reverse_mask)) != profile->flags)
@@ -2286,6 +2291,53 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 	if (profile->mode != 3)/*not new shortest*/
 	{
 		ret=route_time_seg(profile, &over->data, distp);
+
+		if (from)
+				{
+					if (dir > 0)
+
+					{
+						if (from->end == over->start)
+						{
+							delta= from->data.angle_start - over->data.angle_end;
+					//		dbg(0,"SEG_FORWARD dir positief, delta=%i,seg_angle_start=%i, over_angle_end=%i\n",delta,from->seg->data.angle_start,over->data.angle_end);
+						}
+						else if (from->start == over->start)
+						{
+							delta=  (from->data.angle_end - 180) - over->data.angle_end;
+					//		dbg(0,"SEG_BACKWARD dir positief, delta=%i, over_angle_end=%i, seg_angle_end=%i\n",delta,over->data.angle_end,from->seg->data.angle_end);
+						}
+					//	else dbg(0,"SEG_UNKNOWN dir positief\n");
+					}
+
+
+					else if (dir < 0)
+
+					{
+						if (from->end == over->start)
+						{
+							delta= from->data.angle_start - (over->data.angle_start - 180);
+						//	dbg(0,"SEG_FORWARD dir negatief, delta=%i, seg_angle_start=%i, over_angle_start=%i\n",delta,from->seg->data.angle_start,over->data.angle_start);
+						}
+						else if (from->start == over->start)
+						{
+							delta= (from->data.angle_end -180) - (over->data.angle_start - 180);
+						//	dbg(0,"SEG_BACK dir negatief, delta=%i, over_angle_start=%i, from_angle_end=%i\n",delta,over->data.angle_start,from->seg->data.angle_end);
+						}
+					//	else dbg(0,"SEG_UNKNOWN dir negatief\n");
+					}
+					if (delta < -180)
+						delta+=360;
+					if (delta > 180)
+						delta-=360;
+					if (abs(delta) > 30)
+					{
+						/*add 1 tenth of a  second per 3 degrees above threshold */
+							ret=ret+((abs((delta-30)*10)/30));
+							dbg(lvl_debug,"from=%s, over=%s\n",item_to_name(from->data.item.type),item_to_name(over->data.item.type));
+							dbg(lvl_debug,"dir =%i, added %i tenths of seconds, cost=%i, delta=%i\n",dir,abs((delta-30)*10)/30,ret,delta);
+					}
+				}
 	}
 	else ret = over->data.len; /*new shortest mode*/
 
@@ -2512,13 +2564,20 @@ route_graph_add_item(struct route_graph *this, struct item *item, struct vehicle
 	{
 		if (item_coord_get(item, &c, 1))
 		{
+
+			data.angle_start=transform_get_angle_delta(&l,&c,1);
+			dbg(lvl_debug,"angle_start=%i, l.x=%i, l.y=%i, c.x=%i, c.y=%i\n",data.angle_start,(&l)->x,(&l)->y,(&c)->x,(&c)->y);
+
 			while (1)
 			{
+				len+=transform_distance(map_projection(item->map), &l, &c);
+				data.angle_end=transform_get_angle_delta(&l,&c,1);
 				len+=transform_distance(map_projection(item->map), &l, &c);
 				l=c;
 				if (!item_coord_get(item, &c, 1))
 					break;
 			}
+			dbg(lvl_debug,"angle_end=%i\n",data.angle_end);
 		}
 
 		e_pnt=route_graph_add_point(this,&l);
