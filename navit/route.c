@@ -2663,7 +2663,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	struct route_graph_segment *pos_segment=NULL;
 	struct route_graph_segment *s_min=NULL;
 	int min,new,val;
-	struct fibheap *heap; /* This heap will hold all points with "temporarily" calculated costs */
+	struct fibheap *heap; /* This heap will hold segments with "temporarily" calculated costs */
 	int edges_count=0;
 	int max_cost= INT_MAX;
 	int estimate= INT_MAX;
