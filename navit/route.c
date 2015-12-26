@@ -2570,7 +2570,6 @@ route_graph_add_item(struct route_graph *this, struct item *item, struct vehicle
 
 			while (1)
 			{
-				len+=transform_distance(map_projection(item->map), &l, &c);
 				data.angle_end=transform_get_angle_delta(&l,&c,1);
 				len+=transform_distance(map_projection(item->map), &l, &c);
 				l=c;
