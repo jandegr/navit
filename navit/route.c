@@ -862,7 +862,9 @@ route_path_update_done(struct route *this, int new_graph)
 				dbg(lvl_debug,"error\n");
 			}
 			else
+			{
 				path_time+=seg_time;
+			}
 			path_len+=seg->data->len;
 			seg=seg->next;
 		}
@@ -882,7 +884,9 @@ route_path_update_done(struct route *this, int new_graph)
 			route_status.u.num=route_status_path_done_new; //17
 	}
 	else
+	{
 		route_status.u.num=route_status_not_found;
+	}
 	this->link_path=0;
 	route_set_attr(this, &route_status);
 }
@@ -1077,19 +1081,25 @@ route_rect(int order, struct coord *c1, struct coord *c2, int rel, int abs)
 	dbg(lvl_debug,"%p %p\n", c1, c2);
 	dx=c1->x-c2->x;
 	dy=c1->y-c2->y;
-	if (dx < 0) {
+	if (dx < 0)
+	{
 		sx=-1;
 		sel->u.c_rect.lu.x=c1->x;
 		sel->u.c_rect.rl.x=c2->x;
-	} else {
+	}
+	else
+	{
 		sel->u.c_rect.lu.x=c2->x;
 		sel->u.c_rect.rl.x=c1->x;
 	}
-	if (dy < 0) {
+	if (dy < 0)
+	{
 		sy=-1;
 		sel->u.c_rect.lu.y=c2->y;
 		sel->u.c_rect.rl.y=c1->y;
-	} else {
+	}
+	else
+	{
 		sel->u.c_rect.lu.y=c1->y;
 		sel->u.c_rect.rl.y=c2->y;
 	}
@@ -1156,12 +1166,16 @@ route_calc_selection(struct coord *c, int count, struct vehicleprofile *profile)
 			ret=route_rect_add(ret, order, &r.lu, &r.rl, 0,dist);
 		else
 		{
-		if(strchr(tok,'%'))
-			ret=route_rect_add(ret, order, &r.lu, &r.rl, dist, 0);
-		else
-			for (i = 0 ; i < count ; i++)
+			if(strchr(tok,'%'))
 			{
-				ret=route_rect_add(ret, order, &c[i], &c[i], 0, dist);
+				ret=route_rect_add(ret, order, &r.lu, &r.rl, dist, 0);
+			}
+			else
+			{
+				for (i = 0 ; i < count ; i++)
+				{
+					ret=route_rect_add(ret, order, &c[i], &c[i], 0, dist);
+				}
 			}
 		}
 		str=NULL;
@@ -1936,7 +1950,7 @@ route_path_add_item_from_graph(struct route_path *this, struct route_path *oldpa
 		//	g_free(segment);
 		}
 		else
-			dbg(0,"Segment gevonden maar met andere richting\n");
+			dbg(lvl_debug,"Segment found but with other direction\n");
 	}
 
 	if (position)
@@ -2243,10 +2257,10 @@ route_through_traffic_allowed(struct vehicleprofile *profile, struct route_graph
 }
 
 /**
- * @brief Returns the "costs" of driving from point from over segment over in direction dir
+ * @brief Returns the "costs" of driving from segment from over segment over in direction dir
  *
  * @param profile The routing preferences
- * @param from The point where we are starting
+ * @param from The segment we come from
  * @param over The segment we are using
  * @param dir The direction of segment which we are driving
  * @return The "costs" needed to drive len on item
@@ -2285,7 +2299,8 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 	if (from && from == over)
 		return INT_MAX;
 	if ((over->start->flags & RP_TRAFFIC_DISTORTION) && (over->end->flags & RP_TRAFFIC_DISTORTION) && 
-		route_get_traffic_distortion(over, &dist) && dir != 2 && dir != -2) {
+		route_get_traffic_distortion(over, &dist) && dir != 2 && dir != -2)
+	{
 			distp=&dist;
 	}
 	if (profile->mode != 3)/*not new shortest*/
@@ -2295,7 +2310,6 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 		if (from)
 				{
 					if (dir > 0)
-
 					{
 						if (from->end == over->start)
 						{
@@ -2307,12 +2321,8 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 							delta=  (from->data.angle_end - 180) - over->data.angle_end;
 					//		dbg(0,"SEG_BACKWARD dir positief, delta=%i, over_angle_end=%i, seg_angle_end=%i\n",delta,over->data.angle_end,from->seg->data.angle_end);
 						}
-					//	else dbg(0,"SEG_UNKNOWN dir positief\n");
 					}
-
-
 					else if (dir < 0)
-
 					{
 						if (from->end == over->start)
 						{
@@ -2324,18 +2334,17 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 							delta= (from->data.angle_end -180) - (over->data.angle_start - 180);
 						//	dbg(0,"SEG_BACK dir negatief, delta=%i, over_angle_start=%i, from_angle_end=%i\n",delta,over->data.angle_start,from->seg->data.angle_end);
 						}
-					//	else dbg(0,"SEG_UNKNOWN dir negatief\n");
 					}
 					if (delta < -180)
 						delta+=360;
 					if (delta > 180)
 						delta-=360;
-					if (abs(delta) > 30)
+					if (abs(delta) > 60)
 					{
-						/*add 1 tenth of a  second per 3 degrees above threshold */
-							ret=ret+((abs((delta-30)*10)/30));
-							dbg(lvl_debug,"from=%s, over=%s\n",item_to_name(from->data.item.type),item_to_name(over->data.item.type));
-							dbg(lvl_debug,"dir =%i, added %i tenths of seconds, cost=%i, delta=%i\n",dir,abs((delta-30)*10)/30,ret,delta);
+						/*add 1 tenth of a  second per 3 degrees above threshold (60 degr.)*/
+						ret=ret+((abs((delta-60)*10)/30));
+						dbg(lvl_debug,"from=%s, over=%s\n",item_to_name(from->data.item.type),item_to_name(over->data.item.type));
+						dbg(lvl_debug,"dir =%i, added %i tenths of seconds, cost=%i, delta=%i\n",dir,abs((delta-30)*10)/30,ret,delta);
 					}
 				}
 	}
@@ -2674,7 +2683,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 	double timestamp_graph_flood = now_ms();
 
 
-	dbg(0,"starting route_graph_flood_frugal\n");
+	dbg(lvl_debug,"starting route_graph_flood_frugal\n");
 
 	pos_segment=route_graph_get_segment(this, pos->street, pos_segment);
 
@@ -2682,9 +2691,6 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 
 	while ((s=route_graph_get_segment(this, dst->street, s)))
 	{
-		if (!(s->data.flags))
-			{dbg(0,"found destination segment\n");}
-		else {dbg(0,"found CLONED destination segment\n");}
 		val=route_value_seg(profile, NULL, s, -1);
 		if (val != INT_MAX)
 		{
