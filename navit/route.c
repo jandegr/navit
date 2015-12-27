@@ -2305,35 +2305,42 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 					if (from->end == over->end)
 					{
 						delta= from->data.angle_start - (over->data.angle_end -180);// al eens nagezien ????
-						dbg(0,"SEG_FORWARD dir positief, delta=%i,seg_angle_start=%i, over_angle_end=%i\n",delta,from->data.angle_start,over->data.angle_end);
+			//			dbg(0,"SEG_FORWARD dir positief, delta=%i,seg_angle_start=%i, over_angle_end=%i\n",delta,from->data.angle_start,over->data.angle_end);
 					}
 					else if (from->start == over->end) // al eens nagezien ??
 					{
 						delta=  (from->data.angle_end) - over->data.angle_end;
-						dbg(0,"SEG_BACKWARD dir positief, delta=%i, over_angle_end=%i, seg_angle_end=%i\n",delta,over->data.angle_end,from->data.angle_end);
+			//			dbg(0,"SEG_BACKWARD dir positief, delta=%i, over_angle_end=%i, seg_angle_end=%i\n",delta,over->data.angle_end,from->data.angle_end);
 					}
 					else if (from->end == over->start)
 					{
 						delta= from->data.angle_end - (over->data.angle_start ); // al eens nagezien ??
-						dbg(0,"SEG_FOR dir negatief, delta=%i, from_angle_end=%i, over_angle_start=%i\n",delta,from->data.angle_end,over->data.angle_start);
+			//			dbg(0,"SEG_FOR dir negatief, delta=%i, from_angle_end=%i, over_angle_start=%i\n",delta,from->data.angle_end,over->data.angle_start);
 					}
 					else if (from->start == over->start) //nagezien
 					{
 						delta= (from->data.angle_start) - (over->data.angle_start - 180);
-						dbg(0,"SEG_BACK dir negatief, delta=%i, over_angle_start=%i, from_angle_start=%i\n",delta,over->data.angle_start,from->data.angle_start);
+			//			dbg(0,"SEG_BACK dir negatief, delta=%i, over_angle_start=%i, from_angle_start=%i\n",delta,over->data.angle_start,from->data.angle_start);
 					}
 
 					if (delta < -180)
 						delta+=360;
 					if (delta > 180)
 						delta-=360;
-					dbg(0,"delta =%i\n",delta);
-					if (abs(delta) > 60)
+			//		dbg(0,"delta =%i\n",delta);
+			//		if (abs(delta) > 60)
+			//		{
+			//			/*add 1 tenth of a  second per 3 degrees above threshold (60 degr.)*/
+			//			ret=ret+((abs((delta-60)*10)/30));
+			//			dbg(0,"from=%s, over=%s\n",item_to_name(from->data.item.type),item_to_name(over->data.item.type));
+			//			dbg(0,"dir =%i, added %i tenths of seconds, cost=%i, delta=%i\n",dir,abs((delta-60)*10)/30,ret,delta);
+			//		}
+					if (abs(delta) > 90)
 					{
-						/*add 1 tenth of a  second per 3 degrees above threshold (60 degr.)*/
-						ret=ret+((abs((delta-60)*10)/30));
-						dbg(0,"from=%s, over=%s\n",item_to_name(from->data.item.type),item_to_name(over->data.item.type));
-						dbg(0,"dir =%i, added %i tenths of seconds, cost=%i, delta=%i\n",dir,abs((delta-30)*10)/30,ret,delta);
+					/*add 2 tenths of a  second per degree above threshold (90 degr.)*/
+						ret=ret+abs(delta-90)+abs(delta-90);
+			//			dbg(0,"from=%s, over=%s\n",item_to_name(from->data.item.type),item_to_name(over->data.item.type));
+			//			dbg(0,"dir =%i, added %i tenths of seconds, cost=%i, delta=%i\n",dir,(abs(delta-90)*2),ret,delta);
 					}
 				}
 	}
