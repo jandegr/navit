@@ -2304,22 +2304,22 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 				{
 					if (from->end == over->end)
 					{
-						delta= from->data.angle_start - (over->data.angle_end -180);// al eens nagezien ????
+						delta= from->data.angle_start - over->data.angle_end + 180;
 			//			dbg(0,"SEG_FORWARD dir positief, delta=%i,seg_angle_start=%i, over_angle_end=%i\n",delta,from->data.angle_start,over->data.angle_end);
 					}
-					else if (from->start == over->end) // al eens nagezien ??
+					else if (from->start == over->end)
 					{
-						delta=  (from->data.angle_end) - over->data.angle_end;
+						delta= from->data.angle_start - over->data.angle_end;
 			//			dbg(0,"SEG_BACKWARD dir positief, delta=%i, over_angle_end=%i, seg_angle_end=%i\n",delta,over->data.angle_end,from->data.angle_end);
 					}
 					else if (from->end == over->start)
 					{
-						delta= from->data.angle_end - (over->data.angle_start ); // al eens nagezien ??
+						delta= from->data.angle_end - over->data.angle_start;
 			//			dbg(0,"SEG_FOR dir negatief, delta=%i, from_angle_end=%i, over_angle_start=%i\n",delta,from->data.angle_end,over->data.angle_start);
 					}
-					else if (from->start == over->start) //nagezien
+					else if (from->start == over->start)
 					{
-						delta= (from->data.angle_start) - (over->data.angle_start - 180);
+						delta= from->data.angle_start - over->data.angle_start - 180;
 			//			dbg(0,"SEG_BACK dir negatief, delta=%i, over_angle_start=%i, from_angle_start=%i\n",delta,over->data.angle_start,from->data.angle_start);
 					}
 
