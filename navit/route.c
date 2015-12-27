@@ -2304,7 +2304,7 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 				{
 					if (from->end == over->end)
 					{
-						delta= from->data.angle_start - over->data.angle_end + 180;
+						delta= from->data.angle_end - over->data.angle_end + 180;
 			//			dbg(0,"SEG_FORWARD dir positief, delta=%i,seg_angle_start=%i, over_angle_end=%i\n",delta,from->data.angle_start,over->data.angle_end);
 					}
 					else if (from->start == over->end)
