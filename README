@@ -10,5 +10,5 @@ A branch to work on routing a bit.
 - for the changes in maptool look in the maptool branches in this repo
 
 
-[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep)
+[![Circle CI](https://circleci.com/gh/jandegr/navit.svg?style=svg)](https://circleci.com/gh/jandegr/navit)
 
