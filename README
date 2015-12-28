@@ -9,6 +9,8 @@ A branch to work on routing a bit.
 - can work with both Dijkstra and A*, but A* is not preferred at present
 - for the changes in maptool look in the maptool branches in this repo
 
+circleci
+========
 
 [![Circle CI](https://circleci.com/gh/jandegr/navit.svg?style=svg)](https://circleci.com/gh/jandegr/navit)
 
