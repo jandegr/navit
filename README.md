@@ -6,7 +6,7 @@ A branch to work on routing a bit.
 - has been tested on Western Europe maps mostly and North-America a bit
 - contains no-HOV for North-America
 - applies a penalty for (really)sharp turns
-- can work with both Dijkstra and A*, but A* is not preferred at present
+- can work with both Dijkstra and A_star, but A_star is not preferred at present
 - for the changes in maptool look in the maptool branches in this repo
 
 circleci
