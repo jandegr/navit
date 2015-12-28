@@ -12,5 +12,5 @@ A branch to work on routing a bit.
 circleci
 ========
 
-[![Circle CI](https://circleci.com/gh/jandegr/navit.svg?style=svg)](https://circleci.com/gh/jandegr/navit)
+[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep)
 
