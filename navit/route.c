@@ -2327,13 +2327,13 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 						delta+=360;
 					if (delta > 180)
 						delta-=360;
-					if (abs(delta) > 110)
-					{
+			//		if (abs(delta) > 110)
+			//		{
 					/*add 2 tenths of a  second per degree above threshold (110 degr.)*/
-						ret=ret+abs(delta-110)+abs(delta-110);
+			//			ret=ret+abs(delta-110)+abs(delta-110);
 			//			dbg(0,"from=%s, over=%s\n",item_to_name(from->data.item.type),item_to_name(over->data.item.type));
 			//			dbg(0,"dir =%i, added %i tenths of seconds, cost=%i, delta=%i\n",dir,(abs(delta-110)*2),ret,delta);
-					}
+			//		}
 				}
 	}
 	else ret = over->data.len; /*new shortest mode*/
