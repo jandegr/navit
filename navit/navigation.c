@@ -2253,16 +2253,38 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 		/* always make an announcement if you have to make a sharp turn */
 		r="yes: delta over 75";
 		ret=1;
-	} else if (!r && abs(m.delta) >= min_turn_limit) {
-		/*cat of street_2 is hardcoded below*/
-		if ((m.new_cat >= 3) && (m.num_similar_ways > 1)) {
+	} 
+	else if (!r && abs(m.delta) >= min_turn_limit) 
+	{
+		if ((m.new_cat >= 3 /* maneuver_category(type_street_2_city */
+				) && (m.num_similar_ways > 1)) 
+		{
 			/* When coming from street_2_* or higher category road, check if
 			 * - we have multiple options of the same category and
 			 * - we have to make a considerable turn (at least min_turn_limit)
 			 * If both is the case, ANNOUNCE.
 			 */
-			ret=1;
-			r="yes: more than one similar road and delta >= min_turn_limit";
+			/*But exclude cases where 2 opposite oneways join into one road,
+			*as the reverse of a road splitting in 2 oneways in a V-shaped style.
+			*/
+			if (! (m.num_other_ways==2 && is_same_street2(old->way.name, old->way.name_systematic, new->way.name, new->way.name_systematic)
+			/*	&& m.is_same_street
+			* seems to have lost some of it's meaning because of a test higher
+			*
+			*/
+				&&	is_same_street2(old->way.name, old->way.name_systematic, new->way.next->name, new->way.next->name_systematic)
+				&& ((old->way.flags & AF_ONEWAY) || (old->way.flags & AF_ONEWAYREV)) && !((new->way.flags & AF_ONEWAY) || (new->way.flags & AF_ONEWAYREV))
+				&& ((new->way.next->flags & AF_ONEWAY) || (new->way.next->flags & AF_ONEWAYREV)) && abs(m.delta)<55))
+
+				{
+					ret=1;
+					r="yes: more than one similar road and delta >= min_turn_limit";
+				}
+			else
+				{
+					r="no:going into a V-shape road join ";
+					dbg(lvl_debug,"rejected: more than one similar road and delta >= min_turn_limit\n");
+				}
 		}
 	}
 	if ((!r) && (m.num_options <= 1))
