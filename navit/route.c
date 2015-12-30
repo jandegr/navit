@@ -431,22 +431,6 @@ static struct route_graph_segment
 
 	return ret;
 }
-#if 0
-/**
- * @brief Checks if the last segment returned from a route_graph_point_iterator comes from the end
- *
- * @param it The route graph point iterator to be checked
- * @return 1 if the last segment returned comes from the end of the route graph point, 0 otherwise
- */
-static int
-rp_iterator_end(struct route_graph_point_iterator *it) {
-	if (it->end && (it->next != it->p->end)) {
-		return 1;
-	} else {
-		return 0;
-	}
-}
-#endif
 
 static void
 route_path_get_distances(struct route_path *path, struct coord *c, int count, int *distances)
@@ -554,85 +538,6 @@ route_dup(struct route *orig)
 
 	return this;
 }
-
-#if 0
-
-/**
- * @brief Checks if a segment is part of a roundabout
- *
- * This function checks if a segment is part of a roundabout.
- *
- * @param seg The segment to be checked
- * @param level How deep to scan the route graph
- * @param direction Set this to 1 if we're entering the segment through its end, to 0 otherwise
- * @param origin Used internally, set to NULL
- * @return 1 If a roundabout was detected, 0 otherwise
- */
-static int
-route_check_roundabout(struct route_graph_segment *seg, int level, int direction, struct route_graph_segment *origin)
-{
-	struct route_graph_point_iterator it,it2;
-	struct route_graph_segment *cur;
-	int count=0;
-
-	if (!level) {
-		return 0;
-	}
-	if (!direction && !(seg->data.flags & AF_ONEWAY)) {
-		return 0;
-	}
-	if (direction && !(seg->data.flags & AF_ONEWAYREV)) {
-		return 0;
-	}
-	if (seg->data.flags & AF_ROUNDABOUT_VALID)
-		return 0;
-	
-	if (!origin) {
-		origin = seg;
-	}
-
-	if (!direction) {
-		it = rp_iterator_new(seg->end);
-	} else {
-		it = rp_iterator_new(seg->start);
-	}
-	it2=it;
-	
-	while ((cur = rp_iterator_next(&it2)))
-		count++;
-
-	if (count > 3)
-		return 0;
-	cur = rp_iterator_next(&it);
-	while (cur) {
-		if (cur == seg) {
-			cur = rp_iterator_next(&it);
-			continue;
-		}
-
-		if (cur->data.item.type != origin->data.item.type) {
-			// This street is of another type, can't be part of the roundabout
-			cur = rp_iterator_next(&it);
-			continue;
-		}
-
-		if (cur == origin) {
-			seg->data.flags |= AF_ROUNDABOUT;
-			return 1;
-		}
-
-		if (route_check_roundabout(cur, (level-1), rp_iterator_end(&it), origin)) {
-			seg->data.flags |= AF_ROUNDABOUT;
-			return 1;
-		}
-
-		cur = rp_iterator_next(&it);
-	}
-
-	return 0;
-}
-
-#endif
 
 /**
  * @brief Sets the mapset of the route passwd
