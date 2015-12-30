@@ -28,6 +28,11 @@ dependencies:
 #    - sudo apt-get install lib32stdc++6
     - sudo apt-get install lib32z1
     - bash ci/build_android.sh
+     - emulator -avd circleci-android22 -no-audio -no-window:
+        background: true
+        parallel: true
+    - circle-android wait-for-boot
+    - adb install $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-debug.apk
 # Windows build
     - sudo apt-get install mingw32 mingw32-binutils mingw32-runtime
     - sudo apt-get install default-jdk nsis
