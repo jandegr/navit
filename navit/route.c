@@ -2214,7 +2214,7 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 					}
 					else if (from->start == over->end)
 					{
-						delta= from->data.angle_start - over->data.angle_end;
+						delta=  from->data.angle_start - over->data.angle_end;
 			//			dbg(0,"SEG_BACKWARD dir positief, delta=%i, over_angle_end=%i, seg_angle_end=%i\n",delta,over->data.angle_end,from->data.angle_end);
 					}
 					else if (from->end == over->start)
@@ -3100,133 +3100,6 @@ is_turn_allowed(struct route_graph_point *p, struct route_graph_segment *from, s
 	dbg(lvl_debug,"from 0x%x,0x%x over 0x%x,0x%x to 0x%x,0x%x allowed\n",prev->c.x,prev->c.y,p->c.x,p->c.y,next->c.x,next->c.y);
 	return 1;
 }
-
-#if 0
-
-static void
-route_graph_clone_segment(struct route_graph *this, struct route_graph_segment *s, struct route_graph_point *start, struct route_graph_point *end, int flags)
-{
-	struct route_graph_segment_data data;
-	data.flags=s->data.flags|flags|SF_IS_CLONE;
-	data.offset=1;
-	data.maxspeed=-1;
-	data.item=&s->data.item;
-	data.len=s->data.len+1;
-
-	if (s->data.flags & AF_SPEED_LIMIT)
-		data.maxspeed=RSD_MAXSPEED(&s->data);
-	if (s->data.flags & AF_SEGMENTED) 
-		data.offset=RSD_OFFSET(&s->data);
-	dbg(lvl_debug,"cloning segment from %p (0x%x,0x%x) to %p (0x%x,0x%x)\n",start,start->c.x,start->c.y, end, end->c.x, end->c.y);
-	route_graph_add_segment(this, start, end, &data);
-}
-
-
-
-static void
-route_graph_process_restriction_segment(struct route_graph *this, struct route_graph_point *p, struct route_graph_segment *s, int dir)
-{
-	struct route_graph_segment *tmp;
-	struct route_graph_point *pn;
-	struct coord c=p->c;
-	int dx=0;
-	int dy=0;
-	c.x+=dx;
-	c.y+=dy;
-	dbg(lvl_debug,"From %s %d,%d\n",item_to_name(s->data.item.type),dx,dy);
-	pn=route_graph_point_new(this, &c);
-	if (dir > 0)
-	{ /* going away */
-		dbg(lvl_debug,"other 0x%x,0x%x\n",s->end->c.x,s->end->c.y);
-		if (s->data.flags & AF_ONEWAY)
-		{
-			dbg(lvl_debug,"Not possible\n");
-			return;
-		}
-		route_graph_clone_segment(this, s, pn, s->end, AF_ONEWAYREV);
-	}
-	else
-	{ /* coming in */
-		dbg(lvl_debug,"other 0x%x,0x%x\n",s->start->c.x,s->start->c.y);
-		if (s->data.flags & AF_ONEWAYREV)
-		{
-			dbg(lvl_debug,"Not possible\n");
-			return;
-		}
-		route_graph_clone_segment(this, s, s->start, pn, AF_ONEWAY);
-	}
-	tmp=p->start;
-	while (tmp)
-	{
-		if (tmp != s && tmp->data.item.type != type_street_turn_restriction_no &&
-			tmp->data.item.type != type_street_turn_restriction_only &&
-			!(tmp->data.flags & AF_ONEWAYREV) && is_turn_allowed(p, s, tmp))
-		{
-			route_graph_clone_segment(this, tmp, pn, tmp->end, AF_ONEWAY);
-			dbg(lvl_debug,"To start %s\n",item_to_name(tmp->data.item.type));
-		}
-		tmp=tmp->start_next;
-	}
-	tmp=p->end;
-	while (tmp)
-	{
-		if (tmp != s && tmp->data.item.type != type_street_turn_restriction_no &&
-			tmp->data.item.type != type_street_turn_restriction_only &&
-			!(tmp->data.flags & AF_ONEWAY) && is_turn_allowed(p, s, tmp))
-		{
-			route_graph_clone_segment(this, tmp, tmp->start, pn, AF_ONEWAYREV);
-			dbg(lvl_debug,"To end %s\n",item_to_name(tmp->data.item.type));
-		}
-		tmp=tmp->end_next;
-	}
-}
-
-
-
-
-static void
-route_graph_process_restriction_point(struct route_graph *this, struct route_graph_point *p)
-{
-	struct route_graph_segment *seg;
-	seg=p->start;
-	dbg(lvl_debug,"node 0x%x,0x%x\n",p->c.x,p->c.y);
-	while (seg)
-	{
-		if (seg->data.item.type != type_street_turn_restriction_no &&
-			seg->data.item.type != type_street_turn_restriction_only)
-			route_graph_process_restriction_segment(this, p, seg, 1);
-		seg=seg->start_next;
-	}
-	seg=p->end;
-	while (seg)
-	{
-		if (seg->data.item.type != type_street_turn_restriction_no &&
-			seg->data.item.type != type_street_turn_restriction_only)
-			route_graph_process_restriction_segment(this, p, seg, -1);
-		seg=seg->end_next;
-	}
-	p->flags |= RP_TURN_RESTRICTION_RESOLVED;
-}
-
-static void
-route_graph_process_restrictions(struct route_graph *this)
-{
-	struct route_graph_point *curr;
-	int i;
-	dbg(lvl_debug,"enter\n");
-	for (i = 0 ; i < HASH_SIZE ; i++)
-	{
-		curr=this->hash[i];
-		while (curr)
-		{
-			if (curr->flags & RP_TURN_RESTRICTION) 
-				route_graph_process_restriction_point(this, curr);
-			curr=curr->hash_next;
-		}
-	}
-}
-
-#endif
 
 static void
 route_graph_build_done(struct route_graph *rg, int cancel)
