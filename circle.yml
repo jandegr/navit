@@ -22,7 +22,7 @@ dependencies:
 # Android build    
     - sudo apt-get install gettext
 #    - sudo apt-get install openjdk-8-jdk
-    - sudo apt-get install ant
+#    - sudo apt-get install ant
     - sudo apt-get install libsaxonb-java
 # for aapt
 #    - sudo apt-get install lib32stdc++6
