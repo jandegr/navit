@@ -25,7 +25,7 @@ dependencies:
 # for aapt
     - sudo apt-get install lib32z1
     - bash ci/build_android.sh
-    
+    - bash ci/build_android_x86.sh
 # Windows build
     - sudo apt-get install mingw32 mingw32-binutils mingw32-runtime
     - sudo apt-get install default-jdk nsis
