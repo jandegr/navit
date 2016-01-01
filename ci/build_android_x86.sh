@@ -10,3 +10,7 @@ export PATH=$ANDROID_NDK_BIN:$ANDROID_SDK_PLATFORM_TOOLS:$PATH
 mkdir android-x86 && cd android-x86
 cmake -DCMAKE_TOOLCHAIN_FILE=$CMAKE_FILE -DSAMPLE_MAP=n -DBUILD_MAPTOOL=n -DANDROID_API_VERSION=19 -DDISABLE_CXX=1 -DDISABLE_QT=1 ../ || exit -1
 make || exit -1
+
+echo
+echo "Build leftovers :"
+ls navit/android-x86/bin/
