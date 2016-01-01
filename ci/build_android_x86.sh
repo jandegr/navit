@@ -14,4 +14,8 @@ make apkg-release
 make apkg
 echo
 echo "Build leftovers :"
-ls navit/android-x86/bin/
+ls -la 
+ls -la navit
+ls -la navit/android
+ls -la navit/android/bin
+
