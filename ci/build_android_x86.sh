@@ -12,6 +12,13 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$CMAKE_FILE -DSAMPLE_MAP=n -DBUILD_MAPTOOL=n -DANDR
 make || exit -1
 make apkg-release
 make apkg
+
+if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+  make apkg-release && mv navit/android/bin/Navit-release-unsigned.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-x86-release-unsigned.apk || exit 1
+else
+  make apkg && mv navit/android/bin/Navit-debug.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-x86-debug.apk || exit 1
+fi
+
 echo
 echo "Build leftovers :"
 ls -la 
