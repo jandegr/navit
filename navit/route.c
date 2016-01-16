@@ -93,7 +93,6 @@ struct map_priv {
 	struct route *route;
 };
 
-int debug_route=0;
 
 int heuristic_speed = INT_MAX; // in km/h for A*
 
@@ -472,14 +471,17 @@ route_path_destroy(struct route_path *this, int recurse)
 {
 	struct route_path_segment *c,*n;
 	struct route_path *next;
-	while (this) {
+	while (this)
+	{
 		next=this->next;
-		if (this->path_hash) {
+		if (this->path_hash)
+		{
 			item_hash_destroy(this->path_hash);
 			this->path_hash=NULL;
 		}
 		c=this->path;
-		while (c) {
+		while (c)
+		{
 			n=c->next;
 			g_free(c);
 			c=n;
@@ -1428,8 +1430,6 @@ route_graph_point_new(struct route_graph *this, struct coord *f)
 	struct route_graph_point *p;
 
 	hashval=HASHCOORD(f);
-	if (debug_route)
-		printf("p (0x%x,0x%x)\n", f->x, f->y);
 	p=g_slice_new0(struct route_graph_point);
 	p->hash_next=this->hash[hashval];
 	this->hash[hashval]=p;
@@ -1590,13 +1590,18 @@ route_graph_segment_is_duplicate(struct route_graph_point *start, struct route_g
 {
 	struct route_graph_segment *s;
 	s=start->start;
-	while (s) {
-		if (item_is_equal(*data->item, s->data.item)) {
-			if (data->flags & AF_SEGMENTED) {
-				if (RSD_OFFSET(&s->data) == data->offset) {
+	while (s)
+	{
+		if (item_is_equal(*data->item, s->data.item))
+		{
+			if (data->flags & AF_SEGMENTED)
+			{
+				if (RSD_OFFSET(&s->data) == data->offset)
+				{
 					return 1;
 				}
-			} else
+			}
+			else
 				return 1;
 		}
 		s=s->start_next;
@@ -1659,8 +1664,6 @@ route_graph_add_segment(struct route_graph *this, struct route_graph_point *star
 
 	s->next=this->route_segments;
 	this->route_segments=s;
-	if (debug_route)
-		printf("l (0x%x,0x%x)-(0x%x,0x%x)\n", start->c.x, start->c.y, end->c.x, end->c.y);
 }
 
 /**
@@ -1724,17 +1727,23 @@ route_extract_segment_from_path(struct route_path *path, struct item *item, int 
 	int soffset;
 	struct route_path_segment *sp = NULL, *s;
 	s = path->path;
-	while (s) {
-		if (item_is_equal(s->data->item,*item)) {
+	while (s)
+	{
+		if (item_is_equal(s->data->item,*item))
+		{
 			if (s->data->flags & AF_SEGMENTED)
 			 	soffset=RSD_OFFSET(s->data);
 			else
 				soffset=1;
-			if (soffset == offset) {
-				if (sp) {
+			if (soffset == offset)
+			{
+				if (sp)
+				{
 					sp->next = s->next;
 					break;
-				} else {
+				}
+				else
+				{
 					path->path = s->next;
 					break;
 				}
@@ -2214,7 +2223,7 @@ route_value_seg(struct vehicleprofile *profile, struct route_graph_segment *from
 					}
 					else if (from->start == over->end)
 					{
-						delta=  from->data.angle_start - over->data.angle_end;
+						delta= from->data.angle_start - over->data.angle_end;
 			//			dbg(0,"SEG_BACKWARD dir positief, delta=%i, over_angle_end=%i, seg_angle_end=%i\n",delta,over->data.angle_end,from->data.angle_end);
 					}
 					else if (from->end == over->start)
@@ -3188,12 +3197,15 @@ route_graph_build(struct mapset *ms, struct coord *c, int count, struct callback
 	ret->h=mapset_open(ms);
 	ret->done_cb=done_cb;
 	ret->busy=1;
-	if (route_graph_build_next_map(ret)) {
-		if (async) {
+	if (route_graph_build_next_map(ret))
+	{
+		if (async)
+		{
 			ret->idle_cb=callback_new_2(callback_cast(route_graph_build_idle), ret, profile);
 			ret->idle_ev=event_add_idle(50, ret->idle_cb);
 		}
-	} else
+	}
+	else
 		route_graph_build_done(ret, 0);
 
 	return ret;
@@ -3230,7 +3242,8 @@ route_graph_update(struct route *this, struct callback *cb, int async)
 	route_set_attr(this, &route_status);
 	c[i++]=this->pos->c;
 	tmp=this->destinations;
-	while (tmp) {
+	while (tmp)
+	{
 		struct route_info *dst=tmp->data;
 		c[i++]=dst->c;
 		tmp=g_list_next(tmp);
@@ -3939,8 +3952,10 @@ rp_rect_new(struct map_priv *priv, struct map_selection *sel)
 	mr->item.priv_data = mr;
 	mr->item.type = type_rg_point;
 	mr->item.meth = &methods_point_item;
-	if (sel) {
-		if ((sel->u.c_rect.lu.x == sel->u.c_rect.rl.x) && (sel->u.c_rect.lu.y == sel->u.c_rect.rl.y)) {
+	if (sel)
+	{
+		if ((sel->u.c_rect.lu.x == sel->u.c_rect.rl.x) && (sel->u.c_rect.lu.y == sel->u.c_rect.rl.y))
+		{
 			mr->coord_sel = g_malloc(sizeof(struct coord));
 			*(mr->coord_sel) = sel->u.c_rect.lu;
 		}
@@ -3953,17 +3968,18 @@ rm_rect_destroy(struct map_rect_priv *mr)
 {
 	if (mr->str)
 		g_free(mr->str);
-	if (mr->coord_sel) {
+	if (mr->coord_sel)
+	{
 		g_free(mr->coord_sel);
 	}
-	if (mr->path) {
+	if (mr->path)
+	{
 		mr->path->in_use--;
 		if (mr->path->update_required && (mr->path->in_use==1)) 
 			route_path_update_done(mr->mpriv->route, mr->path->update_required-1);
 		else if (!mr->path->in_use)
 			g_free(mr->path);
 	}
-
 	g_free(mr);
 }
 
@@ -4037,11 +4053,6 @@ rp_get_item(struct map_rect_priv *mr)
 		mr->item.id_lo++;
 		rm_coord_rewind(mr);
 		rp_attr_rewind(mr);
-//		if (seg->data.flags & AF_IS_CLONE)
-//			{
-//				mr->item.id_hi = 1;
-//				dbg(lvl_debug,"tainted clone\n");
-//			}
 
 		return &mr->item;
 	}
