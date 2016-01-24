@@ -1861,7 +1861,7 @@ route_path_add_item_from_graph(struct route_path *this, struct route_path *oldpa
 	{
 		segment=item_hash_lookup(oldpath->path_hash, &rgs->data.item);
 
-		if (segment)
+		if (segment && !(dst && segment->direction != dir))
 		{
 
 			segment = route_extract_segment_from_path(oldpath, &rgs->data.item, offset);
