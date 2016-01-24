@@ -1861,13 +1861,16 @@ route_path_add_item_from_graph(struct route_path *this, struct route_path *oldpa
 	{
 		segment=item_hash_lookup(oldpath->path_hash, &rgs->data.item);
 
-		if (segment && !(dst && segment->direction != dir))
-		{
-
+//		if (segment && !(dst && segment->direction != dir))
+		if (segment && this->updated) // try to fix most gap in route as well
+		{							  // to be merged into Zanavi after some testing
+									  // will leave the small gap in case of a small pullback
+									  // on the same segment to not make navigation.c reprocess
+									  // the entire route in such cases
 			segment = route_extract_segment_from_path(oldpath, &rgs->data.item, offset);
 			if (segment)
 			{
-				ret=1;   /////////////////
+				ret=1;   // preserve the updated status
 				if (!position)
 				{
 					segment->data->len=len;
