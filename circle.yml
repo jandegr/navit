@@ -39,6 +39,7 @@ test:
     - ./bin/navit/maptool/maptool -P  -6 -n -k -s9 -e9 -r /home/ubuntu/navit/rulefile_combined.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
     - ./bin/navit/maptool/maptool -P  -6 -n -k -s10 -e10 -r /home/ubuntu/navit/rulefile_combined.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
     - ./bin/navit/maptool/maptool -P  -6 -n -k -s11 -r /home/ubuntu/navit/rulefile_combined.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR.bin
+    - ls -la /home/ubuntu
     - cp tilesdir_.tmp $CIRCLE_ARTIFACTS
     - ls -la $CIRCLE_ARTIFACTS
     
