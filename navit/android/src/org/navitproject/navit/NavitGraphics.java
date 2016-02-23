@@ -34,7 +34,6 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
