@@ -41,6 +41,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
 
@@ -702,7 +704,32 @@ public class NavitGraphics
 				SetCamera(use_camera);
 			}
 			relativelayout.addView(view);
-
+			
+			final Button zoomOutButton = new Button(activity);
+			zoomOutButton.setWidth(96);
+			zoomOutButton.setHeight(96);
+			zoomOutButton.setBackgroundResource(R.drawable.zoom_out_96_96);
+			zoomOutButton.setOnClickListener(new View.OnClickListener() {
+	        	    	public void onClick(View v) {
+	            	 	CallbackMessageChannel(2, "");
+	             		}
+	         	});
+			
+			final ImageButton zoomInButton = new ImageButton(activity);
+			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+			         RelativeLayout.LayoutParams.WRAP_CONTENT,
+			         RelativeLayout.LayoutParams.WRAP_CONTENT);
+			         lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			zoomInButton.setLayoutParams(lp); 
+			zoomInButton.setBackgroundResource(R.drawable.zoom_in_96_96);
+			zoomInButton.setOnClickListener(new View.OnClickListener() {
+			      public void onClick(View v) {          	
+	            		 CallbackMessageChannel(1, "");            	
+	             		}
+	         	});
+	         	
+	         	relativelayout.addView(zoomInButton);
+			relativelayout.addView(zoomOutButton);
 			activity.setContentView(relativelayout);
 			view.requestFocus();
 		}
