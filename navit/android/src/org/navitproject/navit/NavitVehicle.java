@@ -146,12 +146,19 @@ public class NavitVehicle {
 
 		context.registerReceiver(preciseLocationListener, new IntentFilter(GPS_FIX_CHANGE));
 		sLocationManager.requestLocationUpdates(preciseProvider, 0, 0, preciseLocationListener);
-		sLocationManager.addGpsStatusListener(preciseLocationListener);
+//		sLocationManager.addGpsStatusListener(preciseLocationListener);
 
-		// If the 2 providers are the same, only activate one listener
 		if (fastProvider == null || preciseProvider.compareTo(fastProvider) == 0) {
+			List<String> fastProviderList = sLocationManager.getProviders(lowCriteria, false);
 			fastProvider = null;
-		} else {
+			for (String fastCandidate: fastProviderList) {
+				if (preciseProvider.compareTo(fastCandidate) != 0) {
+					fastProvider = fastCandidate;
+					break;
+				}
+			}
+		}
+		if (fastProvider != null) {
 			sLocationManager.requestLocationUpdates(fastProvider, 0, 0, fastLocationListener);
 		}
 	}
@@ -160,7 +167,7 @@ public class NavitVehicle {
 		if (sLocationManager != null) {
 			if (preciseLocationListener != null) {
 				sLocationManager.removeUpdates(preciseLocationListener);
-				sLocationManager.removeGpsStatusListener(preciseLocationListener);
+//				sLocationManager.removeGpsStatusListener(preciseLocationListener);
 				context.unregisterReceiver(preciseLocationListener);
 			}
 			if (fastLocationListener != null) sLocationManager.removeUpdates(fastLocationListener);
