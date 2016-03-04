@@ -24,6 +24,9 @@
 	<string name="optionsmenu_exit_navit">Exit Navit</string>
 	<string name="optionsmenu_backup_restore">Backup / Restore</string>
 	<string name="optionsmenu_set_map_location">Set map location</string>
+	<string name="settings">settings</string>
+	<string name="action_zoom_to_route">zoom to route</string>
+	<string name="optionsmenu_set_maplocation">set map location</string>
 	
 	<!-- POSITION POP-UP -->
 	<string name="position_popup_title">Position</string>
