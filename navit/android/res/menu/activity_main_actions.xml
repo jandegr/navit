@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/item1"
+          android:title="@string/settings"
+          android:icon="@android:drawable/ic_dialog_map" 
+          android:showAsAction="ifRoom">
+	</item>
+	<item android:id="@+id/action_zoom_to_route"
+	      android:title="@string/action_zoom_to_route" 
+	      android:showAsAction="never">
+	     
+	</item>
+	<item android:title="@string/optionsmenu_download_maps" 
+	      android:showAsAction="never" 
+	      android:id="@+id/optionsmenu_download_maps">
+	</item>
+	<item android:title="@string/optionsmenu_set_maplocation"
+	      android:id="@+id/optionsmenu_set_maplocation"
+	      android:showAsAction="never" >
+	</item>
+	<item android:id="@+id/action_quit"
+          android:title="@string/optionsmenu_exit_navit"
+          android:showAsAction="never">
+	</item>
+	<item android:id="@+id/optionsmenu_address_search" 
+   	      android:showAsAction="ifRoom" 
+	      android:title="R.string.optionsmenu_address_search" 
+	      android:icon="@android:drawable/ic_menu_search"></item>
+</menu>
