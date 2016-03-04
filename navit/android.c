@@ -352,6 +352,8 @@ Java_org_navitproject_navit_NavitGraphics_CallbackMessageChannel( JNIEnv* env, j
 		strcpy(parse_str, s);
 		(*env)->ReleaseStringUTFChars(env, str, s);
 		dbg(lvl_debug,"*****string=%s\n",s);
+		
+		//passing an empty string cancels navigation
 		if (strlen(parse_str) == 0){
 			navit_set_destination(attr.u.navit, NULL, NULL, 0);
 		}
