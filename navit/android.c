@@ -352,35 +352,39 @@ Java_org_navitproject_navit_NavitGraphics_CallbackMessageChannel( JNIEnv* env, j
 		strcpy(parse_str, s);
 		(*env)->ReleaseStringUTFChars(env, str, s);
 		dbg(lvl_debug,"*****string=%s\n",s);
+		if (strlen(parse_str) == 0){
+			navit_set_destination(attr.u.navit, NULL, NULL, 0);
+		}
+		else {
+			// set destination to (lat#lon#title)
+			struct coord_geo g;
+			char *p;
+			char *stopstring;
 
-		// set destination to (lat#lon#title)
-		struct coord_geo g;
-		char *p;
-		char *stopstring;
+			// lat
+			p = strtok (parse_str,"#");
+			g.lat = strtof(p, &stopstring);
+			// lon
+			p = strtok (NULL, "#");
+			g.lng = strtof(p, &stopstring);
+			// description
+			name = strtok (NULL, "#");
 
-		// lat
-		p = strtok (parse_str,"#");
-		g.lat = strtof(p, &stopstring);
-		// lon
-		p = strtok (NULL, "#");
-		g.lng = strtof(p, &stopstring);
-		// description
-		name = strtok (NULL, "#");
+			dbg(lvl_debug,"lat=%f\n",g.lat);
+			dbg(lvl_debug,"lng=%f\n",g.lng);
+			dbg(lvl_debug,"str1=%s\n",name);
 
-		dbg(lvl_debug,"lat=%f\n",g.lat);
-		dbg(lvl_debug,"lng=%f\n",g.lng);
-		dbg(lvl_debug,"str1=%s\n",name);
+			struct coord c;
+			transform_from_geo(projection_mg, &g, &c);
 
-		struct coord c;
-		transform_from_geo(projection_mg, &g, &c);
+			struct pcoord pc;
+			pc.x=c.x;
+			pc.y=c.y;
+			pc.pro=projection_mg;
 
-		struct pcoord pc;
-		pc.x=c.x;
-		pc.y=c.y;
-		pc.pro=projection_mg;
-
-		// start navigation asynchronous
-		navit_set_destination(attr.u.navit, &pc, name, 1);
+			// start navigation asynchronous
+			navit_set_destination(attr.u.navit, &pc, name, 1);
+		}
 
 	}
 	break;
