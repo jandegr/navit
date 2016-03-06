@@ -173,6 +173,7 @@ struct navit {
 	int imperial;
 	int waypoints_flag;
 	struct coord_geo center;
+	int auto_switch; /*auto switching between day/night layout enabled ?*/
 };
 
 struct gui *main_loop_gui;
@@ -1416,6 +1417,7 @@ navit_new(struct attr *parent, struct attr **attrs)
 	this_->follow_cursor = 1;
 	this_->radius = 30;
 	this_->border = 16;
+	this_->auto_switch = TRUE;
 
 	transform_from_geo(pro, &g, &co);
 	center.x=co.x;
@@ -3338,7 +3340,7 @@ navit_layout_switch(struct navit *n)
 	    //We've have to wait a little
 	    return;
 	}
-	if (l->auto_switch == FALSE)
+	if (n->auto_switch == FALSE)
 	       	return;
 	if (sscanf(iso8601_attr.u.str,"%d-%02d-%02dT",&year,&month,&day) != 3)
 		return;
@@ -3361,27 +3363,27 @@ navit_layout_switch(struct navit *n)
 	if (l->dayname) {
 		dbg(0,"dayname = %s, name =%s \n",l->dayname, l->name);
 	    if (HOURS(trise)*60+MINUTES(trise)<(currTs%86400)/60) {
-		//The sun is up!
-		if (strcmp(l->name,l->dayname)) {
-		    navit_set_layout_by_name(n,l->dayname);
-		}
+	    	//The sun is up!
+	    	if (strcmp(l->name,l->dayname)) {
+	    		navit_set_layout_by_name(n,l->dayname);
+	    	}
 	    }
 	}
 	if (l->nightname) {
 		dbg(0,"nightname = %s, name = %s \n",l->nightname, l->name);
 	    if (__sunriset__(year,month,day,geo_attr.u.coord_geo->lng,geo_attr.u.coord_geo->lat,-5,1,&trise,&tset)!=0) {
 		//near the pole sun never rises/sets, so we should never switch profiles
-		dbg(0,"tset: %u:%u, sun always visible, never switch profile\n",HOURS(tset),MINUTES(tset));
-		n->prevTs=currTs;
-		return;
+	    	dbg(0,"tset: %u:%u, sun always visible, never switch profile\n",HOURS(tset),MINUTES(tset));
+	    	n->prevTs=currTs;
+	    	return;
 	    }
 	    dbg(lvl_debug,"tset: %u:%u\n",HOURS(tset),MINUTES(tset));
 	    if (((HOURS(tset)*60+MINUTES(tset)<(currTs%86400)/60)) ||
 			((HOURS(trise_actual)*60+MINUTES(trise_actual)>(currTs%86400)/60))) {
-		//The sun is down
-		if (strcmp(l->name,l->nightname)) {
-		    navit_set_layout_by_name(n,l->nightname);
-		}
+	    	//The sun is down
+	    	if (strcmp(l->name,l->nightname)) {
+	    		navit_set_layout_by_name(n,l->nightname);
+	    	}
 	    }	
 	}
 	
@@ -3409,7 +3411,7 @@ static void navit_cmd_switch_layout_day_night(struct navit *this_, char *functio
 		return;
 	}
 
-	dbg(lvl_debug," called with mode =%s\n",in[0]->u.str);
+	dbg(0," called with mode =%s\n",in[0]->u.str);
 
 	if (!this_->layout_current)
 		return;
@@ -3418,10 +3420,15 @@ static void navit_cmd_switch_layout_day_night(struct navit *this_, char *functio
     	return;
 
     if (!strcmp(in[0]->u.str,"manual")){
-    	this_->layout_current->auto_switch = FALSE;
+    	this_->auto_switch = FALSE;
 	}
+
+    // dat nieuw navit attr moet wel nog geinit worden in navit new of zo
+
+    // lijkt nu een toggle te doen s'avonds
+
     else if (!strcmp(in[0]->u.str,"auto")){
-    	this_->layout_current->auto_switch = TRUE;
+    	this_->auto_switch = TRUE;
     	this_->prevTs = 0;
     	navit_layout_switch(this_);
     }
@@ -3429,27 +3436,27 @@ static void navit_cmd_switch_layout_day_night(struct navit *this_, char *functio
     else if (!strcmp(in[0]->u.str,"manual_toggle")){
     	if (this_->layout_current->dayname) {
     		navit_set_layout_by_name(this_,this_->layout_current->dayname);
-    		this_->layout_current->auto_switch = FALSE;
+    		this_->auto_switch = FALSE;
     		dbg(lvl_debug,"toggeled layout to = %s\n",this_->layout_current->name);
     	}
     	else if (this_->layout_current->nightname) {
     		navit_set_layout_by_name(this_,this_->layout_current->nightname);
-    		this_->layout_current->auto_switch = FALSE;
+    		this_->auto_switch = FALSE;
     		dbg(lvl_debug,"toggeled layout to = %s\n",this_->layout_current->name);
     	}
     }
     else if (!strcmp(in[0]->u.str,"manual_day") && this_->layout_current->dayname){
     	navit_set_layout_by_name(this_,this_->layout_current->dayname);
-    	this_->layout_current->auto_switch = FALSE;
+    	this_->auto_switch = FALSE;
     	dbg(lvl_debug,"switched layout to = %s\n",this_->layout_current->name);
     }
     else if (!strcmp(in[0]->u.str,"manual_night") && this_->layout_current->nightname){
         navit_set_layout_by_name(this_,this_->layout_current->nightname);
-        this_->layout_current->auto_switch = FALSE;
+        this_->auto_switch = FALSE;
         dbg(lvl_debug,"switched layout to = %s\n",this_->layout_current->name);
     }
 
-    dbg(lvl_debug,"auto = %i\n",this_->layout_current->auto_switch);
+    dbg(lvl_debug,"auto = %i\n",this_->auto_switch);
     return;
 
 }
