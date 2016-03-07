@@ -759,7 +759,7 @@ static GHashTable *cmd_attr_var_hash = NULL;
  * Store key value pair for the  command system (for int typed values)
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attributes in[0] is the key string, in[1] is the integer value to store
  * @param out output attributes, unused 
  * @param valid unused 
@@ -788,7 +788,7 @@ navit_cmd_set_int_var(struct navit *this, char *function, struct attr **in, stru
  * Store key value pair for the  command system (for attr typed values, can be used as opaque handles)
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attributes in[0] is the key string, in[1] is the attr* value to store
  * @param out output attributes, unused 
  * @param valid unused 
@@ -819,7 +819,7 @@ navit_cmd_set_attr_var(struct navit *this, char *function, struct attr **in, str
  * command to toggle the active state of a named layer of the current layout
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attribute in[0] is the name of the layer
  * @param out output unused
  * @param valid unused 
@@ -848,7 +848,7 @@ navit_cmd_toggle_layer(struct navit *this, char *function, struct attr **in, str
  * adds an item with the current coordinate of the vehicle to a named map
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attribute in[0] is the name of the map 
  * @param out output attribute, 0 on error or the id of the created item on success
  * @param valid unused 
@@ -939,7 +939,7 @@ navit_cmd_map_add_curr_pos(struct navit *this, char *function, struct attr **in,
  * sets an attribute (name value pair) of a map item specified by map name and item id
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attribute in[0] - name of the map  ; in[1] - item  ; in[2] - attr name ; in[3] - attr value
  * @param out output attribute, 0 on error, 1 on success
  * @param valid unused 
@@ -1004,7 +1004,7 @@ navit_cmd_map_item_set_attr(struct navit *this, char *function, struct attr **in
  * Get attr variable given a key string for the command system (for opaque usage)
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attribute in[0] is the key string
  * @param out output attribute, the attr for the given key string if exists or NULL  
  * @param valid unused 
@@ -1042,7 +1042,7 @@ navit_cmd_get_attr_var(struct navit *this, char *function, struct attr **in, str
  * Get value given a key string for the command system
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attribute in[0] is the key string
  * @param out output attribute, the value for the given key string if exists or 0  
  * @param valid unused 
@@ -1081,7 +1081,7 @@ GList *cmd_int_var_stack = NULL;
  * Push an integer to the stack for the command system
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attribute in[0] is the integer attibute to push
  * @param out output attributes, unused 
  * @param valid unused 
@@ -1101,7 +1101,7 @@ navit_cmd_push_int(struct navit *this, char *function, struct attr **in, struct 
  * Pop an integer from the command system's integer stack
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attributes unused
  * @param out output attribute, the value popped if stack isn't empty or 0
  * @param valid unused 
@@ -1129,7 +1129,7 @@ navit_cmd_pop_int(struct navit *this, char *function, struct attr **in, struct a
  * Get current size of command system's integer stack
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attributes unused
  * @param out output attribute, the size of stack
  * @param valid unused 
@@ -1254,7 +1254,7 @@ navit_cmd_fmt_coordinates(struct navit *this, char *function, struct attr **in, 
  * Join several string attributes into one
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attributes in[0] - separator, in[1..] - attributes to join
  * @param out output attribute joined attribute as string
  * @param valid unused 
@@ -1291,7 +1291,7 @@ navit_cmd_strjoin(struct navit *this, char *function, struct attr **in, struct a
  * Call external program
  *
  * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
+ * @param function unused (needed to match command function signature)
  * @param in input attributes in[0] - name of executable, in[1..] - parameters
  * @param out output attribute unused
  * @param valid unused 
@@ -3337,13 +3337,19 @@ navit_layout_switch(struct navit *n)
 		currTs=iso8601_to_secs(iso8601_attr.u.str);
 		dbg(0,"currTs: %u:%u\n",currTs%86400/3600,((currTs%86400)%3600)/60);
 	}
-	dbg(0,"prevTs: %u:%u\n",n->prevTs%86400/3600,((n->prevTs%86400)%3600)/60);
-	if (currTs-(n->prevTs)<60) {
-		//We've have to wait a little
-		return;
-	}
+
+
+	dbg(lvl_debug,"prevTs: %u:%u\n",n->prevTs%86400/3600,((n->prevTs%86400)%3600)/60);
+
 	if (n->auto_switch == FALSE)
 		return;
+
+	if (currTs-(n->prevTs)<60) {
+			//We've have to wait a little
+			return;
+		}
+
+
 	if (sscanf(iso8601_attr.u.str,"%d-%02d-%02dT",&year,&month,&day) != 3)
 		return;
 	if (vehicle_get_attr(n->vehicle->vehicle, attr_position_valid, &valid_attr,NULL) && valid_attr.u.num==attr_position_valid_invalid) {
@@ -3393,9 +3399,9 @@ navit_layout_switch(struct navit *n)
 /**
  * @brief this command is used to change the layout and enable/disable the automatic layout switcher
  *
- * @param navit The navit instance
- * @param function unused (needed to match command function signiture)
- * @param in input attributes in[0] - name of executable, in[1..] - parameters
+ * @param this_ The navit instance
+ * @param function unused
+ * @param in input attributes in[0]
  * @param out output attribute unused
  * @param valid unused
  *
