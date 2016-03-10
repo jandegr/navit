@@ -63,7 +63,7 @@ public class NavitGraphics
 	Activity                         activity;
 
 	public static Boolean            in_map            = false;
-
+	private final static String	 TAG 		   = "NavitGraphics"; 
 	// for menu key
 	private static long              time_for_long_press               = 300L;
 	private static long              interval_for_long_press           = 200L;
