@@ -23,7 +23,12 @@
 	<string name="optionsmenu_toggle_poi">Toggle POIs</string>
 	<string name="optionsmenu_exit_navit">Exit Navit</string>
 	<string name="optionsmenu_backup_restore">Backup / Restore</string>
-	<string name="optionsmenu_set_map_location">Set map location</string>
+	<string name="settings">settings</string>
+	<string name="action_zoom_to_route">zoom to route</string>
+	<string name="action_stop_navigation">stop navigation</string>
+	<string name="optionsmenu_set_maplocation">set map location</string>
+	<string name="action_toggle_layout">toggle day/night layout</string>
+	<string name="action_enable_auto_layout">enable auto day/night layout</string>
 	
 	<!-- POSITION POP-UP -->
 	<string name="position_popup_title">Position</string>
@@ -76,5 +81,10 @@
 	<!-- TTS -->
 	<string name="TTS_title_data_missing">System text to speech engine data is missing</string>
 	<string name="TTS_qery_install_data">Navit can use any text to speech engine installed on your device. The currently selected engine reports it is unable to speak in your language. Should we ask the system to show voice download dialog?</string>
+	<string name="optionsmenu_search">search</string>
+	
+	
 </resources>
+
+
 
