@@ -21,9 +21,12 @@
 #include "start_real.h"
 #include "track.h"
 
+JNIEnv *jnienv_t;
 JNIEnv *jnienv;
+JNIEnv *jnienv2;
 jobject *android_activity;
 int android_version;
+JavaVM *cachedJVM = NULL;
 
 struct android_search_priv
 {
@@ -38,22 +41,45 @@ struct android_search_priv
 	int found;
 };
 
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *aVm, void *aReserved)
+{
+	cachedJVM = aVm;
+	if ((*aVm)->GetEnv(aVm,(void**)&jnienv, JNI_VERSION_1_6) != JNI_OK)
+	 {
+	  dbg(lvl_error,"Failed to get the environment");
+	  return -1;
+	 }
+		dbg(lvl_debug,"Found the environment");
+	return JNI_VERSION_1_6;
+}
+
+
+JNIEnv* jni_getenv()
+{
+	JNIEnv* env_this;
+	(*cachedJVM)->GetEnv(cachedJVM, (void**) &env_this, JNI_VERSION_1_6);
+	return env_this;
+}
+
+
 int
 android_find_class_global(char *name, jclass *ret)
 {
-	*ret=(*jnienv)->FindClass(jnienv, name);
+	jnienv2 = jni_getenv();
+	*ret=(*jnienv2)->FindClass(jnienv2, name);
 	if (! *ret) {
 		dbg(lvl_error,"Failed to get Class %s\n",name);
 		return 0;
 	}
-	*ret = (*jnienv)->NewGlobalRef(jnienv, *ret);
+	*ret = (*jnienv2)->NewGlobalRef(jnienv2, *ret);
 	return 1;
 }
 
 int
 android_find_method(jclass class, char *name, char *args, jmethodID *ret)
 {
-	*ret = (*jnienv)->GetMethodID(jnienv, class, name, args);
+	jnienv2 = jni_getenv();
+	*ret = (*jnienv2)->GetMethodID(jnienv2, class, name, args);
 	if (*ret == NULL) {
 		dbg(lvl_error,"Failed to get Method %s with signature %s\n",name,args);
 		return 0;
@@ -65,7 +91,8 @@ android_find_method(jclass class, char *name, char *args, jmethodID *ret)
 int
 android_find_static_method(jclass class, char *name, char *args, jmethodID *ret)
 {
-	*ret = (*jnienv)->GetStaticMethodID(jnienv, class, name, args);
+	jnienv2 = jni_getenv();
+	*ret = (*jnienv2)->GetStaticMethodID(jnienv2, class, name, args);
 	if (*ret == NULL) {
 		dbg(lvl_error,"Failed to get static Method %s with signature %s\n",name,args);
 		return 0;
@@ -74,15 +101,15 @@ android_find_static_method(jclass class, char *name, char *args, jmethodID *ret)
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_Navit_NavitMain( JNIEnv* env, jobject thiz, jobject activity, jobject lang, int version, jobject display_density_string, jobject path,  jobject map_path)
+Java_org_navitproject_navit_Navit_NavitMain( JNIEnv* env, jobject thiz, jobject activity, jobject lang, int version, jobject display_density_string, jobject path, jobject map_path)
 {
 	const char *langstr;
 	const char *displaydensitystr;
-	const char *map_file_path;
+	const char *map_filename_path;
 	android_version=version;
 	__android_log_print(ANDROID_LOG_ERROR,"test","called");
-	jnienv=env;
-	android_activity = (*jnienv)->NewGlobalRef(jnienv, activity);
+	jnienv_t=env;
+	android_activity = (*env)->NewGlobalRef(env, activity);
 	langstr=(*env)->GetStringUTFChars(env, lang, NULL);
 	dbg(lvl_debug,"enter env=%p thiz=%p activity=%p lang=%s version=%d\n",env,thiz,android_activity,langstr,version);
 	setenv("LANG",langstr,1);
@@ -93,9 +120,9 @@ Java_org_navitproject_navit_Navit_NavitMain( JNIEnv* env, jobject thiz, jobject 
 	setenv("ANDROID_DENSITY",displaydensitystr,1);
 	(*env)->ReleaseStringUTFChars(env, display_density_string, displaydensitystr);
 
-	map_file_path=(*env)->GetStringUTFChars(env, map_path, NULL); 
-	setenv("NAVIT_USER_DATADIR",map_file_path,1); 
-	(*env)->ReleaseStringUTFChars(env, display_density_string, map_file_path); 
+	map_filename_path=(*env)->GetStringUTFChars(env, map_path, NULL);
+	setenv("MAP_FILENAME_PATH",map_filename_path,1);
+	(*env)->ReleaseStringUTFChars(env, display_density_string, map_filename_path);
 
 	const char *strings=(*env)->GetStringUTFChars(env, path, NULL);
 	main_real(1, &strings);
@@ -139,7 +166,7 @@ Java_org_navitproject_navit_NavitGraphics_KeypressCallback( JNIEnv* env, jobject
 	const char *s;
 	dbg(lvl_debug,"enter %p %p\n",(struct callback *)id,str);
 	s=(*env)->GetStringUTFChars(env, str, NULL);
-	dbg(lvl_debug,"key=%d",s);
+	dbg(lvl_debug,"key=%s",s);
 	if (id)
 		callback_call_1((struct callback *)id,s);
 	(*env)->ReleaseStringUTFChars(env, str, s);
@@ -214,10 +241,8 @@ Java_org_navitproject_navit_NavitGraphics_CallbackLocalizedString( JNIEnv* env, 
 	const char *localized_str;
 
 	s=(*env)->GetStringUTFChars(env, str, NULL);
-	//dbg(lvl_debug,"*****string=%s\n",s);
 
 	localized_str=navit_nls_gettext(s);
-	//dbg(lvl_debug,"localized string=%s",localized_str);
 
 	// jstring dataStringValue = (jstring) localized_str;
 	jstring js = (*env)->NewStringUTF(env,localized_str);
@@ -227,12 +252,11 @@ Java_org_navitproject_navit_NavitGraphics_CallbackLocalizedString( JNIEnv* env, 
 	return js;
 }
 
-JNIEXPORT jint JNICALL
+JNIEXPORT jobject JNICALL
 Java_org_navitproject_navit_NavitGraphics_CallbackMessageChannel( JNIEnv* env, jobject thiz, int channel, jobject str)
 {
 	struct attr attr;
 	const char *s;
-	jint ret = 0;
 	dbg(lvl_debug,"enter %d %p\n",channel,str);
 
 	config_get_attr(config_get(), attr_navit, &attr, NULL);
@@ -248,6 +272,101 @@ Java_org_navitproject_navit_NavitGraphics_CallbackMessageChannel( JNIEnv* env, j
 		// zoom out
 		navit_zoom_out_cursor(attr.u.navit, 2);
 		navit_draw(attr.u.navit);
+		break;
+	case 3:
+		{
+			// navigate to geo position
+			char *name;
+			s=(*env)->GetStringUTFChars(env, str, NULL);
+			char parse_str[strlen(s) + 1];
+			strcpy(parse_str, s);
+			(*env)->ReleaseStringUTFChars(env, str, s);
+			dbg(lvl_error,"*****string=%s\n",s);
+
+			// passing an empty string cancels navigation
+			if (strlen(parse_str) == 0){
+				navit_set_destination(attr.u.navit, NULL, NULL, 0);
+			}
+			else {
+				// set destination to (lat#lon#title)
+				struct coord_geo g;
+				char *p;
+				char *stopstring;
+
+				// lat
+				p = strtok (parse_str,"#");
+				g.lat = strtof(p, &stopstring);
+				// lon
+				p = strtok (NULL, "#");
+				g.lng = strtof(p, &stopstring);
+				// description
+				name = strtok (NULL, "#");
+
+				dbg(lvl_error,"lat=%f\n",g.lat);
+				dbg(lvl_error,"lng=%f\n",g.lng);
+				dbg(lvl_error,"str1=%s\n",name);
+
+				struct coord c;
+				transform_from_geo(projection_mg, &g, &c);
+
+				struct pcoord pc;
+				pc.x=c.x;
+				pc.y=c.y;
+				pc.pro=projection_mg;
+
+				// start navigation asynchronous
+				navit_set_destination(attr.u.navit, &pc, name, TRUE);
+			}
+		}
+		break;
+	case 4:
+		{
+			// navigate to display position
+			char *pstr;
+			struct point p;
+			struct coord c;
+			struct pcoord pc;
+
+			struct transformation *transform=navit_get_trans(attr.u.navit);
+
+			s=(*env)->GetStringUTFChars(env, str, NULL);
+			char parse_str[strlen(s) + 1];
+			strcpy(parse_str, s);
+			(*env)->ReleaseStringUTFChars(env, str, s);
+			dbg(lvl_debug,"*****string=%s\n",parse_str);
+
+			// set destination to (pixel-x#pixel-y)
+			// pixel-x
+			pstr = strtok (parse_str,"#");
+			p.x = atoi(pstr);
+			// pixel-y
+			pstr = strtok (NULL, "#");
+			p.y = atoi(pstr);
+
+			dbg(lvl_debug,"11x=%d\n",p.x);
+			dbg(lvl_debug,"11y=%d\n",p.y);
+
+			transform_reverse(transform, &p, &c);
+
+
+			pc.x = c.x;
+			pc.y = c.y;
+			pc.pro = transform_get_projection(transform);
+
+			dbg(lvl_debug,"22x=%d\n",pc.x);
+			dbg(lvl_debug,"22y=%d\n",pc.y);
+
+			// start navigation asynchronous
+			navit_set_destination(attr.u.navit, &pc, parse_str, TRUE);
+		}
+		break;
+
+	case 5:
+		// call a command (like in gui)
+		s=(*env)->GetStringUTFChars(env, str, NULL);
+		dbg(lvl_debug,"*****string=%s\n",s);
+		command_evaluate(&attr,s);
+		(*env)->ReleaseStringUTFChars(env, str, s);
 		break;
 	case 6: // add a map to the current mapset, return 1 on success
 	{
@@ -271,130 +390,42 @@ Java_org_navitproject_navit_NavitGraphics_CallbackMessageChannel( JNIEnv* env, j
 			struct attr map_a;
 			map_a.type=attr_map;
 			map_a.u.map=new_map;
-			ret = mapset_add_attr(ms, &map_a);
+			mapset_add_attr(ms, &map_a);
 			navit_draw(attr.u.navit);
 		}
 		(*env)->ReleaseStringUTFChars(env, str, map_location);
 	}
 	break;
-	case 7: // remove a map to the current mapset, return 1 on success
+	case 7: // remove a map from the current mapset
 	{
 		struct mapset *ms = navit_get_mapset(attr.u.navit);
 		struct attr map_r;
 		const char *map_location=(*env)->GetStringUTFChars(env, str, NULL);
 		struct map * delete_map = mapset_get_map_by_name(ms, map_location);
-
 		if (delete_map)
 		{
 			dbg(lvl_debug,"delete map %s (%p)", map_location, delete_map);
 			map_r.type=attr_map;
 			map_r.u.map=delete_map;
-			ret = mapset_remove_attr(ms, &map_r);
+			mapset_remove_attr(ms, &map_r);
 			navit_draw(attr.u.navit);
 		}
 		(*env)->ReleaseStringUTFChars(env, str, map_location);
 	}
 	break;
-	case 5:
-		// call a command (like in gui)
-		s=(*env)->GetStringUTFChars(env, str, NULL);
-		dbg(lvl_debug,"*****string=%s\n",s);
-		command_evaluate(&attr,s);
-		(*env)->ReleaseStringUTFChars(env, str, s);
+	case 8:
+		navit_block(attr.u.navit, 1);
+	break;
+	case 9:
+		navit_block(attr.u.navit, 0);
 		break;
-	case 4:
-	{
-		// navigate to display position
-		char *pstr;
-		struct point p;
-		struct coord c;
-		struct pcoord pc;
 
-		struct transformation *transform=navit_get_trans(attr.u.navit);
-
-		s=(*env)->GetStringUTFChars(env, str, NULL);
-		char parse_str[strlen(s) + 1];
-		strcpy(parse_str, s);
-		(*env)->ReleaseStringUTFChars(env, str, s);
-		dbg(lvl_debug,"*****string=%s\n",parse_str);
-
-		// set destination to (pixel-x#pixel-y)
-		// pixel-x
-		pstr = strtok (parse_str,"#");
-		p.x = atoi(pstr);
-		// pixel-y
-		pstr = strtok (NULL, "#");
-		p.y = atoi(pstr);
-
-		dbg(lvl_debug,"11x=%d\n",p.x);
-		dbg(lvl_debug,"11y=%d\n",p.y);
-
-		transform_reverse(transform, &p, &c);
-
-
-		pc.x = c.x;
-		pc.y = c.y;
-		pc.pro = transform_get_projection(transform);
-
-		dbg(lvl_debug,"22x=%d\n",pc.x);
-		dbg(lvl_debug,"22y=%d\n",pc.y);
-
-		// start navigation asynchronous
-		navit_set_destination(attr.u.navit, &pc, parse_str, 1);
-	}
-	break;
-	case 3:
-	{
-		// navigate to geo position
-		char *name;
-		s=(*env)->GetStringUTFChars(env, str, NULL);
-		char parse_str[strlen(s) + 1];
-		strcpy(parse_str, s);
-		(*env)->ReleaseStringUTFChars(env, str, s);
-		dbg(lvl_debug,"*****string=%s\n",s);
-		
-		//passing an empty string cancels navigation
-		if (strlen(parse_str) == 0){
-			navit_set_destination(attr.u.navit, NULL, NULL, 0);
-		}
-		else {
-			// set destination to (lat#lon#title)
-			struct coord_geo g;
-			char *p;
-			char *stopstring;
-
-			// lat
-			p = strtok (parse_str,"#");
-			g.lat = strtof(p, &stopstring);
-			// lon
-			p = strtok (NULL, "#");
-			g.lng = strtof(p, &stopstring);
-			// description
-			name = strtok (NULL, "#");
-
-			dbg(lvl_debug,"lat=%f\n",g.lat);
-			dbg(lvl_debug,"lng=%f\n",g.lng);
-			dbg(lvl_debug,"str1=%s\n",name);
-
-			struct coord c;
-			transform_from_geo(projection_mg, &g, &c);
-
-			struct pcoord pc;
-			pc.x=c.x;
-			pc.y=c.y;
-			pc.pro=projection_mg;
-
-			// start navigation asynchronous
-			navit_set_destination(attr.u.navit, &pc, name, 1);
-		}
-
-	}
-	break;
 	default:
 		dbg(lvl_error, "Unknown command: %d", channel);
+		break;
 	}
 
-	return ret;
+	return NULL;
 }
 
 JNIEXPORT jstring JNICALL
@@ -406,7 +437,7 @@ Java_org_navitproject_navit_NavitGraphics_GetDefaultCountry( JNIEnv* env, jobjec
 	jstring return_string = NULL;
 
 	struct attr attr;
-	dbg(lvl_debug,"enter %d %p\n",channel,str);
+	dbg(0,"enter %d %p\n",channel,str);
 
 	config_get_attr(config_get(), attr_navit, &attr, NULL);
 
@@ -421,12 +452,12 @@ Java_org_navitproject_navit_NavitGraphics_GetDefaultCountry( JNIEnv* env, jobjec
 			struct mapset *ms=navit_get_mapset(attr.u.navit);
 			struct search_list *search_list = search_list_new(ms);
 			search_attr.type=attr_country_all;
-			dbg(lvl_debug,"country %s\n", country_name.u.str);
+			dbg(0,"country %s\n", country_name.u.str);
 			search_attr.u.str=country_name.u.str;
 			search_list_search(search_list, &search_attr, 0);
 			while((res=search_list_get_result(search_list)))
 			{
-				dbg(lvl_debug,"Get result: %s\n", res->country->iso2);
+				dbg(0,"Get result: %s\n", res->country->iso2);
 			}
 			if (item_attr_get(item, attr_country_iso2, &country_iso2))
 				return_string = (*env)->NewStringUTF(env,country_iso2.u.str);
@@ -540,7 +571,7 @@ town_str(struct search_list_result *res, int level)
 	char *postal_sep=" ";
 	char *district_begin=" (";
 	char *district_end=")";
-	char *county_sep = ", Co. ";
+	char *county_sep = " ";
 	char *county = res->town->common.county_name;
 	if (!postal)
 		postal_sep=postal="";
