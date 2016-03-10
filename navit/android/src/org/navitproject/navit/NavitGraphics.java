@@ -747,9 +747,10 @@ public class NavitGraphics
 		parent_graphics = parent;
 	}
 
-	static public enum msg_type {
+		static public enum msg_type {
 		CLB_ZOOM_IN, CLB_ZOOM_OUT, CLB_REDRAW, CLB_MOVE, CLB_BUTTON_UP, CLB_BUTTON_DOWN, CLB_SET_DESTINATION
 		, CLB_SET_DISPLAY_DESTINATION, CLB_CALL_CMD, CLB_COUNTRY_CHOOSER, CLB_LOAD_MAP, CLB_UNLOAD_MAP, CLB_DELETE_MAP
+		,CLB_ABORT_NAVIGATION, CLB_BLOCK, CLB_UNBLOCK
 	};
 
 	static public msg_type[] msg_values = msg_type.values();
@@ -766,8 +767,10 @@ public class NavitGraphics
 				case CLB_ZOOM_OUT:
 					CallbackMessageChannel(2, "");
 					break;
+				case CLB_REDRAW:
+					break;
 				case CLB_MOVE:
-					MotionCallback(MotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
+//					MotionCallback(MotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
 					break;
 				case CLB_SET_DESTINATION:
 					String lat = Float.toString(msg.getData().getFloat("lat"));
@@ -776,36 +779,55 @@ public class NavitGraphics
 					CallbackMessageChannel(3, lat + "#" + lon + "#" + q);
 					break;
 				case CLB_SET_DISPLAY_DESTINATION:
+					Log.e("TAG","CLB_SET_DISPLAY_DESTINATION");
 					int x = msg.arg1;
 					int y = msg.arg2;
 					CallbackMessageChannel(4, "" + x + "#" + y);
+					Log.e(TAG,("" + x + "#" + y));
+					// weet niet of dit wel werkt
 					break;
 				case CLB_CALL_CMD:
 					String cmd = msg.getData().getString(("cmd"));
 					CallbackMessageChannel(5, cmd);
+					Log.w(TAG,"CLB_CALL_CMD "+cmd);
 					break;
 				case CLB_BUTTON_UP:
-					ButtonCallback(ButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // up
+//					ButtonCallback(ButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // up
 					break;
 				case CLB_BUTTON_DOWN:
-					ButtonCallback(ButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // down
+//					ButtonCallback(ButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // down
 					break;
 				case CLB_COUNTRY_CHOOSER:
 					break;
+				case CLB_ABORT_NAVIGATION:
+					CallbackMessageChannel(3, "");
+					break;
 				case CLB_LOAD_MAP:
-					CallbackMessageChannel(6, msg.getData().getString(("title")));
+					Integer ret = CallbackMessageChannel(6, msg.getData().getString(("title")));
+					Log.e(TAG,"callBackRet = " + ret);
 					break;
 				case CLB_DELETE_MAP:
 					File toDelete = new File( msg.getData().getString(("title")));
+					Log.e("deletefile",""+toDelete.getPath()+" "+toDelete.getName());
 					toDelete.delete();
 				//fallthrough
 				case CLB_UNLOAD_MAP:
+					Log.e(TAG,"CLB_UNLOAD_MAP");
 					CallbackMessageChannel(7, msg.getData().getString(("title")));
+					break;
+				case CLB_BLOCK:
+					Log.e(TAG,"CLB_BLOCK");
+					CallbackMessageChannel(8,"");
+					break;
+				case CLB_UNBLOCK:
+					Log.e(TAG,"CLB_UNBLOCK");
+					CallbackMessageChannel(9,"");
+					break;
+				default:
 					break;
 				}
 			}
 		};
-
 	public native void SizeChangedCallback(int id, int x, int y);
 	public native void KeypressCallback(int id, String s);
 	public native int CallbackMessageChannel(int i, String s);
