@@ -437,7 +437,7 @@ Java_org_navitproject_navit_NavitGraphics_GetDefaultCountry( JNIEnv* env, jobjec
 	jstring return_string = NULL;
 
 	struct attr attr;
-	dbg(0,"enter %d %p\n",channel,str);
+	dbg(lvl_debug,"enter %d %p\n",channel,str);
 
 	config_get_attr(config_get(), attr_navit, &attr, NULL);
 
@@ -452,12 +452,12 @@ Java_org_navitproject_navit_NavitGraphics_GetDefaultCountry( JNIEnv* env, jobjec
 			struct mapset *ms=navit_get_mapset(attr.u.navit);
 			struct search_list *search_list = search_list_new(ms);
 			search_attr.type=attr_country_all;
-			dbg(0,"country %s\n", country_name.u.str);
+			dbg(lvl_debug,"country %s\n", country_name.u.str);
 			search_attr.u.str=country_name.u.str;
 			search_list_search(search_list, &search_attr, 0);
 			while((res=search_list_get_result(search_list)))
 			{
-				dbg(0,"Get result: %s\n", res->country->iso2);
+				dbg(lvl_debug,"Get result: %s\n", res->country->iso2);
 			}
 			if (item_attr_get(item, attr_country_iso2, &country_iso2))
 				return_string = (*env)->NewStringUTF(env,country_iso2.u.str);
