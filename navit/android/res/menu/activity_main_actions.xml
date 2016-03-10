@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/item1"
@@ -7,8 +8,11 @@
 	</item>
 	<item android:id="@+id/action_zoom_to_route"
 	      android:title="@string/action_zoom_to_route" 
-	      android:showAsAction="never">
-	     
+	      android:showAsAction="never">     
+	</item>
+	<item android:id="@+id/action_stop_navigation" 
+	    android:title="@string/action_stop_navigation" 
+	    android:showAsAction="never">	    
 	</item>
 	<item android:title="@string/optionsmenu_download_maps" 
 	      android:showAsAction="never" 
@@ -24,6 +28,10 @@
 	</item>
 	<item android:id="@+id/optionsmenu_address_search" 
    	      android:showAsAction="ifRoom" 
-	      android:title="R.string.optionsmenu_address_search" 
-	      android:icon="@android:drawable/ic_menu_search"></item>
+	      android:title="@string/optionsmenu_address_search" android:icon="@android:drawable/ic_menu_search"> 
+	</item>
+	<item android:id="@+id/action_toggle_layout" android:title="@string/action_toggle_layout" android:showAsAction="never"></item>
+	<item android:id="@+id/action_enable_auto_layout" android:title="@string/action_enable_auto_layout" android:showAsAction="never"></item>	
 </menu>
+
+
