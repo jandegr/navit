@@ -73,6 +73,7 @@ struct coord coord_buffer[MAX_COORD_COUNT];
 
 struct attr_mapping {
 	enum item_type type;
+	int flag;
 	int attr_present_idx_count;
 	int attr_present_idx[0];
 };
@@ -106,6 +107,8 @@ enum attr_strings_type {
 	attr_string_ref,
 	attr_string_exit_to,
 	attr_string_street_destination,
+	attr_string_street_destination_forward,
+	attr_string_street_destination_backward,
 	attr_string_house_number,
 	attr_string_label,
 	attr_string_postal,
@@ -146,7 +149,7 @@ struct country_table {
 	{ 31,"Azerbaijan"},
 	{ 32,"Argentina,República Argentina,AR "},
 	{ 36,"Australia,AUS"},
-	{ 40,"Austria,Österreich,AUT"},
+	{ 40,"Austria,Österreich,AUT","3s567M"},
 	{ 44,"Bahamas"},
 	{ 48,"Bahrain"},
 	{ 50,"Bangladesh"},
@@ -262,7 +265,7 @@ struct country_table {
 	{ 434,"Libyan Arab Jamahiriya"},
 	{ 438,"Liechtenstein"},
  	{ 440,"Lithuania,Lietuva"},
-	{ 442,"Luxembourg"},
+	{ 442,"Luxembourg","3s5c7M"},
 	{ 446,"Macao"},
 	{ 450,"Madagascar"},
 	{ 454,"Malawi"},
@@ -394,7 +397,7 @@ struct country_table {
 //   otherwise - nodes
 
 static char *attrmap={
-	"n	*=*			point_unkn\n"
+//	"n	*=*			point_unkn\n"
 //	"n	Annehmlichkeit=Hochsitz	poi_hunting_stand\n"
 	"?	addr:housenumber=*	house_number\n"
 	"?	aeroway=aerodrome	poi_airport\n"
@@ -413,10 +416,10 @@ static char *attrmap={
 	"?	amenity=car_sharing	poi_car_sharing\n"
 	"?	amenity=car_wash	poi_car_wash\n"
 	"?	amenity=cinema		poi_cinema\n"
-	"?	amenity=college		poi_school_college\n"
+ 	"?	amenity=college		poi_school_college\n"
 	"?	amenity=courthouse	poi_justice\n"
 	"?	amenity=drinking_water	poi_potable_water\n"
-	"?	amenity=fast_food	poi_fastfood\n"
+ 	"?	amenity=fast_food	poi_fastfood\n"
 	"?	amenity=fire_station	poi_firebrigade\n"
 	"?	amenity=fountain	poi_fountain\n"
 	"?	amenity=fuel		poi_fuel\n"
@@ -434,7 +437,7 @@ static char *attrmap={
 	"?	amenity=police		poi_police\n"
 	"?	amenity=post_box	poi_post_box\n"
 	"?	amenity=post_office	poi_post_office\n"
-	"?	amenity=prison		poi_prison\n"
+ 	"?	amenity=prison		poi_prison\n"
 	"?	amenity=pub		poi_pub\n"
 	"?	amenity=public_building	poi_public_office\n"
 	"?	amenity=recycling	poi_recycling\n"
@@ -450,13 +453,23 @@ static char *attrmap={
 	"?	amenity=townhall	poi_townhall\n"
 	"?	amenity=university	poi_school_university\n"
 	"?	amenity=vending_machine	poi_vending_machine\n"
-	"n	barrier=bollard		barrier_bollard\n"
-	"n	barrier=cycle_barrier	barrier_cycle\n"
-	"n	barrier=lift_gate	barrier_lift_gate\n"
+	"n	barrier=blocks			barrier_blocks\n"
+	"n	barrier=bollard			barrier_bollard\n"
+	"n	barrier=cycle_barrier		barrier_cycle\n"
+	"n	barrier=motorcycle_barrier	barrier_motorcycle\n"
+	"n	barrier=jersey_barrier		barrier_jersey\n"
+	"n	barrier=lift_gate		barrier_lift_gate\n"
+	"n	barrier=gate			barrier_gate\n"
+	"n	barrier=swing_gate		barrier_swing_gate\n"
+	"n	barrier=kissing_gate		barrier_kissing_gate\n"
+	"n	barrier=stile			barrier_stile\n"
+	"n	barrier=turnstile		barrier_stile\n"
+	"n	barrier=full-height_turnstile	barrier_stile\n"
+	"n	barrier=horse_stile		barrier_stile\n"
 	"?	car=car_rental		poi_car_rent\n"
 	"?	highway=bus_station	poi_bus_station\n"
 	"?	highway=bus_stop	poi_bus_stop\n"
-	"n	highway=mini_roundabout	mini_roundabout\n"
+	"n	highway=mini_roundabout	mini_roundabout\n" 
 	"n	highway=motorway_junction	highway_exit\n"
 	"n	highway=stop		traffic_sign_stop\n"
 	"n	highway=toll_booth	poi_toll_booth\n"
@@ -467,7 +480,7 @@ static char *attrmap={
 	"?	historic=memorial	poi_memorial\n"
 	"?	historic=monument	poi_monument\n"
 	"?	historic=ruins		poi_ruins\n"
-//	"?	historic=*		poi_ruins\n"
+	"?	historic=*		poi_ruins\n"
 	"?	landuse=cemetery	poi_cemetery\n"
 	"?	leisure=fishing		poi_fish\n"
 	"?	leisure=golf_course	poi_golf\n"
@@ -483,7 +496,7 @@ static char *attrmap={
 	"?	military=danger_area	poi_danger_area\n"
 	"?	military=range		poi_military\n"
 	"?	natural=bay		poi_bay\n"
-	"?	natural=peak,ele=*		poi_peak\n"     // show only major peaks with elevation
+	"?	natural=peak,ele=*		poi_peak\n"
 	"?	natural=tree		poi_tree\n"
 	"n	place=city		town_label_2e5\n"
 	"n	place=hamlet		town_label_2e2\n"
@@ -493,9 +506,9 @@ static char *attrmap={
 	"n	place=village		town_label_2e3\n"
 	"n	power=tower		power_tower\n"
 	"n	power=sub_station	power_substation\n"
-	"n	railway=halt		poi_rail_halt\n"
-	"n	railway=level_crossing	poi_level_crossing\n"
-	"?	railway=station		poi_rail_station\n"
+	"n	railway=halt		poi_rail_halt\n" 
+	"n	railway=level_crossing	poi_level_crossing\n" 
+	"?	railway=station		poi_rail_station\n" 
 	"?	railway=tram_stop	poi_rail_tram_stop\n"
 	"?	shop=baker		poi_shop_baker\n"
 	"?	shop=bakery		poi_shop_baker\n"
@@ -545,7 +558,7 @@ static char *attrmap={
 	"?	tourism=zoo		poi_zoo\n"
 	"n	traffic_sign=city_limit	traffic_sign_city_limit\n"
 	"n	highway=speed_camera	tec_common\n"
-	"w	*=*			street_unkn\n"
+//	"w	*=*			street_unkn\n"
 	"w	addr:interpolation=even	house_number_interpolation_even\n"
 	"w	addr:interpolation=odd	house_number_interpolation_odd\n"
 	"w	addr:interpolation=all	house_number_interpolation_all\n"
@@ -557,14 +570,15 @@ static char *attrmap={
 	"w	aeroway=apron		poly_apron\n"
 	"w	aeroway=runway		aeroway_runway\n"
 	"w	aeroway=taxiway		aeroway_taxiway\n"
-	"w	aeroway=terminal	poly_terminal\n"
-	"w	amenity=college		poly_college\n"
+	"w	aeroway=terminal	poly_terminal\n" 
+	"w	amenity=college		poly_college\n" 
 	"w	amenity=grave_yard	poly_cemetery\n"
 	"w	amenity=parking		poly_car_parking\n"
 	"w	amenity=place_of_worship	poly_building\n"
 	"w	amenity=university	poly_university\n"
 	"w	boundary=administrative,admin_level=2	border_country\n"
-	"w	boundary=civil		border_civil\n"
+	"w	boundary=administrative	border_civil\n"
+	"w	boundary=civil		border_civil\n" 
 	"w	boundary=national_park	border_national_park\n"
 	"w	boundary=political	border_political\n"
 	"w	building=*		poly_building\n"
@@ -601,32 +615,32 @@ static char *attrmap={
 	"w	highway=plaza				poly_plaza\n"
 	"w	highway=motorway			highway_land\n"
 	"w	highway=motorway,rural=0		highway_city\n"
-	"w	highway=motorway_link			ramp\n"
+	"w	highway=motorway_link			ramp,AF_LINK\n"
 	"w	highway=trunk				street_n_lanes\n"
-	"w	highway=trunk_link			ramp\n"
+	"w	highway=trunk_link			street_n_lanes,AF_LINK\n"
 	"w	highway=primary				street_4_land\n"
 	"w	highway=primary,name=*,rural=1		street_4_land\n"
 	"w	highway=primary,name=*			street_4_city\n"
 	"w	highway=primary,rural=0			street_4_city\n"
-	"w	highway=primary_link			ramp\n"
+	"w	highway=primary_link			street_4_city,AF_LINK\n" 
 	"w	highway=secondary			street_3_land\n"
 	"w	highway=secondary,name=*,rural=1	street_3_land\n"
 	"w	highway=secondary,name=*		street_3_city\n"
 	"w	highway=secondary,rural=0		street_3_city\n"
 	"w	highway=secondary,area=1		poly_street_3\n"
-	"w	highway=secondary_link			ramp\n"
+	"w	highway=secondary_link			street_3_city,AF_LINK\n"
 	"w	highway=tertiary			street_2_land\n"
 	"w	highway=tertiary,name=*,rural=1		street_2_land\n"
 	"w	highway=tertiary,name=*			street_2_city\n"
 	"w	highway=tertiary,rural=0		street_2_city\n"
 	"w	highway=tertiary,area=1			poly_street_2\n"
-	"w	highway=tertiary_link			ramp\n"
+	"w	highway=tertiary_link			street_2_city,AF_LINK\n"
 	"w	highway=residential			street_1_city\n"
 	"w	highway=residential,area=1		poly_street_1\n"
-	"w	highway=unclassified			street_1_city\n"
+	"w	highway=unclassified			street_1_land\n"
 	"w	highway=unclassified,area=1		poly_street_1\n"
-	"w	highway=road				street_1_city\n"
-	"w	highway=service				street_service\n"
+	"w	highway=road				street_0\n"
+	"w	highway=service				street_service,AF_THROUGH_TRAFFIC_LIMIT\n"
 	"w	highway=service,area=1			poly_service\n"
 	"w	highway=service,service=parking_aisle	street_parking_lane\n"
 	"w	highway=track				track_gravelled\n"
@@ -748,7 +762,7 @@ static char *attrmap={
 	"w	waterway=river		water_river\n"
 	"w	waterway=riverbank	poly_water\n"
 	"w	waterway=stream		water_stream\n"
-	"w	barrier=ditch	ditch\n"
+ 	"w	barrier=ditch	ditch\n"
 	"w	barrier=hedge	hedge\n"
 	"w	barrier=fence	fence\n"
 	"w	barrier=wall	wall\n"
@@ -759,7 +773,7 @@ static char *attrmap={
 static void
 build_attrmap_line(char *line)
 {
-	char *t=NULL,*kvl=NULL,*i=NULL,*p,*kv;
+	char *t=NULL,*kvl=NULL,*i=NULL,*p,*kv,*flagindex=NULL;
 	struct attr_mapping *attr_mapping=g_malloc0(sizeof(struct attr_mapping));
 	int idx,attr_mapping_count=0;
 	t=line;
@@ -782,6 +796,20 @@ build_attrmap_line(char *line)
 		if (! i)
 			i="point_unkn";
 	}
+	
+	flagindex= strrchr(i,',');
+	if (flagindex)
+	{
+		if (strstr(i,"AF_LINK"))
+			attr_mapping->flag = AF_LINK;
+		else
+		{
+			if (strstr(i,"AF_THROUGH_TRAFFIC_LIMIT"))
+				attr_mapping->flag = AF_THROUGH_TRAFFIC_LIMIT;
+		}
+		*flagindex='\0';
+	}
+	
 	attr_mapping->type=item_from_name(i);
 	if (!attr_mapping->type) {
 		printf("no id found for '%s'\n",i);
@@ -995,7 +1023,10 @@ osm_add_tag(char *k, char *v)
 		return;
 	}
 	if (! strcmp(k,"ele"))
+	{
+		attr_strings_save(attr_string_label, v);
 		level=9;
+	}
 	if (! strcmp(k,"time"))
 		level=9;
 	if (! strcmp(k,"created_by"))
@@ -1048,14 +1079,25 @@ osm_add_tag(char *k, char *v)
 			flagsa[access_value(v)] |= AF_DANGEROUS_GOODS|AF_EMERGENCY_VEHICLES|AF_TRANSPORT_TRUCK|AF_DELIVERY_TRUCK|AF_PUBLIC_BUS|AF_TAXI|AF_HIGH_OCCUPANCY_CAR|AF_CAR|AF_MOTORCYCLE|AF_MOPED|AF_HORSE|AF_BIKE|AF_PEDESTRIAN;
 		else
 			flags[0] |= AF_THROUGH_TRAFFIC_LIMIT;
+		if (! strcmp(v,"hov")) 	
+			flags[0] |= AF_HIGH_OCCUPANCY_CAR_ONLY;
 		level=5;
 	}
 	if (! strcmp(k,"vehicle")) {
-		flags[access_value(v)] |= AF_DANGEROUS_GOODS|AF_EMERGENCY_VEHICLES|AF_TRANSPORT_TRUCK|AF_DELIVERY_TRUCK|AF_PUBLIC_BUS|AF_TAXI|AF_HIGH_OCCUPANCY_CAR|AF_CAR|AF_MOTORCYCLE|AF_MOPED|AF_BIKE;
+		/*todo : find some way to make clear that the limitation is for cars only */
+		/* acces_value() has to be reviewed for destination as well */
+		if (! strcmp(v,"destination"))
+			flags[0] |= AF_THROUGH_TRAFFIC_LIMIT;
+		else
+			flags[access_value(v)] |= AF_DANGEROUS_GOODS|AF_EMERGENCY_VEHICLES|AF_TRANSPORT_TRUCK|AF_DELIVERY_TRUCK|AF_PUBLIC_BUS|AF_TAXI|AF_HIGH_OCCUPANCY_CAR|AF_CAR|AF_MOTORCYCLE|AF_MOPED|AF_BIKE;
 		level=5;
 	}
 	if (! strcmp(k,"motor_vehicle")) {
-		flags[access_value(v)] |= AF_DANGEROUS_GOODS|AF_EMERGENCY_VEHICLES|AF_TRANSPORT_TRUCK|AF_DELIVERY_TRUCK|AF_PUBLIC_BUS|AF_TAXI|AF_HIGH_OCCUPANCY_CAR|AF_CAR|AF_MOTORCYCLE|AF_MOPED;
+		/*todo : find some way to make clear that the limitation is for cars only*/
+		if (! strcmp(v,"destination"))
+			flags[0] |= AF_THROUGH_TRAFFIC_LIMIT;
+		else
+			flags[access_value(v)] |= AF_DANGEROUS_GOODS|AF_EMERGENCY_VEHICLES|AF_TRANSPORT_TRUCK|AF_DELIVERY_TRUCK|AF_PUBLIC_BUS|AF_TAXI|AF_HIGH_OCCUPANCY_CAR|AF_CAR|AF_MOTORCYCLE|AF_MOPED;
 		level=5;
 	}
 	if (! strcmp(k,"bicycle")) {
@@ -1163,7 +1205,7 @@ osm_add_tag(char *k, char *v)
 		attr_strings_save(attr_string_population, v);
 		level=5;
 	}
-	if ((! strcmp(k,"ref")) || (! strcmp(k,"destination:ref"))) {
+	if (! strcmp(k,"ref")) {
 		if (in_way)
 			attr_strings_save(attr_string_street_name_systematic, v);
 		/* for exit number of highway_exit poi */
@@ -1184,6 +1226,18 @@ osm_add_tag(char *k, char *v)
 			if (in_way)
 				attr_strings_save(attr_string_street_destination, v);
 			level=5;
+	}
+	if (! strcmp(k,"destination:forward")) 
+	{
+		if (in_way)
+			attr_strings_save(attr_string_street_destination_forward, v);
+		level=5;
+	}
+	if (! strcmp(k,"destination:backward")) 
+	{
+		if (in_way)
+			attr_strings_save(attr_string_street_destination_backward, v);
+		level=5;
 	}
 	if (! strcmp(k,"exit_to")) {
 			attr_strings_save(attr_string_exit_to, v);
@@ -1717,6 +1771,24 @@ attr_longest_match(struct attr_mapping **mapping, int mapping_count, enum item_t
 	return ret;
 }
 
+static int
+get_flag(struct attr_mapping **mapping, int mapping_count)
+{
+	int i,j,val,flag=0;
+	struct attr_mapping *curr;
+	for (i = 0 ; i < mapping_count ; i++) {
+		curr=mapping[i];
+		for (j = 0 ; j < curr->attr_present_idx_count ; j++) {
+			val=attr_present[curr->attr_present_idx[j]];
+			if (!val)
+				break;
+			if (curr->flag)
+				flag=curr->flag;
+		}
+	}
+	return flag;
+}
+
 static void
 attr_longest_match_clear(void)
 {
@@ -1768,8 +1840,9 @@ osm_end_way(struct maptool_osm *osm)
 		item_bin_add_coord(item_bin, coord_buffer, coord_count);
 		nodes_ref_item_bin(item_bin);
 		def_flags=item_get_default_flags(types[i]);
-		if (def_flags) {
-			flags_attr_value=((*def_flags & ~flagsa[2]) | flags[0] | flags[1] | flagsa[1]) & ~flags[2];
+		if (def_flags) 
+		{
+			flags_attr_value=((*def_flags & ~flagsa[2]) | flags[0] | flags[1] | flagsa[1]| get_flag(attr_mapping_way, attr_mapping_way_count)) & ~flags[2];
 			if (flags_attr_value != *def_flags)
 				add_flags=1;
 		}
@@ -1777,7 +1850,10 @@ osm_end_way(struct maptool_osm *osm)
 		item_bin_add_attr_string(item_bin, attr_district_name, attr_strings[attr_string_district_name]);
 		item_bin_add_attr_string(item_bin, attr_street_name_systematic, attr_strings[attr_string_street_name_systematic]);
 		item_bin_add_attr_string(item_bin, attr_street_name_systematic_nat, attr_strings[attr_string_street_name_systematic_nat]);
+		item_bin_add_attr_string(item_bin, attr_street_name_systematic_int, attr_strings[attr_string_street_name_systematic_int]);
 		item_bin_add_attr_string(item_bin, attr_street_destination, attr_strings[attr_string_street_destination]);
+		item_bin_add_attr_string(item_bin, attr_street_destination_forward, attr_strings[attr_string_street_destination_forward]);
+		item_bin_add_attr_string(item_bin, attr_street_destination_backward, attr_strings[attr_string_street_destination_backward]);
 		item_bin_add_attr_longlong(item_bin, attr_osm_wayid, osmid_attr_value);
 		if (debug_attr_buffer[0])
 			item_bin_add_attr_string(item_bin, attr_debug, debug_attr_buffer);
@@ -1900,7 +1976,6 @@ osm_process_town_by_is_in(struct item_bin *ib,char *is_in, struct attr *attrs, G
 {
 	struct country_table *result=NULL, *lookup;
 	char *tok,*dup=g_strdup(is_in),*buf=dup;
-	int conflict=0;
 
 	int find_town_name = 0;
 
@@ -1918,18 +1993,14 @@ osm_process_town_by_is_in(struct item_bin *ib,char *is_in, struct attr *attrs, G
 		lookup=g_hash_table_lookup(country_table_hash,tok);
 		if (lookup) {
 			if (result && result->countryid != lookup->countryid) {
-				conflict=1;
+				char *label=item_bin_get_attr(ib, attr_town_name, NULL);
+				osm_warning("node",item_bin_get_nodeid(ib),0,"conflict for %s is_in=%s country %d vs %d\n", label, is_in, lookup->countryid, result->countryid);
 			}
 			result=lookup;
 		}
 		buf=NULL;
 	}
 	g_free(dup);
-
-	if(conflict) {
-		char *label=item_bin_get_attr(ib, attr_town_name, NULL);
-		osm_warning("node",item_bin_get_nodeid(ib),0,"Country conflict for %s is_in=%s, choosen country %d (%s)\n", label, is_in, result->countryid, result->names);
-	}
 
 	return result;
 }
@@ -1945,9 +2016,9 @@ osm_process_town_by_boundary(GList *bl, struct item_bin *ib, struct coord *c, st
 		struct boundary *b=l->data;
 		if (b->country) {
 			if (match && match->country->countryid!=b->country->countryid) {
-				osm_warning("node",item_bin_get_nodeid(ib),0,"node (0x%x,0x%x) country conflict: ", c->x, c->y);
-				osm_warning("relation",boundary_relid(match),1,"replacing country %d (%s) with ",match->country->countryid, match->country->names);
-				osm_warning("relation",boundary_relid(b),1,"country %d (%s)\n",b->country->countryid, b->country->names);
+				osm_warning("node",item_bin_get_nodeid(ib),0,"node (0x%x,0x%x) conflict country ", c->x, c->y);
+				osm_warning("relation",boundary_relid(match),1,"country %d vs ",match->country->countryid);
+				osm_warning("relation",boundary_relid(b),1,"country %d\n",b->country->countryid);
 			}
 			match=b;
 		}
