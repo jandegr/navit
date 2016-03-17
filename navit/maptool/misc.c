@@ -171,15 +171,20 @@ item_order_by_type(enum item_type type)
 {
 	int max=14;
 	switch (type) {
+		
 		case type_town_label_1e7:
 		case type_town_label_5e6:
 		case type_town_label_2e6:
-		case type_town_label_1e6:
-		case type_town_label_5e5:
 		case type_district_label_1e7:
 		case type_district_label_5e6:
 		case type_district_label_2e6:
+			max=4;
+			break;
+		case type_town_label_1e6:
 		case type_district_label_1e6:
+			max=5;
+			break;
+		case type_town_label_5e5:
 		case type_district_label_5e5:
 			max=6;
 			break;
@@ -191,6 +196,8 @@ item_order_by_type(enum item_type type)
 		case type_highway_city:
 		case type_highway_land:
 		case type_ramp:
+		case type_street_4_land:
+		case type_street_4_city:
 			max=8;
 			break;
 		case type_town_label_5e4:
@@ -202,11 +209,7 @@ item_order_by_type(enum item_type type)
 			max=9;
 			break;
 		case type_poly_water_tiled:
-			if(experimental)
-				max=9;
-			break;
-		case type_street_4_land:
-		case type_street_4_city:
+		case type_highway_exit:
 			max=10;
 			break;
 		case type_town_label_5e3:
@@ -218,6 +221,21 @@ item_order_by_type(enum item_type type)
 		case type_street_3_city:
 		case type_street_3_land:
 			max=12;
+			break;
+		case type_street_2_city:
+		case type_street_2_land:
+		case type_street_1_city:
+		case type_street_1_land:
+		case type_street_0:
+		case type_living_street:
+		case type_track_gravelled:
+		case type_track_paved:
+		case type_street_parking_lane:
+		case type_street_service:
+		case type_track_unpaved:
+		case type_ferry:
+
+			max=13;
 			break;
 		default:
 			break;
