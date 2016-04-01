@@ -191,7 +191,7 @@ ATTR_UNUSED
 ATTR_UNUSED
 ATTR(turn_around_count)
 ATTR(turn_around_penalty)
-ATTR(turn_around_penalty2)
+ATTR_UNUSED
 ATTR(autozoom_max)
 ATTR2(0x00027500,type_rel_abs_begin)
 /* These attributes are int that can either hold relative		*
