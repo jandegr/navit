@@ -719,6 +719,7 @@ static char *attrmap={
 	"w	natural=marsh		poly_marsh\n"
 	"w	natural=meadow		poly_meadow\n"
 	"w	natural=mud		poly_mud\n"
+	"w	natural=sand		poly_beach\n"
 	"w	natural=scree		poly_scree\n"
 	"w	natural=scrub		poly_scrub\n"
 	"w	natural=water		poly_water\n"
