@@ -722,6 +722,7 @@ static char *attrmap={
 	"w	natural=scree		poly_scree\n"
 	"w	natural=scrub		poly_scrub\n"
 	"w	natural=water		poly_water\n"
+	"w	natural=wetland		poly_mud\n"
 	"w	natural=wood		poly_wood\n"
 	"w	piste:type=downhill,piste:difficulty=advanced		piste_downhill_advanced\n"
 	"w	piste:type=downhill,piste:difficulty=easy		piste_downhill_easy\n"
