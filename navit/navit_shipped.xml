@@ -456,6 +456,11 @@ Waypoint</text></img>
 					<polygon color="#d6d99f"/>
 					<text text_size="5"/>
 				</itemgra>
+				<itemgra item_types="poly_marsh,poly_mud,poly_quarry" order="0-">
+					<polygon color="#DEB887"/>
+					<polyline color="#DEB887"/>
+					<text text_size="5"/>
+				</itemgra>
 				<itemgra item_types="poly_beach" order="7-">
 					<polygon color="#fff1ba"/>
 					<text text_size="7"/>
