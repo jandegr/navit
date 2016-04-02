@@ -216,6 +216,7 @@ w	natural=mud		poly_mud
 w	natural=scree		poly_scree
 w	natural=scrub		poly_scrub
 w	natural=water		poly_water
+w	natural=wetland		poly_mud
 w	natural=wood		poly_wood
 w	natural=riverbank	poly_water
 w	piste:type=downhill,piste:difficulty=advanced		piste_downhill_advanced
