@@ -383,7 +383,7 @@ Waypoint</text></img>
 			</itemgra>
 		</layer>
 
-		<layout name="Car" nightlayout="Car-dark" color="#ffefb7" font="Liberation Sans">
+		<layout name="Car" nightlayout="Car-dark" color="#f2efe9" font="Liberation Sans">
 
 			<cursor w="26" h="26">
 				<itemgra>
@@ -414,9 +414,9 @@ Waypoint</text></img>
 					<polygon color="#8ec78d"/>
 					<text text_size="5"/>
 				</itemgra>
-				<itemgra item_types="poly_farm" order="0-">
-					<polygon color="#c7f1a3"/>
-					<polyline color="#79c691"/>
+				<itemgra item_types="poly_farm" order="10-">
+					<polygon color="#fbecd7"/>
+					<polyline color="#d6c4ab"/>
 					<text text_size="5"/>
 				</itemgra>
 				<itemgra item_types="poly_meadow" order="0-">
@@ -440,13 +440,25 @@ Waypoint</text></img>
 					<text text_size="5"/>
 				</itemgra>
 				<itemgra item_types="poly_land" order="0-">
-					<polygon color="#ffefb7"/>
+					<polygon color="#f2efe9"/>
 					<polyline color="#ffefb7"/>
 					<text text_size="5"/>
 				</itemgra>
-				<itemgra item_types="poly_flats,poly_scrub,poly_military_zone,poly_marine,plantation,tundra" order="9-">
+				<itemgra item_types="poly_flats,poly_military_zone,poly_marine,plantation,tundra" order="9-">
 					<polygon color="#a0a0a0"/>
 					<text text_size="5"/>
+				</itemgra>
+				<itemgra item_types="poly_scrub" order="7-">
+					<polygon color="#b5e3b5"/>
+					<text text_size="5"/>
+				</itemgra>
+				<itemgra item_types="poly_heath" order="7-">
+					<polygon color="#d6d99f"/>
+					<text text_size="5"/>
+				</itemgra>
+				<itemgra item_types="poly_beach" order="7-">
+					<polygon color="#fff1ba"/>
+					<text text_size="7"/>
 				</itemgra>
 				<itemgra item_types="poly_park" order="0-">
 					<polygon color="#7cc334"/>
