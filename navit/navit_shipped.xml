@@ -460,6 +460,10 @@ Waypoint</text></img>
 					<polygon color="#fff1ba"/>
 					<text text_size="7"/>
 				</itemgra>
+				<itemgra item_types="poly_camp_site" order="12-">
+					<polygon color="#def6c0"/>
+					<text text_size="7"/>
+				</itemgra>
 				<itemgra item_types="poly_park" order="0-">
 					<polygon color="#7cc334"/>
 					<text text_size="5"/>
