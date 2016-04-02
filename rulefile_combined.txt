@@ -213,6 +213,7 @@ w	natural=land		poly_land
 w	natural=marsh		poly_marsh
 w	natural=meadow		poly_meadow
 w	natural=mud		poly_mud
+w	natural=sand		poly_beach
 w	natural=scree		poly_scree
 w	natural=scrub		poly_scrub
 w	natural=water		poly_water
