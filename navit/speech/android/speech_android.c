@@ -97,9 +97,6 @@ speech_android_init(struct speech_priv *ret)
 	jmethodID cid;
 	char *class="org/navitproject/navit/NavitSpeech2";
 
-	if (ret->flags & 1) 
-		class="org/navitproject/navit/NavitSpeech";
-
 	if (!android_find_class_global(class, &ret->NavitSpeechClass)) {
 		dbg(lvl_error,"No class found\n");
 		return 0;
@@ -128,8 +125,7 @@ speech_android_new(struct speech_methods *meth, struct attr **attrs, struct attr
 	struct attr *flags;
 	*meth=speech_android_meth;
 	this=g_new0(struct speech_priv,1);
-	if (android_version < 4)
-		this->flags=3;
+
 	if (!speech_android_init(this)) {
 		dbg(lvl_error,"Failed to init speech %p\n",this->NavitSpeechClass);
 		g_free(this);
