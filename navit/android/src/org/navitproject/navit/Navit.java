@@ -1347,199 +1347,101 @@ public class Navit extends Activity
 	
 
 	@Override
-
 	public boolean onSearchRequested() 
-
 	{
-
 		/* Launch the internal Search Activity */
 
         Intent search_intent = new Intent(this, NavitAddressSearchActivity.class);
 
         this.startActivityForResult(search_intent, NavitAddressSearch_id);
-
-        
-
 		return true;
-
 	}
-
-
-
-	
 
 	public boolean setMapLocation()
-
 	{
-
 		Intent fileExploreIntent = new Intent(this,FileBrowserActivity.class);
-
-		fileExploreIntent.putExtra(FileBrowserActivity.startDirectoryParameter, "/mnt");
-
+		fileExploreIntent.putExtra(FileBrowserActivity.startDirectoryParameter, "/mnt")
+				.setAction(FileBrowserActivity.INTENT_ACTION_SELECT_DIR);
 		startActivityForResult(fileExploreIntent,NavitSelectStorage_id);
-
-		
-
 		return true;
-
 	}
-
-	
-
-	
 
 	public void onPause()
-
 	{
-
 		Log.w("Navit", "onPause");
-
 		super.onPause();
-
 	}
-
-	
 
 	public void onStop()
-
 	{
-
 		Log.w("Navit", "onStop");
-
 		if (isFinishing())
-
 		{
-
 			Log.w("Navit", "onStop Finishing");
-
-			
-
 		}
-
 		super.onStop();
-
 	}
 
-	
-
 	@Override
-
 	public void onDestroy()
-
 	{
-
 		NavitVehicle.removeListener();
-
 		Log.w("Navit", "OnDestroy");
 
 		if (isFinishing())
-
 		{
-
 			Log.w("Navit", "onDestroy Finishing");
-
-			
-
 		}
-
 		super.onDestroy();
-
 		Log.w("Navit", "OnDestroy2");
-
 		NavitDestroy();	
-
 	}
-
-
-
-	
 
 	public void fullscreen(int fullscreen) 
-
 	{
-
 		if(fullscreen != 0) 
-
 		{
-
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-
 			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB)
-
 				this.getActionBar().hide();
-
 		}
-
 		else 
-
 		{
-
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB)
-
 				this.getActionBar().show();
-
 		}
-
 	}
 
-
-
-	
-
 	//leverde nullpointer
-
 	//wordt bljkbaar vanuit native aangeroepen
 
 	public void disableSuspend()
-
 	{
-
 	//	wakelock.acquire();
-
 	//	wakelock.release();
-
 	}
-
-
 
 	public void exit()
-
 	{
-
 		Log.w("Navit", "exit--");
-
 		NavitVehicle.removeListener();
-
 		NavitDestroy();	
-
 	}
-
-
 
 	public native static void NavitMain(Navit x, String lang, int version, String display_density_string, String path, String path2);
 
 	public native void NavitDestroy();
 
-
-
 	/*
-
 	 * this is used to load the 'navit' native library on
-
 	 * application startup. The library has already been unpacked at
-
 	 * installation time by the package manager.
-
 	 */
 
 	static
-
 	{
 		System.loadLibrary("navit");
 	}
