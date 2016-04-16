@@ -410,7 +410,7 @@ public class Navit extends Activity
 				}
 			}
 			else {
-				Log.W("Navit", "timestamp for navigate_to expired! not using data");
+				Log.w("Navit", "timestamp for navigate_to expired! not using data");
 			}
 		}
 	}
@@ -581,134 +581,67 @@ public class Navit extends Activity
 	{
 		Toast.makeText( getApplicationContext(),getString(R.string.address_search_set_destination) + "\n" + address, Toast.LENGTH_LONG).show(); //TRANS
 		Message msg = Message.obtain(N_NavitGraphics.callback_handler, NavitGraphics.msg_type.CLB_SET_DESTINATION.ordinal());
-
 		Bundle b = new Bundle();
-
 		b.putFloat("lat", latitude);
-
 		b.putFloat("lon", longitude);
-
 		b.putString("q", address);
-
 		msg.setData(b);
-
 		msg.sendToTarget();
-
 	}
-
-
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
-
 	{
-
 		switch (requestCode)
-
 		{
-
 		case Navit.NavitDownloaderSelectMap_id :
-
 			if (resultCode == Activity.RESULT_OK)
-
 			{
-
 				Message msg = dialogs.obtainMessage(NavitDialogs.MSG_START_MAP_DOWNLOAD
-
 						, data.getIntExtra("map_index", -1), 0);
-
 				msg.sendToTarget();
-
 			}
-
 			break;
-
 		case NavitAddressSearch_id :
-
 			if (resultCode == Activity.RESULT_OK) {
-
 				Bundle destination = data.getExtras();
-
 				Toast.makeText( getApplicationContext(),getString(R.string.address_search_set_destination) + "\n" + destination.getString(("q")), Toast.LENGTH_LONG).show(); //TRANS
-
-
-
 				Message msg = Message.obtain(N_NavitGraphics.callback_handler, NavitGraphics.msg_type.CLB_SET_DESTINATION.ordinal());
-
 				msg.setData(destination);
-
 				msg.sendToTarget();
-
 			}
-
 			break;
-
 		case NavitSelectStorage_id :
-
-			
-
 			if(resultCode == RESULT_OK) 
-
 			{			
-
         		String newDir = data.getStringExtra(FileBrowserActivity.returnDirectoryParameter);
-
         		Log.d(TAG, "selected path= "+newDir); 
-
         		SharedPreferences prefs = this.getSharedPreferences(NAVIT_PREFS,MODE_PRIVATE);
-
         		SharedPreferences.Editor  prefs_editor = prefs.edit();
-
         		prefs_editor.putString("filenamePath", newDir+"/navit/");
-
         		prefs_editor.commit();
-
         		map_filename_path = newDir+"/navit/"; 
-
         		Toast.makeText(this, "New location set to "+map_filename_path+"\n Restart Navit to apply the changes",Toast.LENGTH_LONG).show(); 		
-
         	}
-
 			else Log.w(TAG, "select path failed");
-
 			break;
-
 		default :
-
 			//Log.e("Navit", "onActivityResult " + requestCode + " " + resultCode);
-
 			ActivityResults[requestCode].onActivityResult(requestCode, resultCode, data);
-
 			break;
-
 		}
-
 	}
 
-
-
-	@Override
-
-    protected void onPrepareDialog(int id, Dialog dialog) 
-
-	{
-
+        @Override
+        protected void onPrepareDialog(int id, Dialog dialog) 
+        {
 	    dialogs.prepareDialog(id, dialog);
+            super.onPrepareDialog(id, dialog);
+        }
 
-        super.onPrepareDialog(id, dialog);
-
-    }
-
-
-
-    protected Dialog onCreateDialog(int id)
-
-	{
-
-		return dialogs.createDialog(id);
-
-	}
-
-	
+        protected Dialog onCreateDialog(int id)
+       {
+        	return dialogs.createDialog(id);
+       }
 
 	@Override
 	public boolean onSearchRequested() 
