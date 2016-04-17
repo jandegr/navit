@@ -36,6 +36,13 @@
         </activity>
         <activity android:name=".NavitDownloadSelectMapActivity"></activity>
         <activity android:name=".NavitAddressResultListActivity"></activity>
-        <activity android:name=".FileBrowserActivity"></activity>
+        <activity
+		android:name="FileBrowserActivity"
+		android:label="File browser"
+		android:configChanges="orientation|keyboardHidden">
+		<intent-filter>
+			<action android:name="ua.com.vassiliev.androidfilebrowser.SELECT_DIRECTORY_ACTION"></action>
+		</intent-filter>
+	  </activity>
     </application>
 </manifest> 
