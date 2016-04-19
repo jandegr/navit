@@ -603,7 +603,7 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 	if (!find_class_global("org/navitproject/navit/NavitGraphics", &ret->NavitGraphicsClass))
 		return 0;
 	dbg(lvl_debug,"at 3\n");
-	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "<init>", "(Landroid/app/Activity;Lorg/navitproject/navit/NavitGraphics;IIIIIII)V");
+	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "<init>", "(Landroid/app/Activity;Lorg/navitproject/navit/NavitGraphics;IIIIII)V");
 	if (cid == NULL) {
 		dbg(lvl_error,"no method found\n");
 		return 0; /* exception thrown */
@@ -726,7 +726,6 @@ graphics_android_new(struct navit *nav, struct graphics_methods *meth, struct at
 {
 	struct graphics_priv *ret;
 	struct attr *attr;
-	int use_camera=0;
 	if (!event_request_system("android","graphics_android"))
 		return NULL;
 	ret=g_new0(struct graphics_priv, 1);
@@ -736,14 +735,11 @@ graphics_android_new(struct navit *nav, struct graphics_methods *meth, struct at
 	ret->win.priv=ret;
 	ret->win.fullscreen=graphics_android_fullscreen;
 	ret->win.disable_suspend=graphics_android_disable_suspend;
-	if ((attr=attr_search(attrs, NULL, attr_use_camera))) {
-		use_camera=attr->u.num;
-	}
         if ((attr=attr_search(attrs, NULL, attr_callback_list))) {
 		command_add_table(attr->u.callback_list, commands, sizeof(commands)/sizeof(struct command_table), ret);
         }
 	image_cache_hash = g_hash_table_new(g_str_hash, g_str_equal);
-	if (graphics_android_init(ret, NULL, NULL, 0, 0, 0, 0, use_camera)) {
+	if (graphics_android_init(ret, NULL, NULL, 0, 0, 0, 0)) {
 		dbg(lvl_debug,"returning %p\n",ret);
 		return ret;
 	} else {
@@ -757,7 +753,7 @@ overlay_new(struct graphics_priv *gr, struct graphics_methods *meth, struct poin
 {
 	struct graphics_priv *ret=g_new0(struct graphics_priv, 1);
 	*meth=graphics_methods;
-	if (graphics_android_init(ret, gr, p, w, h, alpha, wraparound, 0)) {
+	if (graphics_android_init(ret, gr, p, w, h, alpha, wraparound)) {
 		dbg(lvl_debug,"returning %p\n",ret);
 		return ret;
 	} else {
