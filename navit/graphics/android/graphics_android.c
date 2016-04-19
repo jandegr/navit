@@ -39,7 +39,7 @@ struct graphics_priv {
 	jmethodID NavitGraphics_draw_polyline, NavitGraphics_draw_polygon, NavitGraphics_draw_rectangle, 
 		NavitGraphics_draw_circle, NavitGraphics_draw_text, NavitGraphics_draw_image, 
 		NavitGraphics_draw_image_warp, NavitGraphics_draw_mode, NavitGraphics_draw_drag, 
-		NavitGraphics_overlay_disable, NavitGraphics_overlay_resize, NavitGraphics_SetCamera;
+		NavitGraphics_overlay_disable, NavitGraphics_overlay_resize;
 
 	jclass PaintClass;
 	jmethodID Paint_init,Paint_setStrokeWidth,Paint_setARGB;
@@ -461,7 +461,7 @@ set_attr(struct graphics_priv *gra, struct attr *attr)
 {
 	switch (attr->type) {
 	case attr_use_camera:
-		(*jnienv)->CallVoidMethod(jnienv, gra->NavitGraphics, gra->NavitGraphics_SetCamera, attr->u.num);
+	//	(*jnienv)->CallVoidMethod(jnienv, gra->NavitGraphics, gra->NavitGraphics_SetCamera, attr->u.num);
 		return 1;
 	default:
 		return 0;
@@ -676,8 +676,6 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 	if (!find_method(ret->NavitGraphicsClass, "overlay_disable", "(I)V", &ret->NavitGraphics_overlay_disable))
 		return 0;
 	if (!find_method(ret->NavitGraphicsClass, "overlay_resize", "(IIIIII)V", &ret->NavitGraphics_overlay_resize))
-		return 0;
-	if (!find_method(ret->NavitGraphicsClass, "SetCamera", "(I)V", &ret->NavitGraphics_SetCamera))
 		return 0;
 #if 0
 	set_activity(ret->NavitGraphics);
