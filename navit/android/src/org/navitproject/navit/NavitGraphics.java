@@ -675,7 +675,7 @@ public class NavitGraphics
 	}
 	
 	public NavitGraphics(final Activity activity, NavitGraphics parent, int x, int y, int w, int h,
-			int alpha, int wraparound, int use_camera)
+			int alpha, int wraparound)
 	{
 		if (parent == null)
 		{
