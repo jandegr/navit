@@ -550,7 +550,7 @@ set_activity(jobject graphics)
 }
 
 static int
-graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, struct point *pnt, int w, int h, int alpha, int wraparound, int use_camera)
+graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, struct point *pnt, int w, int h, int alpha, int wraparound)
 {
 	struct callback *cb;
 	jmethodID cid, Context_getPackageName;
@@ -609,7 +609,7 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 		return 0; /* exception thrown */
 	}
 	dbg(lvl_debug,"at 4 android_activity=%p\n",android_activity);
-	ret->NavitGraphics=(*jnienv)->NewObject(jnienv, ret->NavitGraphicsClass, cid, android_activity, parent ? parent->NavitGraphics : NULL, pnt ? pnt->x:0 , pnt ? pnt->y:0, w, h, alpha, wraparound, use_camera);
+	ret->NavitGraphics=(*jnienv)->NewObject(jnienv, ret->NavitGraphicsClass, cid, android_activity, parent ? parent->NavitGraphics : NULL, pnt ? pnt->x:0 , pnt ? pnt->y:0, w, h, alpha, wraparound);
 	dbg(lvl_debug,"result=%p\n",ret->NavitGraphics);
 	if (ret->NavitGraphics)
 		ret->NavitGraphics = (*jnienv)->NewGlobalRef(jnienv, ret->NavitGraphics);
