@@ -568,9 +568,27 @@ public class Navit extends Activity
 				msg.setData(b);
 				msg.sendToTarget();		
 				break;	
+			case R.id.action_stop_navigation:	   
+				msg = Message.obtain(N_NavitGraphics.callback_handler, NavitGraphics.msg_type.CLB_ABORT_NAVIGATION.ordinal());
+				msg.sendToTarget();		
+				break;	
 			case R.id.action_quit:	
 				this.onStop();
 				this.onDestroy();
+				break;
+			case R.id.action_enable_auto_layout:
+				msg = Message.obtain(N_NavitGraphics.callback_handler, NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
+				b = new Bundle();
+				b.putString("cmd", "switch_layout_day_night(\"auto\")");
+				msg.setData(b);
+				msg.sendToTarget();	
+				break;
+			case R.id.action_toggle_layout:
+				msg = Message.obtain(N_NavitGraphics.callback_handler, NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
+				b = new Bundle();
+				b.putString("cmd", "switch_layout_day_night(\"manual_toggle\")");
+				msg.setData(b);
+				msg.sendToTarget();	
 				break;
 		}
 	//	Return false to allow normal menu processing to proceed, true to consume it here
