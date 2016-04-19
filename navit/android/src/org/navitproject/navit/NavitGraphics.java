@@ -59,7 +59,6 @@ public class NavitGraphics
 	float                            trackball_x, trackball_y;
 	View                             view;
 	RelativeLayout                   relativelayout;
-	NavitCamera                      camera;
 	Activity                         activity;
 
 	public static Boolean            in_map            = false;
@@ -69,17 +68,6 @@ public class NavitGraphics
 	private static long              interval_for_long_press           = 200L;
 
 	private Handler timer_handler = new Handler();
-
-	public void SetCamera(int use_camera)
-	{
-		if (use_camera != 0 && camera == null)
-		{
-			// activity.requestWindowFeature(Window.FEATURE_NO_TITLE);
-			camera = new NavitCamera(activity);
-			relativelayout.addView(camera);
-			relativelayout.bringChildToFront(view);
-		}
-	}
 
 	protected Rect get_rect()
 	{
@@ -699,10 +687,6 @@ public class NavitGraphics
 			view.setFocusableInTouchMode(true);
 			view.setKeepScreenOn(true);
 			relativelayout = new RelativeLayout(activity);
-			if (use_camera != 0)
-			{
-				SetCamera(use_camera);
-			}
 			relativelayout.addView(view);
 			
 			final Button zoomOutButton = new Button(activity);
