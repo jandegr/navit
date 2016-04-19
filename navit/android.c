@@ -121,7 +121,7 @@ Java_org_navitproject_navit_Navit_NavitMain( JNIEnv* env, jobject thiz, jobject 
 	(*env)->ReleaseStringUTFChars(env, display_density_string, displaydensitystr);
 
 	map_filename_path=(*env)->GetStringUTFChars(env, map_path, NULL);
-	setenv("MAP_FILENAME_PATH",map_filename_path,1);
+	setenv("NAVIT_USER_DATADIR",map_filename_path,1);
 	(*env)->ReleaseStringUTFChars(env, display_density_string, map_filename_path);
 
 	const char *strings=(*env)->GetStringUTFChars(env, path, NULL);
