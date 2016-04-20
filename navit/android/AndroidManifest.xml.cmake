@@ -5,7 +5,7 @@
       android:versionCode="@ANDROID_VERSION_INT@"
       android:versionName="@ANDROID_VERSION_NAME@-@ANDROID_VERSION_INT@"
       android:installLocation="auto">
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="@ANDROID_API_VERSION@"/>
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="@ANDROID_API_VERSION@"/>
     <uses-feature android:name="android.hardware.location.network" android:required="false"/>
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
     <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:resizeable="true" android:anyDensity="true"/>
@@ -43,6 +43,16 @@
 		<intent-filter>
 			<action android:name="ua.com.vassiliev.androidfilebrowser.SELECT_DIRECTORY_ACTION"></action>
 		</intent-filter>
-	  </activity>
+	</activity>
+	<activity
+                android:name="org.acra.dialog.CrashReportDialog"
+                android:theme="@android:style/Theme.Dialog"
+                android:launchMode="singleInstance"
+                android:excludeFromRecents="true"
+                android:finishOnTaskLaunch="true"/>
+        <service
+                android:name="org.acra.sender.SenderService"
+                android:exported="false"
+                android:process=":acra" />
     </application>
 </manifest> 
