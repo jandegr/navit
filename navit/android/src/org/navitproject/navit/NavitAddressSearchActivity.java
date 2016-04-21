@@ -105,15 +105,15 @@ public class NavitAddressSearchActivity extends Activity {
 				if (lhsNum.length() > rhsNum.length())
 					return 1;
 			}
-		// violates comparator contract
-		//	if (lhs.addr.toLowerCase().indexOf(mAddressString.toLowerCase()) == 0
-		//			&& rhs.addr.toLowerCase().indexOf(
-		//					mAddressString.toLowerCase()) > 0)
-		//		return -1;
-		//	if (lhs.addr.toLowerCase().indexOf(mAddressString.toLowerCase()) > 0
-		//			&& rhs.addr.toLowerCase().indexOf(
-		//					mAddressString.toLowerCase()) == 0)
-		//		return 1;
+		
+			if (lhs.addr.toLowerCase().indexOf(mAddressString.toLowerCase()) == 0
+					&& rhs.addr.toLowerCase().indexOf(
+							mAddressString.toLowerCase()) != 0)
+				return -1;
+			if (lhs.addr.toLowerCase().indexOf(mAddressString.toLowerCase()) != 0
+					&& rhs.addr.toLowerCase().indexOf(
+							mAddressString.toLowerCase()) == 0)
+				return 1;
 			return (lhs.addr.compareToIgnoreCase(rhs.addr));
 		}
 	}
