@@ -105,16 +105,17 @@ public class NavitAddressSearchActivity extends Activity {
 				if (lhsNum.length() > rhsNum.length())
 					return 1;
 			}
-		
-			if (lhs.addr.toLowerCase().indexOf(mAddressString.toLowerCase()) == 0
-					&& rhs.addr.toLowerCase().indexOf(
-							mAddressString.toLowerCase()) != 0)
+			String lhsNormalized = Normalizer.normalize(lhs.addr,Form.NFD)
+					.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase(); 
+			String rhsNormalized = Normalizer.normalize(rhs.addr,Form.NFD)
+					.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+			if (lhsNormalized.indexOf(mAddressString.toLowerCase()) == 0
+						&& rhsNormalized.toLowerCase().indexOf(mAddressString.toLowerCase()) != 0)
 				return -1;
-			if (lhs.addr.toLowerCase().indexOf(mAddressString.toLowerCase()) != 0
-					&& rhs.addr.toLowerCase().indexOf(
-							mAddressString.toLowerCase()) == 0)
+			if (lhsNormalized.indexOf(mAddressString.toLowerCase()) != 0 
+						&& rhsNormalized.toLowerCase().indexOf(mAddressString.toLowerCase()) == 0)
 				return 1;
-			return (lhs.addr.compareToIgnoreCase(rhs.addr));
+			return (lhsNormalized.compareTo(rhsNormalized));
 		}
 	}
 	public class NavitAddressList<T> extends ArrayList<T> {
