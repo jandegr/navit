@@ -20,6 +20,8 @@
 package org.navitproject.navit;
 
 import java.lang.reflect.Field;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
