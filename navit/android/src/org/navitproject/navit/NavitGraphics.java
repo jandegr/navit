@@ -344,23 +344,18 @@ public class NavitGraphics
 			return (float)Math.sqrt(x * x + y * y);
 		}
 
-		private PointF getFloatValue(Object instance, Object argument)
-		{
-			PointF pos = new PointF(0,0); 
-			
-			if (eventGetX != null && eventGetY != null)
-			{
-				try
-				{
-					Float x = (java.lang.Float) eventGetX.invoke(instance, argument);
-					Float y = (java.lang.Float) eventGetY.invoke(instance, argument);
-					pos.set(x.floatValue(), y.floatValue());
-					
-				}
-				catch (Exception e){}
-			}
-			return pos;
-		}
+		 private PointF getFloatValue(Object instance, Object argument) {
+        	        PointF pos = new PointF(0,0);
+            		if (eventGetX != null && eventGetY != null) {
+                              try {
+                              Float x = (java.lang.Float) eventGetX.invoke(instance, argument);
+                              Float y = (java.lang.Float) eventGetY.invoke(instance, argument);
+                              pos.set(x, y);
+                              }
+                              catch (Exception e){}
+                        }
+            		return pos;
+        	}
 		
 		@Override
 		public boolean onKeyDown(int keyCode, KeyEvent event)
