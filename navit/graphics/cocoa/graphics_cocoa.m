@@ -272,11 +272,6 @@ setup_graphics(struct graphics_priv *gr)
 		setup_graphics(global_graphics_cocoa);
 	}
 
-	[myV initWithFrame: frame];
-
-	[self setView: myV];
-
-	[myV release];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -314,18 +309,11 @@ setup_graphics(struct graphics_priv *gr)
 @synthesize viewController;
 
 
-#if USE_UIKIT
 - (BOOL)application:(UIApplication *)application
 didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-#else
-- (void)
-applicationDidFinishLaunching:(NSNotification *)aNotification
-#endif
 {
 	NSLog(@"DidFinishLaunching\n");
-#if USE_UIKIT
-	[[UIApplication sharedApplication] setStatusBarHidden:NO];
-#endif
+//	[[UIApplication sharedApplication] setStatusBarHidden:NO];
 
 	NSRect appFrame = [UIScreen mainScreen].applicationFrame;
 
@@ -333,34 +321,17 @@ applicationDidFinishLaunching:(NSNotification *)aNotification
 
 	NSRect windowRect = NSMakeRect(0, 0, appFrame.size.width, appFrame.size.height);
 
-#if USE_UIKIT
 	self.window = [[[UIWindow alloc] initWithFrame:windowRect] autorelease];
-#else
-	self.window = [[[UIWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO] autorelease];
-#endif
-	utf8_macosroman=iconv_open("MACROMAN","UTF-8");
+//	utf8_macosroman=iconv_open("MACROMAN","UTF-8");
 
-#if USE_UIKIT
 	[window addSubview:viewController.view];
-	[window makeKeyAndVisible];
-#else
-	NSWindowController * controller = [[NSWindowController alloc] initWithWindow : window];
-	NSLog(@"Setting view\n");
-	[viewController loadView];
-	[window setContentView : viewController.view];
-	[controller setWindow : window];
-	[controller showWindow : nil];
-
-#endif
-
+        window.rootViewController = viewController;
+        [window makeKeyAndVisible];
 	if (global_graphics_cocoa) {
 		callback_list_call_attr_2(global_graphics_cocoa->cbl, attr_resize, (int)appFrame.size.width, (int)appFrame.size.height);
 		
 	}
-
-#if USE_UIKIT
 	return YES;
-#endif
 }
 
 
@@ -377,7 +348,7 @@ applicationDidFinishLaunching:(NSNotification *)aNotification
 static void
 draw_mode(struct graphics_priv *gr, enum draw_mode_num mode)
 {
-	if (mode == draw_mode_end) {
+    if (mode == draw_mode_end) {
 		dbg(1,"end %p\n",gr);
 		if (!gr->parent) {
 #if USE_UIKIT
@@ -392,7 +363,7 @@ draw_mode(struct graphics_priv *gr, enum draw_mode_num mode)
 static void
 draw_lines(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int count)
 {
-	CGPoint points[count];
+    CGPoint points[count];
 	int i;
 	for (i = 0 ; i < count ; i++) {
 		points[i].x=p[i].x;
@@ -404,13 +375,12 @@ draw_lines(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *
     	CGContextBeginPath(gr->layer_context);
 	CGContextAddLines(gr->layer_context, points, count);
 	CGContextStrokePath(gr->layer_context);
-	
 }
 
 static void
 draw_polygon(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int count)
 {
-	CGPoint points[count];
+    CGPoint points[count];
 	int i;
 	for (i = 0 ; i < count ; i++) {
 		points[i].x=p[i].x;
@@ -425,7 +395,7 @@ draw_polygon(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point
 static void
 draw_rectangle(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int w, int h)
 {
-	CGRect lr=CGRectMake(p->x, p->y, w, h);
+    CGRect lr=CGRectMake(p->x, p->y, w, h);
 	if (p->x <= 0 && p->y <= 0 && p->x+w+1 >= gr->w && p->y+h+1 >= gr->h) {
 		dbg(1,"clear %p %dx%d\n",gr,w,h);
 		free_graphics(gr);
@@ -438,11 +408,14 @@ draw_rectangle(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct poi
 static void
 draw_text(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct graphics_gc_priv *bg, struct graphics_font_priv *font, char *text, struct point *p, int dx, int dy)
 {
-	size_t len,inlen=strlen(text)+1,outlen=strlen(text)+1;
-	char outb[outlen];
-	char *inp=text,*outp=outb;
+//	size_t len,inlen=strlen(text)+1,outlen=strlen(text)+1;
+    
+//    len=strlen(text)+1,outlen=strlen(text)+1;
+    
+//	char outb[outlen];
+//	char *inp=text,*outp=outb;
 
-	len=iconv (utf8_macosroman, &inp, &inlen, &outp, &outlen);
+//	len=iconv (utf8_macosroman, &inp, &inlen, &outp, &outlen);
 
 	CGContextSetFillColor(gr->layer_context, fg->rgba);
 
@@ -450,13 +423,13 @@ draw_text(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct graphics
 	CGContextSetTextDrawingMode(gr->layer_context, kCGTextFill);
 	CGAffineTransform xform = CGAffineTransformMake(dx/65536.0, dy/65536.0, dy/65536.0, -dx/65536.0, 0.0f, 0.0f);
 	CGContextSetTextMatrix(gr->layer_context, xform);
-	CGContextShowTextAtPoint(gr->layer_context, p->x, p->y, outb, strlen(outb));
+	CGContextShowTextAtPoint(gr->layer_context, p->x, p->y, text, strlen(text));
 }
 
 static void
 draw_image(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, struct graphics_image_priv *img)
 {
-	CGImageRef imgc=(CGImageRef) img;
+        CGImageRef imgc=(CGImageRef) img;
 	int w=CGImageGetWidth(imgc);
 	int h=CGImageGetHeight(imgc);
 	CGRect rect=CGRectMake(0, 0, w, h);
@@ -556,13 +529,12 @@ background_gc(struct graphics_priv *gr, struct graphics_gc_priv *gc)
 }
 
 static struct graphics_priv *
-overlay_new(struct graphics_priv *gr, struct graphics_methods *meth, struct point *p, int w, int h, int alpha, int wraparound);
-
+overlay_new(struct graphics_priv *gr, struct graphics_methods *meth, struct point *p, int w, int h, int wraparound);
 
 static struct graphics_image_priv *
 image_new(struct graphics_priv *gra, struct graphics_image_methods *meth, char *path, int *w, int *h, struct point *hot, int rotation)
 {
-	NSString *s=[[NSString alloc]initWithCString:path encoding:NSMacOSRomanStringEncoding];
+    NSString *s=[[NSString alloc]initWithCString:path encoding:NSMacOSRomanStringEncoding];
 	CGDataProviderRef imgDataProvider = CGDataProviderCreateWithCFData((CFDataRef)[NSData dataWithContentsOfFile:s]);
 	[s release];
 
@@ -571,7 +543,7 @@ image_new(struct graphics_priv *gra, struct graphics_image_methods *meth, char *
 
 	CGImageRef image = CGImageCreateWithPNGDataProvider(imgDataProvider, NULL, true, kCGRenderingIntentDefault);
 	CGDataProviderRelease(imgDataProvider);
-	dbg(1,"size %dx%d\n",CGImageGetWidth(image),CGImageGetHeight(image));
+//	dbg(1,"size %dx%d\n",CGImageGetWidth(image),CGImageGetHeight(image));
 	if (w)
 		*w=CGImageGetWidth(image);
 	if (h)
@@ -595,7 +567,7 @@ get_data(struct graphics_priv *this, const char *type)
 static void
 image_free(struct graphics_priv *gr, struct graphics_image_priv *priv)
 {
-	CGImageRelease((CGImageRef)priv);
+    CGImageRelease((CGImageRef)priv);
 }
 
 static void
@@ -649,9 +621,8 @@ static struct graphics_methods graphics_methods = {
 
 
 static struct graphics_priv *
-overlay_new(struct graphics_priv *gr, struct graphics_methods *meth, struct point *p, int w, int h, int alpha, int wraparound)
-{
-	struct graphics_priv *ret=g_new0(struct graphics_priv, 1);
+overlay_new(struct graphics_priv *gr, struct graphics_methods *meth, struct point *p, int w, int h, int wraparound)
+{       struct graphics_priv *ret=g_new0(struct graphics_priv, 1);
 	*meth=graphics_methods;
 	ret->p=*p;
 	ret->w=w;
@@ -693,9 +664,10 @@ event_cocoa_main_loop_run(void)
 #endif
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 #if USE_UIKIT
-	dbg(0,"calling main\n");
+	NSLog(@"calling main");
 	int retval = UIApplicationMain(main_argc, main_argv, nil, @"NavitAppDelegate");
-	dbg(0,"retval=%d\n",retval);
+    NSLog(@"Test");
+    dbg(0,"retval=%d\n",retval);
 #else
 	NavitAppDelegate * delegate = [[NavitAppDelegate alloc] init];
 	NSApplication * application = [NSApplication sharedApplication];
