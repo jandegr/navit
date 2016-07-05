@@ -4,6 +4,10 @@ include_directories( "${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories( "${CMAKE_CURRENT_BINARY_DIR}")
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/support")
 
+IF(POLICY CMP0008)
+   cmake_policy(SET CMP0008 OLD)
+ENDIF()
+
 # navit cre
 set(NAVIT_SRC announcement.c atom.c attr.c cache.c callback.c command.c config_.c coord.c country.c data_window.c debug.c
    event.c file.c geom.c graphics.c gui.c item.c layout.c log.c main.c map.c maps.c
