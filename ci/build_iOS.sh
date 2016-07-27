@@ -3,6 +3,7 @@
 echo "build iOS"
 brew install cmake
 brew install gettext
+brew link --force gettext
 ls -la
 mkdir navit-build
 cd navit-build
