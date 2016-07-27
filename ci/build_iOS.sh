@@ -2,6 +2,7 @@
 
 echo "build iOS"
 brew install cmake
+brew install gettext
 ls -la
 mkdir navit-build
 cd navit-build
