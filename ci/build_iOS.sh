@@ -7,7 +7,7 @@ brew link --force gettext
 cd $HOME
 wget ftp://ftp.imagemagick.org/pub/ImageMagick/binaries/ImageMagick-x86_64-apple-darwin15.4.0.tar.gz
 tar xvzf ImageMagick-x86_64-apple-darwin15.4.0.tar.gz
-export MAGICK_HOME="$HOME/ImageMagick-7.0.2"
+export MAGICK_HOME="$HOME/ImageMagick-7.0.1"
 export PATH="$MAGICK_HOME/bin:$PATH"
 export DYLD_LIBRARY_PATH="$MAGICK_HOME/lib/"
 cd $HOME/git
