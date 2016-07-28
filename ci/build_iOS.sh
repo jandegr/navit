@@ -14,6 +14,7 @@ brew link --force gettext
 cd $HOME/git
 rm navit/xpm/gui_map.svg
 rm navit/xpm/country_BR.svgz
+rm navit/xpm/country_KY.svgz
 ls -la
 mkdir navit-build
 cd navit-build
