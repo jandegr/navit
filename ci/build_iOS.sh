@@ -4,6 +4,7 @@ echo "build iOS"
 brew install cmake
 brew install gettext
 brew link --force gettext
+brew install librsvg
 ls -la
 mkdir navit-build
 cd navit-build
