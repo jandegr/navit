@@ -10,7 +10,7 @@ brew link --force gettext
 #export MAGICK_HOME="$HOME/ImageMagick-7.0.1"
 #export PATH="$MAGICK_HOME/bin:$PATH"
 #export DYLD_LIBRARY_PATH="$MAGICK_HOME/lib/"
-brew install librsvg
+#brew install librsvg
 cd $HOME/git
 ls -la
 mkdir navit-build
