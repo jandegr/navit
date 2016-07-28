@@ -137,6 +137,8 @@ find_package(Glib)
 find_package(Gmodule)
 if(NOT APPLE) #issue with .tbd still not solved on iOS
     find_package(ZLIB)
+else(NOT APPLE)
+    find_package(NONOZLIB)
 endif(NOT APPLE)
 find_package(Freetype)
 find_package(SDL)
