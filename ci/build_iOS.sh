@@ -12,6 +12,7 @@ brew link --force gettext
 #export DYLD_LIBRARY_PATH="$MAGICK_HOME/lib/"
 #brew install librsvg
 cd $HOME/git
+rm navit/xpm/gui_map.svg
 ls -la
 mkdir navit-build
 cd navit-build
