@@ -13,6 +13,7 @@ brew link --force gettext
 #brew install librsvg
 cd $HOME/git
 rm navit/xpm/gui_map.svg
+rm navit/xpm/country_BR.svgz
 ls -la
 mkdir navit-build
 cd navit-build
