@@ -23,4 +23,4 @@ xcodebuild -list -project navit.xcodeproj
 xcodebuild -configuration RelWithDebInfo 
 ls -la navit/RelWithDebInfo-iphoneos/navit.app
 ls -la navit/RelWithDebInfo-iphoneos/navit.app/share
-echo "END OF build_iOS.sh, configuration only !!!!!!!!!!!!"
+echo "END OF build_iOS.sh"
