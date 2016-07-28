@@ -4,6 +4,7 @@ echo "build iOS"
 brew install cmake
 brew install gettext
 brew link --force gettext
+wget ftp://ftp.imagemagick.org/pub/ImageMagick/binaries/ImageMagick-x86_64-apple-darwin15.4.0.tar.gz
 ls -la
 mkdir navit-build
 cd navit-build
