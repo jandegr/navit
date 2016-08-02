@@ -13,7 +13,7 @@ get_filename_component(COMPILER_PATH ${CMAKE_C_COMPILER} PATH)
 
 set(ANDROID_NDK "${COMPILER_PATH}/../../../../.." CACHE STRING "PATH to Andriod NDK")
 
-set(NDK_ARCH_DIR "${ANDROID_NDK}/platforms/android-${ANDROID_NDK_API_VERSION}/arch-x86")
+set(NDK_ARCH_DIR "${ANDROID_NDK}/platforms/android-${ANDROID_NDK_API_VERSION}/arch-x86_64")
 set(CMAKE_FIND_ROOT_PATH ${NDK_ARCH_DIR})
 set(CMAKE_REQUIRED_FLAGS "-ldl --sysroot=${NDK_ARCH_DIR} ${EXTRA_COMPILER_FLAGS}")
 set(CMAKE_REQUIRED_INCLUDES "${NDK_ARCH_DIR}/usr/include")
