@@ -4,7 +4,7 @@ echo "build iOS"
 brew install cmake
 brew install gettext
 brew link --force gettext
-gem install shenzhen
+#gem install shenzhen
 cd $HOME/git
 rm navit/xpm/gui_map.svg
 rm navit/xpm/country_BR.svgz
@@ -15,9 +15,9 @@ cmake -G Xcode ../ -DCMAKE_TOOLCHAIN_FILE=Toolchain/xcode-iphone.cmake -DUSE_PLU
 mv ../navit.xcworkspace ./
 ls -la
 xcodebuild -list -project navit.xcodeproj
-ipa --help
-ipa build
-#xcodebuild -configuration RelWithDebInfo
+#ipa --help
+#ipa build
+xcodebuild -configuration RelWithDebInfo
 ls -la navit/RelWithDebInfo-iphoneos/navit.app
 ls -la navit/RelWithDebInfo-iphoneos/navit.app/share
 echo "END OF build_iOS.sh"
