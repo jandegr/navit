@@ -1,5 +1,6 @@
 SET(USE_UIKIT 1)
 SET(TARGETSDK iPhoneOS9.3.sdk)
+# selection of arm64 apparently not working, stays armv7
 SET(CMAKE_OSX_ARCHITECTURES arm64)
 SET(ARCHS "-arch arm64")
 SET(CMAKE_MACOSX_BUNDLE YES)
