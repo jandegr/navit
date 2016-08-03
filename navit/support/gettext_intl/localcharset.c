@@ -40,6 +40,9 @@
 # include <stdlib.h>
 #endif
 
+//test for iOS arm64
+# include <stdlib.h>
+
 #if defined _WIN32 || defined __WIN32__
 # undef WIN32   /* avoid warning on mingw32 */
 # define WIN32
