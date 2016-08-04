@@ -34,6 +34,7 @@
 #include "gthreadprivate.h"
 #include "glib.h"
 #include "galias.h"
+#include "gthread.h"
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>             /* sysconf() */
 #endif
