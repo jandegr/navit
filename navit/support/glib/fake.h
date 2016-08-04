@@ -22,6 +22,7 @@
 #  define g_private_set(a,b) pthread_setspecific(a, b)
 pthread_mutex_t* g_mutex_new_navit(void);
 void g_get_current_time (GTimeVal *result);
+GPrivate g_private_new_navit ();
 #else
 # if HAVE_API_WIN32_BASE
 #  define GMutex CRITICAL_SECTION
