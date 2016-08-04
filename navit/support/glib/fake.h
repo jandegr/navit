@@ -6,7 +6,7 @@
 #include <pthread.h>
 #endif
 #include "debug.h"
-
+#include "gtypes.h"
 #define g_return_if_fail
 
 
