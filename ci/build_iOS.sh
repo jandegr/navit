@@ -17,7 +17,7 @@ ls -la
 xcodebuild -list -project navit.xcodeproj
 #ipa --help
 #ipa build
-xcodebuild -configuration RelWithDebInfo ARCHS="arm64"
+xcodebuild -configuration RelWithDebInfo ARCHS="armv7 arm64"
 ls -la navit/RelWithDebInfo-iphoneos/navit.app
 ls -la navit/RelWithDebInfo-iphoneos/navit.app/share
 echo "END OF build_iOS.sh"
