@@ -33,6 +33,8 @@
 #include "glib.h"
 #include "galias.h"
 #include "gatomic.h"
+#include "gprimes.h"
+
 
 #define HASH_TABLE_MIN_SIZE 11
 #define HASH_TABLE_MAX_SIZE 13845163
