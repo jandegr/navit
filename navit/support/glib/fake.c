@@ -17,6 +17,8 @@
 
 #include <stdio.h>              /* fputs/fprintf */
 
+#include <sys/time.h>
+
 char* g_convert (const char  *in,
 	int        len,            
 	const char  *to_codeset,
