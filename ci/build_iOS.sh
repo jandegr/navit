@@ -21,4 +21,6 @@ xcodebuild -configuration RelWithDebInfo ARCHS="arm64"
 ls -la navit/RelWithDebInfo-iphoneos/navit.app
 ls -la navit/RelWithDebInfo-iphoneos/navit.app/share
 ls -la navit/RelWithDebInfo-iphoneos/navit.app/share/navit
+xcrun -sdk iphoneos PackageApplication -v "navit/RelWithDebInfo-iphoneos/navit.app" -o "navit.ipa"
+ls -la
 echo "END OF build_iOS.sh"
