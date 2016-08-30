@@ -422,6 +422,15 @@ gui_internal_cmd2_setting_layout(struct gui_priv *this, char *function, struct a
 	gui_internal_menu_render(this);
 }
 
+/*
+ * @brief Displays Route Height Profile
+ *
+ * displays a heightprofile if a route is active and 
+ * some heightinfo is provided by means of a map
+ *
+ * todo: fix a division by zero bug, provide a scale,
+ * improve the representation
+ */
 static void
 gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, struct attr **in, struct attr ***out, int *valid)
 {
@@ -699,15 +708,6 @@ gui_internal_cmd2_locale(struct gui_priv *this, char *function, struct attr **in
 	graphics_draw_mode(this->gra, draw_mode_end);
 }
 
-/*
- * @brief Displays Route Height Profile
- *
- * displays a heightprofile if a route is active and 
- * some heightinfo is provided by means of a map
- *
- * todo: fix a division by zero bug, provide a scale,
- * improve the representation
- */
 static void
 gui_internal_cmd_formerdests(struct gui_priv *this, char *function, struct attr **in, struct attr ***out, int *valid)
 {
