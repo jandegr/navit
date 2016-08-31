@@ -18,7 +18,7 @@ dependencies:
 #    - wget -c -O  ~/europe-latest.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
 #    - wget http://m.m.i24.cc/osmconvert.c && gcc osmconvert.c -lz -o osmconvert
     - wget -c -O ~/europe-heightlines.zip https://dl.dropboxusercontent.com/u/93775123/Navit/europe-heightlines.zip
-    - unzip ~/europe-heightlines.zip
+    - unzip ~/europe-heightlines.zip -d ~/
   cache_directories:
     - "~/assets/"
 test:
