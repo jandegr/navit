@@ -16,7 +16,7 @@ struct o5m {
 	int error;
 
 	int lat, lon, uid, version;
-	long long id, rid[3], changeset;
+	unsigned long long id, rid[3], changeset;
 	time_t timestamp;
 	char *user;
 };
@@ -49,24 +49,24 @@ static unsigned long long
 get_uval(unsigned char **p)
 {
 	unsigned char c;
-	long long ret=0;
+	unsigned long long ret=0;
 	int shift=0;
 
 	for (;;) {
 		c=*((*p)++);
-		ret+=((long long)c & 0x7f) << shift;
+		ret+=((unsigned long long)c & 0x7f) << shift;
 		if (!(c & 0x80)) 
 			return ret;
 		shift+=7;
 	}
 }
 
-static unsigned long long
+static long long
 get_sval(unsigned char **p)
 {
-	long long ret=get_uval(p);
+	unsigned long long ret=get_uval(p);
 	if (ret & 1) {
-		return -((ret >> 1)+1);
+		return -((long long)(ret >> 1)+1);
 	} else {
 		return ret >> 1;
 	}
@@ -335,7 +335,17 @@ map_collect_data_osm_o5m(FILE *in, struct maptool_osm *osm)
 			break;
 		default:
 			fprintf(stderr,"Unknown tag 0x%x\n",c);
-			return 0;
+			/* Fall through */
+		case 0xdc: /* File timestamp: silently ignore it */
+			len=get_uval(&o.buffer_start);
+			if (o.buffer_start > o.buffer_end) {
+				return 0;
+			}
+			if (buffer_end(&o, len)) {
+				return 0;
+			}
+			o.buffer_start+=len;
+			break;
 		}
 	}
 	return 0;
