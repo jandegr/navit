@@ -428,7 +428,7 @@ zip_set_timestamp(struct zip_info *info, char *timestamp)
 	return 0;
 }
 
-void
+int
 zip_open(struct zip_info *info, char *out, char *dir, char *index)
 {
 	info->res2=fopen(out,"wb+");
