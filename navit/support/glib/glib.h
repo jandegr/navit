@@ -36,6 +36,7 @@
 #include <glib/gstrfuncs.h>
 #include <glib/gunicode.h>
 #include <glib/gutils.h>
+#include <glib/gthreadprivate.h>
 
 #undef __GLIB_H_INSIDE__
 

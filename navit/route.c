@@ -351,9 +351,14 @@ static int is_turn_allowed(struct route_graph_point *p, struct route_graph_segme
 
 inline double now_ms()
 {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return tv.tv_sec*1000. + tv.tv_usec/1000.;
+ //   struct timeval tv;
+ //   gettimeofday(&tv, NULL);
+ //   return tv.tv_sec*1000. + tv.tv_usec/1000.;
+ 
+ // arm64 implicit declaration
+ 
+ return 0;
+ 
 }
 
 /**
