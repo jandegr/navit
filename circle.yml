@@ -17,8 +17,8 @@ dependencies:
 #    - wget -c -O  ~/europe-latest-complete.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
 #    - wget -c -O  ~/europe-latest.osm.pbf http://ftp.snt.utwente.nl/pub/misc/openstreetmap/europe-latest.osm.pbf
 #    - wget http://m.m.i24.cc/osmconvert.c && gcc osmconvert.c -lz -o osmconvert
-    - wget -c -O ~/europe-heightlines.zip https://dl.dropboxusercontent.com/u/93775123/Navit/europe-heightlines.zip
-    - unzip ~/europe-heightlines.zip -d ~/
+    - wget -c -O ~/europe.heightlines.zip https://dl.dropboxusercontent.com/u/93775123/Navit/europe.heightlines.zip
+    - unzip ~/europe.heightlines.zip -d ~/
 #    - wget -c -O ~/CA-incomplete.heightlines.zip https://dl.dropboxusercontent.com/u/93775123/Navit/CA-incomplete.heightlines.zip
 #    - unzip ~/CA-incomplete.heightlines.zip -d ~/
   cache_directories:
@@ -28,7 +28,7 @@ test:
 #    - ./osmconvert -h
     - ls -la /home/ubuntu/navit
     - ls -la /home/ubuntu
-    - ./bin/navit/maptool/maptool -i ~/europe-heightlines.osm $CIRCLE_ARTIFACTS/europe.heightlines.bin:
+    - ./bin/navit/maptool/maptool -i ~/europe.heightlines.osm $CIRCLE_ARTIFACTS/europe.heightlines.bin:
         timeout: 7200
 #    - ./bin/navit/maptool/maptool -i ~/CA-incomplete.heightlines.osm $CIRCLE_ARTIFACTS/CA-incomplete.heightlines.bin:
 #        timeout: 7200
