@@ -22,4 +22,6 @@ dependencies:
 
 test:
   post:
+    - ls -la ~/Srtm2Osm
+    - chmod 777 ~/Srtm2Osm/Srtm2Osm.exe
     - ~/Srtm2Osm/Srtm2Osm.exe
