@@ -28,7 +28,7 @@ test:
 #    - ./osmconvert -h
     - ls -la /home/ubuntu/navit
     - ls -la /home/ubuntu
-    - ./bin/navit/maptool/maptool -i ~/BNLFR-srtm-no-author.zip $CIRCLE_ARTIFACTS/BNLFR.heightlines.bin:
+    - ./bin/navit/maptool/maptool -i ~/BNLFR-srtm-no-author.osm $CIRCLE_ARTIFACTS/BNLFR.heightlines.bin:
         timeout: 7200
 #    - ./bin/navit/maptool/maptool -i ~/CA-incomplete.heightlines.osm $CIRCLE_ARTIFACTS/CA-incomplete.heightlines.bin:
 #        timeout: 7200
