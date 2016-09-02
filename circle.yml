@@ -19,9 +19,15 @@ dependencies:
     - bash ci/build.sh
     - wget -c -O ~/Srtm2Osm-1.12.307.1.zip https://dl.dropboxusercontent.com/u/93775123/Navit/Srtm2Osm-1.12.307.1.zip
     - unzip ~/Srtm2Osm-1.12.307.1.zip -d ~/
-
+    - mkdir ~/Srtm2Osm/srtm
+    - mkdir ~/Srtm2Osm/srtm/SrtmCache
+    - wget -c -O ~/SrtmCache.zip https://dl.dropboxusercontent.com/u/93775123/Navit/SrtmCache.zip
+    - unzip ~/SrtmCache.zip -d ~/Srtm2Osm/srtm/SrtmCache
+    
 test:
   post:
     - ls -la ~/Srtm2Osm
     - chmod 777 ~/Srtm2Osm/Srtm2Osm.exe
-    - mono ~/Srtm2Osm/Srtm2Osm.exe
+    - mono ~/Srtm2Osm/Srtm2Osm.exe -bounds1 0 -37 83 83 -cat 400 100 -large -firstnodeid 54000000000 -firstwayid 54000000000 -maxwaynodes 1999
+    - ./bin/navit/maptool/maptool -i ~/~/Srtm2Osm/srtm.osm $CIRCLE_ARTIFACTS/nicepartofplanet.heightlines.bin:
+        timeout: 7200
