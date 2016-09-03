@@ -518,9 +518,7 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 	if(map)
 		mr = map_rect_new(map,NULL);
 	if(mr && heightlines) {
-		int last_height = 0;
-		int last_height_valid = FALSE;
-		while((item = map_rect_get_item(mr))) {
+		while(item = map_rect_get_item(mr)) {
 			first=1;
 			while (item_coord_get(item, &c, 1)) {
 				if (first)
@@ -531,7 +529,7 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 					rbbox.rl=last;
 					coord_rect_extend(&rbbox, &c);
 					while (heightline) {
-						if (coord_rect_overlap(&rbbox, &heightline->bbox) && !(last_height_valid && last_height == heightline->height)) {
+						if (coord_rect_overlap(&rbbox, &heightline->bbox)) {
 							for (i = 0 ; i < heightline->count - 1; i++) {
 								if (heightline->c[i].x != heightline->c[i+1].x || heightline->c[i].y != heightline->c[i+1].y) {
 									if (line_intersection(heightline->c+i, heightline->c+i+1, &last, &c, &res)) {
@@ -541,8 +539,6 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 										diagram_point->next=diagram_points;
 										diagram_points=diagram_point;
 										diagram_points_count ++;
-										last_height_valid = TRUE;
-										last_height = heightline->height;
 										dbg(lvl_debug,"%d %d\n", diagram_point->c.x, diagram_point->c.y);
 									}
 								}
