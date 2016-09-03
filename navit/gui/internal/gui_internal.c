@@ -2979,9 +2979,13 @@ static struct gui_internal_widget_methods gui_internal_widget_methods = {
 	gui_internal_set_default_background,
 };
 
-
 /**
- * @brief Displays Route information
+ * @brief finds the intersection point of 2 lines
+ *
+ * @param coord a1, a2, b1, b2 : coords of the start and 
+ * end of the first and the second line
+ * @param coord res, will become the coords of the intersection if found
+ * @return : TRUE if intersection found, otherwise FALSE
  */
 
 int
@@ -3001,18 +3005,19 @@ line_intersection(struct coord* a1, struct coord *a2, struct coord * b1, struct 
                 b = -b;
         }
         if (a < 0 || b < 0)
-                return 0;
+                return FALSE;
         if (a > n || b > n)
-                return 0;
+                return FALSE;
 	if (n == 0) {
 		dbg(lvl_info,"a=%d b=%d n=%d\n", a, b, n);
 		dbg(lvl_info,"a1=0x%x,0x%x ad %d,%d\n", a1->x, a1->y, adx, ady);
 		dbg(lvl_info,"b1=0x%x,0x%x bd %d,%d\n", b1->x, b1->y, bdx, bdy);
-		dbg_assert(n != 0);
+		dbg(lvl_info,"No intersection found, lines assumed parallel ?\n");
+		return FALSE;
 	}
         res->x = a1->x + a * adx / n;
         res->y = a1->y + a * ady / n;
-        return 1;
+        return TRUE;
 }
 
 struct heightline *
@@ -3042,18 +3047,6 @@ item_get_heightline(struct item *item)
 	return ret;
 }
 
-
-/**
- * @brief Displays Route Height Profile
- *
- * @li The name of the active vehicle
- * @param wm The button that was pressed.
- * @param v Unused
- */
-
-
-
-
 /**
  * @brief Called when the route is updated.
  */
@@ -3070,7 +3063,6 @@ gui_internal_route_update(struct gui_priv * this, struct navit * navit, struct v
 
 
 }
-
 
 /**
  * @brief Called when the route screen is closed (deallocated).
