@@ -428,10 +428,6 @@ gui_internal_cmd2_setting_layout(struct gui_priv *this, char *function, struct a
  * displays a heightprofile if a route is active and 
  * some heightinfo is provided by means of a map
  *
- * the drawing is simplified by assuming straight
- * roads between the crossings of the route and the 
- * heightlines.
- *
  * the name of the file providing the heightlines must
  * comply with *.heightlines.bin
  * 
@@ -522,6 +518,8 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 	if(map)
 		mr = map_rect_new(map,NULL);
 	if(mr && heightlines) {
+		int last_height = 0;
+		int last_height_valid = FALSE;
 		while((item = map_rect_get_item(mr))) {
 			first=1;
 			while (item_coord_get(item, &c, 1)) {
@@ -533,7 +531,7 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 					rbbox.rl=last;
 					coord_rect_extend(&rbbox, &c);
 					while (heightline) {
-						if (coord_rect_overlap(&rbbox, &heightline->bbox)) {
+						if (coord_rect_overlap(&rbbox, &heightline->bbox) && !(last_height_valid && last_height == heightline->height)) {
 							for (i = 0 ; i < heightline->count - 1; i++) {
 								if (heightline->c[i].x != heightline->c[i+1].x || heightline->c[i].y != heightline->c[i+1].y) {
 									if (line_intersection(heightline->c+i, heightline->c+i+1, &last, &c, &res)) {
@@ -543,6 +541,8 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 										diagram_point->next=diagram_points;
 										diagram_points=diagram_point;
 										diagram_points_count ++;
+										last_height_valid = TRUE;
+										last_height = heightline->height;
 										dbg(lvl_debug,"%d %d\n", diagram_point->c.x, diagram_point->c.y);
 									}
 								}
@@ -554,7 +554,6 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 				}
 				last=c;
 			}
-
 		}
 	}
 	if(mr)
