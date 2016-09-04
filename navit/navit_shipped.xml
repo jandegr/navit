@@ -663,10 +663,17 @@ Waypoint</text></img>
 					<polyline color="#000000" width="4"/>
 					<text text_size="8"/>
 				</itemgra>
-				<itemgra item_types="height_line_2" order="4-">
+				<itemgra item_types="height_line_2" order="5-6">
 					<polyline color="#000000" width="2"/>
 				</itemgra>
-				<itemgra item_types="height_line_3" order="6-">
+				<itemgra item_types="height_line_2" order="7-">
+					<polyline color="#000000" width="2"/>
+					<text text_size="8"/>
+				</itemgra>
+				<itemgra item_types="height_line_3" order="6-7">
+					<polyline color="#000000" width="1"/>
+				</itemgra>
+				<itemgra item_types="height_line_3" order="8-">
 					<polyline color="#000000" width="1"/>
 					<text text_size="8"/>
 				</itemgra>
