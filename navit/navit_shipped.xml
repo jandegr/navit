@@ -77,7 +77,7 @@ Navigation</text></img>
 				<img src='gui_vehicle' onclick='setting_vehicle()'><text>Vehicle</text></img>
 				<!-- <a href='#Settings Vehicles'><img src='gui_vehicle'><text>Vehicle</text></img></a> -->
 				<img src='gui_rules' onclick='setting_rules()'><text>Rules</text></img>
-				<a href='#Settings Layers'><img src='gui_settings'><text>Layers</text></img></a>
+				<a href='#Settings Layers'><img src='gui_layers'><text>Layers</text></img></a>
 			</a>
 			<a name='Settings Display'><text>Display</text>
 				<!-- <img src='gui_display' onclick='setting_layout()'><text>Layout</text></img> -->
