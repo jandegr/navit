@@ -435,10 +435,7 @@ gui_internal_cmd2_setting_layout(struct gui_priv *this, char *function, struct a
 static void
 gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, struct attr **in, struct attr ***out, int *valid)
 {
-
-
 	struct widget * menu, *box;
-
 	struct map * map=NULL;
 	struct map_rect * mr=NULL;
 	struct route * route;
@@ -481,6 +478,7 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 		mr = NULL;
 		ms=navit_get_mapset(this->nav);
 		if (!first && ms) {
+			int heightmap_installed = FALSE;
 			msh=mapset_open(ms);
 			while ((map=mapset_next(msh, 1))) {
 				struct attr name_attr;
@@ -489,6 +487,7 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 					if (strstr(name_attr.u.str,".heightlines.bin")){
 						dbg(lvl_info,"reading heightlines from map %s\n",name_attr.u.str);
 						mr=map_rect_new(map, &sel);
+						heightmap_installed = TRUE;
 					}
 					else {
 						dbg(lvl_debug,"ignoring map %s\n",name_attr.u.str);
@@ -509,6 +508,13 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 				}
 			}
 			mapset_close(msh);
+			if (!heigtmap_installed){
+				char *text;
+				text=g_strdup_printf(_("%s","please install a map *.heightlines.bin to provide elevationdata"));
+				gui_internal_widget_append(wb, w=gui_internal_label_new(this, text));
+				w->flags=gravity_bottom_center|orientation_horizontal|flags_fill;
+				g_free(text);
+			}
 		}
 	}
 	map=NULL;
