@@ -510,6 +510,7 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 			mapset_close(msh);
 			if (!heightmap_installed){
 				char *text;
+				struct *w;
 				text=g_strdup_printf("%s",_("please install a map *.heightlines.bin to provide elevationdata"));
 				gui_internal_widget_append(box, w=gui_internal_label_new(this, text));
 				w->flags=gravity_bottom_center|orientation_horizontal|flags_fill;
