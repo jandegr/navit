@@ -525,7 +525,7 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 	if(map)
 		mr = map_rect_new(map,NULL);
 	if(mr && heightlines) {
-		while(item = map_rect_get_item(mr)) {
+		while((item = map_rect_get_item(mr))) {
 			first=1;
 			while (item_coord_get(item, &c, 1)) {
 				if (first)
