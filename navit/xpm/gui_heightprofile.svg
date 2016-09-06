@@ -29,13 +29,14 @@
      inkscape:window-height="935"
      id="namedview3414"
      showgrid="false"
-     inkscape:zoom="54.714286"
-     inkscape:cx="4.2950392"
-     inkscape:cy="7"
+     inkscape:zoom="3.8232035"
+     inkscape:cx="73.483375"
+     inkscape:cy="50.516855"
      inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg5952" />
+     inkscape:current-layer="layer1"
+     inkscape:snap-nodes="false" />
   <rect
      id="svgEditorBackground"
      x="1.51953"
@@ -43,96 +44,8 @@
      width="15"
      height="11"
      style="fill: none; stroke: none;" />
-  <polygon
-     style="fill:#969696;stroke:none;stroke-width:0.03389831;fill-opacity:1"
-     id="e2_polygon"
-     points="16.9602,17.4282 0.790717,17.3265 0.790717,15.6655 4.07885,15.5977 5.87546,10.6147 8.65512,13.1231 10.1128,12.9876 12.4856,6.64857 14.7229,16.5808 16.9602,16.7164 "
-     transform="matrix(1.0045213,0,0,1,-0.07668212,0)" />
-  <polyline
-     stroke="black"
-     stroke-width="0.45"
-     style="fill:none;stroke:#bfbfbf;stroke-opacity:1;stroke-width:0.45;stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round;stroke-linecap:butt"
-     id="e1_polyline"
-     points="0.72292,15.4621 4.07885,15.496 5.84156,10.513 8.65512,13.0553 10.0789,13.0553 12.5195,6.47908 14.689,16.6486 16.9941,16.6825" />
   <defs
-     id="defs5954">
-    <linearGradient
-       id="linearGradient2485-94">
-      <stop
-         id="stop2486-7"
-         style="stop-color:#ffffff;stop-opacity:1"
-         offset="0" />
-      <stop
-         id="stop2487-83"
-         style="stop-color:#aaaaaa;stop-opacity:1"
-         offset="1" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient5704-5">
-      <stop
-         id="stop5706-120"
-         style="stop-color:#5a5a5a;stop-opacity:1"
-         offset="0" />
-      <stop
-         id="stop5708-16"
-         style="stop-color:#000000;stop-opacity:1"
-         offset="1" />
-    </linearGradient>
-    <linearGradient
-       x1="974.19751"
-       y1="182.46863"
-       x2="979.80444"
-       y2="184.8026"
-       id="linearGradient4351"
-       xlink:href="#linearGradient2485-94"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-963.97872,-173.95451)" />
-    <linearGradient
-       x1="968.88806"
-       y1="178.31856"
-       x2="977.93347"
-       y2="181.70978"
-       id="linearGradient4353"
-       xlink:href="#linearGradient5704-5"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-963.97872,-173.95451)" />
-    <linearGradient
-       x1="974.19751"
-       y1="182.46863"
-       x2="979.80444"
-       y2="184.8026"
-       id="linearGradient4356"
-       xlink:href="#linearGradient2485-94"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-963.97872,-170.95451)" />
-    <linearGradient
-       x1="968.88806"
-       y1="178.31856"
-       x2="977.93347"
-       y2="181.70978"
-       id="linearGradient4358"
-       xlink:href="#linearGradient5704-5"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-963.97872,-170.95451)" />
-    <linearGradient
-       x1="974.19751"
-       y1="182.46863"
-       x2="979.80444"
-       y2="184.8026"
-       id="linearGradient4362"
-       xlink:href="#linearGradient2485-94"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-963.97872,-167.95454)" />
-    <linearGradient
-       x1="968.88806"
-       y1="178.31856"
-       x2="977.93347"
-       y2="181.70978"
-       id="linearGradient4364"
-       xlink:href="#linearGradient5704-5"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-963.97872,-167.95454)" />
-  </defs>
+     id="defs5954" />
   <metadata
      id="metadata5957">
     <rdf:RDF>
@@ -141,7 +54,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -153,4 +66,25 @@
      width="1250"
      height="1250"
      xlink:href="#rect12856" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Layer 1">
+    <path
+       style="fill:#6a6a6a;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m 2.3042134,4.730398 -0.2615607,25.109832 199.3092973,0 0.26156,-13.078038 -28.24857,0 -26.67919,-97.823722 -29.03325,61.728338 -18.832368,0 -33.218216,-23.540467 -20.92486,46.2962532 z"
+       id="path4167"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccccc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2">
+    <polyline
+       style="fill:none;stroke:#bfbfbf;stroke-width:0.44999999;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="e1_polyline"
+       points="0.72292,15.4621 4.07885,15.496 5.84156,10.513 8.65512,13.0553 10.0789,13.0553 12.5195,6.47908 14.689,16.6486 16.9941,16.6825"
+       transform="matrix(12.28046,0,0,9.6749589,-7.2840213,-145.0138)" />
+  </g>
 </svg>
