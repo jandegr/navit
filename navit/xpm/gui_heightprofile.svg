@@ -1,83 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   version="1.1"
-   width="100%"
-   height="100%"
-   id="svg5952"
-   viewBox="1.51953125 3.546875 14 14"
-   preserveAspectRatio="xMidYMid meet"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="gui_heightprofile.svg">
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1215"
-     inkscape:window-height="935"
-     id="namedview3414"
-     showgrid="false"
-     inkscape:zoom="3.8232035"
-     inkscape:cx="73.483375"
-     inkscape:cy="50.516855"
-     inkscape:window-x="200"
-     inkscape:window-y="200"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
-     inkscape:snap-nodes="false" />
-  <defs
-     id="defs5954" />
-  <metadata
-     id="metadata5957">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <use
-     transform="translate(-961.86731,-168.04527)"
-     id="use13602"
-     x="0"
-     y="0"
-     width="1250"
-     height="1250"
-     xlink:href="#rect12856" />
-  <g
-     inkscape:groupmode="layer"
-     id="layer1"
-     inkscape:label="Layer 1">
-    <path
-       style="fill:#6a6a6a;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="m 2.3042134,4.730398 -0.2615607,25.109832 199.3092973,0 0.26156,-13.078038 -28.24857,0 -26.67919,-97.823722 -29.03325,61.728338 -18.832368,0 -33.218216,-23.540467 -20.92486,46.2962532 z"
-       id="path4167"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccccccccc" />
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="layer2"
-     inkscape:label="Layer 2">
-    <polyline
-       style="fill:none;stroke:#bfbfbf;stroke-width:0.44999999;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="e1_polyline"
-       points="0.72292,15.4621 4.07885,15.496 5.84156,10.513 8.65512,13.0553 10.0789,13.0553 12.5195,6.47908 14.689,16.6486 16.9941,16.6825"
-       transform="matrix(12.28046,0,0,9.6749589,-7.2840213,-145.0138)" />
-  </g>
-</svg>
+<svg width="200" height="200">
+   <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:rgb(90,90,90);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(175,175,175);stop-opacity:1" />
+    </radialGradient>
+  </defs>
+   <polygon points="0,200 200,200 200,0 0,0" style="stroke:purple;stroke-width:1" />
+   <polygon points="10,165 30,165 60,80 75,120 85,120 115,20 160,185 190,185 190,195 10,195" fill="url(#grad1)" />
+   <line x1="10" y1="165" x2="30" y2="165" style="fill:none;stroke:gainsboro;stroke-width:6" />
+   <line stroke-linecap="round" x1="30" y1="165" x2="60" y2="80" style="fill:none;stroke:gainsboro;stroke-width:6" />
+   <line stroke-linecap="round" x1="60" y1="80" x2="75" y2="120" style="fill:none;stroke:gainsboro;stroke-width:6" />
+   <line stroke-linecap="round" x1="75" y1="120" x2="85" y2="120" style="fill:none;stroke:gainsboro;stroke-width:6" />
+   <line stroke-linecap="round" x1="85" y1="120" x2="115" y2="20" style="fill:none;stroke:gainsboro;stroke-width:6" />
+   <line stroke-linecap="round" x1="115" y1="20" x2="160" y2="185" style="fill:none;stroke:gainsboro;stroke-width:6" />
+   <line x1="160" y1="185" x2="190" y2="185" style="fill:none;stroke:gainsboro;stroke-width:6" />
+</svg> 
