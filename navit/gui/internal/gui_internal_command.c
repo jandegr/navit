@@ -515,6 +515,8 @@ gui_internal_cmd2_route_height_profile(struct gui_priv *this, char *function, st
 				gui_internal_widget_append(box, w=gui_internal_label_new(this, text));
 				w->flags=gravity_bottom_center|orientation_horizontal|flags_fill;
 				g_free(text);
+				gui_internal_menu_render(this);
+				return;
 			}
 		}
 	}
