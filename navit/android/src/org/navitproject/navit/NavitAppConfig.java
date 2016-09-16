@@ -2,18 +2,21 @@ package org.navitproject.navit;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.navitproject.navit.NavitAddressSearchActivity.NavitAddress;
+
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.util.Log;
-import org.acra.*;
+
 import org.acra.annotation.*;
 
-@ReportsCrashes(httpMethod = org.acra.sender.HttpSender.Method.PUT,
-   		reportType = org.acra.sender.HttpSender.Type.JSON,
-   		formUri = "http://192.168.1.115/acra-myapp/_design/acra-storage/_update/report",
-   		formUriBasicAuthLogin="testnavit",
-        	formUriBasicAuthPassword="p4ssw0rd")
+@ReportsCrashes(
+		httpMethod = org.acra.sender.HttpSender.Method.PUT,
+    		reportType = org.acra.sender.HttpSender.Type.JSON,
+    		formUri = "http://192.168.1.115/acra-myapp/_design/acra-storage/_update/report",
+    		formUriBasicAuthLogin = "testnavit",
+    		formUriBasicAuthPassword = "p4ssw0rd")
 public class NavitAppConfig extends Application {
 
 	private static final int         MAX_LAST_ADDRESSES = 10;
@@ -56,7 +59,7 @@ public class NavitAppConfig extends Application {
 						        1,0,
 						        mSettings.getFloat("LastAddress_Lat_" + String.valueOf(index), 0),
 						        mSettings.getFloat("LastAddress_Lon_" + String.valueOf(index), 0),
-						        addr_str,""));
+						        addr_str, null));
 					}
 
 					if (--index < 0) index = MAX_LAST_ADDRESSES - 1;
