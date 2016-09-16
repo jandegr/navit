@@ -217,21 +217,26 @@ Java_org_navitproject_navit_NavitSensors_SensorCallback( JNIEnv* env, jobject th
 
 // type: 0=town, 1=street, 2=House#
 void
-android_return_search_result(struct jni_object *jni_o, int type, struct pcoord *location, const char *address)
+android_return_search_result(struct jni_object *jni_o, int type, int id, struct pcoord *location, const char *address, const char *address_extras)
 {
 	struct coord_geo geo_location;
 	struct coord c;
 	jstring jaddress = NULL;
+	jstring jaddress_extras = NULL;
 	JNIEnv* env;
 	env=jni_o->env;
 	jaddress = (*env)->NewStringUTF(jni_o->env,address);
+	jaddress_extras = (*env)->NewStringUTF(jni_o->env,address_extras);
+
+//	dbg(0,"address =%s, extras = %s\n",address,address_extras);
 
 	c.x=location->x;
 	c.y=location->y;
 	transform_to_geo(location->pro, &c, &geo_location);
 
-	(*env)->CallVoidMethod(jni_o->env, jni_o->jo, jni_o->jm, type, geo_location.lat, geo_location.lng, jaddress);
+	(*env)->CallVoidMethod(jni_o->env, jni_o->jo, jni_o->jm, type, id, geo_location.lat, geo_location.lng, jaddress, jaddress_extras);
 	(*env)->DeleteLocalRef(jni_o->env, jaddress);
+	(*env)->DeleteLocalRef(jni_o->env, jaddress_extras);
 }
 
 JNIEXPORT jstring JNICALL
@@ -428,6 +433,7 @@ Java_org_navitproject_navit_NavitGraphics_CallbackMessageChannel( JNIEnv* env, j
 	return NULL;
 }
 
+// int channel not used ?
 JNIEXPORT jstring JNICALL
 Java_org_navitproject_navit_NavitGraphics_GetDefaultCountry( JNIEnv* env, jobject thiz, int channel, jobject str)
 {
@@ -565,9 +571,9 @@ district_str(struct search_list_result *res, int level)
 static char *
 town_str(struct search_list_result *res, int level)
 {
-	char *town=res->town->common.town_name;
-	char *district=district_str(res, level);
-	char *postal=postal_str(res, level);
+
+	char *district=district_str(res, level%10);
+	char *postal=postal_str(res, level%10);
 	char *postal_sep=" ";
 	char *district_begin=" (";
 	char *district_end=")";
@@ -580,7 +586,13 @@ town_str(struct search_list_result *res, int level)
 	if (!county)
 		county_sep=county="";
 
-	return g_strdup_printf("%s%s%s%s%s%s%s%s", postal, postal_sep, town, district_begin, district, district_end, county_sep, county);
+	if (level == 11){
+		char *town=res->town->common.town_name;
+		return g_strdup_printf("%s", town);
+		}
+	else{
+		return g_strdup_printf("%s%s%s%s%s%s%s", postal, postal_sep, district_begin, district, district_end, county_sep, county);
+	}
 }
 
 static void
@@ -604,16 +616,12 @@ android_search_end(struct android_search_priv *search_priv)
 		dbg(lvl_error, "Error method finishAddressSearch not found");
 	}
 
-	search_list_destroy(search_priv->search_list);
-	g_strfreev(search_priv->phrases);
-	g_free(search_priv);
+//  voorlopig dan maar niet
+//	search_list_destroy(search_priv->search_list);
+//	g_strfreev(search_priv->phrases);
+//	g_free(search_priv);
 }
 
-static enum attr_type android_search_level[] = {
-	attr_town_or_district_name,
-	attr_street_name,
-	attr_house_number
-};
 
 static void
 android_search_idle(struct android_search_priv *search_priv)
@@ -628,16 +636,22 @@ android_search_idle(struct android_search_priv *search_priv)
 		{
 		case attr_town_or_district_name:
 		{
-			gchar *town = town_str(res, 1);
-			android_return_search_result(&search_priv->search_result_obj, 0, res->town->common.c, town);
+
+			gchar *town = town_str(res, 11);
+			gchar *town_extras = town_str(res, 1);
+			android_return_search_result(&search_priv->search_result_obj, 0,res->id, res->town->common.c,town,town_extras);
 			g_free(town);
+			g_free(town_extras);
 			break;
 		}
+
+		// town weergave  zal nog moeten bijgewerkt worden
 		case attr_street_name:
 		{
 			gchar *town = town_str(res, 2);
-			gchar *address = g_strdup_printf("%.101s,%.101s, %.101s", res->country->name, town, res->street->name);
-			android_return_search_result(&search_priv->search_result_obj, 1, res->street->common.c, address);
+			gchar *address = g_strdup_printf("%.101s,%.101s", res->country->name, town);
+			gchar *street_name = g_strdup_printf("%.101s", res->street->name);
+			android_return_search_result(&search_priv->search_result_obj, 1, res->id, res->street->common.c, street_name, address);
 			g_free(address);
 			g_free(town);
 			break;
@@ -645,8 +659,9 @@ android_search_idle(struct android_search_priv *search_priv)
 		case attr_house_number:
 		{
 			gchar *town = town_str(res, 3);
-			gchar *address = g_strdup_printf("%.101s, %.101s, %.101s %.15s", res->country->name, town, res->street->name, res->house_number->house_number);
-			android_return_search_result(&search_priv->search_result_obj, 2, res->house_number->common.c, address);
+			gchar *address = g_strdup_printf("%.101s, %.101s, %.101s", res->country->name, town, res->street->name);
+			gchar *housenumber = g_strdup_printf("%.15s",res->house_number->house_number);
+			android_return_search_result(&search_priv->search_result_obj, 2, res->id, res->house_number->common.c, housenumber, address);
 			g_free(address);
 			g_free(town);
 			break;
@@ -655,35 +670,7 @@ android_search_idle(struct android_search_priv *search_priv)
 			dbg(lvl_error, "Unhandled search type %d", search_priv->search_attr.type);
 		}
 	} else {
-		int level = search_list_level(search_priv->search_attr.type) - 1;
-
-		if (search_priv->found) {
-			search_priv->found = 0;
-			if (search_priv->search_attr.type != attr_house_number) {
-				level++;
-			}
-		}
-		dbg(lvl_info, "test phrase: %d,%d, %d, level %d", search_priv->current_phrase_per_level[0], search_priv->current_phrase_per_level[1], search_priv->current_phrase_per_level[2] , level)
-		do {
-			while (!search_priv->phrases[++search_priv->current_phrase_per_level[level]]) {
-				dbg(lvl_info, "next phrase: %d,%d, %d, level %d", search_priv->current_phrase_per_level[0], search_priv->current_phrase_per_level[1], search_priv->current_phrase_per_level[2] , level)
-				if (level > 0) {
-					search_priv->current_phrase_per_level[level] = -1;
-					level--;
-				} else {
-					android_search_end(search_priv);
-					return;
-				}
-			}
-		} while (level > 0 ? search_priv->current_phrase_per_level[level] == search_priv->current_phrase_per_level[level-1] : 0);
-		dbg(lvl_info, "used phrase: %d,%d, %d, level %d, '%s'", search_priv->current_phrase_per_level[0], search_priv->current_phrase_per_level[1], search_priv->current_phrase_per_level[2] , level, attr_to_name(android_search_level[level]))
-		dbg(lvl_debug, "Search for '%s'", search_priv->phrases[search_priv->current_phrase_per_level[level]]);
-		search_priv->search_attr.type = android_search_level[level];
-		search_priv->search_attr.u.str = search_priv->phrases[search_priv->current_phrase_per_level[level]];
-		struct attr test;
-		test.type = android_search_level[level];
-		test.u.str = search_priv->phrases[search_priv->current_phrase_per_level[level]];
-		search_list_search(search_priv->search_list, &test, search_priv->partial);
+		android_search_end(search_priv);
 	}
 	dbg(lvl_info, "leave");
 }
@@ -718,22 +705,42 @@ search_fix_spaces(const char *str)
 	return ret;
 }
 
-static void start_search(struct android_search_priv *search_priv, const char *search_string)
+static void start_search(struct android_search_priv *search_priv, const char *search_string, int type)
 {
-	dbg(lvl_debug,"enter %s\n", search_string);
 	char *str=search_fix_spaces(search_string);
-	search_priv->phrases = g_strsplit(str, " ", 0);
-	//ret=search_address_town(ret, sl, phrases, NULL, partial, jni);
+	search_priv->phrases = g_strsplit(str, "#", 0);
 
-	dbg(lvl_debug,"First search phrase %s", search_priv->phrases[0]);
+	// later kan hieronder gewoon str gebruikt worden en dat splitten laten
+
 	search_priv->search_attr.u.str= search_priv->phrases[0];
 	search_priv->search_attr.type=attr_town_or_district_name;
-	search_list_search(search_priv->search_list, &search_priv->search_attr, search_priv->partial);
 
-	search_priv->idle_clb = callback_new_1(callback_cast(android_search_idle), search_priv);
-	search_priv->idle_ev = event_add_idle(50,search_priv->idle_clb);
-	//callback_call_0(search_priv->idle_clb);
-
+//	if (!search_priv->phrases[1] ) // blijkbaar zijn we nog town aan het zoeken
+	if (type == 2) // blijkbaar zijn we nog town aan het zoeken
+	{
+		search_list_search(search_priv->search_list, &search_priv->search_attr, search_priv->partial);
+		search_priv->idle_clb = callback_new_1(callback_cast(android_search_idle), search_priv);
+		search_priv->idle_ev = event_add_idle(50,search_priv->idle_clb);
+		//callback_call_0(search_priv->idle_clb);
+	}
+	else {
+		if (type == 3) // blijkbaar zijn we nog street aan het zoeken
+			{
+				search_priv->search_attr.type=attr_street_name;
+				search_list_search(search_priv->search_list, &search_priv->search_attr, search_priv->partial);
+				search_priv->idle_clb = callback_new_1(callback_cast(android_search_idle), search_priv);
+				search_priv->idle_ev = event_add_idle(50,search_priv->idle_clb);
+				//callback_call_0(search_priv->idle_clb);
+			}
+		else if (type == 4) // nu huisnummer zoeken
+					{
+						search_priv->search_attr.type=attr_house_number;
+						search_list_search(search_priv->search_list, &search_priv->search_attr, search_priv->partial);
+						search_priv->idle_clb = callback_new_1(callback_cast(android_search_idle), search_priv);
+						search_priv->idle_ev = event_add_idle(50,search_priv->idle_clb);
+						//callback_call_0(search_priv->idle_clb);
+					}
+	}
 	g_free(str);
 	dbg(lvl_debug,"leave\n");
 }
@@ -741,6 +748,7 @@ static void start_search(struct android_search_priv *search_priv, const char *se
 JNIEXPORT jlong JNICALL
 Java_org_navitproject_navit_NavitAddressSearchActivity_CallbackStartAddressSearch( JNIEnv* env, jobject thiz, int partial, jobject country, jobject str)
 {
+
 	struct attr attr;
 	const char *search_string =(*env)->GetStringUTFChars(env, str, NULL);
 	dbg(lvl_debug,"search '%s'\n", search_string);
@@ -748,7 +756,8 @@ Java_org_navitproject_navit_NavitAddressSearchActivity_CallbackStartAddressSearc
 	config_get_attr(config_get(), attr_navit, &attr, NULL);
 
 	jclass cls = (*env)->GetObjectClass(env,thiz);
-	jmethodID aMethodID = (*env)->GetMethodID(env, cls, "receiveAddress", "(IFFLjava/lang/String;)V");
+	jmethodID aMethodID = (*env)->GetMethodID(env, cls, "receiveAddress", "(IIFFLjava/lang/String;Ljava/lang/String;)V");
+
 	struct android_search_priv *search_priv = NULL;
 
 	if(aMethodID != 0)
@@ -782,11 +791,11 @@ Java_org_navitproject_navit_NavitAddressSearchActivity_CallbackStartAddressSearc
 		search_priv->search_result_obj.env = env;
 		search_priv->search_result_obj.jo = (*env)->NewGlobalRef(env, thiz);
 		search_priv->search_result_obj.jm = aMethodID;
-
-		start_search(search_priv, search_string);
 	}
 	else
-		dbg(lvl_error,"**** Unable to get methodID: fillStringArray");
+		dbg(lvl_error,"**** Unable to get methodID: receiveAddress\n");
+
+
 
 	(*env)->ReleaseStringUTFChars(env, str, search_string);
 
@@ -802,4 +811,33 @@ Java_org_navitproject_navit_NavitAddressSearchActivity_CallbackCancelAddressSear
 		android_search_end(priv);
 	else
 		dbg(lvl_error, "Error: Cancel search failed");
+}
+
+// aanroep met type en string is zoeken
+// aanroep met type en id is selecteren om vervolgens een level dieper te gaan zoeken
+JNIEXPORT void JNICALL
+Java_org_navitproject_navit_NavitAddressSearchActivity_CallbackSearch( JNIEnv* env, jobject thiz, jlong handle, int type, int id, jobject str)
+{
+	struct android_search_priv *priv = (void*)(long)handle;
+	const char *search_string =(*env)->GetStringUTFChars(env, str, NULL);
+
+	if (priv){
+		if (id){
+			if (type==2){ // 2 = town in android
+				search_list_select(priv->search_list, attr_town_or_district_name, 0, 0);
+				search_list_select(priv->search_list, attr_town_or_district_name, id, 1);
+			}
+			else if (type==3){ // 3 = street in android
+				search_list_select(priv->search_list, attr_street_name, 0, 0);
+				search_list_select(priv->search_list, attr_street_name, id, 1);
+			}
+		}
+		else if (type){
+		start_search(priv, search_string, type);// 2 = search for town, 3 = street
+		}
+	}
+	else
+		dbg(lvl_error, "Error: no priv (handle), failed");
+
+	(*env)->ReleaseStringUTFChars(env, str, search_string);
 }
