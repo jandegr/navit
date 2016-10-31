@@ -30,6 +30,8 @@ export ANDROID_PLATFORM_CHECK_MAX=$ANDROID_SDK"/platforms/"$ANDROID_PLATFORM_LAT
 export BUILD_PATH=$START_PATH"/android-build"
 export ANDROID_ENV=$ANDROID_NDK_BIN:$ANDROID_SDK_TOOLS:$ANDROID_SDK_PLATFORM_TOOLS
 
+ls -la /usr/local
+
 mkdir $ANDROID_HOME
 
 # If path already has our environment no need to set it
