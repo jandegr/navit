@@ -29,10 +29,6 @@ export ANDROID_PLATFORM_CHECK_MAX=$ANDROID_SDK"/platforms/"$ANDROID_PLATFORM_LAT
 export BUILD_PATH=$START_PATH"/android-build"
 export ANDROID_ENV=$ANDROID_NDK_BIN:$ANDROID_SDK_TOOLS:$ANDROID_SDK_PLATFORM_TOOLS
 
-ls -la /usr/local
-echo $ANDROID_NDK
-# mkdir $ANDROID_HOME
-
 # If path already has our environment no need to set it
 if echo "$ANDROID_ENV" | grep -q "$PATH"; then
   echo -e "${grn}" "    Android PATH configuration... ALREADY SET" "${off}"
