@@ -32,6 +32,7 @@ JOBS=`getconf _NPROCESSORS_ONLN`
 echo "Jobs"
 echo $JOBS
 
+mkdir -p ~/tomtom_assets
 
 if ! [ -e "~/tomtom_assets/toolchain_redhat_gcc-3.3.4_glibc-2.3.2-20060131a.tar.gz" ]
  then 
