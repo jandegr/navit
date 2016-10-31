@@ -16,7 +16,7 @@ dependencies:
     - sudo apt-get install libfreetype6-dev
     - sudo apt-get install libdbus-glib-1-dev
     - sudo apt-get install g++
-    - sudo apt-get install python-dbus
+#    - sudo apt-get install python-dbus
     - bash ci/build.sh
     - sed -i '/INTEGER/d' bin/po/navit.pot
 #    - cp bin/po/navit.pot $CIRCLE_ARTIFACTS/
@@ -58,5 +58,5 @@ test:
         background: true
     - sleep 5
     - import -window root $CIRCLE_ARTIFACTS/default.png
-    - python ci/dbus_tests.py $CIRCLE_TEST_REPORTS/
-    - dbus-send  --print-reply --session --dest=org.navit_project.navit /org/navit_project/navit/default_navit org.navit_project.navit.navit.quit
+#    - python ci/dbus_tests.py $CIRCLE_TEST_REPORTS/
+#    - dbus-send  --print-reply --session --dest=org.navit_project.navit /org/navit_project/navit/default_navit org.navit_project.navit.navit.quit
