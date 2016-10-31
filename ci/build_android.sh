@@ -8,8 +8,7 @@ off='\e[0m'
 export START_PATH=~/
 export SOURCE_PATH=$START_PATH"/"${CIRCLE_PROJECT_REPONAME}"/"
 export CMAKE_FILE=$SOURCE_PATH"/Toolchain/arm-eabi.cmake"
-
-export ANDROID_NDK="/usr/local/android-ndk/"
+export ANDROID_NDK=~/android-ndk-r13
 export ANDROID_NDK_BIN=$ANDROID_NDK"/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin"
  
 export ANDROID_SDK="/usr/local/android-sdk-linux/"
@@ -29,8 +28,6 @@ export ANDROID_PLATFORM_CHECK_MAX=$ANDROID_SDK"/platforms/"$ANDROID_PLATFORM_LAT
 
 export BUILD_PATH=$START_PATH"/android-build"
 export ANDROID_ENV=$ANDROID_NDK_BIN:$ANDROID_SDK_TOOLS:$ANDROID_SDK_PLATFORM_TOOLS
-
-mkdir $ANDROID_HOME
 
 # If path already has our environment no need to set it
 if echo "$ANDROID_ENV" | grep -q "$PATH"; then
