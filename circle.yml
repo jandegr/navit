@@ -25,6 +25,8 @@ dependencies:
     - sudo apt-get install libsaxonb-java
 # for aapt
     - sudo apt-get install lib32z1
+    - wget http://dl.google.com/android/repository/android-ndk-r13-linux-x86_64.zip && unzip -d ~ android-ndk-r13-linux-x86_64.zip
+    - export ANDROID_NDK=~/android-ndk-r13
     - bash ci/build_android.sh
 #    - bash ci/build_android_x86.sh
 #    - bash ci/build_android_x86_64.sh
