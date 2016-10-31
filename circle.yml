@@ -25,7 +25,6 @@ dependencies:
     - sudo apt-get install libsaxonb-java
 # for aapt
     - sudo apt-get install lib32z1
-    - install_ndk
     - bash ci/build_android.sh
 #    - bash ci/build_android_x86.sh
 #    - bash ci/build_android_x86_64.sh
