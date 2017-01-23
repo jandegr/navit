@@ -1991,7 +1991,7 @@ is_way_allowed(struct navigation *nav, struct navigation_way *way, int mode)
  * {@code extended} is true and item type is either ramp or street_service
  *
  * @param way The way to examine
- * @param extended Whether to consider ramps and service roads to be motorway-like
+ * @param extended Whether to consider ramps to be motorway-like
  * @return True for motorway-like, false otherwise
  */
 static int
@@ -1999,7 +1999,7 @@ is_motorway_like(struct navigation_way *way, int extended)
 {
 	if ((way->item.type == type_highway_land) || (way->item.type == type_highway_city) || (way->item.type == type_street_n_lanes && (way->flags & AF_ONEWAYMASK) && !is_ramp(way)))
 		return 1;
-	if ((extended) && (is_ramp(way) || (way->item.type == type_street_service)))
+	if ((extended) && (is_ramp(way)))
 		return 1;
 	return 0;
 }
