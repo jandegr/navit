@@ -2174,10 +2174,13 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 						 * The second one is really a workaround for bad tagging practice in OSM. Since entering
 						 * a ramp always creates a maneuver, we don't expect the workaround to have any unwanted
 						 * side effects.
+						 * except when it clearly is just some side road of lower cat.
 						 */
-						if (m.is_same_street && is_same_street2(old->way.name, old->way.name_systematic, w->name, w->name_systematic) && (!is_motorway_like(&(old->way), 0) || (!is_motorway_like(w, 0) && !is_ramp(w))) && is_way_allowed(nav,w,2))
-							//if (m.is_same_street && is_same_street2(old->way.name, old->way.name_systematic, w->name, w->name_systematic) && (!is_motorway_like(&(old->way), 0) || !is_motorway_like(w, 1)) && is_way_allowed(nav,w,2))
-							m.is_same_street=0;
+						if (m.is_same_street && is_same_street2(old->way.name, old->way.name_systematic, w->name, w->name_systematic) && (!is_motorway_like(&(old->way), 0) || (!is_motorway_like(w, 0) && !is_ramp(w))) && is_way_allowed(nav,w,2)){
+							if (maneuver_category(w) -2 > m.old_cat){
+								m.is_same_street=0;
+							}
+						}
 						/* If the route category changes to a lower one but another road has the same route category as old,
 						 * it is not clear which of the two the driver would perceive as the "same street", hence reset is_same_street */
 						/* Mark if the street has a higher or the same category */
