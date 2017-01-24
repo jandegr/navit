@@ -212,14 +212,16 @@ item_order_by_type(enum item_type type)
 		case type_highway_exit:
 			max=10;
 			break;
+		case type_street_3_city:
+		case type_street_3_land:
+			max=11;
+			break;
 		case type_town_label_5e3:
 		case type_town_label_2e3:
 		case type_town_label_1e3:
 		case type_district_label_5e3:
 		case type_district_label_2e3:
 		case type_district_label_1e3:
-		case type_street_3_city:
-		case type_street_3_land:
 			max=12;
 			break;
 		case type_street_2_city:
