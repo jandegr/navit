@@ -8,7 +8,7 @@ off='\e[0m'
 export START_PATH=~/
 export SOURCE_PATH=$START_PATH"/"${CIRCLE_PROJECT_REPONAME}"/"
 export CMAKE_FILE=$SOURCE_PATH"/Toolchain/arm-eabi.cmake"
-export ANDROID_NDK=~/android-ndk-r12b
+export ANDROID_NDK=~/android-ndk-r11c
 export ANDROID_NDK_BIN=$ANDROID_NDK"/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin"
  
 export ANDROID_SDK="/usr/local/android-sdk-linux/"
