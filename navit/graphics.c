@@ -2421,6 +2421,10 @@ do_draw(struct displaylist *displaylist, int cancel, int flags)
 				displaylist->sel=route_selection;
 			else
 				displaylist->sel=displaylist_get_selection(displaylist);
+			if (displaylist->sel->order > 4){
+				displaylist->sel->order = displaylist->sel->order -1;
+				dbg(lvl_debug,"depth reduction -1\n");
+			}
 			displaylist->mr=map_rect_new(displaylist->m, displaylist->sel);
 		}
 		if (displaylist->mr) {
