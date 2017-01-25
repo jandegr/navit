@@ -8,7 +8,7 @@ import org.navitproject.navit.NavitAddressSearchActivity.NavitAddress;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.util.Log;
-
+import org.acra.*;
 import org.acra.annotation.*;
 
 //@ReportsCrashes(
@@ -18,8 +18,8 @@ import org.acra.annotation.*;
 //    		formUriBasicAuthLogin = "testnavit",
 //    		formUriBasicAuthPassword = "p4ssw0rd")
 @ReportsCrashes(mailTo = "navitcrashed@gmail.com",
-		mode = org.acra.ReportingInteractionMode.TOAST,
-//                resToastText = R.string.crash_toast_text
+		mode = ReportingInteractionMode.TOAST,
+                resToastText = R.string.app_name
 		)
 public class NavitAppConfig extends Application {
 
