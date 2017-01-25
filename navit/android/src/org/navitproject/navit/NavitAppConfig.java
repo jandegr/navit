@@ -17,8 +17,8 @@ import org.acra.annotation.*;
 //    		formUri = "http://192.168.1.115/acra-myapp/_design/acra-storage/_update/report",
 //    		formUriBasicAuthLogin = "testnavit",
 //    		formUriBasicAuthPassword = "p4ssw0rd")
-@ReportsCrashes(mailTo = "navitcrashed@gmail.com"
-//		,mode = ReportingInteractionMode.TOAST,
+@ReportsCrashes(mailTo = "navitcrashed@gmail.com",
+		mode = org.acra.ReportingInteractionMode.TOAST,
 //                resToastText = R.string.crash_toast_text
 		)
 public class NavitAppConfig extends Application {
