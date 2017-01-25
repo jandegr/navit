@@ -11,12 +11,15 @@ import android.util.Log;
 
 import org.acra.annotation.*;
 
-@ReportsCrashes(
-		httpMethod = org.acra.sender.HttpSender.Method.PUT,
-    		reportType = org.acra.sender.HttpSender.Type.JSON,
-    		formUri = "http://192.168.1.115/acra-myapp/_design/acra-storage/_update/report",
-    		formUriBasicAuthLogin = "testnavit",
-    		formUriBasicAuthPassword = "p4ssw0rd")
+//@ReportsCrashes(
+//		httpMethod = org.acra.sender.HttpSender.Method.PUT,
+//    		reportType = org.acra.sender.HttpSender.Type.JSON,
+//    		formUri = "http://192.168.1.115/acra-myapp/_design/acra-storage/_update/report",
+//    		formUriBasicAuthLogin = "testnavit",
+//    		formUriBasicAuthPassword = "p4ssw0rd")
+@ReportsCrashes(mailTo = "navitcrashed@gmail.com",
+                mode = ReportingInteractionMode.TOAST,
+                resToastText = R.string.crash_toast_text)
 public class NavitAppConfig extends Application {
 
 	private static final int         MAX_LAST_ADDRESSES = 10;
