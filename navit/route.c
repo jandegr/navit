@@ -2765,7 +2765,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 		}
 
 		s=p_min->end;
-		while (s && max_cost == INT_MAX)
+		while (s)
 		{ /* Doing the same as above with the segments leading towards our point */
 			edges_count ++;
 			val=route_value_seg(profile, s_min, s, 1);
