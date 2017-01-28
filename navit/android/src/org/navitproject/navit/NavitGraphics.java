@@ -60,7 +60,8 @@ public class NavitGraphics
 	View                             view;
 	RelativeLayout                   relativelayout;
 	Activity                         activity;
-
+	ImageButton			 zoomInButton;
+	Button				 zoomOutButton;
 	public static Boolean            in_map            = false;
 	private final static String	 TAG 		   = "NavitGraphics"; 
 	// for menu key
@@ -684,7 +685,7 @@ public class NavitGraphics
 			relativelayout = new RelativeLayout(activity);
 			relativelayout.addView(view);
 			
-			final Button zoomOutButton = new Button(activity);
+			zoomOutButton = new Button(activity);
 			zoomOutButton.setWidth(96);
 			zoomOutButton.setHeight(96);
 			zoomOutButton.setBackgroundResource(R.drawable.zoom_out_96_96);
@@ -694,7 +695,7 @@ public class NavitGraphics
 	             		}
 	         	});
 			
-			final ImageButton zoomInButton = new ImageButton(activity);
+			zoomInButton = new ImageButton(activity);
 			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
 			         RelativeLayout.LayoutParams.WRAP_CONTENT,
 			         RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -1004,6 +1005,12 @@ public class NavitGraphics
 
 		if (mode == draw_mode_end) {
 			if (parent_graphics == null) {
+				if (overlay_disabled == 0){
+					this.setButtonState(true);
+				}
+				else {
+					this.setButtonState(false);
+				}
 				view.invalidate();
 			} else {
 				parent_graphics.view.invalidate(get_rect());
@@ -1014,6 +1021,23 @@ public class NavitGraphics
 		}
 
 	}
+	
+	//allows the buttons to be removed 
+	//in case a navit navitve gui is accessed
+	private void setButtonState(boolean b) {
+		this.zoomInButton.setEnabled(b);
+		this.zoomOutButton.setEnabled(b);
+		if (b){
+			this.zoomInButton.setVisibility(View.VISIBLE);
+			this.zoomOutButton.setVisibility(View.VISIBLE);
+		}
+		else{
+			this.zoomInButton.setVisibility(View.INVISIBLE);
+			this.zoomOutButton.setVisibility(View.INVISIBLE);
+		}
+		Log.d("Navitgraphics","setbuttons "+b);
+	}
+	
 	protected void draw_drag(int x, int y)
 	{
 		//Log.e("NavitGraphics","draw_drag");
