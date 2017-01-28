@@ -972,7 +972,7 @@ public class NavitGraphics
 	protected void draw_image_warp(String imagepath, int count, int p0x, int p0y, int p1x, int p1y, int p2x, int p2y)
 	{
 	//	if (!isAccelerated)
-		{	
+	//	{	
 		float width;
 		float scale;
 		float deltaY;
