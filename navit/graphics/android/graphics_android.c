@@ -376,9 +376,9 @@ draw_image(struct graphics_priv *gra, struct graphics_gc_priv *fg, struct point 
 	
 }
 
-static void
-draw_image_warp (struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, struct graphics_image_priv *img)
-{
+//static void
+//draw_image_warp (struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, struct graphics_image_priv *img)
+//{
 
 	/*
 	 *
@@ -387,15 +387,35 @@ draw_image_warp (struct graphics_priv *gr, struct graphics_gc_priv *fg, struct p
 	 *
 	 */
 
-	if (count==3)
-	{
-		initPaint(gr, fg);
-		(*jnienv)->CallVoidMethod(jnienv, gr->NavitGraphics, gr->NavitGraphics_draw_image_warp, fg->gra->Paint, 
-			count,  p[0].x, p[0].y,p[1].x, p[1].y, p[2].x, p[2].y, img->Bitmap);
-	} else
-		dbg(lvl_debug,"draw_image_warp is called with unsupported count parameter value %d\n", count);
-}
+//	if (count==3)
+//	{
+//		initPaint(gr, fg);
+//		(*jnienv)->CallVoidMethod(jnienv, gr->NavitGraphics, gr->NavitGraphics_draw_image_warp, fg->gra->Paint, 
+//			count,  p[0].x, p[0].y,p[1].x, p[1].y, p[2].x, p[2].y, img->Bitmap);
+//	} else
+//		dbg(lvl_debug,"draw_image_warp is called with unsupported count parameter value %d\n", count);
+//}
 
+
+static void
+draw_image_warp (struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, char *label)
+{
+	JNIEnv *jnienv2;
+	jnienv2 = jni_getenv();
+        /*
+         *
+         *
+         * if coord count==3 then top.left top.right bottom.left
+         *
+         */
+
+        if (count==3)
+        {
+        	jstring string = (*jnienv2)->NewStringUTF(jnienv2, label);
+        	(*jnienv2)->CallVoidMethod(jnienv2, gr->NavitGraphics, gr->NavitGraphics_draw_image_warp, string, count,  p[0].x, p[0].y,p[1].x, p[1].y, p[2].x, p[2].y);
+        	(*jnienv2)->DeleteLocalRef(jnienv2, string);
+        }
+}
 
 
 static void draw_drag(struct graphics_priv *gra, struct point *p)
@@ -667,8 +687,10 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 		return 0;
 	if (!find_method(ret->NavitGraphicsClass, "draw_image", "(Landroid/graphics/Paint;IILandroid/graphics/Bitmap;)V", &ret->NavitGraphics_draw_image))
 		return 0;
-	if (!find_method(ret->NavitGraphicsClass, "draw_image_warp", "(Landroid/graphics/Paint;IIIIIIILandroid/graphics/Bitmap;)V", &ret->NavitGraphics_draw_image_warp))
-		return 0;
+//	if (!find_method(ret->NavitGraphicsClass, "draw_image_warp", "(Landroid/graphics/Paint;IIIIIIILandroid/graphics/Bitmap;)V", &ret->NavitGraphics_draw_image_warp))
+//		return 0;
+	if (!android_find_method(ret->NavitGraphicsClass, "draw_image_warp", "(Ljava/lang/String;IIIIIII)V", &ret->NavitGraphics_draw_image_warp))
+	 	return 0;
 	if (!find_method(ret->NavitGraphicsClass, "draw_mode", "(I)V", &ret->NavitGraphics_draw_mode))
 		return 0;
 	if (!find_method(ret->NavitGraphicsClass, "draw_drag", "(II)V", &ret->NavitGraphics_draw_drag))
