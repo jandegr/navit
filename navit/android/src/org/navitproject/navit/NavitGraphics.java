@@ -1005,7 +1005,7 @@ public class NavitGraphics
 
 		if (mode == draw_mode_end) {
 			if (parent_graphics == null) {
-				if (overlay_disabled == false){
+				if (overlay_disabled == 0){
 					this.setButtonState(true);
 				}
 				else {
