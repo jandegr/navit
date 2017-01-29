@@ -975,6 +975,9 @@ public class NavitGraphics
 	{
 	//	if (!isAccelerated)
 	//	{	
+		Log.e("NavitGraphics","path = "+imagepath);
+		Log.e("NavitGraphics","count = "+count);
+		Log.e("NavitGraphics","NMPpath = "+Navit.map_filename_path);
 		float width;
 		float scale;
 		float deltaY;
@@ -987,7 +990,8 @@ public class NavitGraphics
 		if (count == 3)
 		{			
 			if (!imagepath.startsWith("/"))
-				imagepath = Navit.map_filename_path + imagepath;				
+				imagepath = Navit.map_filename_path + imagepath;
+			Log.e("NavitGraphics","pathc3 = "+imagepath);
 			try
 			{
 				infile = new FileInputStream(imagepath);
