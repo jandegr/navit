@@ -3362,25 +3362,21 @@ navit_layout_switch(struct navit *n)
 	}
 	//We calculate sunrise anyway, cause it is needed both for day and for night
 	if (__sunriset__(year,month,day,geo_attr.u.coord_geo->lng,geo_attr.u.coord_geo->lat,-5,1,&trise,&tset)!=0) {
-		//near the pole sun never rises/sets, so we should never switch profiles
-		dbg(lvl_debug,"trise: %u:%u, sun never visible, never switch profile\n",HOURS(trise),MINUTES(trise));
+		dbg(lvl_debug,"near the pole sun never rises/sets, so we should never switch profiles\n");
+		dbg(lvl_debug,"trise: %u:%u\n",HOURS(trise),MINUTES(trise));
+		dbg(lvl_debug,"tset: %u:%u\n",HOURS(tset),MINUTES(tset));
 		n->prevTs=currTs;
 		return;
 		}
 	trise_actual=trise;
 	dbg(lvl_debug,"trise: %u:%u\n",HOURS(trise),MINUTES(trise));
+	dbg(lvl_debug,"tset: %u:%u\n",HOURS(tset),MINUTES(tset));
 	dbg(lvl_debug,"dayname = %s, name =%s \n",l->dayname, l->name);
+	dbg(lvl_debug,"nightname = %s, name = %s \n",l->nightname, l->name);
 	if (HOURS(trise)*60+MINUTES(trise)<(currTs%86400)/60) {
 		after_sunrise = TRUE;
 	}
-	dbg(lvl_debug,"nightname = %s, name = %s \n",l->nightname, l->name);
-//	if (__sunriset__(year,month,day,geo_attr.u.coord_geo->lng,geo_attr.u.coord_geo->lat,-5,1,&trise,&tset)!=0) {
-		//near the pole sun never rises/sets, so we should never switch profiles
-//		dbg(lvl_debug,"tset: %u:%u, sun always visible, never switch profile\n",HOURS(tset),MINUTES(tset));
-//		n->prevTs=currTs;
-//		return;
-//	}
-	dbg(lvl_debug,"tset: %u:%u\n",HOURS(tset),MINUTES(tset));
+	
 	if (((HOURS(tset)*60+MINUTES(tset)<(currTs%86400)/60)) ||
 			((HOURS(trise_actual)*60+MINUTES(trise_actual)>(currTs%86400)/60))) {
 		after_sunset = TRUE;
