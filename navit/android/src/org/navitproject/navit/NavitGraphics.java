@@ -708,8 +708,8 @@ public class NavitGraphics
 	             		}
 	         	});
 	         	
-//	         	relativelayout.addView(zoomInButton);
-//			relativelayout.addView(zoomOutButton);
+	         	relativelayout.addView(zoomInButton);
+			relativelayout.addView(zoomOutButton);
 			activity.setContentView(relativelayout);
 			view.requestFocus();
 		}
