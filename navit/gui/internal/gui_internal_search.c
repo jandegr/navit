@@ -421,7 +421,7 @@ gui_internal_search_changed(struct gui_priv *this, struct widget *wm, void *data
 		if (! strcmp(wm->name,"Country"))
 			search_attr.type=attr_country_all;
 		if (! strcmp(wm->name,"Town"))
-			search_attr.type=attr_town_or_district_name;
+			search_attr.type=attr_town_postal;
 		if (! strcmp(wm->name,"Street"))
 			search_attr.type=attr_street_name;
 		if (! strcmp(wm->name,"House number"))
