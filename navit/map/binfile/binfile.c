@@ -2012,7 +2012,6 @@ binmap_search_housenumber_by_estimate(struct map_priv *map, struct coord *c, str
 	return map_rect_new_binfile(map, sel);
 }
 
-
 static int
 binmap_get_estimated_boundaries (struct item *town, GList **boundaries)
 {
@@ -2315,24 +2314,25 @@ binmap_search_get_item(struct map_search_priv *map_search)
 			case attr_town_or_district_name:
 				if (map_search->mr->tile_depth > 1 && item_is_town(*it) && map_search->search.type == attr_town_postal) {
 					if (binfile_attr_get(it->priv_data, attr_town_postal, &at)) {
-						if (!linguistics_compare(at.u.str, map_search->search.u.str, mode))
+						if (!linguistics_compare(at.u.str, map_search->search.u.str, mode)) {
 							/* check for duplicate combination of town_name and town_postal */
-						if(!duplicate(map_search, it, attr_town_name, attr_town_postal)) {
-							return it;
-						} else {
-							break;
+							if (!duplicate(map_search, it, attr_town_name, attr_town_postal)) {
+								return it;
+							} else {
+								break;
+							}
 						}
 					}
 				}
 				if (map_search->mr->tile_depth > 1 && item_is_town(*it) && map_search->search.type != attr_district_name) {
 					if (binfile_attr_get(it->priv_data, attr_town_name_match, &at) || binfile_attr_get(it->priv_data, attr_town_name, &at)) {
-						if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_town_name,NULL))
+						if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_town_name,0))
 							return it;
 					}
 				}
 				if (map_search->mr->tile_depth > 1 && item_is_district(*it) && map_search->search.type != attr_town_name) {
 					if (binfile_attr_get(it->priv_data, attr_district_name_match, &at) || binfile_attr_get(it->priv_data, attr_district_name, &at)) {
-						if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_town_name,NULL))
+						if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_town_name,0))
 							return it;
 					}
 				}
@@ -2340,7 +2340,7 @@ binmap_search_get_item(struct map_search_priv *map_search)
 			case attr_street_name:
 				if (map_search->mode == 1) {
 					if (binfile_attr_get(it->priv_data, attr_street_name_match, &at) || binfile_attr_get(it->priv_data, attr_street_name, &at)) {
-						if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_street_name,NULL)) {
+						if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_street_name,0)) {
 							return it;
 						}
 					}
@@ -2358,7 +2358,7 @@ binmap_search_get_item(struct map_search_priv *map_search)
 						/* Extracting all coords here makes duplicate_new() not consider them (we don't want all
 						 * street segments to be reported as separate streets). */
 						while(item_coord_get(it,c,128)>0);
-						d=duplicate_test(map_search, it, attr_label,NULL);
+						d=duplicate_test(map_search, it, attr_label,0);
 						if(!d)
 							break;
 
@@ -2395,7 +2395,7 @@ binmap_search_get_item(struct map_search_priv *map_search)
 						if ((binfile_attr_get(it->priv_data, attr_street_name, &at2) || map_search->mode!=2) && !linguistics_compare(at.u.str, map_search->search.u.str, mode)
 								&& !strcmp(at2.u.str, map_search->parent_name))
 							{
-								if (!duplicate(map_search, it, attr_house_number,NULL))
+								if (!duplicate(map_search, it, attr_house_number,0))
 								{
 									binfile_attr_rewind(it->priv_data);
 									return it;
@@ -2407,12 +2407,12 @@ binmap_search_get_item(struct map_search_priv *map_search)
 						struct attr at2;
 						if ((binfile_attr_get(it->priv_data, attr_street_name, &at2) || map_search->mode!=2) && !strcmp(at2.u.str, map_search->parent_name))
 						{
-							if (!duplicate(map_search, it, attr_house_number_interpolation_no_ends_incrmt_2,NULL))
+							if (!duplicate(map_search, it, attr_house_number_interpolation_no_ends_incrmt_2,0))
 							{
 								binfile_attr_rewind(it->priv_data);
 								return it;
 							}
-							else if (!duplicate(map_search, it, attr_house_number_interpolation_no_ends_incrmt_1,NULL))
+							else if (!duplicate(map_search, it, attr_house_number_interpolation_no_ends_incrmt_1,0))
 							{
 								binfile_attr_rewind(it->priv_data);
 								return it;
