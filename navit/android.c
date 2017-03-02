@@ -626,7 +626,7 @@ android_search_end(struct android_search_priv *search_priv)
 static void
 android_search_idle(struct android_search_priv *search_priv)
 {
-	dbg(lvl_debug, "enter android_search_idle");
+	dbg(lvl_debug, "enter android_search_idle search type =%s\n",attr_to_name(search_priv->search_attr.type));
 
 	struct search_list_result *res = search_list_get_result(search_priv->search_list);
 	if (res) {
@@ -635,8 +635,8 @@ android_search_idle(struct android_search_priv *search_priv)
 		switch (search_priv->search_attr.type)
 		{
 		case attr_town_or_district_name:
+		case attr_town_postal:
 		{
-
 			gchar *town = town_str(res, 11);
 			gchar *town_extras = town_str(res, 1);
 			android_return_search_result(&search_priv->search_result_obj, 0,res->id, res->town->common.c,town,town_extras);
@@ -672,7 +672,6 @@ android_search_idle(struct android_search_priv *search_priv)
 	} else {
 		android_search_end(search_priv);
 	}
-	dbg(lvl_info, "leave");
 }
 
 static char *
@@ -714,7 +713,9 @@ static void start_search(struct android_search_priv *search_priv, const char *se
 
 	search_priv->search_attr.u.str= search_priv->phrases[0];
 	search_priv->search_attr.type=attr_town_or_district_name;
-
+	if (search_string[0] >= '0' && search_string[0] <= '9'){
+		search_priv->search_attr.type=attr_town_postal;
+	}
 //	if (!search_priv->phrases[1] ) // blijkbaar zijn we nog town aan het zoeken
 	if (type == 2) // blijkbaar zijn we nog town aan het zoeken
 	{
