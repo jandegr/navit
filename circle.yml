@@ -43,21 +43,6 @@ test:
     - cp tilesdir_.tmp $CIRCLE_ARTIFACTS
     - ls -la $CIRCLE_ARTIFACTS
     - ls -la /home/ubuntu
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin:
-        timeout: 7200
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s2 -e2 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s3 -e3 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s4 -e4 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s5 -e5 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s6 -e6 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin:
-       timeout: 7200
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s7 -e7 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s8 -e8 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s9 -e9 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s10 -e10 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin
-    - ./bin/navit/maptool/maptool -P  -6 -n -k -s11 -r /home/ubuntu/navit/rulefile_misc.txt -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BNLFR_misc.bin
-    - ls -la /home/ubuntu
-    - ls -la $CIRCLE_ARTIFACTS
 general:
   artifacts:
     - "~/assets/binmaps/"
