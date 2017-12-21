@@ -1,4 +1,5 @@
-?	addr:housenumber=*	house_number?	amenity=bicycle_parking	poi_bicycle_parking
+?	addr:housenumber=*	house_number
+?	amenity=bicycle_parking	poi_bicycle_parking
 n	barrier=blocks			barrier_blocks
 n	barrier=bollard			barrier_bollard
 n	barrier=cycle_barrier		barrier_cycle
