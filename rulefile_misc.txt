@@ -131,6 +131,7 @@ w	leisure=sports_centre	poly_sport
 w	leisure=stadium		poly_sports_stadium
 w	leisure=track		poly_sports_track
 w	leisure=water_park	poly_water_park
+w leisure=swimming_pool poly_basin
 w	military=airfield	poly_airfield
 w	military=barracks	poly_barracks
 w	military=danger_area	poly_danger_area
