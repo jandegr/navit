@@ -529,7 +529,8 @@ circle_new(struct attr *parent, struct attr **attrs)
 	e = g_new0(struct element, 1);
 	e->type=element_circle;
 	e->color = color_black;
-	e->u.circle.background_color = color_white;
+    // tekst krijgt hierdoor ook een background
+//	e->u.circle.background_color = color_white;
 	element_set_color(e, attrs);
 	element_set_background_color(&e->u.circle.background_color, attrs);
 	element_set_text_size(e, attrs);
@@ -550,7 +551,7 @@ text_new(struct attr *parent, struct attr **attrs)
 	e->type=element_text;
 	element_set_text_size(e, attrs);
 	e->color = color_black;
-	e->u.text.background_color = color_white;
+//	e->u.text.background_color = color_white;
 	element_set_color(e, attrs);
 	element_set_background_color(&e->u.text.background_color, attrs);
 

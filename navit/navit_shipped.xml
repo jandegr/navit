@@ -1309,10 +1309,10 @@ Waypoint</text></img>
 					<polyline color="#ffffff" width="3"/>
 				</itemgra>
 				<itemgra item_types="highway_exit_label" order="10-">
-					<circle color="#000000" radius="3" text_size="7"/>
+					<circle color="#000000" radius="3" text_size="7" background_color="#ffffff"/>
 				</itemgra>
-				<itemgra item_types="highway_city,highway_land,street_4_city,street_4_land,street_n_lanes,living_street" order="10-18">
-					<text text_size="8"/>
+				<itemgra item_types="highway_city,highway_land,street_4_city,street_4_land,street_n_lanes" order="10-18">
+					<text text_size="8" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="street_2_city,street_2_land,street_3_city,street_3_land,ramp" order="11-18">
 					<text text_size="9"/>
@@ -1453,55 +1453,55 @@ Waypoint</text></img>
 						<circle color="#000000" radius="3" text_size="7"/>
 				</itemgra>
 				<itemgra item_types="town_label,district_label,town_label_0e0,town_label_1e0,town_label_2e0,town_label_5e0,town_label_1e1,town_label_2e1,town_label_5e1,town_label_1e2,town_label_2e2,town_label_5e2,district_label_0e0,district_label_1e0,district_label_2e0,district_label_5e0,district_label_1e1,district_label_2e1,district_label_5e1,district_label_1e2,district_label_2e2,district_label_5e2" order="11-">
-					<circle color="#000000" radius="3" text_size="7"/>
+					<circle color="#000000" radius="3" text_size="7" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="district_label_1e3,district_label_2e3,district_label_5e3" order="10-">
-					<circle color="#000000" radius="3" text_size="7"/>
+					<circle color="#000000" radius="3" text_size="7" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_1e3,place_label" order="10-">
-					<circle color="#000000" radius="3" text_size="10"/>
+					<circle color="#000000" radius="3" text_size="10" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="district_label_1e4,district_label_2e4,district_label_5e4" order="9-">
-					<circle color="#000000" radius="3" text_size="7"/>
+					<circle color="#000000" radius="3" text_size="7" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_2e3" order="9-">
-					<circle color="#000000" radius="3" text_size="10"/>
+					<circle color="#000000" radius="3" text_size="10" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_5e3,town_label_1e4,town_label_2e4,town_label_5e4" order="9-">
-					<circle color="#000000" radius="3" text_size="15"/>
+					<circle color="#000000" radius="3" text_size="15" background_color="#ffffff" />
 				</itemgra>
 				<itemgra item_types="district_label_1e5,district_label_2e5,district_label_5e5" order="8-">
-					<circle color="#000000" radius="3" text_size="7"/>
+					<circle color="#000000" radius="3" text_size="7" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_2e3" order="8">
-					<circle color="#000000" radius="3" text_size="7"/>
+					<circle color="#000000" radius="3" text_size="7" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="district_label_1e6,district_label_2e6,district_label_5e6,district_label_1e7" order="7-">
-					<circle color="#000000" radius="3" text_size="7"/>
+					<circle color="#000000" radius="3" text_size="7" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_5e3" order="7-8">
-					<circle color="#000000" radius="3" text_size="10"/>
+					<circle color="#000000" radius="3" text_size="10" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_1e4" order="6-8">
-					<circle color="#000000" radius="3" text_size="10"/>
+					<circle color="#000000" radius="3" text_size="10" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_2e4,town_label_5e4" order="5-8">
-					<circle color="#000000" radius="3" text_size="10"/>
+					<circle color="#000000" radius="3" text_size="10" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_1e5,town_label_2e5,town_label_5e5" order="5-">
-					<circle color="#000000" radius="3" text_size="15"/>
+					<circle color="#000000" radius="3" text_size="15" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_1e6,town_label_2e6,town_label_5e6,town_label_1e7" order="5-">
-					<circle color="#000000" radius="3" text_size="20"/>
+					<circle color="#000000" radius="3" text_size="20" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_1e5,town_label_2e5,town_label_5e5" order="3-4">
-					<circle color="#000000" radius="3" text_size="10"/>
+					<circle color="#000000" radius="3" text_size="10" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_1e6,town_label_2e6,town_label_5e6,town_label_1e7" order="3-4">
-					<circle color="#000000" radius="3" text_size="15"/>
+					<circle color="#000000" radius="3" text_size="15" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="town_label_1e6,town_label_2e6,town_label_5e6,town_label_1e7" order="0-2">
-					<circle color="#000000" radius="3" text_size="10"/>
+					<circle color="#000000" radius="3" text_size="10" background_color="#ffffff"/>
 				</itemgra>
 			</layer>
 			<layer name="Internal">
@@ -1514,10 +1514,10 @@ Waypoint</text></img>
 				<itemgra item_types="rg_segment" order="12-">
 					<polyline color="#FF089C" width="1"/>
 					<arrows color="#FF089C" width="1"/>
-					<text text_size="15"/>
+					<text text_size="15" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="rg_point" order="12-">
-					<circle color="#FF089C" radius="10" text_size="7"/>
+					<circle color="#FF089C" radius="10" text_size="7" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="nav_left_1" order="0-">
 					<icon src="nav_left_1_bk.svg" w="32" h="32"/>
@@ -1967,18 +1967,18 @@ Waypoint</text></img>
 				</itemgra>
 				<itemgra item_types="poi_rail_halt" order="11-">
 					<circle color="#ff0000" radius="3" width="3"/>
-					<circle color="#000000" radius="5" width="2" text_size="8"/>
+					<circle color="#000000" radius="5" width="2" text_size="8" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="poi_rail_station" order="9-">
 					<circle color="#ff0000" radius="3" width="3"/>
-					<circle color="#000000" radius="6" width="2" text_size="8"/>
+					<circle color="#000000" radius="6" width="2" text_size="8" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="poi_rail_tram_stop" order="10-11">
 					<circle color="#ff0000" radius="2" width="2"/>
 				</itemgra>
 				<itemgra item_types="poi_rail_tram_stop" order="12-">
 					<circle color="#ff0000" radius="3" width="3"/>
-					<circle color="#606060" radius="5" width="2" text_size="8"/>
+					<circle color="#606060" radius="5" width="2" text_size="8" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="poi_repair_service" order="12-">
 					<icon src="repair_service.png"/>
@@ -2212,10 +2212,10 @@ Waypoint</text></img>
 			</layer>
 			<layer name="POI Labels">
 				<itemgra item_types="poi_airport,town_ghost,poi_hotel,poi_car_parking,poi_car_dealer_parts,poi_car_sharing,poi_fuel,poi_shopping,poi_attraction,poi_cafe,poi_bar,poi_pub,highway_exit,poi_camp_rv,poi_museum_history,poi_hospital,poi_dining,poi_fastfood,poi_police,poi_autoservice,poi_bank,poi_atm,poi_bus_station,poi_bus_stop,poi_business_service,poi_car_rent,poi_church,poi_bahai,poi_buddhist,poi_hindu,poi_islamic,poi_jain,poi_jewish,poi_pagan,poi_pastafarian,poi_shinto,poi_sikh,poi_taoist,poi_cinema,poi_concert,poi_drinking_water,poi_emergency,poi_fair,poi_fish,poi_government_building,poi_hotspring,poi_information,poi_justice,poi_landmark,poi_library,poi_mall,poi_manmade_feature,poi_marine,poi_marine_type,poi_mark,poi_oil_field,poi_peak,poi_personal_service,poi_pharmacy,poi_post_office,poi_public_office,poi_rail_halt,poi_rail_station,poi_rail_tram_stop,poi_repair_service,poi_resort,poi_restaurant,poi_restricted_area,poi_sailing,poi_scenic_area,poi_school,poi_service,poi_shop_bicycle,poi_shop_retail,poi_skiing,poi_social_service,poi_sport,poi_stadium,poi_swimming,poi_theater,poi_townhall,poi_trail,poi_truck_stop,poi_tunnel,poi_worship,poi_wrecker,poi_zoo,poi_biergarten,poi_castle,poi_ruins,poi_memorial,poi_monument,poi_shelter,poi_fountain,poi_viewpoint,vehicle" order="14-">
-					<circle color="#606060" radius="0" width="0" text_size="10"/>
+					<circle color="#606060" radius="0" width="0" text_size="10" background_color="#ffffff"/>
 				</itemgra>
 				<itemgra item_types="poi_custom0,poi_custom1,poi_custom2,poi_custom3,poi_custom4,poi_custom5,poi_custom6,poi_custom7,poi_custom8,poi_custom9,poi_customa,poi_customb,poi_customc,poi_customd,poi_custome,poi_customf" order="14-">
-					<circle color="#606060" radius="0" width="0" text_size="10"/>
+					<circle color="#606060" radius="0" width="0" text_size="10" background_color="#ffffff"/>
 				</itemgra>
 			</layer>
 			<layer name="Found items" ref="Found items"/>
