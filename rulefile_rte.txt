@@ -117,3 +117,4 @@ w	place=municipality	poly_place4
 w	place=town		poly_place5
 w	place=city		poly_place6
 w	de:place=city		poly_place6
+w natural=coastline water_line
