@@ -430,6 +430,13 @@ Waypoint</text></img>
 					<polyline color="#5096b8"/>
 					<text text_size="5"/>
 				</itemgra>
+				<itemgra item_types="poly_camp_site" order="10-">
+					<polygon color="#def6c0"/>
+					<text text_size="7"/>
+				</itemgra>
+				<itemgra item_types="poly_sport,poly_sports_pitch,poly_golf_course" order="10-">
+					<polygon color="#4af04f"/>
+				</itemgra>
 				<itemgra item_types="poly_wood" order="0-">
 					<polygon color="#8ec78d"/>
 					<text text_size="5"/>
@@ -480,10 +487,6 @@ Waypoint</text></img>
 				</itemgra>
 				<itemgra item_types="poly_beach" order="7-">
 					<polygon color="#fff1ba"/>
-					<text text_size="7"/>
-				</itemgra>
-				<itemgra item_types="poly_camp_site" order="10-">
-					<polygon color="#def6c0"/>
 					<text text_size="7"/>
 				</itemgra>
 				<itemgra item_types="poly_park" order="0-">
@@ -537,9 +540,6 @@ Waypoint</text></img>
 				</itemgra>
 				<itemgra item_types="poly_airport" order="0-">
 					<polygon color="#a0a0a0"/>
-				</itemgra>
-				<itemgra item_types="poly_sport,poly_sports_pitch,poly_golf_corse" order="10-">
-					<polygon color="#4af04f"/>
 				</itemgra>
 				<itemgra item_types="poly_place" order="6-">
 					<polygon color="#e6e6e6"/>
@@ -808,8 +808,20 @@ Waypoint</text></img>
 				<itemgra item_types="bridleway" order="10-">
 					<polyline color="#000000" width="1"/>
 				</itemgra>
-				<itemgra item_types="cycleway" order="10-">
-					<polyline color="#000000" width="1"/>
+				<itemgra item_types="cycleway" order="9-12">
+					<polyline color="#0000FF" width="1" dash="2,3"/>
+				</itemgra>
+				<itemgra item_types="cycleway" order="13-14">
+					<polyline color="#ffffff" width="4"/>
+					<polyline color="#0000FF" width="1" dash="4,8"/>
+				</itemgra>
+				<itemgra item_types="cycleway" order="15-16">
+					<polyline color="#ffffff" width="5"/>
+					<polyline color="#0000FF" width="1" dash="5,10"/>
+				</itemgra>
+				<itemgra item_types="cycleway" order="17-">
+					<polyline color="#ffffff" width="7"/>
+					<polyline color="#0000FF" width="1" dash="7,15"/>
 				</itemgra>
 				<itemgra item_types="piste_downhill_novice" order="10-12">
 					<polyline color="#00A000" width="1"/>
