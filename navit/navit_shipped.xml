@@ -248,7 +248,7 @@ Waypoint</text></img>
 			<roadprofile item_types="steps" speed="2"/>
 			<roadprofile item_types="street_pedestrian,footway" speed="5"/>
 			<roadprofile item_types="path,track_ground" speed="12"/>
-			<roadprofile item_types="track_gravelled" speed="17"/>
+			<roadprofile item_types="track_gravelled" speed="15"/>
 			<!-- cycleways, paved tracks, serviceways etc. are the favourite ways -->
 			<roadprofile item_types="track_paved,cycleway,street_service,street_parking_lane" speed="22"/>
 			<!-- residential, unclassified, living street etc. -->
