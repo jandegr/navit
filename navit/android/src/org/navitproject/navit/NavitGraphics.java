@@ -879,7 +879,7 @@ public class NavitGraphics
 	protected void draw_polygon(Paint paint, int c[])
 	{
 		//Log.e("NavitGraphics","draw_polygon");
-		boolen move = false;
+		boolean move = false;
 		int lastx;
 		int lasty;
 		paint.setStrokeWidth(c[0]);
