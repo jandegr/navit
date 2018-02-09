@@ -888,7 +888,15 @@ public class NavitGraphics
 		path.moveTo(c[5], c[6]);
 		for (int i = 7; i < c.length; i += 2)
 		{
-			path.lineTo(c[i], c[i + 1]);
+			if (c[5] == c[i] && c[6] == c[i + 1])
+				{
+					path.moveTo(c[i], c[i + 1]);
+					Log.e("NavitGraphics","Moved Polygon Path");
+				}
+			else
+				{
+					path.lineTo(c[i], c[i + 1]);
+				}
 		}
 		//global_path.close();
 		draw_canvas.drawPath(path, paint);
