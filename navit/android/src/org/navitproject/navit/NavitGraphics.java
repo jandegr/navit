@@ -879,6 +879,9 @@ public class NavitGraphics
 	protected void draw_polygon(Paint paint, int c[])
 	{
 		//Log.e("NavitGraphics","draw_polygon");
+		boolen move = false;
+		int lastx;
+		int lasty;
 		paint.setStrokeWidth(c[0]);
 		paint.setARGB(c[1],c[2],c[3],c[4]);
 		paint.setStyle(Paint.Style.FILL);
@@ -886,16 +889,27 @@ public class NavitGraphics
 		//paint.setStrokeWidth(0);
 		Path path = new Path();
 		path.moveTo(c[5], c[6]);
+		lastx = c[5];
+		lasty = c[6];
 		for (int i = 7; i < c.length; i += 2)
 		{
-			if (c[5] == c[i] && c[6] == c[i + 1] && (i+1) < c.length)
+			
+			if(move)
 				{
 					path.moveTo(c[i], c[i + 1]);
-					Log.e("NavitGraphics","Moved Polygon Path");
+					lastx = c[i];
+					lasty = c[i + 1];
+					move = false;
+					Log.e("NavitGraphics","Moved Polygon Point");
 				}
 			else
 				{
 					path.lineTo(c[i], c[i + 1]);
+				}
+			if (lastx == c[i] && lasty == c[i + 1])
+				{
+					move = true;
+					Log.d("NavitGraphics","Move next Polygon Point");
 				}
 		}
 		//global_path.close();
