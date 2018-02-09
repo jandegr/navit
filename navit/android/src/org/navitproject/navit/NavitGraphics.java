@@ -905,11 +905,12 @@ public class NavitGraphics
 			else
 				{
 					path.lineTo(c[i], c[i + 1]);
-				}
-			if (lastx == c[i] && lasty == c[i + 1])
-				{
-					move = true;
-					Log.e("NavitGraphics","Move next Polygon Point i = " +i + "length = " + c.length);
+				
+				if (lastx == c[i] && lasty == c[i + 1])
+					{
+						move = true;
+						Log.e("NavitGraphics","Move next Polygon Point i = " +i + "length = " + c.length);
+					}
 				}
 		}
 		//global_path.close();
