@@ -900,7 +900,7 @@ public class NavitGraphics
 					lastx = c[i];
 					lasty = c[i + 1];
 					move = false;
-					Log.e("NavitGraphics","Moved Polygon Point");
+					Log.e("NavitGraphics","Moved Polygon Point i = " + i);
 				}
 			else
 				{
@@ -909,7 +909,7 @@ public class NavitGraphics
 			if (lastx == c[i] && lasty == c[i + 1])
 				{
 					move = true;
-					Log.d("NavitGraphics","Move next Polygon Point");
+					Log.e("NavitGraphics","Move next Polygon Point i = " +i + "length = " + c.length);
 				}
 		}
 		//global_path.close();
