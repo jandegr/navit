@@ -888,7 +888,7 @@ public class NavitGraphics
 		path.moveTo(c[5], c[6]);
 		for (int i = 7; i < c.length; i += 2)
 		{
-			if (c[5] == c[i] && c[6] == c[i + 1])
+			if (c[5] == c[i] && c[6] == c[i + 1] && (i+1) < c.length)
 				{
 					path.moveTo(c[i], c[i + 1]);
 					Log.e("NavitGraphics","Moved Polygon Path");
