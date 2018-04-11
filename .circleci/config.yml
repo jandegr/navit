@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Setup requirements
           command: |
-            sudo apt-get install cmake libsaxonb-java
+            sudo apt-get install cmake libsaxonb-java imagemagick
       - run:
           name: Build for Android
           command: |
