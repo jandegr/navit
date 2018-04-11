@@ -1,57 +1,102 @@
 version: 2
-  pre:
-    - "[ -d ~/assets ] || mkdir ~/assets"
-    - "[ -d ~/android ] || mkdir ~/android"
-    - sudo apt-get update
-    - sudo apt-get install cmake
-    - sudo apt-get install libpng12-dev 
-    - sudo apt-get install librsvg2-bin 
-    - sudo apt-get install libfreetype6-dev
-    - sudo apt-get install libdbus-glib-1-dev
-    - sudo apt-get install g++
-    - sudo apt-get install libgtk2.0-dev
-#    - sudo apt-get install python-dbus
-    - bash ci/build.sh
-    - sed -i '/INTEGER/d' bin/po/navit.pot
-#    - cp bin/po/navit.pot $CIRCLE_ARTIFACTS/
-#    - "curl \"https://translations.launchpad.net/navit/${CIRCLE_BRANCH}/+translations-upload\" -H \"$lp_cookie\" -H \"Referer: https://translations.launchpad.net/navit/${CIRCLE_BRANCH}/+translations-upload\" -F file=@bin/po/navit.pot | grep title"
-# Android build    
-#    - sudo apt-get install gettext
-    - sudo apt-get install libsaxonb-java
-# for aapt
-    - sudo apt-get install lib32z1
-#    - wget http://dl.google.com/android/repository/android-ndk-r13-linux-x86_64.zip && unzip -d ~ android-ndk-r13-linux-x86_64.zip
-    - wget http://dl.google.com/android/repository/android-ndk-r11c-linux-x86_64.zip && unzip -d ~ android-ndk-r11c-linux-x86_64.zip
-    - bash ci/build_android.sh
-#    - bash ci/build_android_x86.sh
-#    - bash ci/build_android_x86_64.sh
-#    - bash ci/build_tomtom.sh
-# Windows build
-    - sudo apt-get install mingw32 mingw32-binutils mingw32-runtime
-    - sudo apt-get install default-jdk nsis
-# for sys/select.h
-    - sudo apt-get install -y libc6-dev
-    - mkdir win32
-    - cmake -Dbinding/python:BOOL=FALSE -DSAMPLE_MAP=n -DBUILD_MAPTOOL=n -DCMAKE_TOOLCHAIN_FILE=../Toolchain/mingw32.cmake ../ && make && make package:
-        pwd: win32/
-    - cp win32/*.exe $CIRCLE_ARTIFACTS/
-    
-# For python testing with junit reporting
-    - sudo pip install junit-xml
-test:
-  post:
-    - sed -i -e 's@name="Local GPS" profilename="car" enabled="yes" active="1"@name="Local GPS" profilename="car" enabled="no" active="0"@' navit.xml:
-        pwd: bin/navit/
-    - sed -i -e 's@name="Demo" profilename="car" enabled="no" active="yes"@name="Demo" profilename="car" enabled="yes" active="yes" follow="1" refresh="1"@' navit.xml:
-        pwd: bin/navit/
-    - sed -i -e 's@type="internal" enabled@type="internal" fullscreen="1" font_size="350" enabled@' navit.xml:
-        pwd: bin/navit/
-    - sed -i -e 's@libbinding_dbus.so" active="no"@libbinding_dbus.so" active="yes"@' navit.xml:
-        pwd: bin/navit/
-    - ./navit:
-        pwd: bin/navit/
-        background: true
-    - sleep 5
-    - import -window root $CIRCLE_ARTIFACTS/default.png
-#    - python ci/dbus_tests.py $CIRCLE_TEST_REPORTS/
-#    - dbus-send  --print-reply --session --dest=org.navit_project.navit /org/navit_project/navit/default_navit org.navit_project.navit.navit.quit
+jobs:
+ build_linux:
+   <<: *defaults
+   steps:
+     - checkout
+     - run:
+         name: Setup requirements
+         command: |
+           bash ci/setup_common_requirements.sh
+           apt-get install -y libpng12-dev librsvg2-bin libfreetype6-dev libdbus-glib-1-dev libgtk2.0-dev curl
+     - run:
+         name: Build for Linux
+         command: bash ci/build_linux.sh
+ build_android_arm:
+   <<: *defaults
+   steps:
+     - checkout
+     - run:
+         name: Setup common requirements
+         command: |
+           bash ci/setup_common_requirements.sh
+     - run:
+         name: Prepare the Android build environment
+         command: |
+           bash ci/setup_android.sh
+     - run:
+         name: Build for Android ARM
+         command: |
+           bash ci/build_android.sh
+     - store_artifacts:
+         path: android-arm/navit/android/bin
+     - run:
+         name: Update Navit-Download-Center
+         command: |
+           bash ci/update_download_center.sh
+build_win32:
+   <<: *defaults
+   steps:
+     - checkout
+     - run:
+         name: Build for Windows
+         command: |
+           bash ci/setup_common_requirements.sh
+           bash ci/build_win32.sh
+     - store_artifacts:
+         path: win32/navit.exe
+  build_tomtom_minimal:
+    <<: *defaults
+    docker:
+      - image: navit/tomtom-build-image
+    steps:
+      - checkout
+      - run:
+          name: Setup common requirements
+          command: |
+            bash ci/setup_common_requirements.sh
+      - run:
+          name: Build for Tomtom (minimal)
+          command: |
+            bash ci/build_tomtom_minimal.sh
+      - store_artifacts:
+          path: /output
+      - run:
+          name: Update Navit-Download-Center
+          command: |
+            bash ci/update_download_center.sh
+  build_tomtom_plugin:
+    <<: *defaults
+    docker:
+      - image: navit/tomtom-build-image
+    steps:
+      - checkout
+      - run:
+          name: Setup common requirements
+          command: |
+            bash ci/setup_common_requirements.sh
+      - run:
+          name: Build for Tomtom (plugin)
+          command: |
+            bash ci/build_tomtom_plugin.sh
+      - store_artifacts:
+          path: /output
+      - run:
+          name: Update Navit-Download-Center
+          command: |
+            bash ci/update_download_center.sh
+workflows:
+  version: 2
+  doxygen:
+    jobs:
+      - run_doxygen:
+          filters:
+            branches:
+              only: /^trunk$/
+  build_all:
+    jobs:
+      - build_linux
+      - build_android_arm
+      - build_win32
+      - build_tomtom_minimal
+      - build_tomtom_plugin
