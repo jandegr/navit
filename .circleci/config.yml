@@ -19,10 +19,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Setup common requirements
-          command: |
-            bash ci/setup_common_requirements.sh
-      - run:
           name: Build for Android
           command: |
             bash ci/build_android.sh
