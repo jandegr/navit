@@ -14,8 +14,6 @@ jobs:
           name: Build for Linux
           command: bash ci/build_linux.sh
   build_android_arm:
-    docker:
-      - image: circleci/android:api-25-alpha
     steps:
       - checkout
       - run:
