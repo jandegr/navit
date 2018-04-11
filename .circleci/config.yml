@@ -14,6 +14,8 @@ jobs:
           name: Build for Linux
           command: bash ci/build_linux.sh
   build_android_arm:
+    docker:
+      - image: ubuntu:16.04
     steps:
       - checkout
       - run:
