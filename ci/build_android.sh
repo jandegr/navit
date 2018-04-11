@@ -49,12 +49,12 @@ cd $BUILD_PATH
 export PATH=$ANDROID_NDK_BIN:$ANDROID_SDK_TOOLS:$ANDROID_SDK_PLATFORM_TOOLS:$PATH
 sdkmanager --list
 ls -la /home/circleci/project
-svn_rev=` cd /home/circleci/project/navit/; git log -1|grep git-svn-id:|cut -c 65-68`
+# svn_rev=` cd /home/circleci/project/navit/; git log -1|grep git-svn-id:|cut -c 65-68`
 cd /home/circleci/project/navit/
 ls -la
-if [[ "$svn_rev" == "" ]]; then svn_rev="6136"; fi # Workaround for git-only builds
-sed -i -e "s/ANDROID_VERSION_INT=\"0\"/ANDROID_VERSION_INT=\"${svn_rev}\"/g" android/CMakeLists.txt
-cp android/CMakeLists.txt $CIRCLE_ARTIFACTS/
+# if [[ "$svn_rev" == "" ]]; then svn_rev="6136"; fi # Workaround for git-only builds
+# sed -i -e "s/ANDROID_VERSION_INT=\"0\"/ANDROID_VERSION_INT=\"${svn_rev}\"/g" android/CMakeLists.txt
+# cp android/CMakeLists.txt $CIRCLE_ARTIFACTS/
 
 cmake -DCMAKE_TOOLCHAIN_FILE=$CMAKE_FILE -DCACHE_SIZE='(20*1024*1024)' -DAVOID_FLOAT=1 -DSAMPLE_MAP=n -DBUILD_MAPTOOL=n -DANDROID_API_VERSION=23 -DANDROID_NDK_API_VERSION=19 $SOURCE_PATH
 make || exit 1
