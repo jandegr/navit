@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Setup requirements
           command: |
-            apt-get install cmake     
+            sudo apt-get install cmake     
       - run:
           name: Build for Android
           command: |
