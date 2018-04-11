@@ -1,7 +1,6 @@
 version: 2
 jobs:
   build_linux:
-    <<: *defaults
     steps:
       - checkout
       - run:
@@ -13,7 +12,6 @@ jobs:
           name: Build for Linux
           command: bash ci/build_linux.sh
   build_android_arm:
-    <<: *defaults
     steps:
       - checkout
       - run:
@@ -35,7 +33,6 @@ jobs:
           command: |
             bash ci/update_download_center.sh
   build_win32:
-    <<: *defaults
     steps:
       - checkout
       - run:
@@ -46,9 +43,6 @@ jobs:
       - store_artifacts:
           path: win32/navit.exe
   build_tomtom_minimal:
-    <<: *defaults
-    docker:
-      - image: navit/tomtom-build-image
     steps:
       - checkout
       - run:
@@ -66,9 +60,6 @@ jobs:
           command: |
             bash ci/update_download_center.sh
   build_tomtom_plugin:
-    <<: *defaults
-    docker:
-      - image: navit/tomtom-build-image
     steps:
       - checkout
       - run:
