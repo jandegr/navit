@@ -1,12 +1,4 @@
 version: 2
-machine:
-  environment:
-    CMAKE_FILE: ../Toolchain/arm-eabi.cmake
-dependencies:
-  cache_directories:
-    - ~/.android
-    - ~/android
-    - ~/tomtom_assets
   pre:
     - "[ -d ~/assets ] || mkdir ~/assets"
     - "[ -d ~/android ] || mkdir ~/android"
