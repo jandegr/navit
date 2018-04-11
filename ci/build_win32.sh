@@ -2,7 +2,9 @@ apt-get update && apt-get install -y mingw32 mingw32-binutils mingw32-runtime de
 
 mkdir win32
 pushd win32
-cmake -Dbinding/python:BOOL=FALSE -DSAMPLE_MAP=n -DXSLTS=windows -DCMAKE_TOOLCHAIN_FILE=../Toolchain/mingw32.cmake ../ && make -j $(nproc --all)  && make -j $(nproc --all) package
+cmake -Dbinding/python:BOOL=FALSE -DSAMPLE_MAP=n -DXSLTS=windows -DCMAKE_TOOLCHAIN_FILE=../Toolchain/mingw32.cmake ../ 
+make
+make package
 popd
 
 ls -la
