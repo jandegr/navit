@@ -15,7 +15,7 @@ jobs:
           command: bash ci/build_linux.sh
   build_android_arm:
     docker:
-      - image: ubuntu:16.04
+      - image: circleci/android:api-27-alpha
     steps:
       - checkout
       - run:
