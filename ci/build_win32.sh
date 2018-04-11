@@ -6,5 +6,5 @@ cmake -Dbinding/python:BOOL=FALSE -DSAMPLE_MAP=n -DXSLTS=windows -DCMAKE_TOOLCHA
 popd
 
 ls -la
-
+ls -la win32
 cp win32/*.exe $CIRCLE_ARTIFACTS/
