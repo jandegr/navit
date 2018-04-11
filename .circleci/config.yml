@@ -23,22 +23,14 @@ jobs:
           command: |
             bash ci/setup_common_requirements.sh
       - run:
-          name: Prepare the Android build environment
-          command: |
-            bash ci/setup_android.sh
-      - run:
-          name: Build for Android ARM
+          name: Build for Android
           command: |
             bash ci/build_android.sh
       - store_artifacts:
           path: android-arm/navit/android/bin
-      - run:
-          name: Update Navit-Download-Center
-          command: |
-            bash ci/update_download_center.sh
   build_win32:
     docker:
-      - image: ubuntu:14.04
+      - image: ubuntu:16.04
     steps:
       - checkout
       - run:
