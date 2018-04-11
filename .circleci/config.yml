@@ -87,12 +87,6 @@ jobs:
             bash ci/update_download_center.sh
 workflows:
   version: 2
-  doxygen:
-    jobs:
-      - run_doxygen:
-          filters:
-            branches:
-              only: /^trunk$/
   build_all:
     jobs:
       - build_linux
