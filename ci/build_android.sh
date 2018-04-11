@@ -29,8 +29,8 @@ export ANDROID_PLATFORM_CHECK_MAX=$ANDROID_SDK"/platforms/"$ANDROID_PLATFORM_LAT
 export BUILD_PATH=$START_PATH"/android-build"
 export ANDROID_ENV=$ANDROID_NDK_BIN:$ANDROID_SDK_TOOLS:$ANDROID_SDK_PLATFORM_TOOLS
 
-wget -q https://dl.google.com/android/android-sdk_r24.4.1-linux.tgz -O android-sdk.tgz
-tar -xvzf android-sdk.tgz
+#wget -q https://dl.google.com/android/android-sdk_r24.4.1-linux.tgz -O android-sdk.tgz
+#tar -xvzf android-sdk.tgz
 
 wget http://dl.google.com/android/repository/android-ndk-r11c-linux-x86_64.zip && unzip -d ~ android-ndk-r11c-linux-x86_64.zip
 
