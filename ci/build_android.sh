@@ -53,15 +53,15 @@ svn_rev=` cd /home/circleci/project/navit/; git log -1|grep git-svn-id:|cut -c 6
 cd /home/circleci/project/navit/
 ls -la
 if [[ "$svn_rev" == "" ]]; then svn_rev="6136"; fi # Workaround for git-only builds
-sed -i -e "s/ANDROID_VERSION_INT=\"0\"/ANDROID_VERSION_INT=\"${svn_rev}\"/g" navit/android/CMakeLists.txt
-cp navit/android/CMakeLists.txt $CIRCLE_ARTIFACTS/
+sed -i -e "s/ANDROID_VERSION_INT=\"0\"/ANDROID_VERSION_INT=\"${svn_rev}\"/g" android/CMakeLists.txt
+cp android/CMakeLists.txt $CIRCLE_ARTIFACTS/
 
 cmake -DCMAKE_TOOLCHAIN_FILE=$CMAKE_FILE -DCACHE_SIZE='(20*1024*1024)' -DAVOID_FLOAT=1 -DSAMPLE_MAP=n -DBUILD_MAPTOOL=n -DANDROID_API_VERSION=23 -DANDROID_NDK_API_VERSION=19 $SOURCE_PATH
 make || exit 1
 #if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-  make apkg-release && mv navit/android/bin/Navit-release-unsigned.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-release-unsigned.apk
+  make apkg-release && mv android/bin/Navit-release-unsigned.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-release-unsigned.apk
 #else
-  make apkg && mv navit/android/bin/Navit-debug.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-debug.apk
+  make apkg && mv android/bin/Navit-debug.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-debug.apk
 #fi
 #mv navit/android/bin/Navit-debug-unaligned.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-debug-unaligned.apk
 
@@ -69,4 +69,4 @@ make || exit 1
 
 echo
 echo "Build leftovers :"
-ls navit/android/bin/
+ls android/bin/
