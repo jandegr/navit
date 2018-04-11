@@ -30,7 +30,7 @@ jobs:
           path: android-arm/navit/android/bin
   build_win32:
     docker:
-      - image: ubuntu:16.04
+      - image: ubuntu:14.04
     steps:
       - checkout
       - run:
