@@ -32,11 +32,11 @@ jobs:
       - run:
           name: Process icons
           command: |
-            cd navit/xpm
-            rename 'y/A-Z/a-z/' *
+            cd navit/xpm    
             make
             sudo ls -la
             mkdir ../android/res/drawable-nodpi
+            rename 'y/A-Z/a-z/' *
             cp *.png ../android/res/drawable-nodpi
             cd ../../
 #      - run:
