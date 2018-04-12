@@ -24,13 +24,19 @@ jobs:
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}
       - run:
-          name: Install cmake
+          name: Install cmake gettext imagemagick libsaxonb-java
           command: | 
             sudo apt-get install cmake gettext imagemagick libsaxonb-java   
             cmake ./
+            
+      - run:
+          name: Process icons
+          command: |
             cd navit/xpm
             make
             sudo ls -la
+            mkdir ../android/res/drawable-nodpi
+            cp *.png ../android/res/drawable-nodpi
             cd ../../
 #      - run:
 #         name: Generate gradle wrapper
