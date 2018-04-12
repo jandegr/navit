@@ -26,9 +26,12 @@ jobs:
       - run:
           name: Install cmake
           command: | 
-            sudo apt-get install cmake gettext imagemagick libsaxonb-java
-            sudo ls -la
+            sudo apt-get install cmake gettext imagemagick libsaxonb-java   
             cmake ./
+            cd navit/xpm
+            make
+            sudo ls -la
+            cd ../../
 #      - run:
 #         name: Generate gradle wrapper
 #         command: bash gradle wrapper
