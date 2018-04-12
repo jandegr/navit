@@ -26,9 +26,9 @@ jobs:
 #      - run:
 #         name: Generate gradle wrapper
 #         command: bash gradle wrapper
-#      - run:
-#         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this. 
-#         command: sudo chmod +x ./gradlew
+      - run:
+         name: Chmod permissions
+         command: sudo chmod +x ./gradlew
 #      - run:
 #          name: Download Dependencies
 #          command: ./gradlew androidDependencies
