@@ -25,7 +25,7 @@ jobs:
           key: jars-{{ checksum "build.gradle" }}
       - run:
           name: Install cmake
-          command: apt-get install cmake
+          command: sudo apt-get install cmake
 #      - run:
 #         name: Generate gradle wrapper
 #         command: bash gradle wrapper
