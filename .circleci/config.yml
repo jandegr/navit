@@ -33,6 +33,9 @@ jobs:
           name: Download Dependencies
           command: ./gradlew -v
 #          command: ./gradlew androidDependencies
+      - run:
+         name: Install ndk
+         command: sdkmanager ndk-bundle
 #      - save_cache:
 #          paths:
 #            - ~/.gradle
