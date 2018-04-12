@@ -60,16 +60,15 @@ jobs:
           name: Build
           command: ./gradlew assembleDebug
       - run:
-          name: Get apk
+          name: Show apk and logs
           command: | 
-            sudo ls -la navit/android/build/outputs 
             sudo ls -la navit/android/build/outputs/apk
             sudo ls -la navit/android/build/outputs/logs
       - run:
           name: Run Tests
           command: ./gradlew tasks --all
       - store_artifacts:
-          path: navit/android/build/outputs/apk/*.apk
+          path: navit/android/build/outputs/apk
           destination: apk
       - store_test_results:
           path: app/build/test-results  
