@@ -2629,7 +2629,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 
 	heuristic_speed = 130; // in km/h
 
-	double timestamp_graph_flood = now_ms();
+//	double timestamp_graph_flood = now_ms();
 
 	if (!A_star)
 	{
@@ -2809,7 +2809,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			break;
 	}
 	dbg(0,"number of edges visited =%i\n",edges_count);
-	dbg(0,"route_graph_flood FRUGAL took: %.3f ms\n", now_ms() - timestamp_graph_flood);
+//	dbg(0,"route_graph_flood FRUGAL took: %.3f ms\n", now_ms() - timestamp_graph_flood);
 	fh_deleteheap(heap);
 	if (cb)
 	{
@@ -3210,7 +3210,7 @@ route_graph_build_idle(struct route_graph *rg, struct vehicleprofile *profile)
 	int count=1;
 	struct item *item;
 
-	double timestamp_build_idle = now_ms();
+//	double timestamp_build_idle = now_ms();
 
 
 	//untill done
@@ -3223,7 +3223,7 @@ route_graph_build_idle(struct route_graph *rg, struct vehicleprofile *profile)
 				break;
 			if (!route_graph_build_next_map(rg))
 			{
-				dbg(0,"build_idle final: %.3f ms\n", now_ms() - timestamp_build_idle);
+//				dbg(0,"build_idle final: %.3f ms\n", now_ms() - timestamp_build_idle);
 				route_graph_build_done(rg, 0);
 				return;
 			}
