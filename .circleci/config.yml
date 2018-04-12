@@ -26,7 +26,7 @@ jobs:
       - run:
          name: Generate gradle wrapper
 #         command: bash gradle wrapper
-         command: bash gradle -v
+         command: bash ls -la /opt
 #      - run:
 #         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this. 
 #         command: sudo chmod +x ./gradlew
