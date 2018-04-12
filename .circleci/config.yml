@@ -28,7 +28,7 @@ jobs:
           command: | 
             sudo apt-get install cmake gettext imagemagick libsaxonb-java
             sudo ls -la
-            cmake
+            cmake ./
 #      - run:
 #         name: Generate gradle wrapper
 #         command: bash gradle wrapper
