@@ -3237,7 +3237,7 @@ route_graph_build_idle(struct route_graph *rg, struct vehicleprofile *profile)
 		count++;
 	}
 
-	 dbg(0,"build_idle took: %.3f ms\n",now_ms() - timestamp_build_idle);
+//	 dbg(0,"build_idle took: %.3f ms\n",now_ms() - timestamp_build_idle);
 }
 
 /**
