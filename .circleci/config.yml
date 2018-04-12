@@ -28,6 +28,7 @@ jobs:
           command: | 
             sudo apt-get install cmake
             sudo ls -la
+            cmake
 #      - run:
 #         name: Generate gradle wrapper
 #         command: bash gradle wrapper
