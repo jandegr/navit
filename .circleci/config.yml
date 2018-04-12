@@ -62,8 +62,8 @@ jobs:
       - run:
           name: Get apk
           command: | 
-            sudo ls -la navit 
-            sudo ls -la navit/android
+            sudo ls -la navit/android 
+            sudo ls -la navit/android/build
       - run:
           name: Run Tests
           command: ./gradlew tasks --all
