@@ -13,7 +13,7 @@ jobs:
       - run:
           name: Build for Linux
           command: bash ci/build_linux.sh
-  build_android_arm:
+  build_android:
     working_directory: ~/code
     docker:
       - image: circleci/android:api-27-alpha
@@ -70,6 +70,9 @@ jobs:
       - store_artifacts:
           path: navit/android/build/outputs/apk
           destination: apk
+      - store_artifacts:
+          path: navit/android/build/outputs/logs
+          destination: logs
       - store_test_results:
           path: app/build/test-results  
   build_win32:
@@ -89,5 +92,5 @@ workflows:
   build_all:
     jobs:
       - build_linux
-      - build_android_arm
+      - build_android
       - build_win32
