@@ -120,6 +120,10 @@ ADD_CUSTOM_TARGET(
                     -P ${PROJECT_SOURCE_DIR}/cmake/version.cmake
 )
 
+if(ANDROID OR HAVE_API_ANDROID)
+   set(XSLTS "android;${XSLTS}" CACHE STRING "define a semicolon seperated list of XSLTs to process")
+endif()
+
 # additional parameter are passed to the stylesheet processor as parameter
 macro(process_xslt SRC_XML DEST_XML)
    set(XSLT_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy ${SRC_XML} ${DEST_XML}
@@ -143,7 +147,6 @@ macro(process_xslt SRC_XML DEST_XML)
 endmacro()
 
 if(ANDROID OR HAVE_API_ANDROID)
-   set(XSLTS "android;${XSLTS}" CACHE STRING "define a semicolon seperated list of XSLTs to process")
    process_xslt(${CMAKE_CURRENT_SOURCE_DIR}/navit_shipped.xml ${CMAKE_CURRENT_BINARY_DIR}/navitxxxhdpi.xml OSD_SIZE=5.33 ICON_SMALL=128 ICON_MEDIUM=192 ICON_BIG=256)
    process_xslt(${CMAKE_CURRENT_SOURCE_DIR}/navit_shipped.xml ${CMAKE_CURRENT_BINARY_DIR}/navitxxhdpi.xml OSD_SIZE=4 ICON_SMALL=96 ICON_MEDIUM=128 ICON_BIG=192)
    process_xslt(${CMAKE_CURRENT_SOURCE_DIR}/navit_shipped.xml ${CMAKE_CURRENT_BINARY_DIR}/navitxhdpi.xml OSD_SIZE=2.67 ICON_SMALL=64 ICON_MEDIUM=96 ICON_BIG=128)
