@@ -48,6 +48,11 @@ jobs:
             mkdir ../navit/android/res/raw
             cp *.mo ../navit/android/res/raw
             cd ../
+      - run:
+          name: Move xml's
+          command: |
+            sudo ls -la
+            sudo ls -la navit
 #      - run:
 #         name: Generate gradle wrapper
 #         command: bash gradle wrapper
