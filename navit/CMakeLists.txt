@@ -122,11 +122,12 @@ ADD_CUSTOM_TARGET(
 
 if(ANDROID OR HAVE_API_ANDROID)
    set(XSLTS "android;${XSLTS}" CACHE STRING "define a semicolon seperated list of XSLTs to process")
-   message (STATUS "JDGGGGGGGG android xslt")
+   
 endif()
 
 # additional parameter are passed to the stylesheet processor as parameter
 macro(process_xslt SRC_XML DEST_XML)
+   message (STATUS "JDGGGGGGGG android xslt")
    set(XSLT_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy ${SRC_XML} ${DEST_XML}
                      COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/navit/navit.dtd ${CMAKE_CURRENT_BINARY_DIR}/navit.dtd)
    if(XSL_PROCESSING AND XSLTS)
