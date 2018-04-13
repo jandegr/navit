@@ -130,7 +130,9 @@ macro(process_xslt SRC_XML DEST_XML)
    message (STATUS "JDGGGGGGGG android xslt")
    set(XSLT_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy ${SRC_XML} ${DEST_XML}
                      COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/navit/navit.dtd ${CMAKE_CURRENT_BINARY_DIR}/navit.dtd)
-   if(XSL_PROCESSING AND XSLTS)
+# HACKED FOR GRADLE ----------------------------------------
+  # if(XSL_PROCESSING AND XSLTS)
+       set(XSLTS "android" CACHE STRING "define a semicolon seperated list of XSLTs to process")
        message (STATUS "JDGgggggggg PROCESS XSLT dfqsdfq")
        string(REPLACE "," ";" XSLTS "${XSLTS}")
        foreach(tmp ${XSLTS})
@@ -141,7 +143,7 @@ macro(process_xslt SRC_XML DEST_XML)
           list(APPEND XSLT_COMMANDS ${CMD})
           list(APPEND XSLT_COMMANDS COMMAND ${CMAKE_COMMAND} -E rename ${DEST_XML}.tmp ${DEST_XML})
        endforeach()
-   endif()
+   #endif()
    ADD_CUSTOM_COMMAND(
       OUTPUT ${DEST_XML}
       DEPENDS ${SRC_XML} ${XSLT_FILES}
