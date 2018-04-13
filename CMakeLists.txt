@@ -407,14 +407,14 @@ endif(GETTEXT_FOUND)
 #Independent modules
 add_module(graphics/null "Default" TRUE)
 add_module(osd/core "Default" TRUE)
-add_module(vehicle/demo "Default" TRUE)
+add_module(vehicle/demo "Default" FALSE)#hack voor androidstudio
 add_module(vehicle/file "Default" TRUE)
 add_module(vehicle/null "Default" FALSE)
 add_module(gui/internal "Default" TRUE)
 add_module(map/binfile "Default" TRUE)
 add_module(map/filter "Default" TRUE)
 if(NOT MSVC)
-add_module(map/mg "Default" TRUE)
+add_module(map/mg "Default" FASLE)#hack voor androidstudio
 endif(NOT MSVC)
 add_module_plugin(support/shapefile "Default" TRUE)
 set(map_shapefile_INCLUDES "${CMAKE_SOURCE_DIR}/navit/support/shapefile")
@@ -437,7 +437,7 @@ add_module(vehicle/wince "Default" FALSE)
 add_module(graphics/cocoa "Default" FALSE)
 
 # other features
-add_feature(USE_PLUGINS "default" TRUE)
+add_feature(USE_PLUGINS "default" FALSE)#hack voor androidstudio
 add_feature(USE_ROUTING "default" TRUE)
 add_feature(USE_SVG "default" TRUE)
 add_feature(SVG2PNG "default" TRUE)
