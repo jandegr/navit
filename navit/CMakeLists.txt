@@ -122,7 +122,7 @@ ADD_CUSTOM_TARGET(
 
 if(ANDROID OR HAVE_API_ANDROID)
    set(XSLTS "android;${XSLTS}" CACHE STRING "define a semicolon seperated list of XSLTs to process")
-   
+   cfg_feature(XSL_PROCESSING "android xsl processing" TRUE)
 endif()
 
 # additional parameter are passed to the stylesheet processor as parameter
