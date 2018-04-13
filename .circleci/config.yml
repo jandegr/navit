@@ -52,8 +52,8 @@ jobs:
       - run:
           name: Move xml's
           command: |
-            sudo ls -la
             sudo ls -la navit
+            sudo ls -la navit/xslt
 #      - run:
 #         name: Generate gradle wrapper
 #         command: bash gradle wrapper
