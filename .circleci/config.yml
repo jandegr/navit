@@ -45,8 +45,8 @@ jobs:
             cd po  
             make
             sudo ls -la
-            mkdir ../android/res/raw
-            cp *.mo ../android/res/raw
+            mkdir ../navit/android/res/raw
+            cp *.mo ../navit/android/res/raw
             cd ../
 #      - run:
 #         name: Generate gradle wrapper
