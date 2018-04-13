@@ -27,7 +27,7 @@ jobs:
           name: Install cmake gettext imagemagick libsaxonb-java
           command: | 
             sudo apt-get install cmake gettext imagemagick libsaxonb-java   
-            cmake -DHAVE_API_ANDROID=1 ./
+            cmake ./
             
       - run:
           name: Process icons
