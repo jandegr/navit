@@ -46,6 +46,7 @@ jobs:
             make
             sudo ls -la
             mkdir ../navit/android/res/raw
+            rename 'y/A-Z/a-z/' *
             cp *.mo ../navit/android/res/raw
             cd ../
       - run:
