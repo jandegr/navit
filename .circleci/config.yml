@@ -53,7 +53,7 @@ jobs:
           name: Move xml's
           command: |
             cd navit
-            make make navit_config_xml_resource
+            make navit_config_xml_resource
             sudo ls -la
             sudo ls -la xslt
             cd ../
