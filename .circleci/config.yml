@@ -55,7 +55,7 @@ jobs:
             cd navit
             make navit_config_xml
             sudo ls -la
-            sudo ls -la xslt
+            mv *dpi.xml android/res/raw
             cd ../
 #      - run:
 #         name: Generate gradle wrapper
