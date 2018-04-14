@@ -25,14 +25,13 @@ jobs:
           key: jars-{{ checksum "build.gradle" }}
       - run:
           name: Install cmake gettext imagemagick libsaxonb-java
-          command: | 
-            sudo apt-get install cmake gettext imagemagick libsaxonb-java   
-            cmake -DHAVE_API_ANDROID=1 ./
-            
+          command: |
+            sudo apt-get install cmake gettext imagemagick libsaxonb-java
+            cmake ./
       - run:
           name: Process icons
           command: |
-            cd navit/xpm    
+            cd navit/xpm
             make
             rm *_16_16.png
             sudo ls -la
@@ -80,11 +79,6 @@ jobs:
       - run:
           name: Build
           command: ./gradlew assembleDebug
-      - run:
-          name: Show apk and logs
-          command: | 
-            sudo ls -la navit/android/build/outputs/apk
-            sudo ls -la navit/android/build/outputs/logs
       - run:
           name: Run Tests
           command: ./gradlew tasks --all
