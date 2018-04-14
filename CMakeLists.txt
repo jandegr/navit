@@ -437,7 +437,7 @@ add_module(vehicle/wince "Default" FALSE)
 add_module(graphics/cocoa "Default" FALSE)
 
 # other features
-add_feature(USE_PLUGINS "default" FALSE)#hack voor androidstudio
+add_feature(USE_PLUGINS "default" TRUE)
 add_feature(USE_ROUTING "default" TRUE)
 add_feature(USE_SVG "default" TRUE)
 add_feature(SVG2PNG "default" TRUE)
