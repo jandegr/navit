@@ -53,7 +53,9 @@ jobs:
           name: Move xml's
           command: |
             cd navit
-            make navit_config_xml
+            java net.sf.saxon.Transform -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navit.xml
+            java net.sf.saxon.Transform -s:navit.xml -xsl:xslt/android_hdpi.xslt -o:navithdpi.xml
+#            make navit_config_xml
             sudo ls -la
             mv *dpi.xml android/res/raw
             cd ../
