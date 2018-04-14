@@ -120,30 +120,21 @@ ADD_CUSTOM_TARGET(
                     -P ${PROJECT_SOURCE_DIR}/cmake/version.cmake
 )
 
-if(ANDROID OR HAVE_API_ANDROID)
-   set(XSLTS "android;${XSLTS}" CACHE STRING "define a semicolon seperated list of XSLTs to process")
-   cfg_feature(XSL_PROCESSING "android xsl processing" TRUE)
-endif()
-
 # additional parameter are passed to the stylesheet processor as parameter
 macro(process_xslt SRC_XML DEST_XML)
-   message (STATUS "JDGGGGGGGG android xslt")
    set(XSLT_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy ${SRC_XML} ${DEST_XML}
                      COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/navit/navit.dtd ${CMAKE_CURRENT_BINARY_DIR}/navit.dtd)
-# HACKED FOR GRADLE ----------------------------------------
-  # if(XSL_PROCESSING AND XSLTS)
- #      set(XSLTS "android" CACHE STRING "define a semicolon seperated list of XSLTs to process")      
- #      string(REPLACE "," ";" XSLTS "${XSLTS}")
- #      foreach(tmp ${XSLTS})
-          message (STATUS "JDGgggggggg PROCESS XSLT dfqsdfq")
-          set(XSLT_FILE "${PROJECT_SOURCE_DIR}/navit/xslt/android.xslt")
+   if(XSL_PROCESSING AND XSLTS)
+       string(REPLACE "," ";" XSLTS "${XSLTS}")
+       foreach(tmp ${XSLTS})
+          set(XSLT_FILE "${PROJECT_SOURCE_DIR}/navit/xslt/${tmp}.xslt")
           list(APPEND XSLT_FILES "${XSLT_FILE}")
-          list(APPEND XSLT_COMMANDS COMMAND ${CMAKE_COMMAND} -E echo  Applying android.xslt)
+          list(APPEND XSLT_COMMANDS COMMAND ${CMAKE_COMMAND} -E echo  Applying ${tmp}.xslt)
           compose_xslt_transform_command(CMD "${XSLT_FILE}" "${DEST_XML}" "${DEST_XML}.tmp" "${ARGN}")
           list(APPEND XSLT_COMMANDS ${CMD})
           list(APPEND XSLT_COMMANDS COMMAND ${CMAKE_COMMAND} -E rename ${DEST_XML}.tmp ${DEST_XML})
-   #    endforeach()
-   #endif()
+       endforeach()
+   endif()
    ADD_CUSTOM_COMMAND(
       OUTPUT ${DEST_XML}
       DEPENDS ${SRC_XML} ${XSLT_FILES}
@@ -151,7 +142,7 @@ macro(process_xslt SRC_XML DEST_XML)
    )
 endmacro()
 
-if(ANDROID OR HAVE_API_ANDROID)
+if(ANDROID)
    process_xslt(${CMAKE_CURRENT_SOURCE_DIR}/navit_shipped.xml ${CMAKE_CURRENT_BINARY_DIR}/navitxxxhdpi.xml OSD_SIZE=5.33 ICON_SMALL=128 ICON_MEDIUM=192 ICON_BIG=256)
    process_xslt(${CMAKE_CURRENT_SOURCE_DIR}/navit_shipped.xml ${CMAKE_CURRENT_BINARY_DIR}/navitxxhdpi.xml OSD_SIZE=4 ICON_SMALL=96 ICON_MEDIUM=128 ICON_BIG=192)
    process_xslt(${CMAKE_CURRENT_SOURCE_DIR}/navit_shipped.xml ${CMAKE_CURRENT_BINARY_DIR}/navitxhdpi.xml OSD_SIZE=2.67 ICON_SMALL=64 ICON_MEDIUM=96 ICON_BIG=128)
@@ -195,6 +186,15 @@ WRITE_FILE("cmake_plugin_settings.txt"
 	"set(MODULE_BUILD_TYPE \"${MODULE_BUILD_TYPE}\" CACHE STRING init)\n"
 	"set(NAVIT_COMPILE_FLAGS \"${NAVIT_COMPILE_FLAGS}\" CACHE STRING init)\n"
 	"set(navit_SOURCE_DIR \"${navit_SOURCE_DIR}\" CACHE STRING init)\n"
+	"set(NAVIT_LIBNAME \"${NAVIT_LIBNAME}\" CACHE STRING init)\n"
+	"set(ANDROID_API_VERSION \"${ANDROID_API_VERSION}\" CACHE STRING init)\n"
+	"set(ANDROID_NDK_API_VERSION \"${ANDROID_NDK_API_VERSION}\" CACHE STRING init)\n"
+	"set(CMAKE_TOOLCHAIN_FILE \"${CMAKE_TOOLCHAIN_FILE}\" CACHE STRING init)\n"
+	"set(INCLUDE_DIRECTORIES \"${INCLUDE_DIRECTORIES}\" CACHE STRING init)\n"
+	"set(LIB_DIR \"${LIB_DIR}\" CACHE STRING init)\n"
+	"set(CMAKE_INSTALL_PREFIX \"${CMAKE_INSTALL_PREFIX}\" CACHE STRING init)\n"
+	)
+
 	"set(NAVIT_LIBNAME \"${NAVIT_LIBNAME}\" CACHE STRING init)\n"
 	"set(ANDROID_API_VERSION \"${ANDROID_API_VERSION}\" CACHE STRING init)\n"
 	"set(ANDROID_NDK_API_VERSION \"${ANDROID_NDK_API_VERSION}\" CACHE STRING init)\n"
