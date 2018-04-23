@@ -27,6 +27,9 @@ jobs:
             sudo apt-get install cmake gettext imagemagick libsaxonb-java
             cmake ./ -Dsvg2png_scaling:STRING=-1,24,32,48,64,96,128 -Dsvg2png_scaling_nav:STRING=-1,24,32,48,64,96,128 -Dsvg2png_scaling_flag:STRING=-1,24,32,64,96
       - run:
+         name: Smth
+         command: imagemagick -version
+      - run:
           name: Process icons
           command: |
             cd navit/xpm
