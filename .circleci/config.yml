@@ -79,7 +79,9 @@ jobs:
           command: ./gradlew assembleDebug
       - run:
           name: Run Tests
-          command: ./gradlew tasks --all
+          command: |
+            ./gradlew lint
+            ./gradlew tasks --all
       - store_artifacts:
           path: navit/android/build/outputs/apk
           destination: apk
