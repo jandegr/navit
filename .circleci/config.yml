@@ -80,7 +80,7 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            ./gradlew lint
+#            ./gradlew lint
             ./gradlew tasks --all
       - store_artifacts:
           path: navit/android/build/outputs/apk
