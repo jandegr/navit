@@ -28,7 +28,8 @@ android {
         }
     }
     lintOptions {
-          abortOnError false
+        disable 'UnusedResources'
+        abortOnError false
     }
     sourceSets {
 	    	main {
