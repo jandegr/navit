@@ -73,10 +73,10 @@ jobs:
           name: Download Dependencies
           command: ./gradlew -v
 #          command: ./gradlew androidDependencies
-       - save_cache:
-           paths:
-             - ~/.gradle
-           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/build.gradle" }}
+#       - save_cache:
+#           paths:
+#             - ~/.gradle
+#           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/build.gradle" }}
       - run:
          name: Install ndk
          command: sdkmanager ndk-bundle
