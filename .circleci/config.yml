@@ -22,7 +22,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/build.gradle" }}
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
       - run:
           name: Id
           command: |
@@ -77,7 +77,7 @@ jobs:
           name: Save cache
           paths:
             - ~/.gradle
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/build.gradle" }}
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
       - run:
          name: Install ndk
          command: sdkmanager ndk-bundle
