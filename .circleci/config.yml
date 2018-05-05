@@ -21,6 +21,8 @@ jobs:
       JVM_OPTS: -Xmx3200m
     steps:
       - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/build.gradle" }}
       - run:
           name: Id
           command: |
@@ -71,6 +73,10 @@ jobs:
           name: Download Dependencies
           command: ./gradlew -v
 #          command: ./gradlew androidDependencies
+        - save_cache:
+            paths:
+              - ~/.gradle
+            key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/build.gradle" }}
       - run:
          name: Install ndk
          command: sdkmanager ndk-bundle
