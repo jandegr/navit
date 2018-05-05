@@ -93,7 +93,7 @@ jobs:
             ./gradlew lint test
       - run:
           name: Run Javadoc
-          command: ./gradlew generateDevDebugJavadoc
+          command: ./gradlew generateDebugJavadoc
           #generateProductionDebugJavadoc
           #generateDevReleaseJavadoc
           #generateProductionReleaseJavadoc
