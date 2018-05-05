@@ -62,6 +62,8 @@ android {
             // the name that will appear in the docs
             title = rootProject.name
 
+            verbose = true
+	    
             // you will probably get errors from using the @annotations and 
             // the support library, so just turn off failing for errors
             failOnError false    
