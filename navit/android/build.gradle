@@ -1,8 +1,5 @@
 apply plugin: 'com.android.application'
 
-plugins {
-  id "com.vanniktech.android.javadoc" version "0.2.1"
-}
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
