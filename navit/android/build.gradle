@@ -45,6 +45,28 @@ android {
             path '../../CMakeLists.txt'
         }
     }
+    applicationVariants.all { variant ->
+        // create tasks to generate Javadocs
+        task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+            source = variant.javaCompile.source
+            classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+
+            // choose the destination that works best for you here
+            // I chose this particular directory because Jenkins pulls reports 
+            // from this directory already if you need to have the output 
+            // folder be parameterized for the build variant, use
+            // "build/outputs/docs/javadoc-${variant.name}/" instead and it'll 
+            // be in `javadoc-productionRelease` for example
+            destinationDir = file("build/outputs/docs/javadoc/")
+
+            // the name that will appear in the docs
+            title = rootProject.name
+
+            // you will probably get errors from using the @annotations and 
+            // the support library, so just turn off failing for errors
+            failOnError false    
+        }
+    }
 }
 
 dependencies {
