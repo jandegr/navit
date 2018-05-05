@@ -92,6 +92,9 @@ jobs:
             ./gradlew tasks --all
             ./gradlew lint test
       - run:
+          name: Run Javadoc
+          command: ./gradlew javadoc  
+      - run:
           name: Inspect
           command: |
             ls -la navit/android/build/outputs/apk
