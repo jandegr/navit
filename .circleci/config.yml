@@ -95,7 +95,7 @@ jobs:
           path: navit/android/build/outputs/logs
           destination: logs
       - store_test_results:
-          path: app/build/test-results  
+          path: navit/android/build/reports
   build_win32:
     docker:
       - image: ubuntu:14.04
