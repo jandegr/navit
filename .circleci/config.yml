@@ -74,6 +74,7 @@ jobs:
           command: ./gradlew -v
 #          command: ./gradlew androidDependencies
       - save_cache:
+          name: Save cache
           paths:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/build.gradle" }}
