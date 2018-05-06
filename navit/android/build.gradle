@@ -32,12 +32,7 @@ android {
         disable 'UnusedResources'
         abortOnError false
     }
-    checkstyle {
-        sourceSets = [ rootProject.sourceSets.main ]
-    	configFile = rootProject.file('navit/android/google_checks.xml')
-	ignoreFailures = true
-        showViolations = true
-    }
+    
     sourceSets {
 	    	main {
 		    	manifest.srcFile "AndroidManifest.xml"
@@ -52,6 +47,14 @@ android {
             path '../../CMakeLists.txt'
         }
     }
+    
+    checkstyle {
+        sourceSets = [ rootProject.sourceSets.main ]
+    	configFile = rootProject.file('navit/android/google_checks.xml')
+	ignoreFailures = true
+        showViolations = true
+    }
+    
     applicationVariants.all { variant ->
         // create tasks to generate Javadocs
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
