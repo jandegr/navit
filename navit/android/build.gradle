@@ -69,10 +69,11 @@ android {
      tasks.withType(Checkstyle) {
          reports {
 	     include ( '**/*.java')
-             xml.enabled false
-             html.enabled true
 	     html {
 	         destination "navit/android/build/reports/checkstyleMain.html"
+	     }
+	     xml {
+	         destination "navit/android/build/reports/checkstyleMain.xml"
 	     }
          }
     }
