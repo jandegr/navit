@@ -98,6 +98,8 @@ jobs:
       - run:
           name: Inspect
           command: |
+            ls -la navit/android/build
+            ls -la navit/android/build/outputs
             ls -la navit/android/build/outputs/apk
             ls -la navit/android/build/outputs/logs
             ls -la navit/android/build/reports
