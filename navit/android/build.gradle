@@ -63,9 +63,9 @@ android {
 	// empty classpath
        classpath = files()
      }
-     checkstyle {
-         toolVersion = '6.18'
-     }
+//     checkstyle {
+//         toolVersion = '6.18'
+//     }
     applicationVariants.all { variant ->
         // create tasks to generate Javadocs
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
@@ -99,4 +99,5 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
     compile 'ch.acra:acra:4.9.2'
+    compile 'com.puppycrawl.tools:checkstyle:8.10'
 }
