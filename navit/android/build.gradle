@@ -48,12 +48,6 @@ android {
         }
     }
     
-//    checkstyleMain {
-//        sourceSets = [ rootProject.sourceSets.main ]
-//    	configFile = rootProject.file('navit/android/google_checks.xml')
-//	ignoreFailures = true
-//        showViolations = true
-//    }
      task checkstyleMain(type: Checkstyle){
         source 'src'
 	include '**/*.java'
@@ -62,21 +56,22 @@ android {
         showViolations = true
 	// empty classpath
        classpath = files()
+        reports {
+	     include ( '**/*.java')
+	     xml.enabled = true
+	     html.enabled = true
+	     xml {
+	         destination "navit/android/build/reports/checkstyleMain.xml"
+	     }
+	     html {
+	         destination "navit/android/build/reports/checkstyleMain.html"
+	     }
+         }
      }
      checkstyle {
          toolVersion = '8.10'
      }
-     tasks.withType(Checkstyle) {
-         reports {
-	     include ( '**/*.java')
-	     html {
-	         destination "navit/android/build/reports/checkstyleMain.html"
-	     }
-	     xml {
-	         destination "navit/android/build/reports/checkstyleMain.xml"
-	     }
-         }
-    }
+     
     applicationVariants.all { variant ->
         // create tasks to generate Javadocs
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
