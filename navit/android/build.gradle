@@ -48,13 +48,18 @@ android {
         }
     }
     
-    checkstyle {
+//    checkstyleMain {
 //        sourceSets = [ rootProject.sourceSets.main ]
-    	configFile = rootProject.file('navit/android/google_checks.xml')
+//    	configFile = rootProject.file('navit/android/google_checks.xml')
+//	ignoreFailures = true
+//        showViolations = true
+//    }
+     task checkstyle(type: Checkstyle){
+        configFile = rootProject.file('navit/android/google_checks.xml')
 	ignoreFailures = true
         showViolations = true
-    }
-    
+     }
+     
     applicationVariants.all { variant ->
         // create tasks to generate Javadocs
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
@@ -80,7 +85,9 @@ android {
         }
     }
 }
-
+project.afterEvaluate {
+    preBuild.dependsOn 'checkstyle'
+}
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
