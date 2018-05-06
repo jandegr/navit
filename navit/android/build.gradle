@@ -63,9 +63,9 @@ android {
 	// empty classpath
        classpath = files()
      }
-//     checkstyle {
-//         toolVersion = '6.18'
-//     }
+     checkstyle {
+         toolVersion = '8.10'
+     }
     applicationVariants.all { variant ->
         // create tasks to generate Javadocs
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
