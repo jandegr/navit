@@ -54,7 +54,8 @@ android {
 //	ignoreFailures = true
 //        showViolations = true
 //    }
-     task checkstyle(type: Checkstyle){
+     task checkstyleMain(type: Checkstyle){
+        source 'src'
         configFile = rootProject.file('navit/android/google_checks.xml')
 	ignoreFailures = true
         showViolations = true
@@ -85,9 +86,7 @@ android {
         }
     }
 }
-project.afterEvaluate {
-    preBuild.dependsOn 'checkstyle'
-}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
