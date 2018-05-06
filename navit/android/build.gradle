@@ -32,6 +32,9 @@ android {
         disable 'UnusedResources'
         abortOnError false
     }
+    checkstyle {
+    	configFile = rootProject.file('navit/android/google_checks.xml')
+    }
     sourceSets {
 	    	main {
 		    	manifest.srcFile "AndroidManifest.xml"
