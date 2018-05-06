@@ -91,13 +91,10 @@ jobs:
             ls -la
             ./gradlew tasks --all
             ./gradlew lint test
+            ./gradlew checkstyleSourceSet
       - run:
           name: Run Javadoc
           command: ./gradlew generateDebugJavadoc
-          #generateProductionDebugJavadoc
-          #generateDevReleaseJavadoc
-          #generateProductionReleaseJavadoc
-          #https://stackoverflow.com/questions/17033878/generate-javadocs-with-android-gradle-plugin?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
       - run:
           name: Inspect
           command: |
