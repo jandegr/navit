@@ -70,6 +70,7 @@ android {
          reports {
              xml.enabled false
              html.enabled true
+	     destination "navit/android/build/reports"
          }
     }
     applicationVariants.all { variant ->
