@@ -66,6 +66,12 @@ android {
      checkstyle {
          toolVersion = '8.10'
      }
+     tasks.withType(Checkstyle) {
+         reports {
+             xml.enabled false
+             html.enabled true
+         }
+    }
     applicationVariants.all { variant ->
         // create tasks to generate Javadocs
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
