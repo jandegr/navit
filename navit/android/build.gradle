@@ -68,6 +68,7 @@ android {
      }
      tasks.withType(Checkstyle) {
          reports {
+	     include ( '**/*.java')
              xml.enabled false
              html.enabled true
 	     html {
