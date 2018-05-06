@@ -33,6 +33,7 @@ android {
         abortOnError false
     }
     checkstyle {
+        sourceSets = [ rootProject.sourceSets.main ]
     	configFile = rootProject.file('navit/android/google_checks.xml')
 	ignoreFailures = true
         showViolations = true
