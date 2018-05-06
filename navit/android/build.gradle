@@ -59,6 +59,8 @@ android {
         configFile = rootProject.file('navit/android/google_checks.xml')
 	ignoreFailures = true
         showViolations = true
+	// empty classpath
+       classpath = files()
      }
      
     applicationVariants.all { variant ->
