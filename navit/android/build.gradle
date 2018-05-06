@@ -56,6 +56,7 @@ android {
 //    }
      task checkstyleMain(type: Checkstyle){
         source 'src'
+	include '**/*.java'
         configFile = rootProject.file('navit/android/google_checks.xml')
 	ignoreFailures = true
         showViolations = true
