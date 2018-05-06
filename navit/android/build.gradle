@@ -70,7 +70,9 @@ android {
          reports {
              xml.enabled false
              html.enabled true
-	     destination "navit/android/build/reports"
+	     html {
+	         destination "navit/android/build/reports/checkstyleMain.html"
+	     }
          }
     }
     applicationVariants.all { variant ->
