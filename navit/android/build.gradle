@@ -99,5 +99,4 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
     compile 'ch.acra:acra:4.9.2'
-    compile 'com.puppycrawl.tools:checkstyle:8.10'
 }
