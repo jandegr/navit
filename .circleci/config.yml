@@ -91,7 +91,7 @@ jobs:
             ls -la
             ./gradlew tasks --all
             ./gradlew lint test
-            ./gradlew checkstyleSourceSet
+            ./gradlew checkstyleMain
       - run:
           name: Run Javadoc
           command: ./gradlew generateDebugJavadoc
