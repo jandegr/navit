@@ -690,7 +690,7 @@ public class NavitGraphics
 			zoomOutButton = new Button(activity);
 			zoomOutButton.setWidth(96);
 			zoomOutButton.setHeight(96);
-			zoomOutButton.setBackgroundResource(R.drawable.zoom_out_96_96);
+			zoomOutButton.setBackgroundResource(R.drawable.zoom_out_128_128);
 			zoomOutButton.setOnClickListener(new View.OnClickListener() {
 	        	    	public void onClick(View v) {
 	            	 	CallbackMessageChannel(2, "");
@@ -703,7 +703,7 @@ public class NavitGraphics
 			         RelativeLayout.LayoutParams.WRAP_CONTENT);
 			         lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			zoomInButton.setLayoutParams(lp); 
-			zoomInButton.setBackgroundResource(R.drawable.zoom_in_96_96);
+			zoomInButton.setBackgroundResource(R.drawable.zoom_in_128_128);
 			zoomInButton.setOnClickListener(new View.OnClickListener() {
 			      public void onClick(View v) {          	
 	            		 CallbackMessageChannel(1, "");            	
