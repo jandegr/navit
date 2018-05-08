@@ -649,7 +649,7 @@ image_new_helper(struct graphics *gra, struct graphics_image *this_, char *path,
 				for(bmstd=0;bmstd<numstdsizes;bmstd++)
 					if(stdsizes[bmstd]>sz)
 						break;
-				i=1;
+				//i=1;
 				/* Fall through */
 			case 6:
 				/* Select best matching image from standard row */
