@@ -119,6 +119,10 @@ jobs:
       - store_artifacts:
           name: Store reports
           path: navit/android/build/reports
+          destination: reports     
+      - store_artifacts:
+          name: Store checkstyle report
+          path: /home/circleci/code/navit/android/navit/android/build/reports
           destination: reports
       - store_test_results:
           path: test-results
