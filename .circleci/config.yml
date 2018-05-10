@@ -87,7 +87,7 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            echo {{CIRCLE_TEST_REPORTS}}
+            echo '${CIRCLE_TEST_REPORTS}'
             ln -s navit/navit.dtd navit.dtd
             ls -la CIRCLE_TEST_REPORTS
             ./gradlew tasks --all
