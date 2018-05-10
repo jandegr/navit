@@ -113,11 +113,11 @@ jobs:
           path: navit/android/build/outputs/logs
           destination: logs
       - store_artifacts:
-          name: Store doc
+          name: Store Javadoc
           path: navit/android/build/outputs/docs/javadoc
           destination: doc  
       - store_artifacts:
-          name: Store reports
+          name: Store Lint reports
           path: navit/android/build/reports
           destination: reports     
       - store_artifacts:
