@@ -58,12 +58,12 @@ android {
 	     include ( '**/*.java')
 	     xml.enabled = true
 	     html.enabled = true
-	     xml {
-	         destination "navit/android/build/reports/checkstyleMain.xml"
-	     }
-	     html {
-	         destination "navit/android/build/reports/checkstyleMain.html"
-	     }
+//	     xml {
+//	         destination "navit/android/build/reports/checkstyleMain.xml"
+//	     }
+//	     html {
+//	         destination "navit/android/build/reports/checkstyleMain.html"
+//	     }
          }
      }
      checkstyle {
