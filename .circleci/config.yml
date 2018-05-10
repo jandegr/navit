@@ -88,9 +88,11 @@ jobs:
           name: Run Tests
           command: |
             ln -s navit/navit.dtd navit.dtd
+            mkdir /home/circleci/code/test-results
             ./gradlew tasks --all
             ./gradlew lint test
             ./gradlew checkstyleMain
+            ls -la /home/circleci/code/test-results
       - run:
           name: Run Javadoc
           command: ./gradlew generateDebugJavadoc
