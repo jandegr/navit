@@ -6,7 +6,7 @@ off='\e[0m'
 
 # setup var's to perform environment setup and cmake
 export START_PATH=~/
-export SOURCE_PATH=$START_PATH"/"${CIRCLE_PROJECT_REPONAME}"/"
+export SOURCE_PATH=/home/circleci/project
 export CMAKE_FILE=$SOURCE_PATH"/Toolchain/arm-eabi.cmake"
 export ANDROID_NDK=~/android-ndk-r11c
 export ANDROID_NDK_BIN=$ANDROID_NDK"/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin"
@@ -29,6 +29,11 @@ export ANDROID_PLATFORM_CHECK_MAX=$ANDROID_SDK"/platforms/"$ANDROID_PLATFORM_LAT
 export BUILD_PATH=$START_PATH"/android-build"
 export ANDROID_ENV=$ANDROID_NDK_BIN:$ANDROID_SDK_TOOLS:$ANDROID_SDK_PLATFORM_TOOLS
 
+#wget -q https://dl.google.com/android/android-sdk_r24.4.1-linux.tgz -O android-sdk.tgz
+#tar -xvzf android-sdk.tgz
+
+wget http://dl.google.com/android/repository/android-ndk-r11c-linux-x86_64.zip && unzip -d ~ android-ndk-r11c-linux-x86_64.zip
+
 # If path already has our environment no need to set it
 if echo "$ANDROID_ENV" | grep -q "$PATH"; then
   echo -e "${grn}" "    Android PATH configuration... ALREADY SET" "${off}"
@@ -42,18 +47,21 @@ fi
 mkdir -p $BUILD_PATH
 cd $BUILD_PATH
 export PATH=$ANDROID_NDK_BIN:$ANDROID_SDK_TOOLS:$ANDROID_SDK_PLATFORM_TOOLS:$PATH
-android list targets
-svn_rev=` cd ~/navit/; git log -1|grep git-svn-id:|cut -c 65-68`
-if [[ "$svn_rev" == "" ]]; then svn_rev="6136"; fi # Workaround for git-only builds
-sed -i -e "s/ANDROID_VERSION_INT=\"0\"/ANDROID_VERSION_INT=\"${svn_rev}\"/g" ~/navit/navit/android/CMakeLists.txt
-cp ~/navit/navit/android/CMakeLists.txt $CIRCLE_ARTIFACTS/
+sdkmanager --list
+ls -la /home/circleci/project
+# svn_rev=` cd /home/circleci/project/navit/; git log -1|grep git-svn-id:|cut -c 65-68`
+cd /home/circleci/project
+ls -la
+# if [[ "$svn_rev" == "" ]]; then svn_rev="6136"; fi # Workaround for git-only builds
+# sed -i -e "s/ANDROID_VERSION_INT=\"0\"/ANDROID_VERSION_INT=\"${svn_rev}\"/g" android/CMakeLists.txt
+# cp android/CMakeLists.txt $CIRCLE_ARTIFACTS/
 
 cmake -DCMAKE_TOOLCHAIN_FILE=$CMAKE_FILE -DCACHE_SIZE='(20*1024*1024)' -DAVOID_FLOAT=1 -DSAMPLE_MAP=n -DBUILD_MAPTOOL=n -DANDROID_API_VERSION=23 -DANDROID_NDK_API_VERSION=19 $SOURCE_PATH
 make || exit 1
 #if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-  make apkg-release && mv navit/android/bin/Navit-release-unsigned.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-release-unsigned.apk
+  make apkg-release && mv android/bin/Navit-release-unsigned.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-release-unsigned.apk
 #else
-  make apkg && mv navit/android/bin/Navit-debug.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-debug.apk
+  make apkg && mv android/bin/Navit-debug.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-debug.apk
 #fi
 #mv navit/android/bin/Navit-debug-unaligned.apk $CIRCLE_ARTIFACTS/navit-$CIRCLE_SHA1-debug-unaligned.apk
 
@@ -61,4 +69,4 @@ make || exit 1
 
 echo
 echo "Build leftovers :"
-ls navit/android/bin/
+ls android/bin/

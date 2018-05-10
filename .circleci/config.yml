@@ -1,0 +1,141 @@
+version: 2
+jobs:
+  build_linux:
+    docker:
+      - image: ubuntu:16.04
+    steps:
+      - checkout
+      - run:
+          name: Setup requirements
+          command: |
+            bash ci/setup_common_requirements.sh
+            apt-get install -y libpng12-dev librsvg2-bin libfreetype6-dev libdbus-glib-1-dev libgtk2.0-dev curl
+      - run:
+          name: Build for Linux
+          command: bash ci/build_linux.sh
+  build_android:
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-27-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
+      - run:
+          name: Id
+          command: |
+            cat /etc/*release
+            dpkg --get-selections
+      - run:
+          name: Install cmake gettext libsaxonb-java librsvg2-bin
+          command: |
+            sudo apt-get install cmake gettext libsaxonb-java librsvg2-bin
+            cmake ./ -Dsvg2png_scaling:STRING=-1,128 -Dsvg2png_scaling_nav:STRING=-1,128 -Dsvg2png_scaling_flag:STRING=-1,64,96
+      - run:
+          name: Process icons
+          command: |
+            cd navit/xpm
+            make
+            sudo ls -la
+            mkdir ../android/res/drawable-nodpi
+            rename 'y/A-Z/a-z/' *
+            cp *.png ../android/res/drawable-nodpi
+            cd ../../
+      - run:
+          name: Process translations
+          command: |
+            cd po  
+            make
+            sudo ls -la
+            mkdir ../navit/android/res/raw
+            rename 'y/A-Z/a-z/' *
+            cp *.mo ../navit/android/res/raw
+            cd ../
+      - run:
+          name: Move xml's
+          command: |
+            cd navit
+            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitldpi.xml OSD_SIZE=1 ICON_SMALL=24 ICON_MEDIUM=32 ICON_BIG=48
+            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitmdpi.xml OSD_SIZE=1.33 ICON_SMALL=32 ICON_MEDIUM=48 ICON_BIG=64
+            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navithdpi.xml OSD_SIZE=2 ICON_SMALL=48 ICON_MEDIUM=64 ICON_BIG=96
+            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitxhdpi.xml OSD_SIZE=2.67 ICON_SMALL=64 ICON_MEDIUM=96 ICON_BIG=128
+            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitxxhdpi.xml OSD_SIZE=4 ICON_SMALL=96 ICON_MEDIUM=128 ICON_BIG=192
+            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitxxxhdpi.xml OSD_SIZE=5.33 ICON_SMALL=128 ICON_MEDIUM=192 ICON_BIG=256
+            sudo ls -la
+            mv *dpi.xml android/res/raw
+            cd ../
+      - run:
+         name: Chmod permissions
+         command: sudo chmod +x ./gradlew
+      - run:
+          name: Download Dependencies
+          command: ./gradlew -v
+#          command: ./gradlew androidDependencies
+      - save_cache:
+          name: Save cache
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
+      - run:
+         name: Install ndk
+         command: sdkmanager ndk-bundle
+      - run:
+          name: Build
+          command: ./gradlew assembleDebug
+      - run:
+          name: Run Tests
+          command: |
+            ln -s navit/navit.dtd navit.dtd
+            ./gradlew tasks --all
+            ./gradlew lint test
+            ./gradlew checkstyleMain
+      - run:
+          name: Run Javadoc
+          command: ./gradlew generateDebugJavadoc
+      - run:
+          name: Inspect
+          command: |
+            ls -la navit/android/build
+            ls -la navit/android/build/outputs
+            ls -la navit/android/build/outputs/apk
+            ls -la navit/android/build/outputs/logs
+            ls -la navit/android/build/reports
+      - store_artifacts:
+          name: Store APK
+          path: navit/android/build/outputs/apk
+          destination: apk
+      - store_artifacts:
+          name: Store logs
+          path: navit/android/build/outputs/logs
+          destination: logs
+      - store_artifacts:
+          name: Store doc
+          path: navit/android/build/outputs/docs/javadoc
+          destination: doc  
+      - store_artifacts:
+          name: Store reports
+          path: navit/android/build/reports
+          destination: reports
+      - store_test_results:
+          path: test-results
+  build_win32:
+    docker:
+      - image: ubuntu:14.04
+    steps:
+      - checkout
+      - run:
+          name: Build for Windows
+          command: |
+            bash ci/setup_common_requirements.sh
+            bash ci/build_win32.sh
+      - store_artifacts:
+          path: win32/navit.exe
+workflows:
+  version: 2
+  build_all:
+    jobs:
+      - build_linux
+      - build_android
+      - build_win32

@@ -27,9 +27,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-
-import org.acra.ACRA;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -186,7 +183,7 @@ public class NavitAddressSearchActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		ACRA.getErrorReporter().setEnabled(true);
+//		ACRA.getErrorReporter().setEnabled(true);
 		// Bundle extras = getIntent().getExtras();
 		// if ( extras != null )
 		// {
