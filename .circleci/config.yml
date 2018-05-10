@@ -87,9 +87,9 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            bash echo "${CIRCLE_TEST_REPORTS}"
+            echo {{CIRCLE_TEST_REPORTS}}
             ln -s navit/navit.dtd navit.dtd
-            ls -la
+            ls -la CIRCLE_TEST_REPORTS
             ./gradlew tasks --all
             ./gradlew lint test
             ./gradlew checkstyleMain
@@ -120,6 +120,8 @@ jobs:
           name: Store reports
           path: navit/android/build/reports
           destination: reports
+      - store_test_results:
+          path: test-results
   build_win32:
     docker:
       - image: ubuntu:14.04
