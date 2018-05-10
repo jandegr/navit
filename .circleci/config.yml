@@ -122,7 +122,7 @@ jobs:
           destination: reports     
       - store_artifacts:
           name: Store checkstyle report
-          path: /home/circleci/code/navit/android
+          path: /home/circleci/code/navit/android/checkstyle
           destination: reports
       - store_test_results:
           path: test-results
