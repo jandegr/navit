@@ -120,7 +120,7 @@ jobs:
           name: Store Lint reports
           path: navit/android/build/reports
           destination: reports     
-       - store_artifacts:
+      - store_artifacts:
           name: Store translations
           path: po
           destination: translations
