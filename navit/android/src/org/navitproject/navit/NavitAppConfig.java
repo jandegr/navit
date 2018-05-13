@@ -15,7 +15,7 @@ import java.util.List;
 //    		formUri = "http://192.168.1.115/acra-myapp/_design/acra-storage/_update/report",
 //    		formUriBasicAuthLogin = "testnavit",
 //    		formUriBasicAuthPassword = "p4ssw0rd")
-//@ReportsCrashes(mailTo = "jandegr1@hotmail.com",
+//@ReportsCrashes(mailTo = " @ .com",
 //		mode = ReportingInteractionMode.TOAST,
 //                resToastText = R.string.app_name
 //		)
