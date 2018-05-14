@@ -180,10 +180,10 @@ Java_org_navitproject_navit_NavitGraphics_KeypressCallback( JNIEnv* env, jobject
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitTimeout_TimeoutCallback( JNIEnv* env, jobject thiz, int id)
+Java_org_navitproject_navit_NavitTimeout_TimeoutCallback(JNIEnv *env, jobject instance, jint id)
 {
 	void (*event_handler)(void *) = *(void **)id;
-	dbg(lvl_debug,"enter %p %p\n",thiz, (void *)id);
+	dbg(lvl_debug,"enter %p %p\n",instance, (void *)id);
 	event_handler((void*)id);
 }
 
@@ -213,7 +213,7 @@ JNIEXPORT void JNICALL
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitWatch_WatchCallback(JNIEnv *env, jobject instance, jint id) {
+Java_org_navitproject_navit_NavitWatch_watchCallback(JNIEnv *env, jobject instance, jint id) {
 
 //	dbg(lvl_debug,"enter %p %p\n",instance, (void *)id);
     callback_call_0((struct callback *)id);
@@ -856,3 +856,4 @@ Java_org_navitproject_navit_Navit_CallbackLocalizedString(JNIEnv *env, jobject t
 
   return js;
 }
+
