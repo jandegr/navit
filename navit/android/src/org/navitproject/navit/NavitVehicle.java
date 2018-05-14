@@ -38,19 +38,19 @@ public class NavitVehicle {
     private static LocationManager sLocationManager = null;
     private static NavitLocationListener preciseLocationListener = null;
     private static NavitLocationListener fastLocationListener = null;
-    private int vehicle_pcbid;
-    private int vehicle_fcbid;
+    private int vehiclePcbid;
+    private int vehicleFcbid;
     private String fastProvider;
 
     /**
-     * Creates a new {@code NavitVehicle}
+     * Creates a new {@code NavitVehicle}.
      *
      * @param pcbid The address of the position callback function which will be called when a
-     * location update is received
+     *        location update is received
      * @param scbid The address of the status callback function which will be called when a status
-     * update is received
+     *        update is received
      * @param fcbid The address of the fix callback function which will be called when a {@code
-     * android.location.GPS_FIX_CHANGE} is received, indicating a change in GPS fix status
+     *        android.location.GPS_FIX_CHANGE} is received, indicating a change in GPS fix status
      */
     NavitVehicle(Context navit, int pcbid, int scbid, int fcbid) {
         if (ContextCompat.checkSelfPermission(navit, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -63,9 +63,9 @@ public class NavitVehicle {
         preciseLocationListener.precise = true;
         fastLocationListener = new NavitLocationListener();
 
-		/* Use 2 LocationProviders, one precise (usually GPS), and one
-		   not so precise, but possible faster. The fast provider is
-		   disabled when the precise provider gets its first fix. */
+        /* Use 2 LocationProviders, one precise (usually GPS), and one
+        not so precise, but possible faster. The fast provider is
+        disabled when the precise provider gets its first fix. */
 
         // Selection criteria for the precise provider
         Criteria highCriteria = new Criteria();
@@ -89,8 +89,8 @@ public class NavitVehicle {
         Log.d(TAG, "Precise Provider " + preciseProvider);
         fastProvider = sLocationManager.getBestProvider(lowCriteria, false);
 
-        vehicle_pcbid = pcbid;
-        vehicle_fcbid = fcbid;
+        vehiclePcbid = pcbid;
+        vehicleFcbid = fcbid;
 
         navit.registerReceiver(preciseLocationListener, new IntentFilter(GPS_FIX_CHANGE));
         sLocationManager.requestLocationUpdates(preciseProvider, 0, 0, preciseLocationListener);
@@ -124,10 +124,8 @@ public class NavitVehicle {
         }
     }
 
-    @SuppressWarnings("JniMissingFunction")
     public native void VehicleCallback(int id, Location location);
 
-    @SuppressWarnings("JniMissingFunction")
     public native void VehicleCallback(int id, int enabled);
 
     private class NavitLocationListener extends BroadcastReceiver implements LocationListener {
@@ -141,8 +139,8 @@ public class NavitVehicle {
                 sLocationManager.removeUpdates(fastLocationListener);
                 fastProvider = null;
             }
-            VehicleCallback(vehicle_pcbid, location);
-            VehicleCallback(vehicle_fcbid, 1);
+            VehicleCallback(vehiclePcbid, location);
+            VehicleCallback(vehicleFcbid, 1);
         }
 
         public void onProviderDisabled(String provider) {
@@ -158,9 +156,9 @@ public class NavitVehicle {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() != null && intent.getAction().equals(GPS_FIX_CHANGE)) {
                 if (intent.getBooleanExtra("enabled", false)) {
-                    VehicleCallback(vehicle_fcbid, 1);
+                    VehicleCallback(vehicleFcbid, 1);
                 } else if (!intent.getBooleanExtra("enabled", true)) {
-                    VehicleCallback(vehicle_fcbid, 0);
+                    VehicleCallback(vehicleFcbid, 0);
                 }
             }
         }
