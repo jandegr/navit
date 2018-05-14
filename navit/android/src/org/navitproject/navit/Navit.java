@@ -81,7 +81,7 @@ public class Navit extends Activity {
     static String map_filename_path = null;
     private static Intent startup_intent = null;
     private static long startup_intent_timestamp = 0L;
-    private static Navit               navit;
+    private static Navit navit;
     private NavitDialogs dialogs;
     private NavitActivityResult ActivityResults[];
 
@@ -91,7 +91,7 @@ public class Navit extends Activity {
 
 
     public static String navitTranslate(String in) {
-        return NavitGraphics.getLocalizedString(in);
+        return CallbackLocalizedString(in);
     }
 
     // callback id gets set here when called from NavitGraphics
@@ -103,9 +103,8 @@ public class Navit extends Activity {
         N_NavitGraphics = navitGraphics;
     }
 
-    @SuppressWarnings("JniMissingFunction")
-    public native static void NavitMain(Navit x, String lang, int version,
-            String display_density_string, String path, String path2);
+    public native static void NavitMain(Navit navit, String lang, int version,
+            String display_density_string, String path, String map_path);
 
     /*
      * this is used to load the 'navit' native library on
@@ -116,14 +115,19 @@ public class Navit extends Activity {
         System.loadLibrary("navit");
     }
 
+    /**
+     * get localized string
+     */
+    public static native String CallbackLocalizedString(String s);
+
     /* Translates a string from its id
      * in R.strings
      *
      * @param Rid resource identifier
      * @retrun translated string
      */
-    String getTstring(int Rid){
-        return NavitGraphics.getLocalizedString(getString(Rid));
+    String getTstring(int Rid) {
+        return CallbackLocalizedString(getString(Rid));
     }
 
     public void removeFileIfExists(String source) {
@@ -275,7 +279,6 @@ public class Navit extends Activity {
         Navit.startup_intent_timestamp = System.currentTimeMillis();
         Log.e(TAG, "**1**A " + startup_intent.getAction());
         Log.e(TAG, "**1**D " + startup_intent.getDataString());
-
 
 //		NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);	// Grab a handle to the NotificationManager
 
@@ -625,7 +628,7 @@ public class Navit extends Activity {
     private void start_targetsearch_from_intent(String target_address) {
         if (target_address == null || target_address.equals("")) {
             // empty search string entered
-            Toast.makeText(getApplicationContext(), getString(R.string.address_search_not_found),
+            Toast.makeText(getApplicationContext(), getTstring(R.string.address_search_not_found),
                     Toast.LENGTH_LONG).show(); //TRANS
         } else {
             Intent search_intent = new Intent(this, NavitAddressSearchActivity.class);
@@ -849,15 +852,15 @@ public class Navit extends Activity {
         if (fullscreen != 0) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-                if (this.getActionBar() != null) {
-                    this.getActionBar().hide();
-                }
+            if (this.getActionBar() != null) {
+                this.getActionBar().hide();
+            }
         } else {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                if (this.getActionBar() != null) {
-                    this.getActionBar().show();
-                }
+            if (this.getActionBar() != null) {
+                this.getActionBar().show();
+            }
         }
     }
 
@@ -873,7 +876,6 @@ public class Navit extends Activity {
         NavitDestroy();
     }
 
-    @SuppressWarnings("JniMissingFunction")
     public native void NavitDestroy();
 }
 

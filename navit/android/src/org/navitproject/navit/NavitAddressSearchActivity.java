@@ -56,22 +56,21 @@ public class NavitAddressSearchActivity extends Activity {
 
     private static final String TAG = "NavitAddress";
     private static final int ADDRESS_RESULT_PROGRESS_MAX = 10;
-    static int resultTypeHouseNumber = 2;
+    private static final int resultTypeHouseNumber = 2;
     private static String mAddressString = "";
     // TODO remember settings
     private static String last_address_search_string = "";
     private static Boolean last_address_partial_match = false;
-    ;
     private static String last_country = "";
     public RelativeLayout NavitAddressSearchActivity_layout;
-    ProgressBar zoekBar;
+    private ProgressBar zoekBar;
     ProgressDialog search_results_wait = null;
-    int zoekTypeTown = 2; // in enum steken ?
+    private final int zoekTypeTown = 2; // in enum steken ?
     int zoekTypeHouseNumber = 3;
-    int zoektype = zoekTypeTown; // town
-    int ongoingSearches = 0;
-    ArrayAdapter<NavitAddress> addressAdapter;
-    private List<NavitAddress> Addresses_found = new NavitAddressList<NavitAddress>();
+    private int zoektype = zoekTypeTown; // town
+    private int ongoingSearches = 0;
+    private ArrayAdapter<NavitAddress> addressAdapter;
+    private final List<NavitAddress> Addresses_found = new NavitAddressList<>();
     private List<NavitAddress> addresses_shown = null;
     private NavitAddress selectedTown;
     private NavitAddress selectedStreet;
@@ -132,7 +131,7 @@ public class NavitAddressSearchActivity extends Activity {
             mCountry = defaultLocale.getCountry().toLowerCase(defaultLocale);
             SharedPreferences.Editor edit_settings = settings.edit();
             edit_settings.putString("DefaultCountry", mCountry);
-            edit_settings.commit();
+            edit_settings.apply();
         }
 
         mCountryButton = new ImageButton(this);
@@ -155,7 +154,7 @@ public class NavitAddressSearchActivity extends Activity {
         address_string.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
         ListView zoekResults = new ListView(this);
-        addressAdapter = new ArrayAdapter<NavitAddress>(this,
+        addressAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, Addresses_found);
 
         zoekResults.setAdapter(addressAdapter);
@@ -288,7 +287,7 @@ public class NavitAddressSearchActivity extends Activity {
                         SharedPreferences.Editor edit_settings = settings
                                 .edit();
                         edit_settings.putString("DefaultCountry", mCountry);
-                        edit_settings.commit();
+                        edit_settings.apply();
                         mCountryButton
                                 .setImageResource(getDrawableID("country_"
                                         + mCountry));
@@ -298,7 +297,7 @@ public class NavitAddressSearchActivity extends Activity {
         mapModeChooser.show();
     }
 
-    public void addressDialog(NavitAddress address) {
+    private void addressDialog(NavitAddress address) {
 
         final NavitAddress addressSelected = address;
 
@@ -399,9 +398,9 @@ public class NavitAddressSearchActivity extends Activity {
 
     public native void CallbackCancelAddressSearch(long handle);
 
-    public native void CallbackSearch(long handle, int type, int id, String s);
+    public native void CallbackSearch(long handle, int type, int id, String str);
 
-    void search() {
+    private void search() {
         if (search_handle != 0 && ongoingSearches > 1) {
             CallbackCancelAddressSearch(search_handle);
         }
@@ -448,7 +447,7 @@ public class NavitAddressSearchActivity extends Activity {
         }
     }
 
-    public static class NavitAddressComparator implements
+    static class NavitAddressComparator implements
             Comparator<NavitAddress> {
 
         //      @Override
