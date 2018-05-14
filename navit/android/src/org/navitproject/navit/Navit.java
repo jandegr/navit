@@ -83,7 +83,7 @@ public class Navit extends Activity {
     private static long startup_intent_timestamp = 0L;
     private static Navit navit;
     private NavitDialogs dialogs;
-    private NavitActivityResult ActivityResults[];
+    private NavitActivityResult[] ActivityResults;
 
     public static Navit getInstance() {
         return navit;
@@ -150,7 +150,7 @@ public class Navit extends Activity {
             is = new FileInputStream(source);
             os = new FileOutputStream(destination);
             int len;
-            byte buffer[] = new byte[1024];
+            byte[] buffer = new byte[1024];
             while ((len = is.read(buffer)) != -1) {
                 os.write(buffer, 0, len);
             }
@@ -270,7 +270,7 @@ public class Navit extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         navit = this;
-//		ACRA.getErrorReporter().setEnabled(false);
+//	    ACRA.getErrorReporter().setEnabled(false);
         dialogs = new NavitDialogs(this);
         NavitResources = getResources();
         // only take arguments here, onResume gets called all the time (e.g. when screenblanks, etc.)
@@ -280,7 +280,7 @@ public class Navit extends Activity {
         Log.e(TAG, "**1**A " + startup_intent.getAction());
         Log.e(TAG, "**1**D " + startup_intent.getDataString());
 
-//		NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);	// Grab a handle to the NotificationManager
+//	    NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);	// Grab a handle to the NotificationManager
 
 //		Notification NavitNotification = new Notification(R.drawable.icon, getString(R.string.notification_ticker), System.currentTimeMillis());	// Create a new notification, with the text string to show when the notification first appears
 //		PendingIntent appIntent = PendingIntent.getActivity(getApplicationContext(), 0, getIntent(), 0);
