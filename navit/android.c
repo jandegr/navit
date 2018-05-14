@@ -101,7 +101,14 @@ android_find_static_method(jclass class, char *name, char *args, jmethodID *ret)
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_Navit_NavitMain( JNIEnv* env, jobject thiz, jobject activity, jobject lang, int version, jobject display_density_string, jobject path, jobject map_path)
+Java_org_navitproject_navit_Navit_NavitMain(JNIEnv *env,
+                                            jobject thiz,
+                                            jobject navit,
+                                            jstring lang_,
+                                            jint version,
+                                            jstring display_density_string_,
+                                            jstring path_,
+                                            jstring map_path_)
 {
 	const char *langstr;
 	const char *displaydensitystr;
@@ -109,28 +116,28 @@ Java_org_navitproject_navit_Navit_NavitMain( JNIEnv* env, jobject thiz, jobject 
 	android_version=version;
 	__android_log_print(ANDROID_LOG_ERROR,"test","called");
 	jnienv_t=env;
-	android_activity = (*env)->NewGlobalRef(env, activity);
-	langstr=(*env)->GetStringUTFChars(env, lang, NULL);
+	android_activity = (*env)->NewGlobalRef(env, navit);
+	langstr=(*env)->GetStringUTFChars(env, lang_, NULL);
 	dbg(lvl_debug,"enter env=%p thiz=%p activity=%p lang=%s version=%d\n",env,thiz,android_activity,langstr,version);
 	setenv("LANG",langstr,1);
-	(*env)->ReleaseStringUTFChars(env, lang, langstr);
+	(*env)->ReleaseStringUTFChars(env, lang_, langstr);
 
-	displaydensitystr=(*env)->GetStringUTFChars(env, display_density_string, NULL);
+	displaydensitystr=(*env)->GetStringUTFChars(env, display_density_string_, NULL);
 	dbg(lvl_debug,"*****displaydensity=%s\n",displaydensitystr);
 	setenv("ANDROID_DENSITY",displaydensitystr,1);
-	(*env)->ReleaseStringUTFChars(env, display_density_string, displaydensitystr);
+	(*env)->ReleaseStringUTFChars(env, display_density_string_, displaydensitystr);
 
-	map_filename_path=(*env)->GetStringUTFChars(env, map_path, NULL);
+	map_filename_path=(*env)->GetStringUTFChars(env, map_path_, NULL);
 	setenv("NAVIT_USER_DATADIR",map_filename_path,1);
-	(*env)->ReleaseStringUTFChars(env, display_density_string, map_filename_path);
+	(*env)->ReleaseStringUTFChars(env, display_density_string_, map_filename_path);
 
-	const char *strings=(*env)->GetStringUTFChars(env, path, NULL);
+	const char *strings=(*env)->GetStringUTFChars(env, path_, NULL);
 	main_real(1, &strings);
-	(*env)->ReleaseStringUTFChars(env, path, strings);
+	(*env)->ReleaseStringUTFChars(env, path_, strings);
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_Navit_NavitDestroy( JNIEnv* env)
+Java_org_navitproject_navit_Navit_NavitDestroy(JNIEnv *env, jobject instance)
 {
 	dbg(lvl_debug, "shutdown navit\n");
 	exit(0);
@@ -237,24 +244,6 @@ android_return_search_result(struct jni_object *jni_o, int type, int id, struct 
 	(*env)->CallVoidMethod(jni_o->env, jni_o->jo, jni_o->jm, type, id, geo_location.lat, geo_location.lng, jaddress, jaddress_extras);
 	(*env)->DeleteLocalRef(jni_o->env, jaddress);
 	(*env)->DeleteLocalRef(jni_o->env, jaddress_extras);
-}
-
-JNIEXPORT jstring JNICALL
-Java_org_navitproject_navit_NavitGraphics_CallbackLocalizedString( JNIEnv* env, jobject thiz, jobject str)
-{
-	const char *s;
-	const char *localized_str;
-
-	s=(*env)->GetStringUTFChars(env, str, NULL);
-
-	localized_str=navit_nls_gettext(s);
-
-	// jstring dataStringValue = (jstring) localized_str;
-	jstring js = (*env)->NewStringUTF(env,localized_str);
-
-	(*env)->ReleaseStringUTFChars(env, str, s);
-
-	return js;
 }
 
 JNIEXPORT jobject JNICALL
@@ -817,10 +806,15 @@ Java_org_navitproject_navit_NavitAddressSearchActivity_CallbackCancelAddressSear
 // aanroep met type en string is zoeken
 // aanroep met type en id is selecteren om vervolgens een level dieper te gaan zoeken
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitAddressSearchActivity_CallbackSearch( JNIEnv* env, jobject thiz, jlong handle, int type, int id, jobject str)
-{
+Java_org_navitproject_navit_NavitAddressSearchActivity_CallbackSearch(JNIEnv *env,
+                                                                      jobject instance,
+                                                                      jlong handle,
+                                                                      jint type,
+                                                                      jint id,
+                                                                      jstring str_) {
+
 	struct android_search_priv *priv = (void*)(long)handle;
-	const char *search_string =(*env)->GetStringUTFChars(env, str, NULL);
+	const char *search_string =(*env)->GetStringUTFChars(env, str_, NULL);
 
 	if (priv){
 		if (id){
@@ -840,5 +834,21 @@ Java_org_navitproject_navit_NavitAddressSearchActivity_CallbackSearch( JNIEnv* e
 	else
 		dbg(lvl_error, "Error: no priv (handle), failed");
 
-	(*env)->ReleaseStringUTFChars(env, str, search_string);
+	(*env)->ReleaseStringUTFChars(env, str_, search_string);
 }
+
+JNIEXPORT jstring JNICALL
+Java_org_navitproject_navit_Navit_CallbackLocalizedString(JNIEnv *env, jobject thiz, jstring s_)
+{
+  const char *s;
+  const char *localized_str;
+
+  s=(*env)->GetStringUTFChars(env, s_, NULL);
+  localized_str=navit_nls_gettext(s);
+  jstring js = (*env)->NewStringUTF(env,localized_str);
+  (*env)->ReleaseStringUTFChars(env, s_, s);
+
+  return js;
+}
+
+
