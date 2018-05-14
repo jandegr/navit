@@ -760,7 +760,7 @@ public class Navit extends Activity {
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle destination = data.getExtras();
                     Toast.makeText(getApplicationContext(),
-                            getString(R.string.address_search_set_destination) + "\n" + destination
+                            getTstring(R.string.address_search_set_destination) + "\n" + destination
                                     .getString(("q")), Toast.LENGTH_LONG).show(); //TRANS
                     Message msg = Message.obtain(N_NavitGraphics.callback_handler,
                             NavitGraphics.msg_type.CLB_SET_DESTINATION.ordinal());
