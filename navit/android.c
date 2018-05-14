@@ -201,7 +201,11 @@ Java_org_navitproject_navit_NavitIdle_IdleCallback( JNIEnv* env, jobject thiz, i
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitWatch_poll( JNIEnv* env, jobject thiz, int func, int fd, int cond)
+    Java_org_navitproject_navit_NavitWatch_poll(JNIEnv *env,
+                                                jobject instance,
+                                                jint func,
+                                                jint fd,
+                                                jint cond)
 {
 	void (*pollfunc)(JNIEnv *env, int fd, int cond)=(void *)func;
 
@@ -209,11 +213,13 @@ Java_org_navitproject_navit_NavitWatch_poll( JNIEnv* env, jobject thiz, int func
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitWatch_WatchCallback( JNIEnv* env, jobject thiz, int id)
-{
-	dbg(lvl_debug,"enter %p %p\n",thiz, (void *)id);
-	callback_call_0((struct callback *)id);
+Java_org_navitproject_navit_NavitWatch_WatchCallback(JNIEnv *env, jobject instance, jint id) {
+
+//	dbg(lvl_debug,"enter %p %p\n",instance, (void *)id);
+    callback_call_0((struct callback *)id);
+
 }
+
 
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitSensors_SensorCallback( JNIEnv* env, jobject thiz, int id, int sensor, float x, float y, float z)
@@ -850,5 +856,3 @@ Java_org_navitproject_navit_Navit_CallbackLocalizedString(JNIEnv *env, jobject t
 
   return js;
 }
-
-
