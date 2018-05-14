@@ -127,10 +127,9 @@ public class NavitGraphics
 		@Override
 		protected void onCreateContextMenu(ContextMenu menu) {
 			super.onCreateContextMenu(menu);
-			
-			menu.setHeaderTitle(Navit._("Position")+"..");
-			menu.add(1, 1, NONE, Navit._("Route to here")).setOnMenuItemClickListener(this);
-			menu.add(1, 2, NONE, Navit._("Cancel")).setOnMenuItemClickListener(this);
+			menu.setHeaderTitle(Navit.getInstance().getTstring(R.string.position_popup_title)+"..");
+			menu.add(1, 1, NONE, Navit.getInstance().getTstring(R.string.position_popup_drive_here)).setOnMenuItemClickListener(this);
+			menu.add(1, 2, NONE, Navit.getInstance().getTstring(R.string.cancel)).setOnMenuItemClickListener(this);
 		}
 
 		@Override
