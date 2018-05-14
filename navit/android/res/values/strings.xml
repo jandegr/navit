@@ -4,7 +4,8 @@
   <!-- GENERIC -->
   <string name="yes">Yes</string>
   <string name="no">No</string>
-
+  <string name="cancel">Cancel</string>
+  
   <!-- NOTIFICATION -->
   <string name="notification_ticker">Navit started</string>
   <string name="notification_event_default">Navit running</string>
