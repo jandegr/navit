@@ -111,7 +111,7 @@ public class Navit extends Activity {
      * application startup. The library has already been unpacked at
      * installation time by the package manager.
      */
-    private static void LoadNativeNavit() {
+    private static void loadNativeNavit() {
         System.loadLibrary("navit");
     }
 
@@ -123,11 +123,11 @@ public class Navit extends Activity {
     /* Translates a string from its id
      * in R.strings
      *
-     * @param Rid resource identifier
+     * @param rID resource identifier
      * @retrun translated string
      */
-    String getTstring(int Rid) {
-        return CallbackLocalizedString(getString(Rid));
+    String getTstring(int rID) {
+        return CallbackLocalizedString(getString(rID));
     }
 
     public void removeFileIfExists(String source) {
@@ -270,7 +270,7 @@ public class Navit extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         navit = this;
-//	    ACRA.getErrorReporter().setEnabled(false);
+//      ACRA.getErrorReporter().setEnabled(false);
         dialogs = new NavitDialogs(this);
         NavitResources = getResources();
         // only take arguments here, onResume gets called all the time (e.g. when screenblanks, etc.)
@@ -280,13 +280,13 @@ public class Navit extends Activity {
         Log.e(TAG, "**1**A " + startup_intent.getAction());
         Log.e(TAG, "**1**D " + startup_intent.getDataString());
 
-//	    NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);	// Grab a handle to the NotificationManager
+//      NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);  // Grab a handle to the NotificationManager
 
-//		Notification NavitNotification = new Notification(R.drawable.icon, getString(R.string.notification_ticker), System.currentTimeMillis());	// Create a new notification, with the text string to show when the notification first appears
-//		PendingIntent appIntent = PendingIntent.getActivity(getApplicationContext(), 0, getIntent(), 0);
-//		NavitNotification.setLatestEventInfo(getApplicationContext(), "Navit", getString(R.string.notification_event_default), appIntent);	// Set the text in the notification
-//		NavitNotification.flags|=Notification.FLAG_ONGOING_EVENT;	// Ensure that the notification appears in Ongoing
-//		nm.notify(R.string.app_name, NavitNotification);	// Set the notification
+//      Notification NavitNotification = new Notification(R.drawable.icon, getString(R.string.notification_ticker), System.currentTimeMillis());    // Create a new notification, with the text string to show when the notification first appears
+//      PendingIntent appIntent = PendingIntent.getActivity(getApplicationContext(), 0, getIntent(), 0);
+//      NavitNotification.setLatestEventInfo(getApplicationContext(), "Navit", getString(R.string.notification_event_default), appIntent);  // Set the text in the notification
+//      NavitNotification.flags|=Notification.FLAG_ONGOING_EVENT;   // Ensure that the notification appears in Ongoing
+//      nm.notify(R.string.app_name, NavitNotification);    // Set the notification
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -304,20 +304,20 @@ public class Navit extends Activity {
                     MY_PERMISSIONS_FINE_LOCATION_REQUEST);
         }
 
-        //	if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) &&
-        //			(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)){
-        //		ActivityCompat.requestPermissions(this,
-        //				new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-        //				MY_PERMISSIONS_REQUEST_ALL);
-        //	}
+        //  if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) &&
+        //          (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)){
+        //      ActivityCompat.requestPermissions(this,
+        //              new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+        //              MY_PERMISSIONS_REQUEST_ALL);
+        //  }
 
-        //	if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
-        //			(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)){
-        //		runNavit();
-        //	}
+        //  if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
+        //          (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)){
+        //      runNavit();
+        //  }
         //}
 
-        LoadNativeNavit();
+        loadNativeNavit();
 
         Locale locale = java.util.Locale.getDefault();
         String lang = locale.getLanguage();
@@ -352,7 +352,7 @@ public class Navit extends Activity {
         map_filename_path = prefs.getString("filenamePath", navitfiles[0].toString() + "/");
 
         File navit_maps_dir = new File(map_filename_path);
-//		map_filename_path = navitfiles[0].getParent() + "/";
+//      map_filename_path = navitfiles[0].getParent() + "/";
 
         navit_maps_dir.mkdirs();
 
@@ -365,7 +365,7 @@ public class Navit extends Activity {
         display.getMetrics(Navit.metrics);
         int densityDpi = (int) ((Navit.metrics.density * 160) - .5f);
 
-//		Log.e("Navit", "Navit -> pixels x=" + width_ + " pixels y=" + height_);
+//      Log.e("Navit", "Navit -> pixels x=" + width_ + " pixels y=" + height_);
         Log.i(TAG, "Navit -> dpi=" + densityDpi);
         Log.i(TAG, "Navit -> density=" + Navit.metrics.density);
         Log.i(TAG, "Navit -> scaledDensity=" + Navit.metrics.scaledDensity);
@@ -452,7 +452,7 @@ public class Navit extends Activity {
                 if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     // ok, we got permissions
-                    //					permissionsOK.notify();
+                    //                  permissionsOK.notify();
                 } else {
                     AlertDialog.Builder infobox = new AlertDialog.Builder(this);
                     infobox.setTitle(getString(R.string.permissions_info_box_title)); // TRANS
@@ -477,9 +477,9 @@ public class Navit extends Activity {
                                 }
                             });
                     infobox.show();
-//					exit();
+//                  exit();
                 }
-//				return;
+//              return;
             }
             break;
             case MY_PERMISSIONS_STORAGE_REQUEST: {
@@ -511,9 +511,9 @@ public class Navit extends Activity {
                                 }
                             });
                     infobox.show();
-//					exit();
+//                  exit();
                 }
-//				return;
+//              return;
             }
             break;
             case MY_PERMISSIONS_FINE_LOCATION_REQUEST: {
@@ -521,7 +521,7 @@ public class Navit extends Activity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // ok, we got permissions
-//					permissionsOK.release();
+//                  permissionsOK.release();
                 } else {
                     AlertDialog.Builder infobox = new AlertDialog.Builder(this);
                     infobox.setTitle(getString(R.string.permissions_info_box_title)); // TRANS
@@ -546,9 +546,9 @@ public class Navit extends Activity {
                                 }
                             });
                     infobox.show();
-//					exit();
+//                  exit();
                 }
-//				return;
+//              return;
             }
             break;
         }
@@ -729,7 +729,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 break;
         }
-        //	Return false to allow normal menu processing to proceed, true to consume it here
+        //  Return false to allow normal menu processing to proceed, true to consume it here
         return false;
     }
 
@@ -866,8 +866,8 @@ public class Navit extends Activity {
 
     @SuppressWarnings("EmptyMethod")
     public void disableSuspend() {
-        //	wakelock.acquire();
-        //	wakelock.release();
+        //  wakelock.acquire();
+        //  wakelock.release();
     }
 
     private void exit() {
