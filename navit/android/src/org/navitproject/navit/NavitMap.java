@@ -8,18 +8,18 @@ public class NavitMap {
     private final String fileName;
     private final String mapPath;
 
-    NavitMap(String path, String map_file_name) {
+    NavitMap(String path, String mapFileName) {
         mapPath = path;
-        fileName = map_file_name;
-        if (map_file_name.endsWith(".bin")) {
-            mapName = map_file_name.substring(0, map_file_name.length() - 4);
+        fileName = mapFileName;
+        if (mapFileName.endsWith(".bin")) {
+            mapName = mapFileName.substring(0, mapFileName.length() - 4);
         } else {
-            mapName = map_file_name;
+            mapName = mapFileName;
         }
     }
 
-    NavitMap(String map_location) {
-        File mapFile = new File(map_location);
+    NavitMap(String mapLocation) {
+        File mapFile = new File(mapLocation);
 
         mapPath = mapFile.getParent() + "/";
         fileName = mapFile.getName();
@@ -31,8 +31,8 @@ public class NavitMap {
     }
 
     public long size() {
-        File map_file = new File(mapPath + fileName);
-        return map_file.length();
+        File mapFile = new File(mapPath + fileName);
+        return mapFile.length();
     }
 
     public String getLocation() {
