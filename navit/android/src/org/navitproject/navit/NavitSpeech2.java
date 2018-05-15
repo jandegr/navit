@@ -25,10 +25,10 @@ import android.util.Log;
 
 public class NavitSpeech2 implements TextToSpeech.OnInitListener, NavitActivityResult {
 
-    private final int MY_DATA_CHECK_CODE = 1;
+    private static final int MY_DATA_CHECK_CODE = 1;
     private final Navit navit;
     private final String TAG = getClass().getName();
-    private TextToSpeech mTts;
+    private static TextToSpeech sTts;
 
     NavitSpeech2(Navit navit) {
         this.navit = navit;
@@ -42,7 +42,7 @@ public class NavitSpeech2 implements TextToSpeech.OnInitListener, NavitActivityR
             navit.startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
         } else {
             Log.e(TAG, "ACTION_CHECK_TTS_DATA not available, assume tts is working");
-            mTts = new TextToSpeech(navit, this);
+            sTts = new TextToSpeech(navit, this);
         }
     }
 
@@ -55,7 +55,7 @@ public class NavitSpeech2 implements TextToSpeech.OnInitListener, NavitActivityR
         if (requestCode == MY_DATA_CHECK_CODE) {
             if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
                 // success, create the TTS instance
-                mTts = new TextToSpeech(navit, this);
+                sTts = new TextToSpeech(navit, this);
             } else {
                 // missing data, ask to install it
                 AlertDialog.Builder builder = new AlertDialog.Builder(navit);
@@ -78,8 +78,8 @@ public class NavitSpeech2 implements TextToSpeech.OnInitListener, NavitActivityR
     }
 
     public void say(String what) {
-        if (mTts != null) {
-            mTts.speak(what, TextToSpeech.QUEUE_FLUSH, null);
+        if (sTts != null) {
+            sTts.speak(what, TextToSpeech.QUEUE_FLUSH, null);
         }
     }
 }
