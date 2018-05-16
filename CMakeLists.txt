@@ -621,6 +621,8 @@ if(ANDROID)
    set_with_reason(speech/android "Android detected" TRUE)
    set_with_reason(vehicle/android "Android detected" TRUE)
    set_with_reason(vehicle/file "Android detected" FALSE)
+   set_with_reason(map/filter "Android detected" FALSE)
+   set_with_reason(map/mg "Android detected" FALSE)
 #   set_with_reason(plugin/pedestrian "Android detected" TRUE)
    set(SHARED_LIBNAVIT TRUE)
 
