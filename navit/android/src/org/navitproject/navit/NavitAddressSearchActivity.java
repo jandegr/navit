@@ -195,8 +195,8 @@ public class NavitAddressSearchActivity extends Activity {
 
         final TextWatcher watcher = new TextWatcher() {
             @Override
-            public void afterTextChanged(Editable address_edit_string) {
-                mAddressString = address_edit_string.toString();
+            public void afterTextChanged(Editable addressEditString) {
+                mAddressString = addressEditString.toString();
                 addressAdapter.clear();
                 if ((mAddressString.length() > 1) || (mAddressString.length() > 0 && !(zoektype
                         == zoekTypeTown))) {
@@ -345,7 +345,7 @@ public class NavitAddressSearchActivity extends Activity {
     }
 
     /**
-     * start a search on the map
+     * start a search on the map.
      */
     public void receiveAddress(int type, int id, float latitude,
             float longitude, String address, String extras) {
