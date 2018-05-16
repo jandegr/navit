@@ -28,17 +28,17 @@ public class NavitAppConfig extends Application {
     @Override
     public void onCreate() {
         // call ACRA.init(this) as reflection, because old ant may forgot to include it
-//      try {
-//          Class<?> acraClass = Class.forName("org.acra.ACRA");
-//          Class<?> partypes[] = new Class[1];
-//          partypes[0] = Application.class;
-//          java.lang.reflect.Method initMethod = acraClass.getMethod("init", partypes);
-//          Object arglist[] = new Object[1];
-//          arglist[0] = this;
-//          initMethod.invoke(null, arglist);
-//      } catch (Exception e1) {
-//          Log.e(TAG, "Could not init ACRA crash reporter");
-//      }
+        //      try {
+        //          Class<?> acraClass = Class.forName("org.acra.ACRA");
+        //          Class<?> partypes[] = new Class[1];
+        //          partypes[0] = Application.class;
+        //          java.lang.reflect.Method initMethod = acraClass.getMethod("init", partypes);
+        //          Object arglist[] = new Object[1];
+        //          arglist[0] = this;
+        //          initMethod.invoke(null, arglist);
+        //      } catch (Exception e1) {
+        //          Log.e(TAG, "Could not init ACRA crash reporter");
+        //      }
 
         mSettings = getSharedPreferences(Navit.NAVIT_PREFS, MODE_PRIVATE);
         super.onCreate();
@@ -61,7 +61,9 @@ public class NavitAppConfig extends Application {
                                 addr_str, null));
                     }
 
-                    if (--index < 0) index = MAX_LAST_ADDRESSES - 1;
+                    if (--index < 0){
+                        index = MAX_LAST_ADDRESSES - 1;
+                    }
 
                 } while (index != mLastAddressField);
             }
@@ -73,10 +75,13 @@ public class NavitAppConfig extends Application {
         getLastAddresses();
 
         mLastAddresses.add(newAddress);
-        if (mLastAddresses.size() > MAX_LAST_ADDRESSES) mLastAddresses.remove(0);
+        if (mLastAddresses.size() > MAX_LAST_ADDRESSES){
+            mLastAddresses.remove(0);
+        }
 
         mLastAddressField++;
-        if (mLastAddressField >= MAX_LAST_ADDRESSES) mLastAddressField = 0;
+        if (mLastAddressField >= MAX_LAST_ADDRESSES){
+            mLastAddressField = 0;}
 
         SharedPreferences.Editor editSettings = mSettings.edit();
 

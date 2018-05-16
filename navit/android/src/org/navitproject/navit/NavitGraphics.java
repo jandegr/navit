@@ -499,8 +499,10 @@ public class NavitGraphics {
         draw_canvas.setBitmap(draw_bitmap);
     }
 
-    static public enum msg_type {
-        CLB_ZOOM_IN, CLB_ZOOM_OUT, CLB_REDRAW, CLB_MOVE, CLB_BUTTON_UP, CLB_BUTTON_DOWN, CLB_SET_DESTINATION, CLB_SET_DISPLAY_DESTINATION, CLB_CALL_CMD, CLB_COUNTRY_CHOOSER, CLB_LOAD_MAP, CLB_UNLOAD_MAP, CLB_DELETE_MAP, CLB_ABORT_NAVIGATION, CLB_BLOCK, CLB_UNBLOCK
+    public static enum msg_type {
+        CLB_ZOOM_IN, CLB_ZOOM_OUT, CLB_REDRAW, CLB_MOVE, CLB_BUTTON_UP, CLB_BUTTON_DOWN, CLB_SET_DESTINATION,
+        CLB_SET_DISPLAY_DESTINATION, CLB_CALL_CMD, CLB_COUNTRY_CHOOSER, CLB_LOAD_MAP, CLB_UNLOAD_MAP,
+        CLB_DELETE_MAP, CLB_ABORT_NAVIGATION, CLB_BLOCK, CLB_UNBLOCK
     }
 
     private class NavitView extends View implements Runnable, MenuItem.OnMenuItemClickListener {
@@ -736,8 +738,8 @@ public class NavitGraphics {
                 } else if (keyCode == android.view.KeyEvent.KEYCODE_MENU) {
                     if (!in_map) {
                         // if last menukeypress is less than 0.2 seconds away then count longpress
-                        long interval_for_long_press = 200L;
-                        if ((System.currentTimeMillis() - Navit.last_pressed_menu_key) < interval_for_long_press) {
+                        final long intervalForLongPress = 200L;
+                        if ((System.currentTimeMillis() - Navit.last_pressed_menu_key) < intervalForLongPress) {
                             Navit.time_pressed_menu_key = Navit.time_pressed_menu_key
                                     + (System.currentTimeMillis() - Navit.last_pressed_menu_key);
                             //Log.e("NavitGraphics", "press time=" + Navit.time_pressed_menu_key);
