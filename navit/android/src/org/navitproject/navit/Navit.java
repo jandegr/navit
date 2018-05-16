@@ -1,12 +1,11 @@
 /**
- * Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team <p> This program is free
- * software; you can redistribute it and/or modify it under the terms of the GNU General Public
- * License version 2 as published by the Free Software Foundation. <p> This program is distributed
- * in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details. <p> You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
- * Floor, Boston, MA  02110-1301, USA.
+ * Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team <p> This program is free software; you can
+ * redistribute it and/or modify it under the terms of the GNU General Public License version 2 as published by the Free
+ * Software Foundation. <p> This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+ * License for more details. <p> You should have received a copy of the GNU General Public License along with this
+ * program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 
 package org.navitproject.navit;
@@ -95,15 +94,15 @@ public class Navit extends Activity {
     }
 
     // callback id gets set here when called from NavitGraphics
-    public static void setKeypressCallback(int kp_cb_id, NavitGraphics ng) {
+    public static void setKeypressCallback(int kpCbId, NavitGraphics ng) {
         N_NavitGraphics = ng;
     }
 
-    public static void setMotionCallback(int mo_cb_id, NavitGraphics navitGraphics) {
+    public static void setMotionCallback(int moCbId, NavitGraphics navitGraphics) {
         N_NavitGraphics = navitGraphics;
     }
 
-    public native static void NavitMain(Navit navit, String lang, int version,
+    public static native void NavitMain(Navit navit, String lang, int version,
             String display_density_string, String path, String map_path);
 
     /*
@@ -280,14 +279,6 @@ public class Navit extends Activity {
         Log.e(TAG, "**1**A " + startup_intent.getAction());
         Log.e(TAG, "**1**D " + startup_intent.getDataString());
 
-//      NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);  // Grab a handle to the NotificationManager
-
-//      Notification NavitNotification = new Notification(R.drawable.icon, getString(R.string.notification_ticker), System.currentTimeMillis());    // Create a new notification, with the text string to show when the notification first appears
-//      PendingIntent appIntent = PendingIntent.getActivity(getApplicationContext(), 0, getIntent(), 0);
-//      NavitNotification.setLatestEventInfo(getApplicationContext(), "Navit", getString(R.string.notification_event_default), appIntent);  // Set the text in the notification
-//      NavitNotification.flags|=Notification.FLAG_ONGOING_EVENT;   // Ensure that the notification appears in Ongoing
-//      nm.notify(R.string.app_name, NavitNotification);    // Set the notification
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "ask for permission storage");
@@ -408,12 +399,14 @@ public class Navit extends Activity {
                 NAVIT_DATA_DIR + "/bin/navit", map_filename_path);
         showInfos();
         Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
     }
 
     public void onRestart() {
         Log.w(TAG, "onRestart");
         super.onRestart();
     }
+
 
     @Override
     public void onResume() {
