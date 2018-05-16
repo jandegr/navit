@@ -147,6 +147,18 @@ public class NavitGraphics {
     private int motionCallbackID;
     private int keypressCallbackID;
 
+    /**
+     * Constructs a Navigraphics object
+     *
+     * @param activity a Navit instance
+     * @param parent parent if an overlay is to be constructed
+     * @param x position x on screen
+     * @param y position y on screen
+     * @param w width
+     * @param h height
+     * @param alpha to be clarified
+     * @param wraparound to be clarified
+     */
     public NavitGraphics(final Activity activity, NavitGraphics parent, int x, int y, int w, int h,
             int alpha, int wraparound) {
         if (parent == null) {
@@ -672,7 +684,8 @@ public class NavitGraphics {
                             ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
                         }
                         ButtonCallback(buttonCallbackID, 0, 1, x, y); // up
-
+                        break;
+                    default:
                         break;
                 }
                 touchMode = NONE;
@@ -705,6 +718,8 @@ public class NavitGraphics {
                             ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
                             touchMode = DRAG;
                         }
+                        break;
+                    default:
                         break;
                 }
             } else if (switchValue == _ACTION_POINTER_DOWN_) {
@@ -842,6 +857,8 @@ public class NavitGraphics {
                     case KeyEvent.KEYCODE_DPAD_UP:
                         s = String.valueOf((char) 14);
                         break;
+                    default:
+                        break;
                 }
             } else if (i == 10) {
                 s = java.lang.String.valueOf((char) 13);
@@ -915,6 +932,8 @@ public class NavitGraphics {
                             handled = false;
                             return handled;
                         }
+                        break;
+                    default:
                         break;
                 }
             } else if (i != 10) {
