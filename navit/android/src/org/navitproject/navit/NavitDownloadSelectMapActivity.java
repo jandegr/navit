@@ -38,6 +38,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.navitproject.navit.NavitGraphics.msgType;
 
 public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
@@ -244,7 +245,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                         Log.d(TAG, "Delete Map");
                         Message msg =
                                 Message.obtain(Navit.N_NavitGraphics.callbackHandler,
-                                        NavitGraphics.msg_type.CLB_DELETE_MAP.ordinal());
+                                        msgType.CLB_DELETE_MAP.ordinal());
                         Bundle b = new Bundle();
                         b.putString("title", mapLocation);
                         msg.setData(b);

@@ -36,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import org.navitproject.navit.NavitGraphics.msgType;
 
 /**
  * @author rikky
@@ -580,7 +581,7 @@ public class NavitMapDownloader extends Thread {
         if (finalOutputFile.exists()) {
             Message msg =
                     Message.obtain(Navit.N_NavitGraphics.callbackHandler,
-                            NavitGraphics.msg_type.CLB_DELETE_MAP.ordinal());
+                            msgType.CLB_DELETE_MAP.ordinal());
             Bundle b = new Bundle();
             b.putString("title", finalOutputFile.getAbsolutePath());
             msg.setData(b);

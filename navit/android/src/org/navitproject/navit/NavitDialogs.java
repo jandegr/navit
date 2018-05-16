@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import java.io.File;
+import org.navitproject.navit.NavitGraphics.msgType;
 
 public class NavitDialogs extends Handler {
 
@@ -66,12 +67,12 @@ public class NavitDialogs extends Handler {
                 if (msg.getData().getInt("value1") == 1) {
                     Message msg_out =
                             Message.obtain(Navit.N_NavitGraphics.callbackHandler,
-                                    NavitGraphics.msg_type.CLB_LOAD_MAP.ordinal());
+                                    msgType.CLB_LOAD_MAP.ordinal());
                     msg_out.setData(msg.getData());
                     msg_out.sendToTarget();
 
                     msg_out = Message.obtain(Navit.N_NavitGraphics.callbackHandler,
-                            NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
+                            msgType.CLB_CALL_CMD.ordinal());
                     Bundle b = new Bundle();
                     int mi = msg.getData().getInt("value2");
                     double lon = (Double.parseDouble(NavitMapDownloader.osm_maps[mi].lon1) + Double
