@@ -51,17 +51,17 @@ public class NavitAppConfig extends Application {
             if (mLastAddressField >= 0) {
                 int index = mLastAddressField;
                 do {
-                    String addr_str = mSettings.getString("LastAddress_" + String.valueOf(index), "");
+                    String addrStr = mSettings.getString("LastAddress_" + String.valueOf(index), "");
 
-                    if (addr_str.length() > 0) {
+                    if (addrStr.length() > 0) {
                         mLastAddresses.add(new NavitAddress(
                                 1,0,
                                 mSettings.getFloat("LastAddress_Lat_" + String.valueOf(index), 0),
                                 mSettings.getFloat("LastAddress_Lon_" + String.valueOf(index), 0),
-                                addr_str, null));
+                                addrStr, null));
                     }
 
-                    if (--index < 0){
+                    if (--index < 0) {
                         index = MAX_LAST_ADDRESSES - 1;
                     }
 
@@ -75,13 +75,14 @@ public class NavitAppConfig extends Application {
         getLastAddresses();
 
         mLastAddresses.add(newAddress);
-        if (mLastAddresses.size() > MAX_LAST_ADDRESSES){
+        if (mLastAddresses.size() > MAX_LAST_ADDRESSES) {
             mLastAddresses.remove(0);
         }
 
         mLastAddressField++;
-        if (mLastAddressField >= MAX_LAST_ADDRESSES){
-            mLastAddressField = 0;}
+        if (mLastAddressField >= MAX_LAST_ADDRESSES) {
+            mLastAddressField = 0;
+        }
 
         SharedPreferences.Editor editSettings = mSettings.edit();
 
