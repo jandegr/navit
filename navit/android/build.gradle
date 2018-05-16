@@ -56,6 +56,8 @@ android {
        classpath = files()
         reports {
 	     include ( '**/*.java')
+	     exclude ('**/NavitBackupTask.java')
+	     exclude ('**/NavitRestoreTask.java')
 	     exclude ('**/FileBrowserActivity.java')
 	     xml.enabled = true
 	     html.enabled = true
