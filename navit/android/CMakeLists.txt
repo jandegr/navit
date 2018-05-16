@@ -1,4 +1,4 @@
-if (ANDROID)
+if (ANDROID AND NOT ${CMAKE_GENERATOR} STREQUAL Ninja)
 
    FILE(GLOB SRC_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/*/*/*/*")
 
@@ -30,7 +30,6 @@ if (ANDROID)
       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/AndroidManifest.xml.cmake
       COMMAND ${CMAKE_COMMAND} -D SRC=${CMAKE_CURRENT_SOURCE_DIR}/AndroidManifest.xml.cmake
                                -D DST=${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml
-                               -D ANDROID_VERSION_INT="0"
                                -D NAME=ANDROID_VERSION_INT
                                -D ANDROID_VERSION_NAME=${PACKAGE_STRING}
                                -D ANDROID_API_VERSION=${ANDROID_API_VERSION}
@@ -43,7 +42,7 @@ if (ANDROID)
       OUTPUT build.xml
       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml ${SRC_FILES}
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-#      COMMAND android update project -t android-${ANDROID_API_VERSION} -p ${CMAKE_CURRENT_BINARY_DIR}
+      COMMAND android update project -t android-${ANDROID_API_VERSION} -p ${CMAKE_CURRENT_BINARY_DIR}
    )
 
    add_custom_target( android_resources
@@ -84,4 +83,4 @@ if (ANDROID)
    add_dependencies(apkg android_resources)
    add_dependencies(apkg-release android_resources)
    
-endif(ANDROID)
+endif(ANDROID AND NOT ${CMAKE_GENERATOR} STREQUAL Ninja)
