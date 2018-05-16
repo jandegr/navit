@@ -46,14 +46,13 @@ import java.util.ArrayList;
 public class NavitGraphics {
 
     /* These constants must be synchronized with enum draw_mode_num in graphics.h. */
-    public static final int draw_mode_begin = 0;
-    public static final int draw_mode_end = 1;
-    private final static String TAG = "NavitGraphics";
-    public static Boolean in_map = false;
-    static public msg_type[] msg_values = msg_type.values();
+    private static final int draw_mode_begin = 0;
+    private static final int draw_mode_end = 1;
+    private static final String TAG = "NavitGraphics";
+    private static Boolean in_map = false;
+    private static msg_type[] msg_values = msg_type.values();
     // for menu key
     private static long time_for_long_press = 300L;
-    private static long interval_for_long_press = 200L;
     public Handler callback_handler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg_values[msg.what]) {
@@ -124,23 +123,23 @@ public class NavitGraphics {
             }
         }
     };
-    int bitmap_w;
-    int bitmap_h;
-    int pos_x;
-    int pos_y;
-    int pos_wraparound;
-    int overlay_disabled;
-    float trackball_x, trackball_y;
-    View view;
-    RelativeLayout relativelayout;
-    Activity activity;
-    ImageButton zoomInButton;
-    Button zoomOutButton;
+    private int bitmap_w;
+    private int bitmap_h;
+    private int pos_x;
+    private int pos_y;
+    private int pos_wraparound;
+    private int overlay_disabled;
+    private float trackball_x;
+    private float trackball_y;
+    private View view;
+    private RelativeLayout relativelayout;
+    private Activity activity;
+    private ImageButton zoomInButton;
+    private Button zoomOutButton;
     private NavitGraphics parent_graphics;
-    private ArrayList<NavitGraphics> overlays = new ArrayList<NavitGraphics>();
+    private ArrayList<NavitGraphics> overlays = new ArrayList<>();
     private Handler timer_handler = new Handler();
 
-    ;
     private Canvas draw_canvas;
     private Bitmap draw_bitmap;
     private int SizeChangedCallbackID, ButtonCallbackID, MotionCallbackID, KeypressCallbackID;
@@ -200,7 +199,7 @@ public class NavitGraphics {
 
     public static native String[][] GetAllCountries();
 
-    protected Rect get_rect() {
+    private Rect get_rect() {
         Rect ret = new Rect();
         ret.left = pos_x;
         ret.top = pos_y;
@@ -508,7 +507,7 @@ public class NavitGraphics {
         static final int DRAG = 1;
         static final int ZOOM = 2;
         static final int PRESSED = 3;
-        public PointF mPressedPosition = null;
+        PointF mPressedPosition = null;
         int touch_mode = NONE;
         float oldDist = 0;
         Method eventGetX = null;
@@ -587,7 +586,7 @@ public class NavitGraphics {
             SizeChangedCallback(SizeChangedCallbackID, w, h);
         }
 
-        public void do_longpress_action() {
+        void do_longpress_action() {
             Log.e("NavitGraphics", "do_longpress_action enter");
 
             activity.openContextMenu(this);
@@ -735,6 +734,7 @@ public class NavitGraphics {
                 } else if (keyCode == android.view.KeyEvent.KEYCODE_MENU) {
                     if (!in_map) {
                         // if last menukeypress is less than 0.2 seconds away then count longpress
+                        long interval_for_long_press = 200L;
                         if ((System.currentTimeMillis() - Navit.last_pressed_menu_key) < interval_for_long_press) {
                             Navit.time_pressed_menu_key = Navit.time_pressed_menu_key
                                     + (System.currentTimeMillis() - Navit.last_pressed_menu_key);
@@ -898,7 +898,7 @@ public class NavitGraphics {
 
         @Override
         public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
-            String s = null;
+            String s;
             if (keyCode == KeyEvent.KEYCODE_UNKNOWN) {
                 s = event.getCharacters();
                 KeypressCallback(KeypressCallbackID, s);
