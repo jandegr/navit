@@ -144,7 +144,10 @@ public class NavitGraphics {
 
     private Canvas draw_canvas;
     private Bitmap draw_bitmap;
-    private int sizeChangedCallbackID, buttonCallbackID, motionCallbackID, keypressCallbackID;
+    private int sizeChangedCallbackID;
+    private int buttonCallbackID;
+    private int motionCallbackID;
+    private int keypressCallbackID;
 
     public NavitGraphics(final Activity activity, NavitGraphics parent, int x, int y, int w, int h,
             int alpha, int wraparound) {
@@ -260,7 +263,7 @@ public class NavitGraphics {
 
 
     protected void draw_polyline(Paint paint, int[] c) {
-        int i, ndashes;
+        int ndashes;
         float[] intervals;
         //  Log.e("NavitGraphics","draw_polyline");
         paint.setStrokeWidth(c[0]);
@@ -270,7 +273,7 @@ public class NavitGraphics {
         //paint.setStrokeWidth(0);
         ndashes = c[5];
         intervals = new float[ndashes + (ndashes % 2)];
-        for (i = 0; i < ndashes; i++) {
+        for (int i = 0; i < ndashes; i++) {
             intervals[i] = c[6 + i];
         }
 
@@ -284,7 +287,7 @@ public class NavitGraphics {
 
         Path path = new Path();
         path.moveTo(c[6 + ndashes], c[7 + ndashes]);
-        for (i = 8 + ndashes; i < c.length; i += 2) {
+        for (int i = 8 + ndashes; i < c.length; i += 2) {
             path.lineTo(c[i], c[i + 1]);
         }
         //global_path.close();

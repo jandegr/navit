@@ -103,7 +103,7 @@ public class Navit extends Activity {
     }
 
     public static native void NavitMain(Navit navit, String lang, int version,
-            String display_density_string, String path, String map_path);
+            String displayDensityString, String path, String mapPath);
 
     /*
      * this is used to load the 'navit' native library on
@@ -165,7 +165,7 @@ public class Navit extends Activity {
     }
 
     private boolean extractRes(String resname, String result) {
-        boolean needs_update = false;
+        boolean needsUpdate = false;
         Log.e(TAG, "Res Name " + resname + ", result " + result);
         int id = NavitResources.getIdentifier(resname, "raw", NAVIT_PACKAGE_NAME);
         Log.e(TAG, "Res ID " + id);
@@ -174,7 +174,7 @@ public class Navit extends Activity {
         }
         File resultfile = new File(result);
         if (!resultfile.exists()) {
-            needs_update = true;
+            needsUpdate = true;
             File path = resultfile.getParentFile();
             if (!path.exists() && !resultfile.getParentFile().mkdirs()) {
                 return false;
@@ -191,11 +191,11 @@ public class Navit extends Activity {
                 e.printStackTrace();
             }
             if (apkUpdateTime > resultfile.lastModified()) {
-                needs_update = true;
+                needsUpdate = true;
             }
         }
 
-        if (needs_update) {
+        if (needsUpdate) {
             Log.d(TAG, "Extracting resource");
             try {
                 InputStream resourcestream = NavitResources.openRawResource(id);
@@ -255,9 +255,9 @@ public class Navit extends Activity {
                         }
                     });
             infobox.show();
-            SharedPreferences.Editor edit_settings = settings.edit();
-            edit_settings.putBoolean("firstStart", false);
-            edit_settings.apply();
+            SharedPreferences.Editor editSettings = settings.edit();
+            editSettings.putBoolean("firstStart", false);
+            editSettings.apply();
         }
     }
 
@@ -295,15 +295,19 @@ public class Navit extends Activity {
                     MY_PERMISSIONS_FINE_LOCATION_REQUEST);
         }
 
-        //  if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) &&
-        //          (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)){
+        //  if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        // != PackageManager.PERMISSION_GRANTED) &&
+        //          (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        // != PackageManager.PERMISSION_GRANTED)){
         //      ActivityCompat.requestPermissions(this,
         //              new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
         //              MY_PERMISSIONS_REQUEST_ALL);
         //  }
 
-        //  if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
-        //          (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)){
+        //  if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        // == PackageManager.PERMISSION_GRANTED) &&
+        //          (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        // == PackageManager.PERMISSION_GRANTED)){
         //      runNavit();
         //  }
         //}
