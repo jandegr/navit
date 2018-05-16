@@ -49,9 +49,9 @@ public class NavitGraphics {
     private static final int draw_mode_end = 1;
     private static final String TAG = "NavitGraphics";
     private static Boolean in_map = false;
-    private static msgType[] msg_values = msgType.values();
+    private static final msgType[] msg_values = msgType.values();
     // for menu key
-    private static long time_for_long_press = 300L;
+    private static final long time_for_long_press = 300L;
     public Handler callbackHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg_values[msg.what]) {
@@ -133,7 +133,6 @@ public class NavitGraphics {
     private float trackballX;
     private float trackballY;
     private View view;
-    private RelativeLayout relativelayout;
     private Activity activity;
     private ImageButton zoomInButton;
     private ImageButton zoomOutButton;
@@ -158,7 +157,7 @@ public class NavitGraphics {
             view.setFocusable(true);
             view.setFocusableInTouchMode(true);
             view.setKeepScreenOn(true);
-            relativelayout = new RelativeLayout(activity);
+            RelativeLayout relativelayout = new RelativeLayout(activity);
             relativelayout.addView(view);
 
             RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(96,96);
@@ -641,62 +640,72 @@ public class NavitGraphics {
             } else if ((switchValue == MotionEvent.ACTION_UP) || (switchValue == _ACTION_POINTER_UP_)) {
                 Log.e("NavitGraphics", "ACTION_UP");
 
-                if (touchMode == DRAG) {
-                    Log.e("NavitGraphics", "onTouch move");
+                switch (touchMode) {
+                    case DRAG:
+                        Log.e("NavitGraphics", "onTouch move");
 
-                    MotionCallback(motionCallbackID, x, y);
-                    ButtonCallback(buttonCallbackID, 0, 1, x, y); // up
-                } else if (touchMode == ZOOM) {
-                    //Log.e("NavitGraphics", "onTouch zoom");
+                        MotionCallback(motionCallbackID, x, y);
+                        ButtonCallback(buttonCallbackID, 0, 1, x, y); // up
 
-                    float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
-                    float scale = 0;
-                    if (newDist > 10f) {
-                        scale = newDist / oldDist;
-                    }
+                        break;
+                    case ZOOM:
+                        //Log.e("NavitGraphics", "onTouch zoom");
 
-                    if (scale > 1.3) {
-                        // zoom in
-                        CallbackMessageChannel(1, null);
-                        //Log.e("NavitGraphics", "onTouch zoom in");
-                    } else if (scale < 0.8) {
-                        // zoom out
-                        CallbackMessageChannel(2, null);
-                        //Log.e("NavitGraphics", "onTouch zoom out");
-                    }
-                } else if (touchMode == PRESSED) {
-                    if (in_map) {
-                        ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
-                    }
-                    ButtonCallback(buttonCallbackID, 0, 1, x, y); // up
+                        float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
+                        float scale = 0;
+                        if (newDist > 10f) {
+                            scale = newDist / oldDist;
+                        }
+
+                        if (scale > 1.3) {
+                            // zoom in
+                            CallbackMessageChannel(1, null);
+                            //Log.e("NavitGraphics", "onTouch zoom in");
+                        } else if (scale < 0.8) {
+                            // zoom out
+                            CallbackMessageChannel(2, null);
+                            //Log.e("NavitGraphics", "onTouch zoom out");
+                        }
+                        break;
+                    case PRESSED:
+                        if (in_map) {
+                            ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
+                        }
+                        ButtonCallback(buttonCallbackID, 0, 1, x, y); // up
+
+                        break;
                 }
                 touchMode = NONE;
             } else if (switchValue == MotionEvent.ACTION_MOVE) {
                 //Log.e("NavitGraphics", "ACTION_MOVE");
 
-                if (touchMode == DRAG) {
-                    MotionCallback(motionCallbackID, x, y);
-                } else if (touchMode == ZOOM) {
-                    float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
-                    float scale = newDist / oldDist;
-                    Log.e("NavitGraphics", "New scale = " + scale);
-                    if (scale > 1.2) {
-                        // zoom in
-                        CallbackMessageChannel(1, "");
-                        oldDist = newDist;
-                        //Log.e("NavitGraphics", "onTouch zoom in");
-                    } else if (scale < 0.8) {
-                        oldDist = newDist;
-                        // zoom out
-                        CallbackMessageChannel(2, "");
-                        //Log.e("NavitGraphics", "onTouch zoom out");
-                    }
-                } else if (touchMode == PRESSED) {
-                    Log.e("NavitGraphics", "Start drag mode");
-                    if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
-                        ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
-                        touchMode = DRAG;
-                    }
+                switch (touchMode) {
+                    case DRAG:
+                        MotionCallback(motionCallbackID, x, y);
+                        break;
+                    case ZOOM:
+                        float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
+                        float scale = newDist / oldDist;
+                        Log.e("NavitGraphics", "New scale = " + scale);
+                        if (scale > 1.2) {
+                            // zoom in
+                            CallbackMessageChannel(1, "");
+                            oldDist = newDist;
+                            //Log.e("NavitGraphics", "onTouch zoom in");
+                        } else if (scale < 0.8) {
+                            oldDist = newDist;
+                            // zoom out
+                            CallbackMessageChannel(2, "");
+                            //Log.e("NavitGraphics", "onTouch zoom out");
+                        }
+                        break;
+                    case PRESSED:
+                        Log.e("NavitGraphics", "Start drag mode");
+                        if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
+                            ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
+                            touchMode = DRAG;
+                        }
+                        break;
                 }
             } else if (switchValue == _ACTION_POINTER_DOWN_) {
                 //Log.e("NavitGraphics", "ACTION_POINTER_DOWN");
@@ -737,90 +746,102 @@ public class NavitGraphics {
             //Log.e("NavitGraphics", "onKeyDown " + keyCode + " " + i);
             // Log.e("NavitGraphics","Unicode "+event.getUnicodeChar());
             if (i == 0) {
-                if (keyCode == android.view.KeyEvent.KEYCODE_DEL) {
-                    s = java.lang.String.valueOf((char) 8);
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_MENU) {
-                    if (!in_map) {
-                        // if last menukeypress is less than 0.2 seconds away then count longpress
-                        final long intervalForLongPress = 200L;
-                        if ((System.currentTimeMillis() - Navit.last_pressed_menu_key) < intervalForLongPress) {
-                            Navit.time_pressed_menu_key = Navit.time_pressed_menu_key
-                                    + (System.currentTimeMillis() - Navit.last_pressed_menu_key);
-                            //Log.e("NavitGraphics", "press time=" + Navit.time_pressed_menu_key);
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_DEL:
+                        s = String.valueOf((char) 8);
+                        break;
+                    case KeyEvent.KEYCODE_MENU:
+                        if (!in_map) {
+                            // if last menukeypress is less than 0.2 seconds away then count longpress
+                            final long intervalForLongPress = 200L;
+                            if ((System.currentTimeMillis() - Navit.last_pressed_menu_key) < intervalForLongPress) {
+                                Navit.time_pressed_menu_key = Navit.time_pressed_menu_key
+                                        + (System.currentTimeMillis() - Navit.last_pressed_menu_key);
+                                //Log.e("NavitGraphics", "press time=" + Navit.time_pressed_menu_key);
 
-                            // on long press let softkeyboard popup
-                            if (Navit.time_pressed_menu_key > time_for_long_press) {
-                                //Log.e("NavitGraphics", "long press menu key!!");
-                                Navit.show_soft_keyboard = true;
+                                // on long press let softkeyboard popup
+                                if (Navit.time_pressed_menu_key > time_for_long_press) {
+                                    //Log.e("NavitGraphics", "long press menu key!!");
+                                    Navit.show_soft_keyboard = true;
+                                    Navit.time_pressed_menu_key = 0L;
+                                    // need to draw to get the keyboard showing
+                                    this.postInvalidate();
+                                }
+                            } else {
                                 Navit.time_pressed_menu_key = 0L;
-                                // need to draw to get the keyboard showing
-                                this.postInvalidate();
                             }
+                            Navit.last_pressed_menu_key = System.currentTimeMillis();
+                            // if in menu view:
+                            // use as OK (Enter) key
+                            // s = String.valueOf((char) 13);
+                            handled = true;
+                            // dont use menu key here (use it in onKeyUp)
+                            return handled;
                         } else {
-                            Navit.time_pressed_menu_key = 0L;
+                            // if on map view:
+                            // volume UP
+                            //s = java.lang.String.valueOf((char) 1);
+                            handled = false;
+                            return handled;
                         }
-                        Navit.last_pressed_menu_key = System.currentTimeMillis();
-                        // if in menu view:
-                        // use as OK (Enter) key
-                        s = java.lang.String.valueOf((char) 13);
-                        handled = true;
-                        // dont use menu key here (use it in onKeyUp)
-                        return handled;
-                    } else {
-                        // if on map view:
-                        // volume UP
-                        //s = java.lang.String.valueOf((char) 1);
-                        handled = false;
-                        return handled;
-                    }
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_SEARCH) {
-                    /* Handle event in Main Activity if map is shown */
-                    if (in_map) {
-                        return false;
-                    }
+                    case KeyEvent.KEYCODE_SEARCH:
+                        /* Handle event in Main Activity if map is shown */
+                        if (in_map) {
+                            return false;
+                        }
 
-                    s = java.lang.String.valueOf((char) 19);
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
-                    //Log.e("NavitGraphics", "KEYCODE_BACK down");
-                    s = java.lang.String.valueOf((char) 27);
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_CALL) {
-                    s = java.lang.String.valueOf((char) 3);
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
-                    if (!in_map) {
-                        // if in menu view:
-                        // use as UP key
-                        s = java.lang.String.valueOf((char) 16);
-                        handled = true;
-                    } else {
-                        // if on map view:
-                        // volume UP
-                        //s = java.lang.String.valueOf((char) 21);
-                        handled = false;
-                        return handled;
-                    }
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    if (!in_map) {
-                        // if in menu view:
-                        // use as DOWN key
-                        s = java.lang.String.valueOf((char) 14);
-                        handled = true;
-                    } else {
-                        // if on map view:
-                        // volume DOWN
-                        //s = java.lang.String.valueOf((char) 4);
-                        handled = false;
-                        return handled;
-                    }
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER) {
-                    s = java.lang.String.valueOf((char) 13);
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_DOWN) {
-                    s = java.lang.String.valueOf((char) 16);
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_LEFT) {
-                    s = java.lang.String.valueOf((char) 2);
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_RIGHT) {
-                    s = java.lang.String.valueOf((char) 6);
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP) {
-                    s = java.lang.String.valueOf((char) 14);
+                        s = String.valueOf((char) 19);
+                        break;
+                    case KeyEvent.KEYCODE_BACK:
+                        //Log.e("NavitGraphics", "KEYCODE_BACK down");
+                        s = String.valueOf((char) 27);
+                        break;
+                    case KeyEvent.KEYCODE_CALL:
+                        s = String.valueOf((char) 3);
+                        break;
+                    case KeyEvent.KEYCODE_VOLUME_UP:
+                        if (!in_map) {
+                            // if in menu view:
+                            // use as UP key
+                            s = String.valueOf((char) 16);
+                            handled = true;
+                        } else {
+                            // if on map view:
+                            // volume UP
+                            //s = java.lang.String.valueOf((char) 21);
+                            handled = false;
+                            return handled;
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_VOLUME_DOWN:
+                        if (!in_map) {
+                            // if in menu view:
+                            // use as DOWN key
+                            s = String.valueOf((char) 14);
+                            handled = true;
+                        } else {
+                            // if on map view:
+                            // volume DOWN
+                            //s = java.lang.String.valueOf((char) 4);
+                            handled = false;
+                            return handled;
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_DPAD_CENTER:
+                        s = String.valueOf((char) 13);
+                        break;
+                    case KeyEvent.KEYCODE_DPAD_DOWN:
+                        s = String.valueOf((char) 16);
+                        break;
+                    case KeyEvent.KEYCODE_DPAD_LEFT:
+                        s = String.valueOf((char) 2);
+                        break;
+                    case KeyEvent.KEYCODE_DPAD_RIGHT:
+                        s = String.valueOf((char) 6);
+                        break;
+                    case KeyEvent.KEYCODE_DPAD_UP:
+                        s = String.valueOf((char) 14);
+                        break;
                 }
             } else if (i == 10) {
                 s = java.lang.String.valueOf((char) 13);
@@ -842,56 +863,59 @@ public class NavitGraphics {
             i = event.getUnicodeChar();
 
             if (i == 0) {
-                if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
-                    if (!in_map) {
-                        //s = java.lang.String.valueOf((char) 16);
-                        handled = true;
-                        return handled;
-                    } else {
-                        //s = java.lang.String.valueOf((char) 21);
-                        handled = false;
-                        return handled;
-                    }
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    if (!in_map) {
-                        //s = java.lang.String.valueOf((char) 14);
-                        handled = true;
-                        return handled;
-                    } else {
-                        //s = java.lang.String.valueOf((char) 4);
-                        handled = false;
-                        return handled;
-                    }
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_SEARCH) {
-                    /* Handle event in Main Activity if map is shown */
-                    if (in_map) {
-                        return false;
-                    }
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
-                    if (Navit.show_soft_keyboard_now_showing) {
-                        Navit.show_soft_keyboard_now_showing = false;
-                    }
-                    //Log.e("NavitGraphics", "KEYCODE_BACK up");
-                    //s = java.lang.String.valueOf((char) 27);
-                    handled = true;
-                    return handled;
-                } else if (keyCode == android.view.KeyEvent.KEYCODE_MENU) {
-                    if (!in_map) {
-                        if (Navit.show_soft_keyboard_now_showing) {
-                            // if soft keyboard showing on screen, dont use menu button as select key
-                        } else {
-                            // if in menu view:
-                            // use as OK (Enter) key
-                            s = java.lang.String.valueOf((char) 13);
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_VOLUME_UP:
+                        if (!in_map) {
+                            //s = java.lang.String.valueOf((char) 16);
                             handled = true;
+                            return handled;
+                        } else {
+                            //s = java.lang.String.valueOf((char) 21);
+                            handled = false;
+                            return handled;
                         }
-                    } else {
-                        // if on map view:
-                        // volume UP
-                        //s = java.lang.String.valueOf((char) 1);
-                        handled = false;
+                    case KeyEvent.KEYCODE_VOLUME_DOWN:
+                        if (!in_map) {
+                            //s = java.lang.String.valueOf((char) 14);
+                            handled = true;
+                            return handled;
+                        } else {
+                            //s = java.lang.String.valueOf((char) 4);
+                            handled = false;
+                            return handled;
+                        }
+                    case KeyEvent.KEYCODE_SEARCH:
+                        /* Handle event in Main Activity if map is shown */
+                        if (in_map) {
+                            return false;
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_BACK:
+                        if (Navit.show_soft_keyboard_now_showing) {
+                            Navit.show_soft_keyboard_now_showing = false;
+                        }
+                        //Log.e("NavitGraphics", "KEYCODE_BACK up");
+                        //s = java.lang.String.valueOf((char) 27);
+                        handled = true;
                         return handled;
-                    }
+                    case KeyEvent.KEYCODE_MENU:
+                        if (!in_map) {
+                            if (Navit.show_soft_keyboard_now_showing) {
+                                // if soft keyboard showing on screen, dont use menu button as select key
+                            } else {
+                                // if in menu view:
+                                // use as OK (Enter) key
+                                s = String.valueOf((char) 13);
+                                handled = true;
+                            }
+                        } else {
+                            // if on map view:
+                            // volume UP
+                            //s = java.lang.String.valueOf((char) 1);
+                            handled = false;
+                            return handled;
+                        }
+                        break;
                 }
             } else if (i != 10) {
                 s = java.lang.String.valueOf((char) i);
