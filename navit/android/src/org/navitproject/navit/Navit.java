@@ -591,7 +591,7 @@ public class Navit extends Activity {
                         lon = Float.valueOf(geo[1]);
                         b.putFloat("lat", lat);
                         b.putFloat("lon", lon);
-                        Message msg = Message.obtain(N_NavitGraphics.callback_handler,
+                        Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
                                 NavitGraphics.msg_type.CLB_SET_DESTINATION.ordinal());
                         msg.setData(b);
                         msg.sendToTarget();
@@ -640,13 +640,13 @@ public class Navit extends Activity {
         switch (item.getItemId()) {
             case 1:
                 // zoom in
-                Message.obtain(N_NavitGraphics.callback_handler,
+                Message.obtain(N_NavitGraphics.callbackHandler,
                         NavitGraphics.msg_type.CLB_ZOOM_IN.ordinal()).sendToTarget();
                 Log.i("Navit", "onOptionsItemSelected -> zoom in");
                 break;
             case 2:
                 // zoom out
-                Message.obtain(N_NavitGraphics.callback_handler,
+                Message.obtain(N_NavitGraphics.callbackHandler,
                         NavitGraphics.msg_type.CLB_ZOOM_OUT.ordinal()).sendToTarget();
                 Log.i("Navit", "onOptionsItemSelected -> zoom out");
                 break;
@@ -658,7 +658,7 @@ public class Navit extends Activity {
                 break;
             case 5:
                 // toggle the normal POI layers (to avoid double POIs)
-                Message msg = Message.obtain(N_NavitGraphics.callback_handler,
+                Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
                         NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
                 Bundle b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"POI Symbols\");");
@@ -666,7 +666,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
 
                 // toggle full POI icons on/off
-                msg = Message.obtain(N_NavitGraphics.callback_handler,
+                msg = Message.obtain(N_NavitGraphics.callbackHandler,
                         NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"Android-POI-Icons-full\");");
@@ -681,7 +681,7 @@ public class Navit extends Activity {
                 setMapLocation();
                 break;
             case R.id.action_zoom_to_route:
-                msg = Message.obtain(N_NavitGraphics.callback_handler,
+                msg = Message.obtain(N_NavitGraphics.callbackHandler,
                         NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "zoom_to_route()");
@@ -689,7 +689,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 break;
             case R.id.toggle_autozoom:
-                msg = Message.obtain(N_NavitGraphics.callback_handler,
+                msg = Message.obtain(N_NavitGraphics.callbackHandler,
                         NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "autozoom_active=autozoom_active==0?1:0");
@@ -697,7 +697,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 break;
             case R.id.action_stop_navigation:
-                msg = Message.obtain(N_NavitGraphics.callback_handler,
+                msg = Message.obtain(N_NavitGraphics.callbackHandler,
                         NavitGraphics.msg_type.CLB_ABORT_NAVIGATION.ordinal());
                 msg.sendToTarget();
                 break;
@@ -706,7 +706,7 @@ public class Navit extends Activity {
                 this.onDestroy();
                 break;
             case R.id.action_enable_auto_layout:
-                msg = Message.obtain(N_NavitGraphics.callback_handler,
+                msg = Message.obtain(N_NavitGraphics.callbackHandler,
                         NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "switch_layout_day_night(\"auto\")");
@@ -714,7 +714,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 break;
             case R.id.action_toggle_layout:
-                msg = Message.obtain(N_NavitGraphics.callback_handler,
+                msg = Message.obtain(N_NavitGraphics.callbackHandler,
                         NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "switch_layout_day_night(\"manual_toggle\")");
@@ -730,7 +730,7 @@ public class Navit extends Activity {
         Toast.makeText(getApplicationContext(),
                 getString(R.string.address_search_set_destination) + "\n" + address,
                 Toast.LENGTH_LONG).show(); //TRANS
-        Message msg = Message.obtain(N_NavitGraphics.callback_handler,
+        Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
                 NavitGraphics.msg_type.CLB_SET_DESTINATION.ordinal());
         Bundle b = new Bundle();
         b.putFloat("lat", latitude);
@@ -755,7 +755,7 @@ public class Navit extends Activity {
                     Toast.makeText(getApplicationContext(),
                             getTstring(R.string.address_search_set_destination) + "\n" + destination
                                     .getString(("q")), Toast.LENGTH_LONG).show(); //TRANS
-                    Message msg = Message.obtain(N_NavitGraphics.callback_handler,
+                    Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
                             NavitGraphics.msg_type.CLB_SET_DESTINATION.ordinal());
                     msg.setData(destination);
                     msg.sendToTarget();

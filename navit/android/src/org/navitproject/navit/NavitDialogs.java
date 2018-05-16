@@ -65,12 +65,12 @@ public class NavitDialogs extends Handler {
                 mActivity.removeDialog(DIALOG_MAPDOWNLOAD);
                 if (msg.getData().getInt("value1") == 1) {
                     Message msg_out =
-                            Message.obtain(Navit.N_NavitGraphics.callback_handler,
+                            Message.obtain(Navit.N_NavitGraphics.callbackHandler,
                                     NavitGraphics.msg_type.CLB_LOAD_MAP.ordinal());
                     msg_out.setData(msg.getData());
                     msg_out.sendToTarget();
 
-                    msg_out = Message.obtain(Navit.N_NavitGraphics.callback_handler,
+                    msg_out = Message.obtain(Navit.N_NavitGraphics.callbackHandler,
                             NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
                     Bundle b = new Bundle();
                     int mi = msg.getData().getInt("value2");
