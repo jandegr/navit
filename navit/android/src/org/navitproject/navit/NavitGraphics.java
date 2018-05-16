@@ -53,7 +53,7 @@ public class NavitGraphics {
     private static msg_type[] msg_values = msg_type.values();
     // for menu key
     private static long time_for_long_press = 300L;
-    public Handler callback_handler = new Handler() {
+    public Handler callbackHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg_values[msg.what]) {
                 case CLB_ZOOM_IN:
@@ -65,7 +65,7 @@ public class NavitGraphics {
                 case CLB_REDRAW:
                     break;
                 case CLB_MOVE:
-//                  MotionCallback(MotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                    //MotionCallback(MotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
                     break;
                 case CLB_SET_DESTINATION:
                     String lat = Float.toString(msg.getData().getFloat("lat"));
@@ -87,10 +87,12 @@ public class NavitGraphics {
                     Log.w(TAG, "CLB_CALL_CMD " + cmd);
                     break;
                 case CLB_BUTTON_UP:
-//                  ButtonCallback(ButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // up
+                    //ButtonCallback(ButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                    // up
                     break;
                 case CLB_BUTTON_DOWN:
-//                  ButtonCallback(ButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // down
+                    //ButtonCallback(ButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                    // down
                     break;
                 case CLB_COUNTRY_CHOOSER:
                     break;
@@ -123,26 +125,26 @@ public class NavitGraphics {
             }
         }
     };
-    private int bitmap_w;
-    private int bitmap_h;
-    private int pos_x;
-    private int pos_y;
-    private int pos_wraparound;
-    private int overlay_disabled;
-    private float trackball_x;
-    private float trackball_y;
+    private int bitmapW;
+    private int bitmapH;
+    private int posX;
+    private int posY;
+    private int posWraparound;
+    private int overlayDisabled;
+    private float trackballX;
+    private float trackballY;
     private View view;
     private RelativeLayout relativelayout;
     private Activity activity;
     private ImageButton zoomInButton;
     private Button zoomOutButton;
-    private NavitGraphics parent_graphics;
+    private NavitGraphics parentGraphics;
     private ArrayList<NavitGraphics> overlays = new ArrayList<>();
     private Handler timer_handler = new Handler();
 
     private Canvas draw_canvas;
     private Bitmap draw_bitmap;
-    private int SizeChangedCallbackID, ButtonCallbackID, MotionCallbackID, KeypressCallbackID;
+    private int sizeChangedCallbackID, buttonCallbackID, motionCallbackID, keypressCallbackID;
 
     public NavitGraphics(final Activity activity, NavitGraphics parent, int x, int y, int w, int h,
             int alpha, int wraparound) {
@@ -186,39 +188,39 @@ public class NavitGraphics {
             view.requestFocus();
         } else {
             draw_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            bitmap_w = w;
-            bitmap_h = h;
-            pos_x = x;
-            pos_y = y;
-            pos_wraparound = wraparound;
+            bitmapW = w;
+            bitmapH = h;
+            posX = x;
+            posY = y;
+            posWraparound = wraparound;
             draw_canvas = new Canvas(draw_bitmap);
             parent.overlays.add(this);
         }
-        parent_graphics = parent;
+        parentGraphics = parent;
     }
 
     public static native String[][] GetAllCountries();
 
     private Rect get_rect() {
         Rect ret = new Rect();
-        ret.left = pos_x;
-        ret.top = pos_y;
-        if (pos_wraparound != 0) {
+        ret.left = posX;
+        ret.top = posY;
+        if (posWraparound != 0) {
             if (ret.left < 0) {
-                ret.left += parent_graphics.bitmap_w;
+                ret.left += parentGraphics.bitmapW;
             }
             if (ret.top < 0) {
-                ret.top += parent_graphics.bitmap_h;
+                ret.top += parentGraphics.bitmapH;
             }
         }
-        ret.right = ret.left + bitmap_w;
-        ret.bottom = ret.top + bitmap_h;
-        if (pos_wraparound != 0) {
-            if (bitmap_w < 0) {
-                ret.right = ret.left + bitmap_w + parent_graphics.bitmap_w;
+        ret.right = ret.left + bitmapW;
+        ret.bottom = ret.top + bitmapH;
+        if (posWraparound != 0) {
+            if (bitmapW < 0) {
+                ret.right = ret.left + bitmapW + parentGraphics.bitmapW;
             }
-            if (bitmap_h < 0) {
-                ret.bottom = ret.top + bitmap_h + parent_graphics.bitmap_h;
+            if (bitmapH < 0) {
+                ret.bottom = ret.top + bitmapH + parentGraphics.bitmapH;
             }
         }
         return ret;
@@ -238,26 +240,26 @@ public class NavitGraphics {
     // private int count;
 
     public void setSizeChangedCallback(int id) {
-        SizeChangedCallbackID = id;
+        sizeChangedCallbackID = id;
     }
 
     public void setButtonCallback(int id) {
-        ButtonCallbackID = id;
+        buttonCallbackID = id;
     }
 
     public void setMotionCallback(int id) {
-        MotionCallbackID = id;
+        motionCallbackID = id;
         Navit.setMotionCallback(id, this);
     }
 
     public void setKeypressCallback(int id) {
-        KeypressCallbackID = id;
+        keypressCallbackID = id;
         // set callback id also in main intent (for menus)
         Navit.setKeypressCallback(id, this);
     }
 
 
-    protected void draw_polyline(Paint paint, int c[]) {
+    protected void draw_polyline(Paint paint, int[] c) {
         int i, ndashes;
         float[] intervals;
         //  Log.e("NavitGraphics","draw_polyline");
@@ -290,7 +292,7 @@ public class NavitGraphics {
         paint.setPathEffect(null);
     }
 
-    protected void draw_polygon(Paint paint, int c[]) {
+    protected void draw_polygon(Paint paint, int[] c) {
         //Log.e("NavitGraphics","draw_polygon");
         paint.setStrokeWidth(c[0]);
         paint.setARGB(c[1], c[2], c[3], c[4]);
@@ -434,18 +436,18 @@ public class NavitGraphics {
         //      + String.valueOf(parent_graphics));
 
         if (mode == draw_mode_end) {
-            if (parent_graphics == null) {
-                if (overlay_disabled == 0) {
+            if (parentGraphics == null) {
+                if (overlayDisabled == 0) {
                     this.setButtonState(true);
                 } else {
                     this.setButtonState(false);
                 }
                 view.invalidate();
             } else {
-                parent_graphics.view.invalidate(get_rect());
+                parentGraphics.view.invalidate(get_rect());
             }
         }
-        if (mode == draw_mode_begin && parent_graphics != null) {
+        if (mode == draw_mode_begin && parentGraphics != null) {
             draw_bitmap.eraseColor(0);
         }
 
@@ -468,20 +470,20 @@ public class NavitGraphics {
 
     protected void draw_drag(int x, int y) {
         //Log.e("NavitGraphics","draw_drag");
-        pos_x = x;
-        pos_y = y;
+        posX = x;
+        posY = y;
     }
 
     protected void overlay_disable(int disable) {
-        Log.e("NavitGraphics", "overlay_disable: " + disable + "Parent: " + (parent_graphics != null));
+        Log.e("NavitGraphics", "overlay_disable: " + disable + "Parent: " + (parentGraphics != null));
         // assume we are NOT in map view mode!
-        if (parent_graphics == null) {
+        if (parentGraphics == null) {
             in_map = (disable == 0);
         }
-        if (overlay_disabled != disable) {
-            overlay_disabled = disable;
-            if (parent_graphics != null) {
-                parent_graphics.view.invalidate(get_rect());
+        if (overlayDisabled != disable) {
+            overlayDisabled = disable;
+            if (parentGraphics != null) {
+                parentGraphics.view.invalidate(get_rect());
             }
         }
     }
@@ -489,11 +491,11 @@ public class NavitGraphics {
     protected void overlay_resize(int x, int y, int w, int h, int alpha, int wraparound) {
         //Log.e("NavitGraphics","overlay_resize");
         draw_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        bitmap_w = w;
-        bitmap_h = h;
-        pos_x = x;
-        pos_y = y;
-        pos_wraparound = wraparound;
+        bitmapW = w;
+        bitmapH = h;
+        posX = x;
+        posY = y;
+        posWraparound = wraparound;
         draw_canvas.setBitmap(draw_bitmap);
     }
 
@@ -536,7 +538,7 @@ public class NavitGraphics {
         public boolean onMenuItemClick(MenuItem item) {
             switch (item.getItemId()) {
                 case 1:
-                    Message msg = Message.obtain(callback_handler, msg_type.CLB_SET_DISPLAY_DESTINATION.ordinal()
+                    Message msg = Message.obtain(callbackHandler, msg_type.CLB_SET_DISPLAY_DESTINATION.ordinal()
                             , (int) mPressedPosition.x, (int) mPressedPosition.y);
                     msg.sendToTarget();
                     break;
@@ -548,12 +550,12 @@ public class NavitGraphics {
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-            canvas.drawBitmap(draw_bitmap, pos_x, pos_y, null);
-            if (overlay_disabled == 0) {
+            canvas.drawBitmap(draw_bitmap, posX, posY, null);
+            if (overlayDisabled == 0) {
                 // assume we ARE in map view mode!
                 in_map = true;
                 for (NavitGraphics overlay : overlays) {
-                    if (overlay.overlay_disabled == 0) {
+                    if (overlay.overlayDisabled == 0) {
                         Rect r = overlay.get_rect();
                         canvas.drawBitmap(overlay.draw_bitmap, r.left, r.top, null);
                     }
@@ -581,9 +583,9 @@ public class NavitGraphics {
             super.onSizeChanged(w, h, oldw, oldh);
             draw_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             draw_canvas = new Canvas(draw_bitmap);
-            bitmap_w = w;
-            bitmap_h = h;
-            SizeChangedCallback(SizeChangedCallbackID, w, h);
+            bitmapW = w;
+            bitmapH = h;
+            SizeChangedCallback(sizeChangedCallbackID, w, h);
         }
 
         void do_longpress_action() {
@@ -626,7 +628,7 @@ public class NavitGraphics {
             if (switch_value == MotionEvent.ACTION_DOWN) {
                 touch_mode = PRESSED;
                 if (!in_map) {
-                    ButtonCallback(ButtonCallbackID, 1, 1, x, y); // down
+                    ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
                 }
                 mPressedPosition = new PointF(x, y);
                 postDelayed(this, time_for_long_press);
@@ -636,8 +638,8 @@ public class NavitGraphics {
                 if (touch_mode == DRAG) {
                     Log.e("NavitGraphics", "onTouch move");
 
-                    MotionCallback(MotionCallbackID, x, y);
-                    ButtonCallback(ButtonCallbackID, 0, 1, x, y); // up
+                    MotionCallback(motionCallbackID, x, y);
+                    ButtonCallback(buttonCallbackID, 0, 1, x, y); // up
                 } else if (touch_mode == ZOOM) {
                     //Log.e("NavitGraphics", "onTouch zoom");
 
@@ -658,16 +660,16 @@ public class NavitGraphics {
                     }
                 } else if (touch_mode == PRESSED) {
                     if (in_map) {
-                        ButtonCallback(ButtonCallbackID, 1, 1, x, y); // down
+                        ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
                     }
-                    ButtonCallback(ButtonCallbackID, 0, 1, x, y); // up
+                    ButtonCallback(buttonCallbackID, 0, 1, x, y); // up
                 }
                 touch_mode = NONE;
             } else if (switch_value == MotionEvent.ACTION_MOVE) {
                 //Log.e("NavitGraphics", "ACTION_MOVE");
 
                 if (touch_mode == DRAG) {
-                    MotionCallback(MotionCallbackID, x, y);
+                    MotionCallback(motionCallbackID, x, y);
                 } else if (touch_mode == ZOOM) {
                     float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
                     float scale = newDist / oldDist;
@@ -686,7 +688,7 @@ public class NavitGraphics {
                 } else if (touch_mode == PRESSED) {
                     Log.e("NavitGraphics", "Start drag mode");
                     if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
-                        ButtonCallback(ButtonCallbackID, 1, 1, x, y); // down
+                        ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
                         touch_mode = DRAG;
                     }
                 }
@@ -819,7 +821,7 @@ public class NavitGraphics {
             }
 
             if (s != null) {
-                KeypressCallback(KeypressCallbackID, s);
+                KeypressCallback(keypressCallbackID, s);
             }
             return handled;
         }
@@ -890,7 +892,7 @@ public class NavitGraphics {
             }
 
             if (s != null) {
-                KeypressCallback(KeypressCallbackID, s);
+                KeypressCallback(keypressCallbackID, s);
             }
             return handled;
 
@@ -901,7 +903,7 @@ public class NavitGraphics {
             String s;
             if (keyCode == KeyEvent.KEYCODE_UNKNOWN) {
                 s = event.getCharacters();
-                KeypressCallback(KeypressCallbackID, s);
+                KeypressCallback(keypressCallbackID, s);
                 return true;
             }
             return super.onKeyMultiple(keyCode, count, event);
@@ -916,28 +918,28 @@ public class NavitGraphics {
                 s = java.lang.String.valueOf((char) 13);
             }
             if (event.getAction() == android.view.MotionEvent.ACTION_MOVE) {
-                trackball_x += event.getX();
-                trackball_y += event.getY();
+                trackballX += event.getX();
+                trackballY += event.getY();
                 //Log.e("NavitGraphics", "trackball " + trackball_x + " " + trackball_y);
-                if (trackball_x <= -1) {
+                if (trackballX <= -1) {
                     s = java.lang.String.valueOf((char) 2);
-                    trackball_x += 1;
+                    trackballX += 1;
                 }
-                if (trackball_x >= 1) {
+                if (trackballX >= 1) {
                     s = java.lang.String.valueOf((char) 6);
-                    trackball_x -= 1;
+                    trackballX -= 1;
                 }
-                if (trackball_y <= -1) {
+                if (trackballY <= -1) {
                     s = java.lang.String.valueOf((char) 16);
-                    trackball_y += 1;
+                    trackballY += 1;
                 }
-                if (trackball_y >= 1) {
+                if (trackballY >= 1) {
                     s = java.lang.String.valueOf((char) 14);
-                    trackball_y -= 1;
+                    trackballY -= 1;
                 }
             }
             if (s != null) {
-                KeypressCallback(KeypressCallbackID, s);
+                KeypressCallback(keypressCallbackID, s);
             }
             return true;
         }
