@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -40,7 +39,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import java.lang.reflect.Field;
@@ -64,15 +62,14 @@ public class NavitAddressSearchActivity extends Activity {
     private int zoektype = zoekTypeTown; // town
     private int ongoingSearches = 0;
     private ArrayAdapter<NavitAddress> addressAdapter;
-    private final List<NavitAddress> Addresses_found = new NavitAddressList<>();
-    private List<NavitAddress> addresses_shown = null;
+    private final List<NavitAddress> addressesFound = new NavitAddressList<>();
     private NavitAddress selectedTown;
     private NavitAddress selectedStreet;
     private boolean mPartialSearch = true;
     private String mCountry;
     private ImageButton mCountryButton;
     private Button resultActionButton;
-    private long search_handle = 0;
+    private long searchHandle = 0;
 
     private int getDrawableID(String resourceName) {
         int drawableId = 0;
@@ -89,7 +86,7 @@ public class NavitAddressSearchActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//      ACRA.getErrorReporter().setEnabled(true);
+        // ACRA.getErrorReporter().setEnabled(true);
         // Bundle extras = getIntent().getExtras();
         // if ( extras != null )
         // {
@@ -120,9 +117,9 @@ public class NavitAddressSearchActivity extends Activity {
         if (mCountry == null) {
             Locale defaultLocale = Locale.getDefault();
             mCountry = defaultLocale.getCountry().toLowerCase(defaultLocale);
-            SharedPreferences.Editor edit_settings = settings.edit();
-            edit_settings.putString("DefaultCountry", mCountry);
-            edit_settings.apply();
+            SharedPreferences.Editor editSettings = settings.edit();
+            editSettings.putString("DefaultCountry", mCountry);
+            editSettings.apply();
         }
 
         mCountryButton = new ImageButton(this);
@@ -134,46 +131,46 @@ public class NavitAddressSearchActivity extends Activity {
         });
 
         // address: label and text field
-        TextView addr_view = new TextView(this);
-        addr_view.setText(Navit.navitTranslate(
+        TextView addrView = new TextView(this);
+        addrView.setText(Navit.navitTranslate(
                 "Enter cityname or postcode or select another country")); // TRANS
-        addr_view.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+        addrView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT));
-        addr_view.setPadding(4, 4, 4, 4);
+        addrView.setPadding(4, 4, 4, 4);
 
-        final EditText address_string = new EditText(this);
-        address_string.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        final EditText addressString = new EditText(this);
+        addressString.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
         ListView zoekResults = new ListView(this);
         addressAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, Addresses_found);
+                android.R.layout.simple_list_item_1, addressesFound);
 
         zoekResults.setAdapter(addressAdapter);
         zoekResults.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
-                if (Addresses_found.get(position).resultType < 2) {
-                    CallbackSearch(search_handle, zoektype,
-                            Addresses_found.get(position).id, "");
+                if (addressesFound.get(position).resultType < 2) {
+                    CallbackSearch(searchHandle, zoektype,
+                            addressesFound.get(position).id, "");
 
-                    if (Addresses_found.get(position).resultType == 0) {
-                        selectedTown = Addresses_found.get(position);
+                    if (addressesFound.get(position).resultType == 0) {
+                        selectedTown = addressesFound.get(position);
                         resultActionButton.setText(selectedTown.toString());
                     }
-                    if (Addresses_found.get(position).resultType == 1) {
-                        selectedStreet = Addresses_found.get(position);
+                    if (addressesFound.get(position).resultType == 1) {
+                        selectedStreet = addressesFound.get(position);
                         resultActionButton.setText(
                                 selectedTown.toString() + ", " + selectedStreet.toString());
                     }
-                    address_string.setText("");
+                    addressString.setText("");
                     //          if (zoektype == zoekTypeHouseNumber){
-                    //              address_string.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    //              addressString.setInputType(InputType.TYPE_CLASS_NUMBER);
                     //          } else {
-                    //              address_string.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+                    //              addressString.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
                     //          }
                     zoektype++;
                 } else {
-                    addressDialog(Addresses_found.get(position));
+                    addressDialog(addressesFound.get(position));
                 }
             }
         });
@@ -207,8 +204,8 @@ public class NavitAddressSearchActivity extends Activity {
                     ongoingSearches++;
                     search();
                 } else { // voor geval een backspace is gebruikt
-                    if (search_handle != 0) {
-                        CallbackCancelAddressSearch(search_handle);
+                    if (searchHandle != 0) {
+                        CallbackCancelAddressSearch(searchHandle);
                     }
                 }
             }
@@ -226,8 +223,8 @@ public class NavitAddressSearchActivity extends Activity {
             }
         };
 
-        address_string.addTextChangedListener(watcher);
-        address_string.setSelectAllOnFocus(true);
+        addressString.addTextChangedListener(watcher);
+        addressString.setSelectAllOnFocus(true);
         String title = Navit.getInstance().getTstring(R.string.address_search_title);
 
         if (title != null && title.length() > 0) {
@@ -240,8 +237,8 @@ public class NavitAddressSearchActivity extends Activity {
         searchSettingsLayout.addView(zoekBar);
         searchSettingsLayout.addView(resultActionButton);
 
-        panel.addView(addr_view);
-        panel.addView(address_string);
+        panel.addView(addrView);
+        panel.addView(addressString);
         panel.addView(searchSettingsLayout);
         panel.addView(zoekResults);
 
@@ -320,9 +317,11 @@ public class NavitAddressSearchActivity extends Activity {
                         //          new DialogInterface.OnClickListener() {
                         //              public void onClick(DialogInterface dialog,
                         //                      int id) {
-                        //                  Message msg = Message.obtain(Navit.N_NavitGraphics.callback_handler, NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
+                        //                  Message msg = Message.obtain(Navit.N_NavitGraphics.callback_handler,
+                        //                  NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
                         //                  Bundle b = new Bundle();
-                        //                  String command = "set_center(\"" + addressSelected.lon + " " + addressSelected.lat + "\");";
+                        //                  String command = "set_center(\"" + addressSelected.lon + " "
+                        //                  + addressSelected.lat + "\");";
                         //                  b.putString("cmd", command);
                         //                  msg.setData(b);
                         //                  msg.sendToTarget();
@@ -388,15 +387,15 @@ public class NavitAddressSearchActivity extends Activity {
     public native void CallbackSearch(long handle, int type, int id, String str);
 
     private void search() {
-        if (search_handle != 0 && ongoingSearches > 1) {
-            CallbackCancelAddressSearch(search_handle);
+        if (searchHandle != 0 && ongoingSearches > 1) {
+            CallbackCancelAddressSearch(searchHandle);
         }
         addressAdapter.clear();
-        if (search_handle == 0) {
-            search_handle = CallbackStartAddressSearch(mPartialSearch ? 1 : 0,
+        if (searchHandle == 0) {
+            searchHandle = CallbackStartAddressSearch(mPartialSearch ? 1 : 0,
                     mCountry, mAddressString);
         }
-        CallbackSearch(search_handle, zoektype, 0, mAddressString);
+        CallbackSearch(searchHandle, zoektype, 0, mAddressString);
     }
 
     public static final class NavitAddress {
