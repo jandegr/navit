@@ -55,18 +55,12 @@ import java.util.Locale;
 public class NavitAddressSearchActivity extends Activity {
 
     private static final String TAG = "NavitAddress";
-    private static final int ADDRESS_RESULT_PROGRESS_MAX = 10;
     private static final int resultTypeHouseNumber = 2;
     private static String mAddressString = "";
     // TODO remember settings
     private static String last_address_search_string = "";
-    private static Boolean last_address_partial_match = false;
-    private static String last_country = "";
-    public RelativeLayout NavitAddressSearchActivity_layout;
     private ProgressBar zoekBar;
-    ProgressDialog search_results_wait = null;
     private final int zoekTypeTown = 2; // in enum steken ?
-    int zoekTypeHouseNumber = 3;
     private int zoektype = zoekTypeTown; // town
     private int ongoingSearches = 0;
     private ArrayAdapter<NavitAddress> addressAdapter;
@@ -78,9 +72,6 @@ public class NavitAddressSearchActivity extends Activity {
     private String mCountry;
     private ImageButton mCountryButton;
     private Button resultActionButton;
-    private int search_results_towns = 0;
-    private int search_results_streets = 0;
-    private int search_results_streets_hn = 0;
     private long search_handle = 0;
 
     private int getDrawableID(String resourceName) {
@@ -236,12 +227,8 @@ public class NavitAddressSearchActivity extends Activity {
         };
 
         address_string.addTextChangedListener(watcher);
-
         address_string.setSelectAllOnFocus(true);
-
-        NavitAppConfig navitConfig = (NavitAppConfig) getApplicationContext();
-
-        String title = getString(R.string.address_search_title);
+        String title = Navit.getInstance().getTstring(R.string.address_search_title);
 
         if (title != null && title.length() > 0) {
             this.setTitle(title);
@@ -405,9 +392,6 @@ public class NavitAddressSearchActivity extends Activity {
             CallbackCancelAddressSearch(search_handle);
         }
         addressAdapter.clear();
-        search_results_towns = 0;
-        search_results_streets = 0;
-        search_results_streets_hn = 0;
         if (search_handle == 0) {
             search_handle = CallbackStartAddressSearch(mPartialSearch ? 1 : 0,
                     mCountry, mAddressString);
@@ -424,7 +408,7 @@ public class NavitAddressSearchActivity extends Activity {
         String addr;
         String addrExtras;
 
-        public NavitAddress(int type, int id, float latitude, float longitude,
+        NavitAddress(int type, int id, float latitude, float longitude,
                 String address, String addrExtras) {
             resultType = type;
             this.id = id;
@@ -435,12 +419,10 @@ public class NavitAddressSearchActivity extends Activity {
         }
 
         public String toString() {
-            if (resultType == 2) // huisnummer
-            {
+            if (resultType == 2){ // huisnummer
                 return this.addr;
             }
-            if (resultType == 1) // straat
-            {
+            if (resultType == 1){ // straat
                 return this.addr;
             }
             return (this.addr + " " + this.addrExtras);
@@ -492,7 +474,7 @@ public class NavitAddressSearchActivity extends Activity {
 
         private static final long serialVersionUID = 1L;
 
-        @SuppressWarnings("unchecked")
+
         public void insert(NavitAddress address) {
             NavitAddressComparator comp = new NavitAddressComparator();
             int index = this.size() - 1;
