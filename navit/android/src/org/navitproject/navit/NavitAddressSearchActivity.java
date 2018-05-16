@@ -249,32 +249,32 @@ public class NavitAddressSearchActivity extends Activity {
     }
 
     private void requestCountryDialog() {
-        final String[][] all_countries = NavitGraphics.GetAllCountries();
-        Comparator<String[]> country_comperator = new Comparator<String[]>() {
+        final String[][] allCountries = NavitGraphics.GetAllCountries();
+        Comparator<String[]> countryComperator = new Comparator<String[]>() {
             public int compare(String[] object1, String[] object2) {
                 return object1[1].compareTo(object2[1]);
             }
         };
 
-        Arrays.sort(all_countries, country_comperator);
+        Arrays.sort(allCountries, countryComperator);
 
         AlertDialog.Builder mapModeChooser = new AlertDialog.Builder(this);
-        String[] country_name = new String[all_countries.length];
+        String[] countryName = new String[allCountries.length];
 
-        for (int country_index = 0; country_index < all_countries.length; country_index++) {
-            country_name[country_index] = all_countries[country_index][1];
+        for (int countryIndex = 0; countryIndex < allCountries.length; countryIndex++) {
+            countryName[countryIndex] = allCountries[countryIndex][1];
         }
 
-        mapModeChooser.setItems(country_name,
+        mapModeChooser.setItems(countryName,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
                         SharedPreferences settings = getSharedPreferences(
                                 Navit.NAVIT_PREFS, MODE_PRIVATE);
-                        mCountry = all_countries[item][0];
-                        SharedPreferences.Editor edit_settings = settings
+                        mCountry = allCountries[item][0];
+                        SharedPreferences.Editor editSettings = settings
                                 .edit();
-                        edit_settings.putString("DefaultCountry", mCountry);
-                        edit_settings.apply();
+                        editSettings.putString("DefaultCountry", mCountry);
+                        editSettings.apply();
                         mCountryButton
                                 .setImageResource(getDrawableID("country_"
                                         + mCountry));
@@ -381,7 +381,7 @@ public class NavitAddressSearchActivity extends Activity {
         Log.d(TAG, "einde zoeken");
     }
 
-    public native long CallbackStartAddressSearch(int partial_match, String country, String s);
+    public native long CallbackStartAddressSearch(int partialMatch, String country, String s);
 
     public native void CallbackCancelAddressSearch(long handle);
 
@@ -419,10 +419,10 @@ public class NavitAddressSearchActivity extends Activity {
         }
 
         public String toString() {
-            if (resultType == 2){ // huisnummer
+            if (resultType == 2) { // huisnummer
                 return this.addr;
             }
-            if (resultType == 1){ // straat
+            if (resultType == 1) { // straat
                 return this.addr;
             }
             return (this.addr + " " + this.addrExtras);
