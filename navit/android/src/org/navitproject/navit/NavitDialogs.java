@@ -1,6 +1,5 @@
 package org.navitproject.navit;
 
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -13,8 +12,10 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-import java.io.File;
+
 import org.navitproject.navit.NavitGraphics.MsgType;
+
+import java.io.File;
 
 public class NavitDialogs extends Handler {
 
@@ -31,7 +32,7 @@ public class NavitDialogs extends Handler {
     private static final int MSG_REMOVE_DIALOG_GENERIC = 99;
     private static Handler mHandler;
 
-    private ProgressDialog mapdownloader_dialog = null;
+    private ProgressDialog mapdownloaderDialog = null;
     private NavitMapDownloader mapdownloader = null;
 
     private final Navit mActivity;
@@ -42,7 +43,7 @@ public class NavitDialogs extends Handler {
         mHandler = this;
     }
 
-    static public void sendDialogMessage(int what, String title, String text, int dialog_num,
+    public static void sendDialogMessage(int what, String title, String text, int dialog_num,
             int value1, int value2) {
         Message msg = mHandler.obtainMessage(what);
         Bundle data = new Bundle();
@@ -65,13 +66,13 @@ public class NavitDialogs extends Handler {
                 mActivity.dismissDialog(DIALOG_MAPDOWNLOAD);
                 mActivity.removeDialog(DIALOG_MAPDOWNLOAD);
                 if (msg.getData().getInt("value1") == 1) {
-                    Message msg_out =
+                    Message msgOut =
                             Message.obtain(Navit.N_NavitGraphics.callbackHandler,
                                     MsgType.CLB_LOAD_MAP.ordinal());
-                    msg_out.setData(msg.getData());
-                    msg_out.sendToTarget();
+                    msgOut.setData(msg.getData());
+                    msgOut.sendToTarget();
 
-                    msg_out = Message.obtain(Navit.N_NavitGraphics.callbackHandler,
+                    msgOut = Message.obtain(Navit.N_NavitGraphics.callbackHandler,
                             MsgType.CLB_CALL_CMD.ordinal());
                     Bundle b = new Bundle();
                     int mi = msg.getData().getInt("value2");
@@ -80,17 +81,17 @@ public class NavitDialogs extends Handler {
                     double lat = (Double.parseDouble(NavitMapDownloader.osm_maps[mi].lat1) + Double
                             .parseDouble(NavitMapDownloader.osm_maps[mi].lat2)) / 2.0;
                     b.putString("cmd", "set_center(\"" + lon + " " + lat + "\",1); zoom=256");
-                    msg_out.setData(b);
-                    msg_out.sendToTarget();
+                    msgOut.setData(b);
+                    msgOut.sendToTarget();
                 }
                 break;
             }
             case MSG_PROGRESS_BAR:
                 // change progressbar values
-                mapdownloader_dialog.setMax(msg.getData().getInt("value1"));
-                mapdownloader_dialog.setProgress(msg.getData().getInt("value2"));
-                mapdownloader_dialog.setTitle(msg.getData().getString(("title")));
-                mapdownloader_dialog.setMessage(msg.getData().getString(("text")));
+                mapdownloaderDialog.setMax(msg.getData().getInt("value1"));
+                mapdownloaderDialog.setProgress(msg.getData().getInt("value2"));
+                mapdownloaderDialog.setTitle(msg.getData().getString(("title")));
+                mapdownloaderDialog.setMessage(msg.getData().getString(("text")));
                 break;
             case MSG_TOAST:
                 Toast.makeText(mActivity, msg.getData().getString(("text")), Toast.LENGTH_SHORT)
@@ -100,7 +101,7 @@ public class NavitDialogs extends Handler {
                 Toast.makeText(mActivity, msg.getData().getString(("text")), Toast.LENGTH_LONG)
                         .show();
                 break;
-            case MSG_START_MAP_DOWNLOAD: {
+            case MSG_START_MAP_DOWNLOAD:
                 int download_map_id = msg.arg1;
                 Log.d("Navit", "PRI id=" + download_map_id);
                 // set map id to download
@@ -111,12 +112,13 @@ public class NavitDialogs extends Handler {
                     mActivity.showDialog(NavitDialogs.DIALOG_MAPDOWNLOAD);
                     mapdownloader.start();
                 }
-            }
             break;
             case MSG_REMOVE_DIALOG_GENERIC:
                 // dismiss dialog, remove dialog - generic
                 mActivity.dismissDialog(msg.getData().getInt("dialog_num"));
                 mActivity.removeDialog(msg.getData().getInt("dialog_num"));
+                break;
+            default:
                 break;
         }
     }
@@ -126,13 +128,13 @@ public class NavitDialogs extends Handler {
 
         switch (id) {
             case DIALOG_MAPDOWNLOAD:
-                mapdownloader_dialog = new ProgressDialog(mActivity);
-                mapdownloader_dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                mapdownloader_dialog.setTitle("--");
-                mapdownloader_dialog.setMessage("--");
-                mapdownloader_dialog.setCancelable(true);
-                mapdownloader_dialog.setProgress(0);
-                mapdownloader_dialog.setMax(200);
+                mapdownloaderDialog = new ProgressDialog(mActivity);
+                mapdownloaderDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                mapdownloaderDialog.setTitle("--");
+                mapdownloaderDialog.setMessage("--");
+                mapdownloaderDialog.setCancelable(true);
+                mapdownloaderDialog.setProgress(0);
+                mapdownloaderDialog.setMax(200);
                 DialogInterface.OnDismissListener onDismissListener = new DialogInterface.OnDismissListener() {
                     public void onDismiss(DialogInterface dialog) {
                         Log.e("Navit", "onDismiss: mapdownloader_dialog");
@@ -141,12 +143,12 @@ public class NavitDialogs extends Handler {
                         }
                     }
                 };
-                mapdownloader_dialog.setOnDismissListener(onDismissListener);
+                mapdownloaderDialog.setOnDismissListener(onDismissListener);
                 // show license for OSM maps
                 Toast.makeText(mActivity.getApplicationContext(),
                         mActivity.getTstring(R.string.osm_copyright),
                         Toast.LENGTH_LONG).show();
-                return mapdownloader_dialog;
+                return mapdownloaderDialog;
 
             case DIALOG_BACKUP_RESTORE:
                 /* Create a Dialog that Displays Options wether to Backup or Restore */
@@ -158,10 +160,10 @@ public class NavitDialogs extends Handler {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         /* Notify User if no SD Card present */
-                                        if (!Environment.getExternalStorageState()
-                                                .equals(Environment.MEDIA_MOUNTED)) {
-                                            Toast.makeText(mActivity, mActivity
-                                                            .getTstring(R.string.please_insert_an_sd_card),
+                                        if (!Environment.getExternalStorageState().
+                                                equals(Environment.MEDIA_MOUNTED)) {
+                                            Toast.makeText(mActivity, mActivity.
+                                                            getTstring(R.string.please_insert_an_sd_card),
                                                     Toast.LENGTH_LONG).show();
                                         }
 
