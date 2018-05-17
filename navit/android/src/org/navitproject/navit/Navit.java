@@ -54,7 +54,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.navitproject.navit.NavitGraphics.msgType;
+import org.navitproject.navit.NavitGraphics.MsgType;
 
 public class Navit extends Activity {
 
@@ -270,7 +270,7 @@ public class Navit extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         navit = this;
-//      ACRA.getErrorReporter().setEnabled(false);
+        //ACRA.getErrorReporter().setEnabled(false);
         dialogs = new NavitDialogs(this);
         NavitResources = getResources();
         // only take arguments here, onResume gets called all the time (e.g. when screenblanks, etc.)
@@ -475,9 +475,7 @@ public class Navit extends Activity {
                                 }
                             });
                     infobox.show();
-//                  exit();
                 }
-//              return;
             }
             break;
             case MY_PERMISSIONS_STORAGE_REQUEST: {
@@ -509,9 +507,7 @@ public class Navit extends Activity {
                                 }
                             });
                     infobox.show();
-//                  exit();
                 }
-//              return;
             }
             break;
             case MY_PERMISSIONS_FINE_LOCATION_REQUEST: {
@@ -519,7 +515,7 @@ public class Navit extends Activity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // ok, we got permissions
-//                  permissionsOK.release();
+                    //permissionsOK.release();
                 } else {
                     AlertDialog.Builder infobox = new AlertDialog.Builder(this);
                     infobox.setTitle(getString(R.string.permissions_info_box_title)); // TRANS
@@ -544,11 +540,11 @@ public class Navit extends Activity {
                                 }
                             });
                     infobox.show();
-//                  exit();
                 }
-//              return;
             }
             break;
+            default:
+                break;
         }
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) &&
@@ -597,7 +593,7 @@ public class Navit extends Activity {
                         b.putFloat("lat", lat);
                         b.putFloat("lon", lon);
                         Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                                msgType.CLB_SET_DESTINATION.ordinal());
+                                MsgType.CLB_SET_DESTINATION.ordinal());
                         msg.setData(b);
                         msg.sendToTarget();
                         Log.d(TAG, "target found (b): " + geoString);
@@ -646,13 +642,13 @@ public class Navit extends Activity {
             case 1:
                 // zoom in
                 Message.obtain(N_NavitGraphics.callbackHandler,
-                        msgType.CLB_ZOOM_IN.ordinal()).sendToTarget();
+                        MsgType.CLB_ZOOM_IN.ordinal()).sendToTarget();
                 Log.i("Navit", "onOptionsItemSelected -> zoom in");
                 break;
             case 2:
                 // zoom out
                 Message.obtain(N_NavitGraphics.callbackHandler,
-                        msgType.CLB_ZOOM_OUT.ordinal()).sendToTarget();
+                        MsgType.CLB_ZOOM_OUT.ordinal()).sendToTarget();
                 Log.i("Navit", "onOptionsItemSelected -> zoom out");
                 break;
             case R.id.optionsmenu_download_maps:
@@ -664,7 +660,7 @@ public class Navit extends Activity {
             case 5:
                 // toggle the normal POI layers (to avoid double POIs)
                 Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                        msgType.CLB_CALL_CMD.ordinal());
+                        MsgType.CLB_CALL_CMD.ordinal());
                 Bundle b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"POI Symbols\");");
                 msg.setData(b);
@@ -672,7 +668,7 @@ public class Navit extends Activity {
 
                 // toggle full POI icons on/off
                 msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                        msgType.CLB_CALL_CMD.ordinal());
+                        MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"Android-POI-Icons-full\");");
                 msg.setData(b);
@@ -687,7 +683,7 @@ public class Navit extends Activity {
                 break;
             case R.id.action_zoom_to_route:
                 msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                        msgType.CLB_CALL_CMD.ordinal());
+                        MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "zoom_to_route()");
                 msg.setData(b);
@@ -695,7 +691,7 @@ public class Navit extends Activity {
                 break;
             case R.id.toggle_autozoom:
                 msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                        msgType.CLB_CALL_CMD.ordinal());
+                        MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "autozoom_active=autozoom_active==0?1:0");
                 msg.setData(b);
@@ -703,7 +699,7 @@ public class Navit extends Activity {
                 break;
             case R.id.action_stop_navigation:
                 msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                        msgType.CLB_ABORT_NAVIGATION.ordinal());
+                        MsgType.CLB_ABORT_NAVIGATION.ordinal());
                 msg.sendToTarget();
                 break;
             case R.id.action_quit:
@@ -712,7 +708,7 @@ public class Navit extends Activity {
                 break;
             case R.id.action_enable_auto_layout:
                 msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                        msgType.CLB_CALL_CMD.ordinal());
+                        MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "switch_layout_day_night(\"auto\")");
                 msg.setData(b);
@@ -720,7 +716,7 @@ public class Navit extends Activity {
                 break;
             case R.id.action_toggle_layout:
                 msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                        msgType.CLB_CALL_CMD.ordinal());
+                        MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "switch_layout_day_night(\"manual_toggle\")");
                 msg.setData(b);
@@ -736,7 +732,7 @@ public class Navit extends Activity {
                 getString(R.string.address_search_set_destination) + "\n" + address,
                 Toast.LENGTH_LONG).show(); //TRANS
         Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                msgType.CLB_SET_DESTINATION.ordinal());
+                MsgType.CLB_SET_DESTINATION.ordinal());
         Bundle b = new Bundle();
         b.putFloat("lat", latitude);
         b.putFloat("lon", longitude);
@@ -761,7 +757,7 @@ public class Navit extends Activity {
                             getTstring(R.string.address_search_set_destination) + "\n" + destination
                                     .getString(("q")), Toast.LENGTH_LONG).show(); //TRANS
                     Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
-                            msgType.CLB_SET_DESTINATION.ordinal());
+                            MsgType.CLB_SET_DESTINATION.ordinal());
                     msg.setData(destination);
                     msg.sendToTarget();
                 }

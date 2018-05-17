@@ -49,7 +49,7 @@ public class NavitGraphics {
     private static final int draw_mode_end = 1;
     private static final String TAG = "NavitGraphics";
     private static Boolean in_map = false;
-    private static final msgType[] msg_values = msgType.values();
+    private static final MsgType[] msg_values = MsgType.values();
     // for menu key
     private static final long time_for_long_press = 300L;
     public Handler callbackHandler = new Handler() {
@@ -136,8 +136,8 @@ public class NavitGraphics {
     private Activity activity;
     private ImageButton zoomInButton;
     private ImageButton zoomOutButton;
-    private NavitGraphics parentGraphics;
-    private ArrayList<NavitGraphics> overlays = new ArrayList<>();
+    private final NavitGraphics parentGraphics;
+    private final ArrayList<NavitGraphics> overlays = new ArrayList<>();
     private Handler timerHandler = new Handler();
 
     private Canvas drawCanvas;
@@ -148,7 +148,7 @@ public class NavitGraphics {
     private int keypressCallbackID;
 
     /**
-     * Constructs a Navigraphics object
+     * Constructs a NavitGraphics object.
      *
      * @param activity a Navit instance
      * @param parent parent if an overlay is to be constructed
@@ -275,14 +275,17 @@ public class NavitGraphics {
 
 
     protected void draw_polyline(Paint paint, int[] c) {
-        int ndashes;
-        float[] intervals;
+
         //  Log.e("NavitGraphics","draw_polyline");
         paint.setStrokeWidth(c[0]);
         paint.setARGB(c[1], c[2], c[3], c[4]);
         paint.setStyle(Paint.Style.STROKE);
         //paint.setAntiAlias(true);
         //paint.setStrokeWidth(0);
+
+        int ndashes;
+        float[] intervals;
+
         ndashes = c[5];
         intervals = new float[ndashes + (ndashes % 2)];
         for (int i = 0; i < ndashes; i++) {
@@ -514,7 +517,7 @@ public class NavitGraphics {
         drawCanvas.setBitmap(drawBitmap);
     }
 
-    public static enum msgType {
+    public static enum MsgType {
         CLB_ZOOM_IN, CLB_ZOOM_OUT, CLB_REDRAW, CLB_MOVE, CLB_BUTTON_UP, CLB_BUTTON_DOWN, CLB_SET_DESTINATION,
         CLB_SET_DISPLAY_DESTINATION, CLB_CALL_CMD, CLB_COUNTRY_CHOOSER, CLB_LOAD_MAP, CLB_UNLOAD_MAP,
         CLB_DELETE_MAP, CLB_ABORT_NAVIGATION, CLB_BLOCK, CLB_UNBLOCK
@@ -555,9 +558,11 @@ public class NavitGraphics {
         public boolean onMenuItemClick(MenuItem item) {
             switch (item.getItemId()) {
                 case 1:
-                    Message msg = Message.obtain(callbackHandler, msgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
+                    Message msg = Message.obtain(callbackHandler, MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
                             (int) mPressedPosition.x, (int) mPressedPosition.y);
                     msg.sendToTarget();
+                    break;
+                default:
                     break;
             }
             return false;

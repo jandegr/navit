@@ -14,7 +14,7 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import java.io.File;
-import org.navitproject.navit.NavitGraphics.msgType;
+import org.navitproject.navit.NavitGraphics.MsgType;
 
 public class NavitDialogs extends Handler {
 
@@ -34,7 +34,7 @@ public class NavitDialogs extends Handler {
     private ProgressDialog mapdownloader_dialog = null;
     private NavitMapDownloader mapdownloader = null;
 
-    private Navit mActivity;
+    private final Navit mActivity;
 
     public NavitDialogs(Navit activity) {
         super();
@@ -67,12 +67,12 @@ public class NavitDialogs extends Handler {
                 if (msg.getData().getInt("value1") == 1) {
                     Message msg_out =
                             Message.obtain(Navit.N_NavitGraphics.callbackHandler,
-                                    msgType.CLB_LOAD_MAP.ordinal());
+                                    MsgType.CLB_LOAD_MAP.ordinal());
                     msg_out.setData(msg.getData());
                     msg_out.sendToTarget();
 
                     msg_out = Message.obtain(Navit.N_NavitGraphics.callbackHandler,
-                            msgType.CLB_CALL_CMD.ordinal());
+                            MsgType.CLB_CALL_CMD.ordinal());
                     Bundle b = new Bundle();
                     int mi = msg.getData().getInt("value2");
                     double lon = (Double.parseDouble(NavitMapDownloader.osm_maps[mi].lon1) + Double
@@ -197,7 +197,7 @@ public class NavitDialogs extends Handler {
                 }
 
                 builder.setTitle(mActivity.getTstring(R.string.select_backup));
-                final ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActivity,
+                final ArrayAdapter<String> adapter = new ArrayAdapter<>(mActivity,
                         android.R.layout.simple_spinner_item, backups);
                 builder.setAdapter(adapter, new OnClickListener() {
 
@@ -214,7 +214,7 @@ public class NavitDialogs extends Handler {
         return null;
     }
 
-    public void prepareDialog(int id, Dialog dialog) {
+    void prepareDialog(int id, Dialog dialog) {
         /* Remove the Dialog to force Android to rerun onCreateDialog */
         if (id == DIALOG_SELECT_BACKUP) {
             mActivity.removeDialog(id);
