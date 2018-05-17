@@ -29,7 +29,7 @@ jobs:
             cat /etc/*release
             dpkg --get-selections
       - run:
-          name: Install cmake gettext libsaxonb-java librsvg2-bin
+          name: Install cmake gettext libsaxonb-java librsvg2-bin mmv
           command: |
             sudo apt-get install cmake gettext libsaxonb-java librsvg2-bin mmv
             cmake ./ -Dsvg2png_scaling:STRING=-1,128 -Dsvg2png_scaling_nav:STRING=-1,128 -Dsvg2png_scaling_flag:STRING=-1,64,96
