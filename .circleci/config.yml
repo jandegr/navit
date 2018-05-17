@@ -41,6 +41,8 @@ jobs:
             sudo ls -la
             mkdir ../android/res/drawable-nodpi
             rename 'y/A-Z/a-z/' *
+            mmv '*._128_128.png' '#1.png'
+            sudo ls -la
             cp *.png ../android/res/drawable-nodpi
             cd ../../
       - run:
