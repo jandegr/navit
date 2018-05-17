@@ -547,14 +547,14 @@ public class Navit extends Activity {
                 break;
         }
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) &&
-                (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED)
+                && (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED)) {
         }
     }
 
     private void parseNavigationURI(String schemeSpecificPart) {
-        String naviData[] = schemeSpecificPart.split("&");
+        String[] naviData = schemeSpecificPart.split("&");
         Pattern p = Pattern.compile("(.*)=(.*)");
         Map<String, String> params = new HashMap<String, String>();
         for (String aNaviData : naviData) {
@@ -585,7 +585,7 @@ public class Navit extends Activity {
 
         if (geoString != null) {
             if (geoString.matches("^[+-]{0,1}\\d+(|\\.\\d*),[+-]{0,1}\\d+(|\\.\\d*)$")) {
-                String geo[] = geoString.split(",");
+                String[] geo = geoString.split(",");
                 if (geo.length == 2) {
                     try {
                         lat = Float.valueOf(geo[0]);

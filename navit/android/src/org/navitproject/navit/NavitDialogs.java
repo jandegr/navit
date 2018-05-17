@@ -17,6 +17,8 @@ import org.navitproject.navit.NavitGraphics.MsgType;
 
 import java.io.File;
 
+
+
 public class NavitDialogs extends Handler {
 
     // Dialogs
@@ -152,18 +154,18 @@ public class NavitDialogs extends Handler {
 
             case DIALOG_BACKUP_RESTORE:
                 /* Create a Dialog that Displays Options wether to Backup or Restore */
-                builder.setTitle(mActivity.getTstring(R.string.choose_an_action)).
-                        setCancelable(true).
-                        setItems(R.array.dialog_backup_restore_items,
+                builder.setTitle(mActivity.getTstring(R.string.choose_an_action))
+                        .setCancelable(true)
+                        .setItems(R.array.dialog_backup_restore_items,
                                 new DialogInterface.OnClickListener() {
 
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         /* Notify User if no SD Card present */
-                                        if (!Environment.getExternalStorageState().
-                                                equals(Environment.MEDIA_MOUNTED)) {
-                                            Toast.makeText(mActivity, mActivity.
-                                                            getTstring(R.string.please_insert_an_sd_card),
+                                        if (!Environment.getExternalStorageState()
+                                                .equals(Environment.MEDIA_MOUNTED)) {
+                                            Toast.makeText(mActivity, mActivity
+                                                            .getTstring(R.string.please_insert_an_sd_card),
                                                     Toast.LENGTH_LONG).show();
                                         }
 
@@ -211,6 +213,8 @@ public class NavitDialogs extends Handler {
                 builder.setNegativeButton(mActivity.getTstring(android.R.string.cancel), null);
 
                 return builder.create();
+            default:
+                break;
         }
         // should never get here!!
         return null;
