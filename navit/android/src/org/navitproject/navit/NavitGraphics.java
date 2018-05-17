@@ -52,78 +52,7 @@ public class NavitGraphics {
     private static final MsgType[] msg_values = MsgType.values();
     // for menu key
     private static final long time_for_long_press = 300L;
-    public Handler callbackHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            switch (msg_values[msg.what]) {
-                case CLB_ZOOM_IN:
-                    CallbackMessageChannel(1, "");
-                    break;
-                case CLB_ZOOM_OUT:
-                    CallbackMessageChannel(2, "");
-                    break;
-                case CLB_REDRAW:
-                    break;
-                case CLB_MOVE:
-                    //MotionCallback(MotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
-                    break;
-                case CLB_SET_DESTINATION:
-                    String lat = Float.toString(msg.getData().getFloat("lat"));
-                    String lon = Float.toString(msg.getData().getFloat("lon"));
-                    String q = msg.getData().getString(("q"));
-                    CallbackMessageChannel(3, lat + "#" + lon + "#" + q);
-                    break;
-                case CLB_SET_DISPLAY_DESTINATION:
-                    Log.e("TAG", "CLB_SET_DISPLAY_DESTINATION");
-                    int x = msg.arg1;
-                    int y = msg.arg2;
-                    CallbackMessageChannel(4, "" + x + "#" + y);
-                    Log.e(TAG, ("" + x + "#" + y));
-                    // weet niet of dit wel werkt
-                    break;
-                case CLB_CALL_CMD:
-                    String cmd = msg.getData().getString(("cmd"));
-                    CallbackMessageChannel(5, cmd);
-                    Log.w(TAG, "CLB_CALL_CMD " + cmd);
-                    break;
-                case CLB_BUTTON_UP:
-                    //ButtonCallback(ButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
-                    // up
-                    break;
-                case CLB_BUTTON_DOWN:
-                    //ButtonCallback(ButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
-                    // down
-                    break;
-                case CLB_COUNTRY_CHOOSER:
-                    break;
-                case CLB_ABORT_NAVIGATION:
-                    CallbackMessageChannel(3, "");
-                    break;
-                case CLB_LOAD_MAP:
-                    Integer ret = CallbackMessageChannel(6, msg.getData().getString(("title")));
-                    Log.e(TAG, "callBackRet = " + ret);
-                    break;
-                case CLB_DELETE_MAP:
-                    File toDelete = new File(msg.getData().getString(("title")));
-                    Log.e("deletefile", "" + toDelete.getPath() + " " + toDelete.getName());
-                    toDelete.delete();
-                    //fallthrough
-                case CLB_UNLOAD_MAP:
-                    Log.e(TAG, "CLB_UNLOAD_MAP");
-                    CallbackMessageChannel(7, msg.getData().getString(("title")));
-                    break;
-                case CLB_BLOCK:
-                    Log.e(TAG, "CLB_BLOCK");
-                    CallbackMessageChannel(8, "");
-                    break;
-                case CLB_UNBLOCK:
-                    Log.e(TAG, "CLB_UNBLOCK");
-                    CallbackMessageChannel(9, "");
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+    static final Handler callbackHandler = new navitGrahicsHandler();
     private int bitmapW;
     private int bitmapH;
     private int posX;
@@ -138,7 +67,6 @@ public class NavitGraphics {
     private ImageButton zoomOutButton;
     private final NavitGraphics parentGraphics;
     private final ArrayList<NavitGraphics> overlays = new ArrayList<>();
-    private Handler timerHandler = new Handler();
 
     private Canvas drawCanvas;
     private Bitmap drawBitmap;
@@ -156,11 +84,11 @@ public class NavitGraphics {
      * @param y position y on screen
      * @param w width
      * @param h height
-     * @param alpha to be clarified
+     * @param alpha not used
      * @param wraparound to be clarified
      */
     public NavitGraphics(final Activity activity, NavitGraphics parent, int x, int y, int w, int h,
-            int alpha, int wraparound) {
+                         @SuppressWarnings("unused") int alpha, int wraparound) {
         if (parent == null) {
             this.activity = activity;
             view = new NavitView(activity);
@@ -245,7 +173,7 @@ public class NavitGraphics {
 
     public native void KeypressCallback(int id, String s);
 
-    public native int CallbackMessageChannel(int i, String s);
+    public static native int CallbackMessageChannel(int i, String s);
 
     public native void ButtonCallback(int id, int pressed, int button, int x, int y);
 
@@ -506,7 +434,7 @@ public class NavitGraphics {
         }
     }
 
-    protected void overlay_resize(int x, int y, int w, int h, int alpha, int wraparound) {
+    protected void overlay_resize(int x, int y, int w, int h, @SuppressWarnings("unused") int alpha, int wraparound) {
         //Log.e("NavitGraphics","overlay_resize");
         drawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         bitmapW = w;
@@ -517,10 +445,83 @@ public class NavitGraphics {
         drawCanvas.setBitmap(drawBitmap);
     }
 
-    public static enum MsgType {
+    public enum MsgType {
         CLB_ZOOM_IN, CLB_ZOOM_OUT, CLB_REDRAW, CLB_MOVE, CLB_BUTTON_UP, CLB_BUTTON_DOWN, CLB_SET_DESTINATION,
         CLB_SET_DISPLAY_DESTINATION, CLB_CALL_CMD, CLB_COUNTRY_CHOOSER, CLB_LOAD_MAP, CLB_UNLOAD_MAP,
         CLB_DELETE_MAP, CLB_ABORT_NAVIGATION, CLB_BLOCK, CLB_UNBLOCK
+    }
+
+    private static class navitGrahicsHandler extends Handler {
+        public void handleMessage(Message msg) {
+            switch (msg_values[msg.what]) {
+                case CLB_ZOOM_IN:
+                    CallbackMessageChannel(1, "");
+                    break;
+                case CLB_ZOOM_OUT:
+                    CallbackMessageChannel(2, "");
+                    break;
+                case CLB_REDRAW:
+                    break;
+                case CLB_MOVE:
+                    //MotionCallback(MotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                    break;
+                case CLB_SET_DESTINATION:
+                    String lat = Float.toString(msg.getData().getFloat("lat"));
+                    String lon = Float.toString(msg.getData().getFloat("lon"));
+                    String q = msg.getData().getString(("q"));
+                    CallbackMessageChannel(3, lat + "#" + lon + "#" + q);
+                    break;
+                case CLB_SET_DISPLAY_DESTINATION:
+                    Log.e("TAG", "CLB_SET_DISPLAY_DESTINATION");
+                    int x = msg.arg1;
+                    int y = msg.arg2;
+                    CallbackMessageChannel(4, "" + x + "#" + y);
+                    Log.e(TAG, ("" + x + "#" + y));
+                    // weet niet of dit wel werkt
+                    break;
+                case CLB_CALL_CMD:
+                    String cmd = msg.getData().getString(("cmd"));
+                    CallbackMessageChannel(5, cmd);
+                    Log.w(TAG, "CLB_CALL_CMD " + cmd);
+                    break;
+                case CLB_BUTTON_UP:
+                    //ButtonCallback(ButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                    // up
+                    break;
+                case CLB_BUTTON_DOWN:
+                    //ButtonCallback(ButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                    // down
+                    break;
+                case CLB_COUNTRY_CHOOSER:
+                    break;
+                case CLB_ABORT_NAVIGATION:
+                    CallbackMessageChannel(3, "");
+                    break;
+                case CLB_LOAD_MAP:
+                    Integer ret = CallbackMessageChannel(6, msg.getData().getString(("title")));
+                    Log.e(TAG, "callBackRet = " + ret);
+                    break;
+                case CLB_DELETE_MAP:
+                    File toDelete = new File(msg.getData().getString(("title")));
+                    Log.e("deletefile", "" + toDelete.getPath() + " " + toDelete.getName());
+                    toDelete.delete();
+                    //fallthrough
+                case CLB_UNLOAD_MAP:
+                    Log.e(TAG, "CLB_UNLOAD_MAP");
+                    CallbackMessageChannel(7, msg.getData().getString(("title")));
+                    break;
+                case CLB_BLOCK:
+                    Log.e(TAG, "CLB_BLOCK");
+                    CallbackMessageChannel(8, "");
+                    break;
+                case CLB_UNBLOCK:
+                    Log.e(TAG, "CLB_UNBLOCK");
+                    CallbackMessageChannel(9, "");
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     private class NavitView extends View implements Runnable, MenuItem.OnMenuItemClickListener {
