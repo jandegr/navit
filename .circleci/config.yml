@@ -31,7 +31,7 @@ jobs:
       - run:
           name: Install cmake gettext libsaxonb-java librsvg2-bin
           command: |
-            sudo apt-get install cmake gettext libsaxonb-java librsvg2-bin
+            sudo apt-get install cmake gettext libsaxonb-java librsvg2-bin mmv
             cmake ./ -Dsvg2png_scaling:STRING=-1,128 -Dsvg2png_scaling_nav:STRING=-1,128 -Dsvg2png_scaling_flag:STRING=-1,64,96
       - run:
           name: Process icons
