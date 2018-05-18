@@ -246,7 +246,7 @@ public class NavitAddressSearchActivity extends Activity {
     }
 
     private void requestCountryDialog() {
-        final String[][] allCountries = NavitGraphics.GetAllCountries();
+        final String[][] allCountries = NavitGraphics.getAllCountries();
         Comparator<String[]> countryComperator = new Comparator<String[]>() {
             public int compare(String[] object1, String[] object2) {
                 return object1[1].compareTo(object2[1]);

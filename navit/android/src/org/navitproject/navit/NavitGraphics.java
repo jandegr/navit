@@ -110,7 +110,7 @@ public class NavitGraphics {
             zoomOutButton.setBackgroundResource(R.drawable.zoom_out);
             zoomOutButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    CallbackMessageChannel(2, "");
+                    callbackMessageChannel(2, "");
                 }
             });
 
@@ -121,7 +121,7 @@ public class NavitGraphics {
             zoomInButton.setBackgroundResource(R.drawable.zoom_in);
             zoomInButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    CallbackMessageChannel(1, "");
+                    callbackMessageChannel(1, "");
                 }
             });
 
@@ -142,7 +142,7 @@ public class NavitGraphics {
         parentGraphics = parent;
     }
 
-    public static native String[][] GetAllCountries();
+    public static native String[][] getAllCountries();
 
     private Rect get_rect() {
         Rect ret = new Rect();
@@ -169,17 +169,17 @@ public class NavitGraphics {
         return ret;
     }
 
-    public native void SizeChangedCallback(int id, int x, int y);
+    public native void sizeChangedCallback(int id, int x, int y);
 
-    public native void KeypressCallback(int id, String s);
+    public native void keypressCallback(int id, String s);
 
-    public static native int CallbackMessageChannel(int i, String s);
+    public static native int callbackMessageChannel(int i, String s);
 
-    public native void ButtonCallback(int id, int pressed, int button, int x, int y);
+    public native void buttonCallback(int id, int pressed, int button, int x, int y);
 
-    public native void MotionCallback(int id, int x, int y);
+    public native void motionCallback(int id, int x, int y);
 
-    public native String GetDefaultCountry(int id, String s);
+    public native String getDefaultCountry(int id, String s);
     // private int count;
 
     public void setSizeChangedCallback(int id) {
@@ -455,10 +455,10 @@ public class NavitGraphics {
         public void handleMessage(Message msg) {
             switch (msg_values[msg.what]) {
                 case CLB_ZOOM_IN:
-                    CallbackMessageChannel(1, "");
+                    callbackMessageChannel(1, "");
                     break;
                 case CLB_ZOOM_OUT:
-                    CallbackMessageChannel(2, "");
+                    callbackMessageChannel(2, "");
                     break;
                 case CLB_REDRAW:
                     break;
@@ -469,19 +469,19 @@ public class NavitGraphics {
                     String lat = Float.toString(msg.getData().getFloat("lat"));
                     String lon = Float.toString(msg.getData().getFloat("lon"));
                     String q = msg.getData().getString(("q"));
-                    CallbackMessageChannel(3, lat + "#" + lon + "#" + q);
+                    callbackMessageChannel(3, lat + "#" + lon + "#" + q);
                     break;
                 case CLB_SET_DISPLAY_DESTINATION:
                     Log.e("TAG", "CLB_SET_DISPLAY_DESTINATION");
                     int x = msg.arg1;
                     int y = msg.arg2;
-                    CallbackMessageChannel(4, "" + x + "#" + y);
+                    callbackMessageChannel(4, "" + x + "#" + y);
                     Log.e(TAG, ("" + x + "#" + y));
                     // weet niet of dit wel werkt
                     break;
                 case CLB_CALL_CMD:
                     String cmd = msg.getData().getString(("cmd"));
-                    CallbackMessageChannel(5, cmd);
+                    callbackMessageChannel(5, cmd);
                     Log.w(TAG, "CLB_CALL_CMD " + cmd);
                     break;
                 case CLB_BUTTON_UP:
@@ -495,10 +495,10 @@ public class NavitGraphics {
                 case CLB_COUNTRY_CHOOSER:
                     break;
                 case CLB_ABORT_NAVIGATION:
-                    CallbackMessageChannel(3, "");
+                    callbackMessageChannel(3, "");
                     break;
                 case CLB_LOAD_MAP:
-                    Integer ret = CallbackMessageChannel(6, msg.getData().getString(("title")));
+                    Integer ret = callbackMessageChannel(6, msg.getData().getString(("title")));
                     Log.e(TAG, "callBackRet = " + ret);
                     break;
                 case CLB_DELETE_MAP:
@@ -508,15 +508,15 @@ public class NavitGraphics {
                     //fallthrough
                 case CLB_UNLOAD_MAP:
                     Log.e(TAG, "CLB_UNLOAD_MAP");
-                    CallbackMessageChannel(7, msg.getData().getString(("title")));
+                    callbackMessageChannel(7, msg.getData().getString(("title")));
                     break;
                 case CLB_BLOCK:
                     Log.e(TAG, "CLB_BLOCK");
-                    CallbackMessageChannel(8, "");
+                    callbackMessageChannel(8, "");
                     break;
                 case CLB_UNBLOCK:
                     Log.e(TAG, "CLB_UNBLOCK");
-                    CallbackMessageChannel(9, "");
+                    callbackMessageChannel(9, "");
                     break;
                 default:
                     break;
@@ -608,7 +608,7 @@ public class NavitGraphics {
             drawCanvas = new Canvas(drawBitmap);
             bitmapW = w;
             bitmapH = h;
-            SizeChangedCallback(sizeChangedCallbackID, w, h);
+            sizeChangedCallback(sizeChangedCallbackID, w, h);
         }
 
         void do_longpress_action() {
@@ -651,7 +651,7 @@ public class NavitGraphics {
             if (switchValue == MotionEvent.ACTION_DOWN) {
                 touchMode = PRESSED;
                 if (!in_map) {
-                    ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
+                    buttonCallback(buttonCallbackID, 1, 1, x, y); // down
                 }
                 mPressedPosition = new PointF(x, y);
                 postDelayed(this, time_for_long_press);
@@ -662,8 +662,8 @@ public class NavitGraphics {
                     case DRAG:
                         Log.e("NavitGraphics", "onTouch move");
 
-                        MotionCallback(motionCallbackID, x, y);
-                        ButtonCallback(buttonCallbackID, 0, 1, x, y); // up
+                        motionCallback(motionCallbackID, x, y);
+                        buttonCallback(buttonCallbackID, 0, 1, x, y); // up
 
                         break;
                     case ZOOM:
@@ -677,19 +677,19 @@ public class NavitGraphics {
 
                         if (scale > 1.3) {
                             // zoom in
-                            CallbackMessageChannel(1, null);
+                            callbackMessageChannel(1, null);
                             //Log.e("NavitGraphics", "onTouch zoom in");
                         } else if (scale < 0.8) {
                             // zoom out
-                            CallbackMessageChannel(2, null);
+                            callbackMessageChannel(2, null);
                             //Log.e("NavitGraphics", "onTouch zoom out");
                         }
                         break;
                     case PRESSED:
                         if (in_map) {
-                            ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
+                            buttonCallback(buttonCallbackID, 1, 1, x, y); // down
                         }
-                        ButtonCallback(buttonCallbackID, 0, 1, x, y); // up
+                        buttonCallback(buttonCallbackID, 0, 1, x, y); // up
                         break;
                     default:
                         break;
@@ -700,7 +700,7 @@ public class NavitGraphics {
 
                 switch (touchMode) {
                     case DRAG:
-                        MotionCallback(motionCallbackID, x, y);
+                        motionCallback(motionCallbackID, x, y);
                         break;
                     case ZOOM:
                         float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
@@ -708,20 +708,20 @@ public class NavitGraphics {
                         Log.e("NavitGraphics", "New scale = " + scale);
                         if (scale > 1.2) {
                             // zoom in
-                            CallbackMessageChannel(1, "");
+                            callbackMessageChannel(1, "");
                             oldDist = newDist;
                             //Log.e("NavitGraphics", "onTouch zoom in");
                         } else if (scale < 0.8) {
                             oldDist = newDist;
                             // zoom out
-                            CallbackMessageChannel(2, "");
+                            callbackMessageChannel(2, "");
                             //Log.e("NavitGraphics", "onTouch zoom out");
                         }
                         break;
                     case PRESSED:
                         Log.e("NavitGraphics", "Start drag mode");
                         if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
-                            ButtonCallback(buttonCallbackID, 1, 1, x, y); // down
+                            buttonCallback(buttonCallbackID, 1, 1, x, y); // down
                             touchMode = DRAG;
                         }
                         break;
@@ -871,7 +871,7 @@ public class NavitGraphics {
             }
 
             if (s != null) {
-                KeypressCallback(keypressCallbackID, s);
+                keypressCallback(keypressCallbackID, s);
             }
             return handled;
         }
@@ -922,15 +922,12 @@ public class NavitGraphics {
                         handled = true;
                         return handled;
                     case KeyEvent.KEYCODE_MENU:
-                        if (!in_map) {
-                            if (Navit.show_soft_keyboard_now_showing) {
-                                // if soft keyboard showing on screen, dont use menu button as select key
-                            } else {
-                                // if in menu view:
-                                // use as OK (Enter) key
-                                s = String.valueOf((char) 13);
-                                handled = true;
-                            }
+                        if (!in_map && !Navit.show_soft_keyboard_now_showing) {
+                            // if soft keyboard showing on screen, don't use menu button as select key
+                            // if in menu view:
+                            // use as OK (Enter) key
+                            s = String.valueOf((char) 13);
+                            handled = true;
                         } else {
                             // if on map view:
                             // volume UP
@@ -947,7 +944,7 @@ public class NavitGraphics {
             }
 
             if (s != null) {
-                KeypressCallback(keypressCallbackID, s);
+                keypressCallback(keypressCallbackID, s);
             }
             return handled;
 
@@ -958,7 +955,7 @@ public class NavitGraphics {
             String s;
             if (keyCode == KeyEvent.KEYCODE_UNKNOWN) {
                 s = event.getCharacters();
-                KeypressCallback(keypressCallbackID, s);
+                keypressCallback(keypressCallbackID, s);
                 return true;
             }
             return super.onKeyMultiple(keyCode, count, event);
@@ -994,16 +991,9 @@ public class NavitGraphics {
                 }
             }
             if (s != null) {
-                KeypressCallback(keypressCallbackID, s);
+                keypressCallback(keypressCallbackID, s);
             }
             return true;
-        }
-
-        @Override
-        protected void onFocusChanged(boolean gainFocus, int direction,
-                Rect previouslyFocusedRect) {
-            super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-            //Log.e("NavitGraphics", "FocusChange " + gainFocus);
         }
 
         public void run() {

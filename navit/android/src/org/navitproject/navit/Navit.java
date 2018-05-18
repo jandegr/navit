@@ -91,7 +91,7 @@ public class Navit extends Activity {
 
 
     public static String navitTranslate(String in) {
-        return CallbackLocalizedString(in);
+        return callbackLocalizedString(in);
     }
 
     // callback id gets set here when called from NavitGraphics
@@ -103,8 +103,8 @@ public class Navit extends Activity {
         N_NavitGraphics = navitGraphics;
     }
 
-    public static native void NavitMain(Navit navit, String lang, int version,
-            String displayDensityString, String path, String mapPath);
+    public static native void navitMain(Navit navit, String lang_, int version,
+            String display_density_string_, String path_, String map_path_);
 
     /*
      * this is used to load the 'navit' native library on
@@ -115,10 +115,11 @@ public class Navit extends Activity {
         System.loadLibrary("navit");
     }
 
+
     /**
      * get localized string
      */
-    public static native String CallbackLocalizedString(String s);
+    public static native String callbackLocalizedString(String s);
 
     /* Translates a string from its id
      * in R.strings
@@ -127,7 +128,7 @@ public class Navit extends Activity {
      * @retrun translated string
      */
     String getTstring(int rID) {
-        return CallbackLocalizedString(getString(rID));
+        return callbackLocalizedString(getString(rID));
     }
 
     public void removeFileIfExists(String source) {
@@ -400,7 +401,7 @@ public class Navit extends Activity {
         }
 
         Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + android.os.Build.VERSION.SDK_INT);
-        NavitMain(this, navitLanguage, android.os.Build.VERSION.SDK_INT, my_display_density,
+        navitMain(this, navitLanguage, android.os.Build.VERSION.SDK_INT, my_display_density,
                 NAVIT_DATA_DIR + "/bin/navit", map_filename_path);
         showInfos();
         Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -840,7 +841,7 @@ public class Navit extends Activity {
         }
         super.onDestroy();
         Log.w("Navit", "OnDestroy2");
-        NavitDestroy();
+        navitDestroy();
     }
 
     @SuppressWarnings("unused")
@@ -869,10 +870,10 @@ public class Navit extends Activity {
     private void exit() {
         Log.w("Navit", "exit--");
         NavitVehicle.removeListener(this);
-        NavitDestroy();
+        navitDestroy();
     }
 
-    public native void NavitDestroy();
+    public native void navitDestroy();
 }
 
 
