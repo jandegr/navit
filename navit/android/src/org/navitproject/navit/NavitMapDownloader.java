@@ -1,13 +1,13 @@
 /**
  * Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License version 2 as published by the Free Software Foundation.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
@@ -20,6 +20,9 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.StatFs;
 import android.util.Log;
+
+import org.navitproject.navit.NavitGraphics.MsgType;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -36,7 +39,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import org.navitproject.navit.NavitGraphics.MsgType;
 
 /**
  * @author rikky
@@ -486,6 +488,7 @@ public class NavitMapDownloader extends Thread {
     private long uiLastUpdated = -1;
     private Boolean retryDownload = false; //Download failed, but
     private int retry_counter = 0;
+
     NavitMapDownloader(int map_id) {
         this.map_values = osm_maps[map_id];
         this.map_id = map_id;
@@ -660,7 +663,7 @@ public class NavitMapDownloader extends Thread {
     }
 
     private boolean downloadData(URLConnection c, long already_read, long real_size_bytes,
-            boolean resume, File outputFile) {
+                                 boolean resume, File outputFile) {
         boolean success = false;
         BufferedOutputStream buf = getOutputStream(outputFile, resume);
         BufferedInputStream bif = getInputStream(c);
@@ -761,7 +764,7 @@ public class NavitMapDownloader extends Thread {
     }
 
     private boolean readData(OutputStream buf, InputStream bif, long already_read,
-            long real_size_bytes) {
+                             long real_size_bytes) {
         long start_timestamp = System.nanoTime();
         byte[] buffer = new byte[MAP_WRITE_MEM_BUFFER];
         int len1;
@@ -906,8 +909,8 @@ public class NavitMapDownloader extends Thread {
 
 
         private osm_map_values(String mapname, String lon_1, String lat_1, String lon_2,
-                String lat_2,
-                long bytes_est, int level) {
+                               String lat_2,
+                               long bytes_est, int level) {
             this.map_name = mapname;
             this.lon1 = lon_1;
             this.lat1 = lat_1;
