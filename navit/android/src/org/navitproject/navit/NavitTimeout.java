@@ -42,14 +42,14 @@ class NavitTimeout implements Runnable {
         handler.postDelayed(this, eventTimeout);
     }
 
-    public native void TimeoutCallback(int id);
+    public native void timeoutCallback(int id);
 
     public void run() {
         // Log.e("Navit","Handle Event");
         if (eventMulti) {
             handler.postDelayed(this, eventTimeout);
         }
-        TimeoutCallback(eventCallbackid);
+        timeoutCallback(eventCallbackid);
     }
     public void remove() {
         handler.removeCallbacks(this);

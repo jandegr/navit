@@ -150,7 +150,7 @@ public class NavitAddressSearchActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
                 if (addressesFound.get(position).resultType < 2) {
-                    CallbackSearch(searchHandle, zoektype,
+                    callbackSearch(searchHandle, zoektype,
                             addressesFound.get(position).id, "");
 
                     if (addressesFound.get(position).resultType == 0) {
@@ -205,7 +205,7 @@ public class NavitAddressSearchActivity extends Activity {
                     search();
                 } else { // voor geval een backspace is gebruikt
                     if (searchHandle != 0) {
-                        CallbackCancelAddressSearch(searchHandle);
+                        callbackCancelAddressSearch(searchHandle);
                     }
                 }
             }
@@ -380,22 +380,22 @@ public class NavitAddressSearchActivity extends Activity {
         Log.d(TAG, "einde zoeken");
     }
 
-    public native long CallbackStartAddressSearch(int partialMatch, String country, String s);
+    public native long callbackStartAddressSearch(int partialMatch, String country, String s);
 
-    public native void CallbackCancelAddressSearch(long handle);
+    public native void callbackCancelAddressSearch(long handle);
 
-    public native void CallbackSearch(long handle, int type, int id, String str);
+    public native void callbackSearch(long handle, int type, int id, String str);
 
     private void search() {
         if (searchHandle != 0 && ongoingSearches > 1) {
-            CallbackCancelAddressSearch(searchHandle);
+            callbackCancelAddressSearch(searchHandle);
         }
         addressAdapter.clear();
         if (searchHandle == 0) {
-            searchHandle = CallbackStartAddressSearch(mPartialSearch ? 1 : 0,
+            searchHandle = callbackStartAddressSearch(mPartialSearch ? 1 : 0,
                     mCountry, mAddressString);
         }
-        CallbackSearch(searchHandle, zoektype, 0, mAddressString);
+        callbackSearch(searchHandle, zoektype, 0, mAddressString);
     }
 
     public static final class NavitAddress {

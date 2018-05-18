@@ -111,7 +111,7 @@ public class NavitVehicle {
         }
     }
 
-    public static void removeListener(Navit navit) {
+    static void removeListener(Navit navit) {
         Log.d(TAG, "removing locationlisteners");
         if (sLocationManager != null) {
             if (preciseLocationListener != null) {
@@ -124,9 +124,9 @@ public class NavitVehicle {
         }
     }
 
-    public native void VehicleCallback(int id, Location location);
+    public native void vehicleCallback(int id, Location location);
 
-    public native void VehicleCallback(int id, int enabled);
+    public native void vehicleCallback(int id, int enabled);
 
     private class NavitLocationListener extends BroadcastReceiver implements LocationListener {
 
@@ -139,8 +139,8 @@ public class NavitVehicle {
                 sLocationManager.removeUpdates(fastLocationListener);
                 fastProvider = null;
             }
-            VehicleCallback(vehiclePcbid, location);
-            VehicleCallback(vehicleFcbid, 1);
+            vehicleCallback(vehiclePcbid, location);
+            vehicleCallback(vehicleFcbid, 1);
         }
 
         public void onProviderDisabled(String provider) {
@@ -156,9 +156,9 @@ public class NavitVehicle {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() != null && intent.getAction().equals(GPS_FIX_CHANGE)) {
                 if (intent.getBooleanExtra("enabled", false)) {
-                    VehicleCallback(vehicleFcbid, 1);
+                    vehicleCallback(vehicleFcbid, 1);
                 } else if (!intent.getBooleanExtra("enabled", true)) {
-                    VehicleCallback(vehicleFcbid, 0);
+                    vehicleCallback(vehicleFcbid, 0);
                 }
             }
         }

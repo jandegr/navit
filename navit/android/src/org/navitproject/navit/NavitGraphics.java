@@ -52,7 +52,7 @@ public class NavitGraphics {
     private static final MsgType[] msg_values = MsgType.values();
     // for menu key
     private static final long time_for_long_press = 300L;
-    static final Handler callbackHandler = new navitGrahicsHandler();
+    static final Handler callbackHandler = new NavitGrahicsHandler();
     private int bitmapW;
     private int bitmapH;
     private int posX;
@@ -451,7 +451,7 @@ public class NavitGraphics {
         CLB_DELETE_MAP, CLB_ABORT_NAVIGATION, CLB_BLOCK, CLB_UNBLOCK
     }
 
-    private static class navitGrahicsHandler extends Handler {
+    private static class NavitGrahicsHandler extends Handler {
         public void handleMessage(Message msg) {
             switch (msg_values[msg.what]) {
                 case CLB_ZOOM_IN:
