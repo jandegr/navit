@@ -51,6 +51,7 @@ class NavitTimeout implements Runnable {
         }
         timeoutCallback(eventCallbackid);
     }
+
     public void remove() {
         handler.removeCallbacks(this);
     }
