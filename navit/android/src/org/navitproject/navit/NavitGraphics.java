@@ -639,13 +639,13 @@ public class NavitGraphics {
             int x = (int) event.getX();
             int y = (int) event.getY();
 
-            int _ACTION_POINTER_UP_ = getActionField("ACTION_POINTER_UP", event);
-            int _ACTION_POINTER_DOWN_ = getActionField("ACTION_POINTER_DOWN", event);
-            int _ACTION_MASK_ = getActionField("ACTION_MASK", event);
+            final int ACTION_POINTER_UP = getActionField("ACTION_POINTER_UP", event);
+            final int ACTION_POINTER_DOWN = getActionField("ACTION_POINTER_DOWN", event);
+            final int ACTION_MASK = getActionField("ACTION_MASK", event);
 
             int switchValue = event.getAction();
-            if (_ACTION_MASK_ != -999) {
-                switchValue = (event.getAction() & _ACTION_MASK_);
+            if (ACTION_MASK != -999) {
+                switchValue = (event.getAction() & ACTION_MASK);
             }
 
             if (switchValue == MotionEvent.ACTION_DOWN) {
@@ -655,7 +655,7 @@ public class NavitGraphics {
                 }
                 mPressedPosition = new PointF(x, y);
                 postDelayed(this, time_for_long_press);
-            } else if ((switchValue == MotionEvent.ACTION_UP) || (switchValue == _ACTION_POINTER_UP_)) {
+            } else if ((switchValue == MotionEvent.ACTION_UP) || (switchValue == ACTION_POINTER_UP)) {
                 Log.e("NavitGraphics", "ACTION_UP");
 
                 switch (touchMode) {
@@ -728,7 +728,7 @@ public class NavitGraphics {
                     default:
                         break;
                 }
-            } else if (switchValue == _ACTION_POINTER_DOWN_) {
+            } else if (switchValue == ACTION_POINTER_DOWN) {
                 //Log.e("NavitGraphics", "ACTION_POINTER_DOWN");
                 oldDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
                 if (oldDist > 2f) {
