@@ -1,6 +1,5 @@
 package org.navitproject.navit;
 
-
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -14,7 +13,7 @@ import java.io.File;
 
 public class NavitSettingsActivity extends PreferenceActivity {
 
-    private final String TAG = this.getClass().getName();
+    private static final String TAG = NavitSettingsActivity.class.getName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -30,16 +29,16 @@ public class NavitSettingsActivity extends PreferenceActivity {
 
         PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
 
-        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ListPreference listPref = new ListPreference(this);
             File[] navitDirs = getExternalFilesDirs(null);
             CharSequence[] entries = new CharSequence[navitDirs.length];
             CharSequence[] entryValues = new CharSequence[navitDirs.length];
-            for (int i=0; i< navitDirs.length; i++){
+            for (int i = 0; i < navitDirs.length; i++) {
                 File f = navitDirs[i];
                 entries[i] = f.toString(); // entries is the human readable form
                 entryValues[i] = entries[i];
-                Log.e(TAG,"candidate Dir "+ f );
+                Log.e (TAG,"candidate Dir " + f );
             }
             listPref.setEntries(entries);
             listPref.setEntryValues(entryValues);
