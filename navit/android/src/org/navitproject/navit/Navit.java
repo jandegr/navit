@@ -356,8 +356,8 @@ public class Navit extends Activity {
         navitMapsDir.mkdirs();
 
         // make sure the share dir exists
-        File navit_data_share_dir = new File(NAVIT_DATA_SHARE_DIR);
-        navit_data_share_dir.mkdirs();
+        File navitDataShareDir = new File(NAVIT_DATA_SHARE_DIR);
+        navitDataShareDir.mkdirs();
 
         Display display = getWindowManager().getDefaultDisplay();
         metrics = new DisplayMetrics();
@@ -378,31 +378,31 @@ public class Navit extends Activity {
             Log.e(TAG, "Failed to extract language resource " + langc);
         }
 
-        String my_display_density;
+        String myDisplayDensity;
         if (densityDpi <= 120) {
-            my_display_density = "ldpi";
+            myDisplayDensity = "ldpi";
         } else if (densityDpi <= 160) {
-            my_display_density = "mdpi";
+            myDisplayDensity = "mdpi";
         } else if (densityDpi < 240) {
-            my_display_density = "hdpi";
+            myDisplayDensity = "hdpi";
         } else if (densityDpi < 320) {
-            my_display_density = "xhdpi";
+            myDisplayDensity = "xhdpi";
         } else if (densityDpi < 480) {
-            my_display_density = "xxhdpi";
+            myDisplayDensity = "xxhdpi";
         } else if (densityDpi < 640) {
-            my_display_density = "xxxhdpi";
+            myDisplayDensity = "xxxhdpi";
         } else {
             Log.w(TAG, "found device of very high density (" + densityDpi + ")");
             Log.w(TAG, "using xxxhdpi values");
-            my_display_density = "xxxhdpi";
+            myDisplayDensity = "xxxhdpi";
         }
 
-        if (!extractRes("navit" + my_display_density, NAVIT_DATA_DIR + "/share/navit.xml")) {
-            Log.e(TAG, "Failed to extract navit.xml for " + my_display_density);
+        if (!extractRes("navit" + myDisplayDensity, NAVIT_DATA_DIR + "/share/navit.xml")) {
+            Log.e(TAG, "Failed to extract navit.xml for " + myDisplayDensity);
         }
 
         Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + android.os.Build.VERSION.SDK_INT);
-        navitMain(this, navitLanguage, android.os.Build.VERSION.SDK_INT, my_display_density,
+        navitMain(this, navitLanguage, android.os.Build.VERSION.SDK_INT, myDisplayDensity,
                 NAVIT_DATA_DIR + "/bin/navit", map_filename_path);
         showInfos();
         Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -654,9 +654,9 @@ public class Navit extends Activity {
                 Log.i("Navit", "onOptionsItemSelected -> zoom out");
                 break;
             case R.id.optionsmenu_download_maps:
-                Intent map_download_list_activity = new Intent(this,
+                Intent mapDownloadListActivity = new Intent(this,
                         NavitDownloadSelectMapActivity.class);
-                startActivityForResult(map_download_list_activity,
+                startActivityForResult(mapDownloadListActivity,
                         Navit.NavitDownloaderSelectMap_id);
                 break;
             case 5:
@@ -677,8 +677,8 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 break;
             case R.id.optionsmenu_address_search:
-                Intent search_intent = new Intent(this, NavitAddressSearchActivity.class);
-                this.startActivityForResult(search_intent, NavitAddressSearch_id);
+                Intent searchIntent = new Intent(this, NavitAddressSearchActivity.class);
+                this.startActivityForResult(searchIntent, NavitAddressSearch_id);
                 break;
             case R.id.optionsmenu_set_maplocation:
                 setMapLocation();
@@ -852,7 +852,7 @@ public class Navit extends Activity {
     }
 
     @SuppressWarnings("unused")
-    public void fullscreen(int fullscreen) {
+    void fullscreen(int fullscreen) {
         if (fullscreen != 0) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
