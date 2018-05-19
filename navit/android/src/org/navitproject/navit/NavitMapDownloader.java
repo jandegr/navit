@@ -50,6 +50,7 @@ public class NavitMapDownloader extends Thread {
     // define the maps here
     // size estimations updated 2017-06-22
     //
+
     public static final osm_map_values[] osm_maps = {
             new osm_map_values(Navit.getInstance().getTstring(R.string.whole_planet), "-180", "-90", "180", "90",
                     23992258630L, 0),
@@ -458,7 +459,8 @@ public class NavitMapDownloader extends Thread {
                     Navit.getInstance().getTstring(R.string.guyana) + "+" + Navit.getInstance().getTstring(R.string.suriname) + "+"
                             + Navit.getInstance().getTstring(R.string.guyane_francaise), "-62.0", "1.0", "-51.2",
                     "8.9", 123000072L, 1),
-            new osm_map_values(Navit.getInstance().getTstring(R.string.haiti) + "+" + Navit.getInstance().getTstring(R.string.dominican_republic), "-74.8", "17.3", "-68.2", "20.1", 149925689L, 1),
+            new osm_map_values(Navit.getInstance().getTstring(R.string.haiti) + "+" + Navit.getInstance().getTstring(R.string.dominican_republic),
+                    "-74.8", "17.3", "-68.2", "20.1", 149925689L, 1),
             new osm_map_values(Navit.getInstance().getTstring(R.string.jamaica), "-78.6", "17.4", "-75.9", "18.9",
                     113961998L, 1),
             new osm_map_values(Navit.getInstance().getTstring(R.string.mexico), "-117.6", "14.1", "-86.4", "32.8",
@@ -583,7 +585,7 @@ public class NavitMapDownloader extends Thread {
 
         if (finalOutputFile.exists()) {
             Message msg =
-                    Message.obtain(Navit.N_NavitGraphics.callbackHandler,
+                    Message.obtain(Navit.navitGraphics.callbackHandler,
                             MsgType.CLB_DELETE_MAP.ordinal());
             Bundle b = new Bundle();
             b.putString("title", finalOutputFile.getAbsolutePath());

@@ -65,6 +65,7 @@ public class Navit extends Activity {
     private static final int NavitDownloaderSelectMap_id = 967;
     private static final int NavitAddressSearch_id = 70;
     private static final int NavitSelectStorage_id = 43;
+    private static final int NavitSettings_id = 80;
     private static final String NAVIT_PACKAGE_NAME = "org.navitproject.navit";
     static final String NAVIT_DATA_DIR = "/data/data/" + NAVIT_PACKAGE_NAME;
     private static final String TAG = "Navit";
@@ -77,7 +78,7 @@ public class Navit extends Activity {
     public static long time_pressed_menu_key = 0L;
     public static Resources NavitResources = null;
     // define callback id here
-    public static NavitGraphics N_NavitGraphics = null;
+    public static NavitGraphics navitGraphics = null;
     static String map_filename_path = null;
     private static Intent startup_intent = null;
     private static long startup_intent_timestamp = 0L;
@@ -96,11 +97,11 @@ public class Navit extends Activity {
 
     // callback id gets set here when called from NavitGraphics
     public static void setKeypressCallback(int kpCbId, NavitGraphics ng) {
-        N_NavitGraphics = ng;
+        navitGraphics = ng;
     }
 
     public static void setMotionCallback(int moCbId, NavitGraphics navitGraphics) {
-        N_NavitGraphics = navitGraphics;
+        Navit.navitGraphics = navitGraphics;
     }
 
     public static native void navitMain(Navit navit, String lang_, int version,
@@ -349,10 +350,10 @@ public class Navit extends Activity {
 
         map_filename_path = prefs.getString("filenamePath", navitfiles[0].toString() + "/");
 
-        File navit_maps_dir = new File(map_filename_path);
+        File navitMapsDir = new File(map_filename_path);
         //map_filename_path = navitfiles[0].getParent() + "/";
 
-        navit_maps_dir.mkdirs();
+        navitMapsDir.mkdirs();
 
         // make sure the share dir exists
         File navit_data_share_dir = new File(NAVIT_DATA_SHARE_DIR);
@@ -593,7 +594,7 @@ public class Navit extends Activity {
                         lon = Float.valueOf(geo[1]);
                         b.putFloat("lat", lat);
                         b.putFloat("lon", lon);
-                        Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
+                        Message msg = Message.obtain(NavitGraphics.callbackHandler,
                                 MsgType.CLB_SET_DESTINATION.ordinal());
                         msg.setData(b);
                         msg.sendToTarget();
@@ -608,9 +609,9 @@ public class Navit extends Activity {
         }
     }
 
-    public void setActivityResult(int requestCode, NavitActivityResult ActivityResult) {
+    public void setActivityResult(int requestCode, NavitActivityResult activityResult) {
         //Log.e("Navit", "setActivityResult " + requestCode);
-        ActivityResults[requestCode] = ActivityResult;
+        ActivityResults[requestCode] = activityResult;
     }
 
     @Override
@@ -620,15 +621,15 @@ public class Navit extends Activity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void start_targetsearch_from_intent(String target_address) {
-        if (target_address == null || target_address.equals("")) {
+    private void start_targetsearch_from_intent(String targetAddress) {
+        if (targetAddress == null || targetAddress.equals("")) {
             // empty search string entered
             Toast.makeText(getApplicationContext(), getTstring(R.string.address_search_not_found),
                     Toast.LENGTH_LONG).show(); //TRANS
         } else {
-            Intent search_intent = new Intent(this, NavitAddressSearchActivity.class);
-            search_intent.putExtra("search_string", target_address);
-            this.startActivityForResult(search_intent, NavitAddressSearch_id);
+            Intent searchIntent = new Intent(this, NavitAddressSearchActivity.class);
+            searchIntent.putExtra("search_string", targetAddress);
+            this.startActivityForResult(searchIntent, NavitAddressSearch_id);
         }
     }
 
@@ -642,13 +643,13 @@ public class Navit extends Activity {
         switch (item.getItemId()) {
             case 1:
                 // zoom in
-                Message.obtain(N_NavitGraphics.callbackHandler,
+                Message.obtain(navitGraphics.callbackHandler,
                         MsgType.CLB_ZOOM_IN.ordinal()).sendToTarget();
                 Log.i("Navit", "onOptionsItemSelected -> zoom in");
                 break;
             case 2:
                 // zoom out
-                Message.obtain(N_NavitGraphics.callbackHandler,
+                Message.obtain(navitGraphics.callbackHandler,
                         MsgType.CLB_ZOOM_OUT.ordinal()).sendToTarget();
                 Log.i("Navit", "onOptionsItemSelected -> zoom out");
                 break;
@@ -660,7 +661,7 @@ public class Navit extends Activity {
                 break;
             case 5:
                 // toggle the normal POI layers (to avoid double POIs)
-                Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
+                Message msg = Message.obtain(navitGraphics.callbackHandler,
                         MsgType.CLB_CALL_CMD.ordinal());
                 Bundle b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"POI Symbols\");");
@@ -668,7 +669,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
 
                 // toggle full POI icons on/off
-                msg = Message.obtain(N_NavitGraphics.callbackHandler,
+                msg = Message.obtain(navitGraphics.callbackHandler,
                         MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"Android-POI-Icons-full\");");
@@ -683,7 +684,7 @@ public class Navit extends Activity {
                 setMapLocation();
                 break;
             case R.id.action_zoom_to_route:
-                msg = Message.obtain(N_NavitGraphics.callbackHandler,
+                msg = Message.obtain(navitGraphics.callbackHandler,
                         MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "zoom_to_route()");
@@ -691,7 +692,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 break;
             case R.id.toggle_autozoom:
-                msg = Message.obtain(N_NavitGraphics.callbackHandler,
+                msg = Message.obtain(navitGraphics.callbackHandler,
                         MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "autozoom_active=autozoom_active==0?1:0");
@@ -699,16 +700,20 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 break;
             case R.id.action_stop_navigation:
-                msg = Message.obtain(N_NavitGraphics.callbackHandler,
+                msg = Message.obtain(navitGraphics.callbackHandler,
                         MsgType.CLB_ABORT_NAVIGATION.ordinal());
                 msg.sendToTarget();
+                break;
+            case R.id.optionsmenu_settings:
+                Intent i = new Intent(this, NavitSettingsActivity.class);
+                startActivityForResult(i, NavitSettings_id);
                 break;
             case R.id.action_quit:
                 this.onStop();
                 this.onDestroy();
                 break;
             case R.id.action_enable_auto_layout:
-                msg = Message.obtain(N_NavitGraphics.callbackHandler,
+                msg = Message.obtain(navitGraphics.callbackHandler,
                         MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "switch_layout_day_night(\"auto\")");
@@ -716,7 +721,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 break;
             case R.id.action_toggle_layout:
-                msg = Message.obtain(N_NavitGraphics.callbackHandler,
+                msg = Message.obtain(navitGraphics.callbackHandler,
                         MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "switch_layout_day_night(\"manual_toggle\")");
@@ -734,7 +739,7 @@ public class Navit extends Activity {
         Toast.makeText(getApplicationContext(),
                 getString(R.string.address_search_set_destination) + "\n" + address,
                 Toast.LENGTH_LONG).show(); //TRANS
-        Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
+        Message msg = Message.obtain(navitGraphics.callbackHandler,
                 MsgType.CLB_SET_DESTINATION.ordinal());
         Bundle b = new Bundle();
         b.putFloat("lat", latitude);
@@ -759,7 +764,7 @@ public class Navit extends Activity {
                     Toast.makeText(getApplicationContext(),
                             getTstring(R.string.address_search_set_destination) + "\n" + destination
                                     .getString(("q")), Toast.LENGTH_LONG).show(); //TRANS
-                    Message msg = Message.obtain(N_NavitGraphics.callbackHandler,
+                    Message msg = Message.obtain(navitGraphics.callbackHandler,
                             MsgType.CLB_SET_DESTINATION.ordinal());
                     msg.setData(destination);
                     msg.sendToTarget();
@@ -780,6 +785,8 @@ public class Navit extends Activity {
                 } else {
                     Log.w(TAG, "select path failed");
                 }
+                break;
+            case NavitSettings_id:
                 break;
             default:
                 //Log.e("Navit", "onActivityResult " + requestCode + " " + resultCode);

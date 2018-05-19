@@ -31,14 +31,14 @@ public class NavitSettingsActivity extends PreferenceActivity {
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ListPreference listPref = new ListPreference(this);
-            File[] navitDirs = getExternalFilesDirs(null);
-            CharSequence[] entries = new CharSequence[navitDirs.length];
-            CharSequence[] entryValues = new CharSequence[navitDirs.length];
-            for (int i = 0; i < navitDirs.length; i++) {
-                File f = navitDirs[i];
-                entries[i] = f.toString(); // entries is the human readable form
+            File[] candidateDirs = getExternalFilesDirs(null);
+            CharSequence[] entries = new CharSequence[candidateDirs.length];
+            CharSequence[] entryValues = new CharSequence[candidateDirs.length];
+            for (int i = 0; i < candidateDirs.length; i++) {
+                File candidateDir = candidateDirs[i];
+                entries[i] = candidateDir.toString(); // entries is the human readable form
                 entryValues[i] = entries[i];
-                Log.e(TAG,"candidate Dir " + f);
+                Log.e(TAG,"candidate Dir " + candidateDir);
             }
             listPref.setEntries(entries);
             listPref.setEntryValues(entryValues);

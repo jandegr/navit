@@ -78,7 +78,7 @@ public class NavitAddressSearchActivity extends Activity {
             Field field = res.getField(resourceName + "_64_64");
             drawableId = field.getInt(null);
         } catch (Exception e) {
-            Log.e("NavitAddressSearch", "Failure to get drawable id.", e);
+            Log.e(TAG, "Failure to get drawable id.", e);
         }
         return drawableId;
     }
@@ -86,18 +86,6 @@ public class NavitAddressSearchActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // ACRA.getErrorReporter().setEnabled(true);
-        // Bundle extras = getIntent().getExtras();
-        // if ( extras != null )
-        // {
-        // String search_string = extras.getString(("search_string"));
-        // if (search_string != null) {
-        // mPartialSearch = true;
-        // mAddressString = search_string;
-        // executeSearch();
-        // return;
-        // }
-        // }
 
         // mPartialSearch = last_address_partial_match;
         mAddressString = last_address_search_string;

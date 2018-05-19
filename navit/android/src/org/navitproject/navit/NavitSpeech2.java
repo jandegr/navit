@@ -27,7 +27,7 @@ public class NavitSpeech2 implements TextToSpeech.OnInitListener, NavitActivityR
 
     private static final int MY_DATA_CHECK_CODE = 1;
     private final Navit navit;
-    private final String TAG = getClass().getName();
+    private static final String TAG = NavitSettingsActivity.class.getName();
     private static TextToSpeech sTts;
 
     NavitSpeech2(Navit navit) {
