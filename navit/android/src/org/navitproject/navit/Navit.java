@@ -58,7 +58,7 @@ import org.navitproject.navit.NavitGraphics.MsgType;
 
 public class Navit extends Activity {
 
-    public static final String NAVIT_PREFS = "NavitPrefs";
+    static final String NAVIT_PREFS = "NavitPrefs";
     private static final int MY_PERMISSIONS_REQUEST_ALL = 101;
     private static final int MY_PERMISSIONS_STORAGE_REQUEST = 102;
     private static final int MY_PERMISSIONS_FINE_LOCATION_REQUEST = 103;
@@ -86,12 +86,12 @@ public class Navit extends Activity {
     private NavitDialogs dialogs;
     private NavitActivityResult[] ActivityResults;
 
-    public static Navit getInstance() {
+    static Navit getInstance() {
         return navit;
     }
 
 
-    public static String navitTranslate(String in) {
+    static String navitTranslate(String in) {
         return callbackLocalizedString(in);
     }
 
@@ -104,7 +104,7 @@ public class Navit extends Activity {
         Navit.navitGraphics = navitGraphics;
     }
 
-    public static native void navitMain(Navit navit, String lang_, int version,
+    static native void navitMain(Navit navit, String lang_, int version,
             String display_density_string_, String path_, String map_path_);
 
     /*
@@ -118,9 +118,9 @@ public class Navit extends Activity {
 
 
     /**
-     * get localized string
+     * get localized string.
      */
-    public static native String callbackLocalizedString(String s);
+    static native String callbackLocalizedString(String s);
 
     /* Translates a string from its id
      * in R.strings
@@ -132,7 +132,7 @@ public class Navit extends Activity {
         return callbackLocalizedString(getString(rID));
     }
 
-    public void removeFileIfExists(String source) {
+    void removeFileIfExists(String source) {
         File file = new File(source);
         if (!file.exists()) {
             return;
@@ -140,7 +140,7 @@ public class Navit extends Activity {
         file.delete();
     }
 
-    public void copyFileIfExists(String source, String destination) throws IOException {
+    void copyFileIfExists(String source, String destination) throws IOException {
         File file = new File(source);
         if (!file.exists()) {
             return;
@@ -269,7 +269,7 @@ public class Navit extends Activity {
      */
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         navit = this;
         //ACRA.getErrorReporter().setEnabled(false);
@@ -409,14 +409,14 @@ public class Navit extends Activity {
 
     }
 
-    public void onRestart() {
+    protected void onRestart() {
         Log.w(TAG, "onRestart");
         super.onRestart();
     }
 
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         Log.e(TAG, "OnResume");
         //InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -822,12 +822,12 @@ public class Navit extends Activity {
         startActivityForResult(fileExploreIntent, NavitSelectStorage_id);
     }
 
-    public void onPause() {
+    protected void onPause() {
         Log.w("Navit", "onPause");
         super.onPause();
     }
 
-    public void onStop() {
+    protected void onStop() {
         Log.w("Navit", "onStop");
         if (isFinishing()) {
             Log.w("Navit", "onStop Finishing");
@@ -839,7 +839,7 @@ public class Navit extends Activity {
     //wordt bljkbaar vanuit native aangeroepen
 
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         NavitVehicle.removeListener(this);
         Log.w("Navit", "OnDestroy");
 
@@ -880,7 +880,7 @@ public class Navit extends Activity {
         navitDestroy();
     }
 
-    public native void navitDestroy();
+    native void navitDestroy();
 }
 
 
