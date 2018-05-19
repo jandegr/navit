@@ -7,7 +7,6 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
     <uses-feature android:glEsVersion="0x00020000"/>
     <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:resizeable="true" android:anyDensity="true"/>
-    @ANDROID_PERMISSIONS@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -30,6 +29,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".NavitAddressSearchActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+        </activity>
+        <activity android:name=".NavitSettingsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden">
         </activity>
         <activity android:name=".NavitDownloadSelectMapActivity"></activity>
