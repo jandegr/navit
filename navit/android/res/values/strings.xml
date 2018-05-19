@@ -311,4 +311,5 @@
   <string name="peru">Peru</string>
   <string name="uruguay">Uruguay</string>
   <string name="venezuela">Venezuela</string>
+    <string name="optionsmenu_settings">settings</string>
 </resources>
