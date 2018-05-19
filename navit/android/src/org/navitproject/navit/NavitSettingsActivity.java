@@ -38,7 +38,7 @@ public class NavitSettingsActivity extends PreferenceActivity {
                 File f = navitDirs[i];
                 entries[i] = f.toString(); // entries is the human readable form
                 entryValues[i] = entries[i];
-                Log.e (TAG,"candidate Dir " + f );
+                Log.e(TAG,"candidate Dir " + f);
             }
             listPref.setEntries(entries);
             listPref.setEntryValues(entryValues);
