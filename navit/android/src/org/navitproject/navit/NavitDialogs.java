@@ -12,10 +12,10 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
+import java.io.File;
 import org.navitproject.navit.NavitGraphics.MsgType;
 
-import java.io.File;
+
 
 
 
@@ -45,16 +45,16 @@ public class NavitDialogs extends Handler {
         mHandler = this;
     }
 
-    public static void sendDialogMessage(int what, String title, String text, int dialog_num,
+    public static void sendDialogMessage(int what, String title, String text, int dialogNum,
             int value1, int value2) {
-        Message msg = mHandler.obtainMessage(what);
-        Bundle data = new Bundle();
 
+        Bundle data = new Bundle();
         data.putString("title", title);
         data.putString("text", text);
         data.putInt("value1", value1);
         data.putInt("value2", value2);
-        data.putInt("dialog_num", dialog_num);
+        data.putInt("dialog_num", dialogNum);
+        Message msg = mHandler.obtainMessage(what);
         msg.setData(data);
 
         mHandler.sendMessage(msg);
@@ -104,17 +104,17 @@ public class NavitDialogs extends Handler {
                         .show();
                 break;
             case MSG_START_MAP_DOWNLOAD:
-                int download_map_id = msg.arg1;
-                Log.d("Navit", "PRI id=" + download_map_id);
+                int downloadMapId = msg.arg1;
+                Log.d("Navit", "PRI id=" + downloadMapId);
                 // set map id to download
 
                 // show the map download progressbar, and download the map
-                if (download_map_id > -1) {
-                    mapdownloader = new NavitMapDownloader(download_map_id);
+                if (downloadMapId > -1) {
+                    mapdownloader = new NavitMapDownloader(downloadMapId);
                     mActivity.showDialog(NavitDialogs.DIALOG_MAPDOWNLOAD);
                     mapdownloader.start();
                 }
-            break;
+                break;
             case MSG_REMOVE_DIALOG_GENERIC:
                 // dismiss dialog, remove dialog - generic
                 mActivity.dismissDialog(msg.getData().getInt("dialog_num"));
@@ -177,6 +177,8 @@ public class NavitDialogs extends Handler {
                                             case 1:
                                                 /* Restore */
                                                 mActivity.showDialog(DIALOG_SELECT_BACKUP);
+                                                break;
+                                            default:
                                                 break;
                                         }
                                     }
