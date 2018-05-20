@@ -172,11 +172,11 @@ public class NavitDialogs extends Handler {
                                         switch (which) {
                                             case 0:
                                                 /* Backup */
-                                                new NavitBackupTask(mActivity).execute();
+                                                //new NavitBackupTask(mActivity).execute();
                                                 break;
                                             case 1:
                                                 /* Restore */
-                                                mActivity.showDialog(DIALOG_SELECT_BACKUP);
+                                                //mActivity.showDialog(DIALOG_SELECT_BACKUP);
                                                 break;
                                             default:
                                                 break;
@@ -209,7 +209,7 @@ public class NavitDialogs extends Handler {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        new NavitRestoreTask(mActivity, adapter.getItem(which)).execute();
+                        //new NavitRestoreTask(mActivity, adapter.getItem(which)).execute();
                     }
                 });
                 builder.setNegativeButton(mActivity.getTstring(android.R.string.cancel), null);

@@ -67,9 +67,7 @@ public class Navit extends Activity {
     private static final int NavitSelectStorage_id = 43;
     private static final int NavitSettings_id = 80;
     private static final String NAVIT_PACKAGE_NAME = "org.navitproject.navit";
-    static final String NAVIT_DATA_DIR = "/data/data/" + NAVIT_PACKAGE_NAME;
     private static final String TAG = "Navit";
-    private static final String NAVIT_DATA_SHARE_DIR = NAVIT_DATA_DIR + "/share";
     public static InputMethodManager mgr = null;
     public static DisplayMetrics metrics = null;
     public static Boolean show_soft_keyboard = false;
@@ -80,11 +78,11 @@ public class Navit extends Activity {
     // define callback id here
     public static NavitGraphics navitGraphics = null;
     static String map_filename_path = null;
-    private static Intent startup_intent = null;
-    private static long startup_intent_timestamp = 0L;
+    private static Intent startupIntent = null;
+    private static long startupIntentTimestamp = 0L;
     private static Navit navit;
     private NavitDialogs dialogs;
-    private NavitActivityResult[] ActivityResults;
+    private NavitActivityResult[] activityResults;
 
     static Navit getInstance() {
         return navit;
@@ -276,11 +274,11 @@ public class Navit extends Activity {
         dialogs = new NavitDialogs(this);
         NavitResources = getResources();
         // only take arguments here, onResume gets called all the time (e.g. when screenblanks, etc.)
-        Navit.startup_intent = this.getIntent();
+        Navit.startupIntent = this.getIntent();
         // hack! Remember time stamps, and only allow 4 secs. later in onResume to set target!
-        Navit.startup_intent_timestamp = System.currentTimeMillis();
-        Log.e(TAG, "**1**A " + startup_intent.getAction());
-        Log.e(TAG, "**1**D " + startup_intent.getDataString());
+        Navit.startupIntentTimestamp = System.currentTimeMillis();
+        Log.e(TAG, "**1**A " + startupIntent.getAction());
+        Log.e(TAG, "**1**D " + startupIntent.getDataString());
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -354,7 +352,11 @@ public class Navit extends Activity {
         //map_filename_path = navitfiles[0].getParent() + "/";
 
         navitMapsDir.mkdirs();
+        final String NAVIT_DATA_DIR = getFilesDir().toString();
+        final String NAVIT_DATA_SHARE_DIR = NAVIT_DATA_DIR + "/share";
 
+        Log.e(TAG,"data dir = " + NAVIT_DATA_DIR);
+        Log.e(TAG,"data share dir = " + NAVIT_DATA_SHARE_DIR);
         // make sure the share dir exists
         File navitDataShareDir = new File(NAVIT_DATA_SHARE_DIR);
         navitDataShareDir.mkdirs();
@@ -368,12 +370,13 @@ public class Navit extends Activity {
         Log.i(TAG, "Navit -> density=" + Navit.metrics.density);
         Log.i(TAG, "Navit -> scaledDensity=" + Navit.metrics.scaledDensity);
 
-        ActivityResults = new NavitActivityResult[16];
+        activityResults = new NavitActivityResult[16];
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         Window w = this.getWindow();
         w.setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         if (!extractRes(langc, NAVIT_DATA_DIR + "/locale/" + langc + "/LC_MESSAGES/navit.mo")) {
             Log.e(TAG, "Failed to extract language resource " + langc);
         }
@@ -396,7 +399,6 @@ public class Navit extends Activity {
             Log.w(TAG, "using xxxhdpi values");
             myDisplayDensity = "xxxhdpi";
         }
-
         if (!extractRes("navit" + myDisplayDensity, NAVIT_DATA_DIR + "/share/navit.xml")) {
             Log.e(TAG, "Failed to extract navit.xml for " + myDisplayDensity);
         }
@@ -426,13 +428,13 @@ public class Navit extends Activity {
         // intent_data = "google.navigation:ll=48.25676,16.643&q=blabla-strasse";
         // intent_data = "google.navigation:ll=48.25676,16.643";
 
-        if (startup_intent != null) {
-            if (System.currentTimeMillis() <= Navit.startup_intent_timestamp + 4000L) {
-                Log.i(TAG, "**2**A " + startup_intent.getAction());
-                Log.i(TAG, "**2**D " + startup_intent.getDataString());
-                String navi_scheme = startup_intent.getScheme();
-                if (navi_scheme != null && navi_scheme.equals("google.navigation")) {
-                    parseNavigationURI(startup_intent.getData().getSchemeSpecificPart());
+        if (startupIntent != null) {
+            if (System.currentTimeMillis() <= Navit.startupIntentTimestamp + 4000L) {
+                Log.i(TAG, "**2**A " + startupIntent.getAction());
+                Log.i(TAG, "**2**D " + startupIntent.getDataString());
+                String naviScheme = startupIntent.getScheme();
+                if (naviScheme != null && naviScheme.equals("google.navigation")) {
+                    parseNavigationURI(startupIntent.getData().getSchemeSpecificPart());
                 }
             } else {
                 Log.w(TAG, "timestamp for navigate_to expired! not using data");
@@ -611,7 +613,7 @@ public class Navit extends Activity {
 
     public void setActivityResult(int requestCode, NavitActivityResult activityResult) {
         //Log.e("Navit", "setActivityResult " + requestCode);
-        ActivityResults[requestCode] = activityResult;
+        activityResults[requestCode] = activityResult;
     }
 
     @Override
@@ -737,14 +739,14 @@ public class Navit extends Activity {
 
     void setDestination(float latitude, float longitude, String address) {
         Toast.makeText(getApplicationContext(),
-                getString(R.string.address_search_set_destination) + "\n" + address,
-                Toast.LENGTH_LONG).show(); //TRANS
-        Message msg = Message.obtain(navitGraphics.callbackHandler,
-                MsgType.CLB_SET_DESTINATION.ordinal());
+                getTstring(R.string.address_search_set_destination) + "\n" + address,
+                Toast.LENGTH_LONG).show();
         Bundle b = new Bundle();
         b.putFloat("lat", latitude);
         b.putFloat("lon", longitude);
         b.putString("q", address);
+        Message msg = Message.obtain(navitGraphics.callbackHandler,
+                MsgType.CLB_SET_DESTINATION.ordinal());
         msg.setData(b);
         msg.sendToTarget();
     }
@@ -790,7 +792,7 @@ public class Navit extends Activity {
                 break;
             default:
                 //Log.e("Navit", "onActivityResult " + requestCode + " " + resultCode);
-                ActivityResults[requestCode].onActivityResult(requestCode, resultCode, data);
+                activityResults[requestCode].onActivityResult(requestCode, resultCode, data);
                 break;
         }
     }
