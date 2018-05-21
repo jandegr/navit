@@ -128,7 +128,7 @@ Java_org_navitproject_navit_Navit_navitMain(JNIEnv *env,
 	setenv("ANDROID_DENSITY",displaydensitystr,1);
 	(*env)->ReleaseStringUTFChars(env, display_density_string, displaydensitystr);
 
-	map_filename_path=(*env)->GetStringUTFChars(env, map_path_, NULL);
+	map_filename_path=(*env)->GetStringUTFChars(env, map_path, NULL);
 	setenv("NAVIT_USER_DATADIR",map_filename_path,1);
 	(*env)->ReleaseStringUTFChars(env, display_density_string, map_filename_path);
 
