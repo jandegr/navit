@@ -76,7 +76,7 @@ public class Navit extends Activity {
     public static long time_pressed_menu_key = 0L;
     public static Resources NavitResources = null;
     // define callback id here
-    public static NavitGraphics navitGraphics = null;
+    public NavitGraphics navitGraphics = null;
     static String map_filename_path = null;
     private static Intent startupIntent = null;
     private static long startupIntentTimestamp = 0L;
@@ -94,12 +94,12 @@ public class Navit extends Activity {
     }
 
     // callback id gets set here when called from NavitGraphics
-    public static void setKeypressCallback(int kpCbId, NavitGraphics ng) {
+    public void setKeypressCallback(int kpCbId, NavitGraphics ng) {
         navitGraphics = ng;
     }
 
-    public static void setMotionCallback(int moCbId, NavitGraphics navitGraphics) {
-        Navit.navitGraphics = navitGraphics;
+    public void setMotionCallback(int moCbId, NavitGraphics navitGraphics) {
+        this.navitGraphics = navitGraphics;
     }
 
     static native void navitMain(Navit navit, String lang, int version,
