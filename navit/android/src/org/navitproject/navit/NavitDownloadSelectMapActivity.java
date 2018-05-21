@@ -199,9 +199,9 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
         HashMap<String, String> child = (HashMap<String, String>) adapter
                 .getChild(groupPosition, childPosition);
 
-        String map_index = child.get("map_index");
-        if (map_index != null) {
-            int mi = Integer.parseInt(map_index);
+        String mapIndex = child.get("map_index");
+        if (mapIndex != null) {
+            int mi = Integer.parseInt(mapIndex);
             if (NavitMapDownloader.osm_maps[mi].est_size_bytes / 1024 / 1024 / 950 >= 4) {
                 NavitDialogs.sendDialogMessage(NavitDialogs.MSG_TOAST_LONG, null,
                         Navit.getInstance().getTstring(R.string.map_download_oversize),
