@@ -192,13 +192,13 @@ public class NavitGraphics {
 
     public void setMotionCallback(int id) {
         mMotionCallbackID = id;
-        Navit.setMotionCallback(id, this);
+        Navit.getInstance().setMotionCallback(id, this);
     }
 
     public void setKeypressCallback(int id) {
         mKeypressCallbackID = id;
         // set callback id also in main intent (for menus)
-        Navit.setKeypressCallback(id, this);
+        Navit.getInstance().setKeypressCallback(id, this);
     }
 
 
