@@ -4,38 +4,38 @@ import java.io.File;
 
 public class NavitMap {
 
-    final String mapName;
-    private final String fileName;
-    private final String mapPath;
+    final String mMapName;
+    private final String mFileName;
+    private final String mMapPath;
 
     NavitMap(String path, String mapFileName) {
-        mapPath = path;
-        fileName = mapFileName;
+        mMapPath = path;
+        mFileName = mapFileName;
         if (mapFileName.endsWith(".bin")) {
-            mapName = mapFileName.substring(0, mapFileName.length() - 4);
+            mMapName = mapFileName.substring(0, mapFileName.length() - 4);
         } else {
-            mapName = mapFileName;
+            mMapName = mapFileName;
         }
     }
 
     NavitMap(String mapLocation) {
         File mapFile = new File(mapLocation);
 
-        mapPath = mapFile.getParent() + "/";
-        fileName = mapFile.getName();
-        if (fileName.endsWith(".bin")) {
-            mapName = fileName.substring(0, fileName.length() - 4);
+        mMapPath = mapFile.getParent() + "/";
+        mFileName = mapFile.getName();
+        if (mFileName.endsWith(".bin")) {
+            mMapName = mFileName.substring(0, mFileName.length() - 4);
         } else {
-            mapName = fileName;
+            mMapName = mFileName;
         }
     }
 
     public long size() {
-        File mapFile = new File(mapPath + fileName);
+        File mapFile = new File(mMapPath + mFileName);
         return mapFile.length();
     }
 
     public String getLocation() {
-        return mapPath + fileName;
+        return mMapPath + mFileName;
     }
 }
