@@ -19,7 +19,7 @@ import org.navitproject.navit.NavitAddressSearchActivity.NavitAddress;
 public class NavitAppConfig extends Application {
 
     private static final int         MAX_LAST_ADDRESSES = 10;
-    private static final String      TAG                = "Navit";
+    //private static final String      TAG                = "Navit";
 
     private List<NavitAddress> mLastAddresses     = null;
     private int                      mLastAddressField;
@@ -87,9 +87,9 @@ public class NavitAppConfig extends Application {
         SharedPreferences.Editor editSettings = mSettings.edit();
 
         editSettings.putInt("LastAddress", mLastAddressField);
-        editSettings.putString("LastAddress_" + String.valueOf(mLastAddressField), newAddress.addr);
-        editSettings.putFloat("LastAddress_Lat_" + String.valueOf(mLastAddressField), newAddress.lat);
-        editSettings.putFloat("LastAddress_Lon_" + String.valueOf(mLastAddressField), newAddress.lon);
+        editSettings.putString("LastAddress_" + String.valueOf(mLastAddressField), newAddress.mAddr);
+        editSettings.putFloat("LastAddress_Lat_" + String.valueOf(mLastAddressField), newAddress.mLat);
+        editSettings.putFloat("LastAddress_Lon_" + String.valueOf(mLastAddressField), newAddress.mLon);
 
         editSettings.apply();
     }
