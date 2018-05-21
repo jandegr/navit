@@ -4,7 +4,7 @@ public class NavitAddress {
 
         int mResultType;
         int mId;
-        float mLat;
+    float mLat;
         float mLon;
         String mAddr;
         private String mAddrExtras;
