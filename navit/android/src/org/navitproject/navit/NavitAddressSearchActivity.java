@@ -352,8 +352,12 @@ public class NavitAddressSearchActivity extends Activity {
 
     }
 
-    // wordt aangeroepen vanuit de native code
-    public void finishAddressSearch() {
+    /*
+    * This gets called from the native code to indicate
+    * no more search results are following
+    *
+    * */
+    void finishAddressSearch() {
         // search_handle = 0;
         // versie update when complete
         mAddressAdapter.sort(new NavitAddressComparator());
@@ -365,7 +369,7 @@ public class NavitAddressSearchActivity extends Activity {
         if (mOngoingSearches == 0) {
             mZoekBar.setVisibility(View.INVISIBLE);
         }
-        Log.d(TAG, "einde zoeken");
+        Log.d(TAG, "end of search");
     }
 
     public native long callbackStartAddressSearch(int partialMatch, String country, String s);
@@ -386,7 +390,7 @@ public class NavitAddressSearchActivity extends Activity {
         callbackSearch(mSearchHandle, mZoektype, 0, mAddressString);
     }
 
-    public static final class NavitAddress {
+    static final class NavitAddress {
 
         int mResultType;
         int mId;
@@ -404,6 +408,7 @@ public class NavitAddressSearchActivity extends Activity {
             mAddr = address;
             mAddrExtras = addrExtras;
         }
+
 
         public String toString() {
             if (mResultType == 2) { // huisnummer
