@@ -340,7 +340,7 @@ public class NavitAddressSearchActivity extends Activity {
      */
     public void receiveAddress(int type, int id, float latitude, float longitude, String address, String extras) {
 
-         mAddressesFound.insert(new NavitSearchAddress(type, id, latitude, longitude, address, extras));
+        mAddressesFound.insert(new NavitSearchAddress(type, id, latitude, longitude, address, extras));
         //mAddressAdapter.add(new NavitAddress(type, id, latitude, longitude, address,
         //        extras));
 
