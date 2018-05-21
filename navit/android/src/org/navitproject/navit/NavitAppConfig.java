@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.List;
-import org.navitproject.navit.NavitAddressSearchActivity.NavitAddress;
 
 //@ReportsCrashes(
 //      httpMethod = org.acra.sender.HttpSender.Method.PUT,
