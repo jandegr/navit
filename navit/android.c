@@ -105,11 +105,11 @@ JNIEXPORT void JNICALL
 Java_org_navitproject_navit_Navit_navitMain(JNIEnv *env,
                                             jclass type,
                                             jobject navit,
-                                            jstring lang_,
+                                            jstring lang,
                                             jint version,
-                                            jstring display_density_string_,
+                                            jstring display_density_string,
                                             jstring path_,
-                                            jstring map_path_)
+                                            jstring map_path)
 {
 	const char *langstr;
 	const char *displaydensitystr;
@@ -118,23 +118,23 @@ Java_org_navitproject_navit_Navit_navitMain(JNIEnv *env,
 	__android_log_print(ANDROID_LOG_ERROR,"test","called");
 	jnienv_t=env;
 	android_activity = (*env)->NewGlobalRef(env, navit);
-	langstr=(*env)->GetStringUTFChars(env, lang_, NULL);
+	langstr=(*env)->GetStringUTFChars(env, lang, NULL);
 	dbg(lvl_debug,"enter env=%p type=%p activity=%p lang=%s version=%d\n",env,type,android_activity,langstr,version);
 	setenv("LANG",langstr,1);
-	(*env)->ReleaseStringUTFChars(env, lang_, langstr);
+	(*env)->ReleaseStringUTFChars(env, lang, langstr);
 
-	displaydensitystr=(*env)->GetStringUTFChars(env, display_density_string_, NULL);
+	displaydensitystr=(*env)->GetStringUTFChars(env, display_density_string, NULL);
 	dbg(lvl_debug,"*****displaydensity=%s\n",displaydensitystr);
 	setenv("ANDROID_DENSITY",displaydensitystr,1);
-	(*env)->ReleaseStringUTFChars(env, display_density_string_, displaydensitystr);
+	(*env)->ReleaseStringUTFChars(env, display_density_string, displaydensitystr);
 
 	map_filename_path=(*env)->GetStringUTFChars(env, map_path_, NULL);
 	setenv("NAVIT_USER_DATADIR",map_filename_path,1);
-	(*env)->ReleaseStringUTFChars(env, display_density_string_, map_filename_path);
+	(*env)->ReleaseStringUTFChars(env, display_density_string, map_filename_path);
 
-	const char *strings=(*env)->GetStringUTFChars(env, path_, NULL);
+	const char *strings=(*env)->GetStringUTFChars(env, path, NULL);
 	main_real(1, &strings);
-	(*env)->ReleaseStringUTFChars(env, path_, strings);
+	(*env)->ReleaseStringUTFChars(env, path, strings);
 }
 
 JNIEXPORT void JNICALL
