@@ -108,7 +108,7 @@ Java_org_navitproject_navit_Navit_navitMain(JNIEnv *env,
                                             jstring lang,
                                             jint version,
                                             jstring display_density_string,
-                                            jstring path_,
+                                            jstring path,
                                             jstring map_path)
 {
 	const char *langstr;
