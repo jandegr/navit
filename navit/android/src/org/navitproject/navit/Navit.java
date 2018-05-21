@@ -102,8 +102,8 @@ public class Navit extends Activity {
         Navit.navitGraphics = navitGraphics;
     }
 
-    static native void navitMain(Navit navit, String lang_, int version,
-            String display_density_string_, String path_, String map_path_);
+    static native void navitMain(Navit navit, String lang, int version,
+            String display_density_string, String path, String map_path);
 
     /*
      * this is used to load the 'navit' native library on
@@ -123,11 +123,11 @@ public class Navit extends Activity {
     /* Translates a string from its id
      * in R.strings
      *
-     * @param rID resource identifier
+     * @param riD resource identifier
      * @retrun translated string
      */
-    String getTstring(int rID) {
-        return callbackLocalizedString(getString(rID));
+    String getTstring(int riD) {
+        return callbackLocalizedString(getString(riD));
     }
 
     void removeFileIfExists(String source) {
@@ -561,8 +561,8 @@ public class Navit extends Activity {
         String[] naviData = schemeSpecificPart.split("&");
         Pattern p = Pattern.compile("(.*)=(.*)");
         Map<String, String> params = new HashMap<String, String>();
-        for (String aNaviData : naviData) {
-            Matcher m = p.matcher(aNaviData);
+        for (String mNaviData : naviData) {
+            Matcher m = p.matcher(mNaviData);
             if (m.matches()) {
                 params.put(m.group(1), m.group(2));
             }
