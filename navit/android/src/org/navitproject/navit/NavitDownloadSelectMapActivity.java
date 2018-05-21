@@ -80,7 +80,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
     private void updateDownloadedMaps() {
         downloaded_maps_childs.clear();
         for (NavitMap map : NavitMapDownloader.getAvailableMaps()) {
-            HashMap<String, String> child = new HashMap<String, String>();
+            HashMap<String, String> child = new HashMap<>();
             child.put("map_name", map.mMapName + " " + (map.size() / 1024 / 1024) + "MB");
             child.put("map_location", map.getLocation());
             downloaded_maps_childs.add(child);
@@ -124,7 +124,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                 for (int currentMapIndex = 0; currentMapIndex < osmMaps.length;
                         currentMapIndex++) {
                     if (osmMaps[currentMapIndex].isInMap(currentLocation)) {
-                        HashMap<String, String> currentPositionMapChild = new HashMap<String, String>();
+                        HashMap<String, String> currentPositionMapChild = new HashMap<>();
                         currentPositionMapChild
                                 .put("map_name", osmMaps[currentMapIndex].map_name + " "
                                         + (osmMaps[currentMapIndex].est_size_bytes / 1024 / 1024) + "MB");
@@ -139,45 +139,43 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
     private SimpleExpandableListAdapter createAdapter() {
 
-        NavitMapDownloader.osm_map_values[] osm_maps = NavitMapDownloader.osm_maps;
-
-        ArrayList<HashMap<String, String>> resultGroups = new ArrayList<HashMap<String, String>>();
-        ArrayList<ArrayList<HashMap<String, String>>> resultChilds =
-                new ArrayList<ArrayList<HashMap<String, String>>>();
+        ArrayList<HashMap<String, String>> resultGroups = new ArrayList<>();
 
         // add already downloaded maps (group and empty child list
-        HashMap<String, String> downloadedMapsHash = new HashMap<String, String>();
+        HashMap<String, String> downloadedMapsHash = new HashMap<>();
         downloadedMapsHash
                 .put("category_name", Navit.getInstance().getTstring(R.string.maps_installed));
         resultGroups.add(downloadedMapsHash);
-        downloaded_maps_childs = new ArrayList<HashMap<String, String>>();
+        downloaded_maps_childs = new ArrayList<>();
+        ArrayList<ArrayList<HashMap<String, String>>> resultChilds =
+                new ArrayList<>();
         resultChilds.add(downloaded_maps_childs);
 
-        ArrayList<HashMap<String, String>> secList = new ArrayList<HashMap<String, String>>();
-        maps_current_position_childs = new ArrayList<HashMap<String, String>>();
+        ArrayList<HashMap<String, String>> secList = new ArrayList<>();
+        maps_current_position_childs = new ArrayList<>();
         // maps containing the current location
-        HashMap<String, String> matchingMaps = new HashMap<String, String>();
+        HashMap<String, String> matchingMaps = new HashMap<>();
         matchingMaps.put("category_name",
                 Navit.getInstance().getTstring(R.string.maps_for_current_location));
         resultGroups.add(matchingMaps);
         resultChilds.add(maps_current_position_childs);
-
+        NavitMapDownloader.osm_map_values[] osmMaps = NavitMapDownloader.osm_maps;
         // add all maps
-        for (int currentMapIndex = 0; currentMapIndex < osm_maps.length; currentMapIndex++) {
-            if (osm_maps[currentMapIndex].level == 0) {
+        for (int currentMapIndex = 0; currentMapIndex < osmMaps.length; currentMapIndex++) {
+            if (osmMaps[currentMapIndex].level == 0) {
                 if (secList.size() > 0) {
                     resultChilds.add(secList);
                 }
-                secList = new ArrayList<HashMap<String, String>>();
-                HashMap<String, String> mapInfoHash = new HashMap<String, String>();
-                mapInfoHash.put("category_name", osm_maps[currentMapIndex].map_name);
+                secList = new ArrayList<>();
+                HashMap<String, String> mapInfoHash = new HashMap<>();
+                mapInfoHash.put("category_name", osmMaps[currentMapIndex].map_name);
                 resultGroups.add(mapInfoHash);
             }
 
-            HashMap<String, String> child = new HashMap<String, String>();
-            child.put("map_name", (osm_maps[currentMapIndex].level > 1 ? MAP_BULLETPOINT : "")
-                    + osm_maps[currentMapIndex].map_name + " "
-                    + (osm_maps[currentMapIndex].est_size_bytes / 1024 / 1024) + "MB");
+            HashMap<String, String> child = new HashMap<>();
+            child.put("map_name", (osmMaps[currentMapIndex].level > 1 ? MAP_BULLETPOINT : "")
+                    + osmMaps[currentMapIndex].map_name + " "
+                    + (osmMaps[currentMapIndex].est_size_bytes / 1024 / 1024) + "MB");
             child.put("map_index", String.valueOf(currentMapIndex));
 
             secList.add(child);
