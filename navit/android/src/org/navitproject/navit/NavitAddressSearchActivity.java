@@ -390,39 +390,9 @@ public class NavitAddressSearchActivity extends Activity {
         callbackSearch(mSearchHandle, mZoektype, 0, mAddressString);
     }
 
-    static final class NavitAddress {
-
-        int mResultType;
-        int mId;
-        float mLat;
-        float mLon;
-        String mAddr;
-        String mAddrExtras;
-
-        NavitAddress(int type, int id, float latitude, float longitude,
-                String address, String addrExtras) {
-            mResultType = type;
-            this.mId = id;
-            mLat = latitude;
-            mLon = longitude;
-            mAddr = address;
-            mAddrExtras = addrExtras;
-        }
 
 
-        public String toString() {
-            if (mResultType == 2) { // huisnummer
-                return this.mAddr;
-            }
-            if (mResultType == 1) { // straat
-                return this.mAddr;
-            }
-            return (this.mAddr + " " + this.mAddrExtras);
-        }
-    }
-
-    static class NavitAddressComparator implements
-            Comparator<NavitAddress> {
+    class NavitAddressComparator implements Comparator<NavitAddress> {
 
         //      @Override
         public int compare(NavitAddress lhs, NavitAddress rhs) {
@@ -466,17 +436,16 @@ public class NavitAddressSearchActivity extends Activity {
 
         private static final long serialVersionUID = 1L;
 
-
-        public void insert(NavitAddress address) {
+        public void insert(T t) {
             NavitAddressComparator comp = new NavitAddressComparator();
             int index = this.size() - 1;
             if (index >= 0) {
-                while (index >= 0 && comp.compare((NavitAddress) this.get(index), address) > 0) {
+                while (index >= 0 && comp.compare((NavitAddress)this.get(index), (NavitAddress) t) > 0) {
                     index--;
                 }
-                this.add(index + 1, (T) address);
+                this.add(index + 1, t);
             } else {
-                this.add((T) address);
+                this.add(t);
             }
         }
     }
