@@ -12,7 +12,7 @@ import org.navitproject.navit.NavitAddressSearchActivity.NavitAddress;
 //          formUri = "http://192.168.1.115/acra-myapp/_design/acra-storage/_update/report",
 //          formUriBasicAuthLogin = "testnavit",
 //          formUriBasicAuthPassword = "p4ssw0rd")
-//@ReportsCrashes(mailTo = "jandegr1@hotmail.com",
+//@ReportsCrashes(mailTo = "me@somewhere.com",
 //      mode = ReportingInteractionMode.TOAST,
 //                resToastText = R.string.app_name
 //      )
@@ -47,9 +47,9 @@ public class NavitAppConfig extends Application {
     public List<NavitAddress> getLastAddresses() {
         if (mLastAddresses == null) {
             mLastAddresses = new ArrayList<>();
-            int mLastAddressField = mSettings.getInt("LastAddress", -1);
-            if (mLastAddressField >= 0) {
-                int index = mLastAddressField;
+            int lastAddressField = mSettings.getInt("LastAddress", -1);
+            if (lastAddressField >= 0) {
+                int index = lastAddressField;
                 do {
                     String addrStr = mSettings.getString("LastAddress_" + String.valueOf(index), "");
 
@@ -65,7 +65,7 @@ public class NavitAppConfig extends Application {
                         index = MAX_LAST_ADDRESSES - 1;
                     }
 
-                } while (index != mLastAddressField);
+                } while (index != lastAddressField);
             }
         }
         return mLastAddresses;
