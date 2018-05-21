@@ -273,7 +273,7 @@ public class NavitAddressSearchActivity extends Activity {
 
         class AddressDialogFragment extends DialogFragment {
 
-            public AddressDialogFragment(){
+            public AddressDialogFragment() {
                 super();
             }
 
@@ -336,13 +336,12 @@ public class NavitAddressSearchActivity extends Activity {
     }
 
     /**
-     *
+     * Receives found addresses from the navitve code.
      */
     public void receiveAddress(int type, int id, float latitude,
             float longitude, String address, String extras) {
 
-         mAddressesFound.insert(new
-                 NavitSearchAddress(type, id, latitude, longitude, address, extras));
+         mAddressesFound.insert(new NavitSearchAddress(type, id, latitude, longitude, address, extras));
         //mAddressAdapter.add(new NavitAddress(type, id, latitude, longitude, address,
         //        extras));
 
@@ -366,7 +365,7 @@ public class NavitAddressSearchActivity extends Activity {
 
        // comparator zit nu in addresslist, als dit nog zou gebruikt worden moet er een
        // implement toegevoegd worden of zo
-       //    mAddressAdapter.sort(new NavitAddressComparator());
+       // mAddressAdapter.sort(new NavitAddressComparator());
         mAddressAdapter.notifyDataSetChanged();
         Log.e(TAG, "ongoingSearches " + mOngoingSearches);
         if (mOngoingSearches > 0) {
@@ -402,7 +401,7 @@ public class NavitAddressSearchActivity extends Activity {
         private static final long serialVersionUID = 1L;
 
         public void insert(NavitSearchAddress address) {
-          //  NavitAddressComparator comp = new NavitAddressComparator();
+            //  NavitAddressComparator comp = new NavitAddressComparator();
             int index = this.size() - 1;
             if (index >= 0) {
                 while (index >= 0 && compare(this.get(index), address) > 0) {
