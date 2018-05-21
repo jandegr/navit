@@ -41,19 +41,17 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+
 import java.lang.reflect.Field;
 import java.text.Normalizer;
-import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
 
 public class NavitAddressSearchActivity extends Activity {
 
     private static final String TAG = "NavitAddress";
-    private static final int resultTypeHouseNumber = 2;
     private static String mAddressString = "";
     // TODO remember settings
     private static String last_address_search_string = "";
@@ -61,10 +59,10 @@ public class NavitAddressSearchActivity extends Activity {
     private final int mZoekTypeTown = 2; // in enum steken ?
     private int mZoektype = mZoekTypeTown; // town
     private int mOngoingSearches = 0;
-    private ArrayAdapter<NavitAddress> mAddressAdapter;
-    private final List<NavitAddress> mAddressesFound = new NavitAddressList<>();
-    private NavitAddress mSelectedTown;
-    private NavitAddress mSelectedStreet;
+    private ArrayAdapter<NavitSearchAddress> mAddressAdapter;
+    private final NavitAddressList mAddressesFound = new NavitAddressList();
+    private NavitSearchAddress mSelectedTown;
+    private NavitSearchAddress mSelectedStreet;
     private boolean mPartialSearch = true;
     private String mCountry;
     private ImageButton mCountryButton;
@@ -269,11 +267,15 @@ public class NavitAddressSearchActivity extends Activity {
         mapModeChooser.show();
     }
 
-    private void addressDialog(NavitAddress address) {
+    private void addressDialog(NavitSearchAddress address) {
 
-        final NavitAddress addressSelected = address;
+        final NavitSearchAddress addressSelected = address;
 
         class AddressDialogFragment extends DialogFragment {
+
+            public AddressDialogFragment(){
+                super();
+            }
 
             @Override
             public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -285,7 +287,7 @@ public class NavitAddressSearchActivity extends Activity {
                         .setPositiveButton("Als bestemming instellen",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,
-                                            int id) {
+                                                        int id) {
 
                                         Intent resultIntent = new Intent();
 
@@ -318,7 +320,7 @@ public class NavitAddressSearchActivity extends Activity {
                         .setNegativeButton("cancel",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,
-                                            int id) {
+                                                        int id) {
                                         // User cancelled the dialog
                                         AddressDialogFragment.this.getDialog()
                                                 .cancel();
@@ -328,24 +330,25 @@ public class NavitAddressSearchActivity extends Activity {
                 return builder.create();
             }
         }
+
         AddressDialogFragment newFragment = new AddressDialogFragment();
         newFragment.show(getFragmentManager(), "missiles");
     }
 
     /**
-     * start a search on the map.
+     *
      */
     public void receiveAddress(int type, int id, float latitude,
             float longitude, String address, String extras) {
 
-        // -> ((NavitAddressList<NavitAddress>) Addresses_found).insert(new
-        // NavitAddress(type, latitude, longitude,0,0, address));
-        mAddressAdapter.add(new NavitAddress(type, id, latitude, longitude, address,
-                extras));
+         mAddressesFound.insert(new
+                 NavitSearchAddress(type, id, latitude, longitude, address, extras));
+        //mAddressAdapter.add(new NavitAddress(type, id, latitude, longitude, address,
+        //        extras));
 
         // jdgAdapter.sort(new NavitAddressComparator());
         //
-        // -> jdgAdapter.notifyDataSetChanged();
+        mAddressAdapter.notifyDataSetChanged();
         // -> is voor live update
         // loopt veel soepeler zonder live update met sorted insert
         // de lijst maar tonen when complete helpt niet merkbaar
@@ -360,7 +363,10 @@ public class NavitAddressSearchActivity extends Activity {
     void finishAddressSearch() {
         // search_handle = 0;
         // versie update when complete
-        mAddressAdapter.sort(new NavitAddressComparator());
+
+       // comparator zit nu in addresslist, als dit nog zou gebruikt worden moet er een
+       // implement toegevoegd worden of zo
+       //    mAddressAdapter.sort(new NavitAddressComparator());
         mAddressAdapter.notifyDataSetChanged();
         Log.e(TAG, "ongoingSearches " + mOngoingSearches);
         if (mOngoingSearches > 0) {
@@ -391,14 +397,28 @@ public class NavitAddressSearchActivity extends Activity {
     }
 
 
+    class NavitAddressList extends ArrayList<NavitSearchAddress> {
 
-    class NavitAddressComparator implements Comparator<NavitAddress> {
+        private static final long serialVersionUID = 1L;
 
-        //      @Override
-        public int compare(NavitAddress lhs, NavitAddress rhs) {
+        public void insert(NavitSearchAddress address) {
+          //  NavitAddressComparator comp = new NavitAddressComparator();
+            int index = this.size() - 1;
+            if (index >= 0) {
+                while (index >= 0 && compare(this.get(index), address) > 0) {
+                    index--;
+                }
+                this.add(index + 1, address);
+            } else {
+                this.add(address);
+            }
+        }
 
-            if (lhs.mResultType == resultTypeHouseNumber
-                    && rhs.mResultType == resultTypeHouseNumber) {
+
+        int compare(NavitSearchAddress lhs, NavitSearchAddress rhs) {
+
+            if (lhs.mResultType == 2
+                    && rhs.mResultType == 2) {
                 String lhsNum = "";
                 String rhsNum = "";
                 if (lhs.mAddr.length() > 0) {
@@ -416,9 +436,9 @@ public class NavitAddressSearchActivity extends Activity {
                     return 1;
                 }
             }
-            String lhsNormalized = Normalizer.normalize(lhs.mAddr, Form.NFD)
+            String lhsNormalized = Normalizer.normalize(lhs.mAddr, Normalizer.Form.NFD)
                     .replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
-            String rhsNormalized = Normalizer.normalize(rhs.mAddr, Form.NFD)
+            String rhsNormalized = Normalizer.normalize(rhs.mAddr, Normalizer.Form.NFD)
                     .replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
             if (lhsNormalized.indexOf(mAddressString.toLowerCase()) == 0
                     && rhsNormalized.toLowerCase().indexOf(mAddressString.toLowerCase()) != 0) {
@@ -429,24 +449,6 @@ public class NavitAddressSearchActivity extends Activity {
                 return 1;
             }
             return (lhsNormalized.compareTo(rhsNormalized));
-        }
-    }
-
-    public class NavitAddressList<T> extends ArrayList<T> {
-
-        private static final long serialVersionUID = 1L;
-
-        public void insert(T t) {
-            NavitAddressComparator comp = new NavitAddressComparator();
-            int index = this.size() - 1;
-            if (index >= 0) {
-                while (index >= 0 && comp.compare((NavitAddress)this.get(index), (NavitAddress) t) > 0) {
-                    index--;
-                }
-                this.add(index + 1, t);
-            } else {
-                this.add(t);
-            }
         }
     }
 }
