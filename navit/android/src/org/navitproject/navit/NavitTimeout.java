@@ -28,28 +28,28 @@ import android.util.Log;
 class NavitTimeout implements Runnable {
     private static Handler handler = new Handler() {
             public void handleMessage(Message m) {
-                Log.e("Navit","Handler received message");
+                Log.e("NavitTimeout","Handler received message");
             }
         };
-    private boolean eventMulti;
-    private int eventCallbackid;
-    private int eventTimeout;
+    private boolean mEventMulti;
+    private int mEventCallbackid;
+    private int mEventTimeout;
 
     NavitTimeout(int timeout, boolean multi, int callbackid) {
-        eventTimeout = timeout;
-        eventMulti = multi;
-        eventCallbackid = callbackid;
-        handler.postDelayed(this, eventTimeout);
+        mEventTimeout = timeout;
+        mEventMulti = multi;
+        mEventCallbackid = callbackid;
+        handler.postDelayed(this, mEventTimeout);
     }
 
     public native void timeoutCallback(int id);
 
     public void run() {
         // Log.e("Navit","Handle Event");
-        if (eventMulti) {
-            handler.postDelayed(this, eventTimeout);
+        if (mEventMulti) {
+            handler.postDelayed(this, mEventTimeout);
         }
-        timeoutCallback(eventCallbackid);
+        timeoutCallback(mEventCallbackid);
     }
 
     public void remove() {

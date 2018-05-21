@@ -81,7 +81,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
         downloaded_maps_childs.clear();
         for (NavitMap map : NavitMapDownloader.getAvailableMaps()) {
             HashMap<String, String> child = new HashMap<String, String>();
-            child.put("map_name", map.mapName + " " + (map.size() / 1024 / 1024) + "MB");
+            child.put("map_name", map.mMapName + " " + (map.size() / 1024 / 1024) + "MB");
             child.put("map_location", map.getLocation());
             downloaded_maps_childs.add(child);
         }
@@ -234,7 +234,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
         message.setLayoutParams(layoutParams);
         NavitMap maptoDelete = new NavitMap(mapLocation);
-        message.setText(maptoDelete.mapName + " " + String.valueOf(maptoDelete.size() / 1024 / 1024)
+        message.setText(maptoDelete.mMapName + " " + String.valueOf(maptoDelete.size() / 1024 / 1024)
                 + "MB");
         deleteMapBox.setView(message);
 
