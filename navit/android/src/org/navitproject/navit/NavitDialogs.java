@@ -34,8 +34,8 @@ public class NavitDialogs extends Handler {
     private static final int MSG_REMOVE_DIALOG_GENERIC = 99;
     private static Handler mHandler;
 
-    private ProgressDialog mapdownloaderDialog = null;
-    private NavitMapDownloader mapdownloader = null;
+    private ProgressDialog mMapdownloaderDialog = null;
+    private NavitMapDownloader mMapdownloader = null;
 
     private final Navit mActivity;
 
@@ -90,10 +90,10 @@ public class NavitDialogs extends Handler {
             }
             case MSG_PROGRESS_BAR:
                 // change progressbar values
-                mapdownloaderDialog.setMax(msg.getData().getInt("value1"));
-                mapdownloaderDialog.setProgress(msg.getData().getInt("value2"));
-                mapdownloaderDialog.setTitle(msg.getData().getString(("title")));
-                mapdownloaderDialog.setMessage(msg.getData().getString(("text")));
+                mMapdownloaderDialog.setMax(msg.getData().getInt("value1"));
+                mMapdownloaderDialog.setProgress(msg.getData().getInt("value2"));
+                mMapdownloaderDialog.setTitle(msg.getData().getString(("title")));
+                mMapdownloaderDialog.setMessage(msg.getData().getString(("text")));
                 break;
             case MSG_TOAST:
                 Toast.makeText(mActivity, msg.getData().getString(("text")), Toast.LENGTH_SHORT)
@@ -110,9 +110,9 @@ public class NavitDialogs extends Handler {
 
                 // show the map download progressbar, and download the map
                 if (downloadMapId > -1) {
-                    mapdownloader = new NavitMapDownloader(downloadMapId);
+                    mMapdownloader = new NavitMapDownloader(downloadMapId);
                     mActivity.showDialog(NavitDialogs.DIALOG_MAPDOWNLOAD);
-                    mapdownloader.start();
+                    mMapdownloader.start();
                 }
                 break;
             case MSG_REMOVE_DIALOG_GENERIC:
@@ -130,27 +130,27 @@ public class NavitDialogs extends Handler {
 
         switch (id) {
             case DIALOG_MAPDOWNLOAD:
-                mapdownloaderDialog = new ProgressDialog(mActivity);
-                mapdownloaderDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                mapdownloaderDialog.setTitle("--");
-                mapdownloaderDialog.setMessage("--");
-                mapdownloaderDialog.setCancelable(true);
-                mapdownloaderDialog.setProgress(0);
-                mapdownloaderDialog.setMax(200);
+                mMapdownloaderDialog = new ProgressDialog(mActivity);
+                mMapdownloaderDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                mMapdownloaderDialog.setTitle("--");
+                mMapdownloaderDialog.setMessage("--");
+                mMapdownloaderDialog.setCancelable(true);
+                mMapdownloaderDialog.setProgress(0);
+                mMapdownloaderDialog.setMax(200);
                 DialogInterface.OnDismissListener onDismissListener = new DialogInterface.OnDismissListener() {
                     public void onDismiss(DialogInterface dialog) {
                         Log.e("Navit", "onDismiss: mapdownloader_dialog");
-                        if (mapdownloader != null) {
-                            mapdownloader.stop_thread();
+                        if (mMapdownloader != null) {
+                            mMapdownloader.stop_thread();
                         }
                     }
                 };
-                mapdownloaderDialog.setOnDismissListener(onDismissListener);
+                mMapdownloaderDialog.setOnDismissListener(onDismissListener);
                 // show license for OSM maps
                 Toast.makeText(mActivity.getApplicationContext(),
                         mActivity.getTstring(R.string.osm_copyright),
                         Toast.LENGTH_LONG).show();
-                return mapdownloaderDialog;
+                return mMapdownloaderDialog;
 
             case DIALOG_BACKUP_RESTORE:
                 /* Create a Dialog that Displays Options wether to Backup or Restore */

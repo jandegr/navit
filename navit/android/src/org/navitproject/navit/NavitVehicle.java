@@ -38,9 +38,9 @@ public class NavitVehicle {
     private static LocationManager sLocationManager = null;
     private static NavitLocationListener preciseLocationListener = null;
     private static NavitLocationListener fastLocationListener = null;
-    private int vehiclePcbid;
-    private int vehicleFcbid;
-    private String fastProvider;
+    private int mVehiclePcbid;
+    private int mVehicleFcbid;
+    private String mFastProvider;
 
     /**
      * Creates a new {@code NavitVehicle}.
@@ -60,7 +60,7 @@ public class NavitVehicle {
         }
         sLocationManager = (LocationManager) navit.getSystemService(Context.LOCATION_SERVICE);
         preciseLocationListener = new NavitLocationListener();
-        preciseLocationListener.precise = true;
+        preciseLocationListener.mPrecise = true;
         fastLocationListener = new NavitLocationListener();
 
         /* Use 2 LocationProviders, one precise (usually GPS), and one
@@ -87,27 +87,27 @@ public class NavitVehicle {
 
         String preciseProvider = sLocationManager.getBestProvider(highCriteria, false);
         Log.d(TAG, "Precise Provider " + preciseProvider);
-        fastProvider = sLocationManager.getBestProvider(lowCriteria, false);
+        mFastProvider = sLocationManager.getBestProvider(lowCriteria, false);
 
-        vehiclePcbid = pcbid;
-        vehicleFcbid = fcbid;
+        mVehiclePcbid = pcbid;
+        mVehicleFcbid = fcbid;
 
         navit.registerReceiver(preciseLocationListener, new IntentFilter(GPS_FIX_CHANGE));
         sLocationManager.requestLocationUpdates(preciseProvider, 0, 0, preciseLocationListener);
 
-        if (fastProvider == null || preciseProvider.compareTo(fastProvider) == 0) {
+        if (mFastProvider == null || preciseProvider.compareTo(mFastProvider) == 0) {
             List<String> fastProviderList = sLocationManager.getProviders(lowCriteria, false);
-            fastProvider = null;
+            mFastProvider = null;
             for (String fastCandidate : fastProviderList) {
                 if (preciseProvider.compareTo(fastCandidate) != 0) {
-                    fastProvider = fastCandidate;
-                    Log.d(TAG, "Fast Provider changed to " + fastProvider);
+                    mFastProvider = fastCandidate;
+                    Log.d(TAG, "Fast Provider changed to " + mFastProvider);
                     break;
                 }
             }
         }
-        if (fastProvider != null) {
-            sLocationManager.requestLocationUpdates(fastProvider, 0, 0, fastLocationListener);
+        if (mFastProvider != null) {
+            sLocationManager.requestLocationUpdates(mFastProvider, 0, 0, fastLocationListener);
         }
     }
 
@@ -130,17 +130,17 @@ public class NavitVehicle {
 
     private class NavitLocationListener extends BroadcastReceiver implements LocationListener {
 
-        boolean precise = false;
+        boolean mPrecise = false;
 
         public void onLocationChanged(Location location) {
             lastLocation = location;
             // Disable the fast provider if still active
-            if (precise && fastProvider != null) {
+            if (mPrecise && mFastProvider != null) {
                 sLocationManager.removeUpdates(fastLocationListener);
-                fastProvider = null;
+                mFastProvider = null;
             }
-            vehicleCallback(vehiclePcbid, location);
-            vehicleCallback(vehicleFcbid, 1);
+            vehicleCallback(mVehiclePcbid, location);
+            vehicleCallback(mVehicleFcbid, 1);
         }
 
         public void onProviderDisabled(String provider) {
@@ -156,9 +156,9 @@ public class NavitVehicle {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() != null && intent.getAction().equals(GPS_FIX_CHANGE)) {
                 if (intent.getBooleanExtra("enabled", false)) {
-                    vehicleCallback(vehicleFcbid, 1);
+                    vehicleCallback(mVehicleFcbid, 1);
                 } else if (!intent.getBooleanExtra("enabled", true)) {
-                    vehicleCallback(vehicleFcbid, 0);
+                    vehicleCallback(mVehicleFcbid, 0);
                 }
             }
         }
