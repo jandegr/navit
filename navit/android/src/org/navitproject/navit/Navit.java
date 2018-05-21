@@ -81,8 +81,8 @@ public class Navit extends Activity {
     private static Intent startupIntent = null;
     private static long startupIntentTimestamp = 0L;
     private static Navit navit;
-    private NavitDialogs dialogs;
-    private NavitActivityResult[] activityResults;
+    private NavitDialogs mDialogs;
+    private NavitActivityResult[] mActivityResults;
 
     static Navit getInstance() {
         return navit;
@@ -221,7 +221,7 @@ public class Navit extends Activity {
 
         if (firstStart) {
             AlertDialog.Builder infobox = new AlertDialog.Builder(this);
-            infobox.setTitle(getString(R.string.initial_info_box_title)); // TRANS
+            infobox.setTitle(getTstring(R.string.initial_info_box_title)); // TRANS
             infobox.setCancelable(false);
             final TextView message = new TextView(this);
             message.setFadingEdgeLength(20);
@@ -232,20 +232,20 @@ public class Navit extends Activity {
                     RelativeLayout.LayoutParams.FILL_PARENT);
             message.setLayoutParams(rlp);
             final SpannableString s = new SpannableString(
-                    navitTranslate(getString(R.string.initial_info_box_message))); // TRANS
+                    navitTranslate(getTstring(R.string.initial_info_box_message))); // TRANS
             Linkify.addLinks(s, Linkify.WEB_URLS);
             message.setText(s);
             message.setMovementMethod(LinkMovementMethod.getInstance());
             infobox.setView(message);
             // TRANS
-            infobox.setPositiveButton(getString(R.string.initial_info_box_OK),
+            infobox.setPositiveButton(getTstring(R.string.initial_info_box_OK),
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface arg0, int arg1) {
                             Log.d(TAG, "Ok, user saw the infobox");
                         }
                     });
             // TRANS
-            infobox.setNeutralButton(getString(R.string.initial_info_box_more_info),
+            infobox.setNeutralButton(getTstring(R.string.initial_info_box_more_info),
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface arg0, int arg1) {
                             Log.d(TAG, "user wants more info, show the website");
@@ -271,7 +271,7 @@ public class Navit extends Activity {
         super.onCreate(savedInstanceState);
         navit = this;
         //ACRA.getErrorReporter().setEnabled(false);
-        dialogs = new NavitDialogs(this);
+        mDialogs = new NavitDialogs(this);
         NavitResources = getResources();
         // only take arguments here, onResume gets called all the time (e.g. when screenblanks, etc.)
         Navit.startupIntent = this.getIntent();
@@ -370,7 +370,7 @@ public class Navit extends Activity {
         Log.i(TAG, "Navit -> density=" + Navit.metrics.density);
         Log.i(TAG, "Navit -> scaledDensity=" + Navit.metrics.scaledDensity);
 
-        activityResults = new NavitActivityResult[16];
+        mActivityResults = new NavitActivityResult[16];
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         Window w = this.getWindow();
@@ -561,8 +561,8 @@ public class Navit extends Activity {
         String[] naviData = schemeSpecificPart.split("&");
         Pattern p = Pattern.compile("(.*)=(.*)");
         Map<String, String> params = new HashMap<String, String>();
-        for (String mNaviData : naviData) {
-            Matcher m = p.matcher(mNaviData);
+        for (String aNaviData : naviData) {
+            Matcher m = p.matcher(aNaviData);
             if (m.matches()) {
                 params.put(m.group(1), m.group(2));
             }
@@ -613,7 +613,7 @@ public class Navit extends Activity {
 
     public void setActivityResult(int requestCode, NavitActivityResult activityResult) {
         //Log.e("Navit", "setActivityResult " + requestCode);
-        activityResults[requestCode] = activityResult;
+        mActivityResults[requestCode] = activityResult;
     }
 
     @Override
@@ -755,7 +755,7 @@ public class Navit extends Activity {
         switch (requestCode) {
             case Navit.NavitDownloaderSelectMap_id:
                 if (resultCode == Activity.RESULT_OK) {
-                    Message msg = dialogs.obtainMessage(NavitDialogs.MSG_START_MAP_DOWNLOAD,
+                    Message msg = mDialogs.obtainMessage(NavitDialogs.MSG_START_MAP_DOWNLOAD,
                             data.getIntExtra("map_index", -1), 0);
                     msg.sendToTarget();
                 }
@@ -792,19 +792,19 @@ public class Navit extends Activity {
                 break;
             default:
                 //Log.e("Navit", "onActivityResult " + requestCode + " " + resultCode);
-                activityResults[requestCode].onActivityResult(requestCode, resultCode, data);
+                mActivityResults[requestCode].onActivityResult(requestCode, resultCode, data);
                 break;
         }
     }
 
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
-        dialogs.prepareDialog(id, dialog);
+        mDialogs.prepareDialog(id, dialog);
         super.onPrepareDialog(id, dialog);
     }
 
     protected Dialog onCreateDialog(int id) {
-        return dialogs.createDialog(id);
+        return mDialogs.createDialog(id);
     }
 
     @Override
