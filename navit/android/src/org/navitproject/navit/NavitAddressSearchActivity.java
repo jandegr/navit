@@ -412,7 +412,6 @@ public class NavitAddressSearchActivity extends Activity {
             }
         }
 
-
         int compare(NavitSearchAddress lhs, NavitSearchAddress rhs) {
 
             if (lhs.mResultType == 2
