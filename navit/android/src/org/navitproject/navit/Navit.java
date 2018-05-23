@@ -74,7 +74,7 @@ public class Navit extends Activity {
     public static Boolean show_soft_keyboard_now_showing = false;
     public static long last_pressed_menu_key = 0L;
     public static long time_pressed_menu_key = 0L;
-    public static Resources NavitResources = null;
+    private static Resources NavitResources = null;
     // define callback id here
     public NavitGraphics mNavitGraphics = null;
     static String map_filename_path = null;
@@ -116,7 +116,7 @@ public class Navit extends Activity {
 
 
     /**
-     * get localized string.
+     * get localized string from the native code.
      */
     static native String callbackLocalizedString(String s);
 
@@ -130,6 +130,7 @@ public class Navit extends Activity {
         return callbackLocalizedString(getString(riD));
     }
 
+    // not used !!!
     void removeFileIfExists(String source) {
         File file = new File(source);
         if (!file.exists()) {
@@ -138,6 +139,7 @@ public class Navit extends Activity {
         file.delete();
     }
 
+    // not used !!!
     void copyFileIfExists(String source, String destination) throws IOException {
         File file = new File(source);
         if (!file.exists()) {
@@ -165,6 +167,7 @@ public class Navit extends Activity {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean extractRes(String resname, String result) {
         boolean needsUpdate = false;
         Log.e(TAG, "Res Name " + resname + ", result " + result);
@@ -346,6 +349,9 @@ public class Navit extends Activity {
             Log.e(TAG, "compat file " + f);
         }
 
+        Log.e(TAG,"package = " + getApplicationContext().getPackageName());
+
+
         map_filename_path = prefs.getString("filenamePath", navitfiles[0].toString() + "/");
 
         File navitMapsDir = new File(map_filename_path);
@@ -353,6 +359,7 @@ public class Navit extends Activity {
 
         navitMapsDir.mkdirs();
         final String NAVIT_DATA_DIR = getFilesDir().toString();
+        //final String NAVIT_DATA_DIR = navitfiles[0].getParent();
         final String NAVIT_DATA_SHARE_DIR = NAVIT_DATA_DIR + "/share";
 
         Log.e(TAG,"data dir = " + NAVIT_DATA_DIR);
@@ -403,7 +410,7 @@ public class Navit extends Activity {
             Log.e(TAG, "Failed to extract navit.xml for " + myDisplayDensity);
         }
 
-        Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + android.os.Build.VERSION.SDK_INT);
+        Log.d(TAG, "android.os.Build.VERSION.SDK_INT = " + android.os.Build.VERSION.SDK_INT);
         navitMain(this, navitLanguage, android.os.Build.VERSION.SDK_INT, myDisplayDensity,
                 NAVIT_DATA_DIR + "/bin/navit", map_filename_path);
         showInfos();
@@ -420,7 +427,7 @@ public class Navit extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(TAG, "OnResume");
+        Log.d(TAG, "OnResume");
         //InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         // DEBUG
         // intent_data = "google.navigation:q=Wien Burggasse 27";
@@ -560,7 +567,7 @@ public class Navit extends Activity {
     private void parseNavigationURI(String schemeSpecificPart) {
         String[] naviData = schemeSpecificPart.split("&");
         Pattern p = Pattern.compile("(.*)=(.*)");
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         for (String aNaviData : naviData) {
             Matcher m = p.matcher(aNaviData);
             if (m.matches()) {
@@ -627,7 +634,7 @@ public class Navit extends Activity {
         if (targetAddress == null || targetAddress.equals("")) {
             // empty search string entered
             Toast.makeText(getApplicationContext(), getTstring(R.string.address_search_not_found),
-                    Toast.LENGTH_LONG).show(); //TRANS
+                    Toast.LENGTH_LONG).show();
         } else {
             Intent searchIntent = new Intent(this, NavitAddressSearchActivity.class);
             searchIntent.putExtra("search_string", targetAddress);

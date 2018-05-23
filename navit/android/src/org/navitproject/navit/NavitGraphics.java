@@ -180,7 +180,6 @@ public class NavitGraphics {
     public native void motionCallback(int id, int x, int y);
 
     public native String getDefaultCountry(int id, String s);
-    // private int count;
 
     public void setSizeChangedCallback(int id) {
         mSizeChangedCallbackID = id;
@@ -421,7 +420,7 @@ public class NavitGraphics {
     }
 
     protected void overlay_disable(int disable) {
-        Log.e("NavitGraphics", "overlay_disable: " + disable + "Parent: " + (mParentGraphics != null));
+        Log.d("NavitGraphics", "overlay_disable: " + disable + "Parent: " + (mParentGraphics != null));
         // assume we are NOT in map view mode!
         if (mParentGraphics == null) {
             in_map = (disable == 0);
