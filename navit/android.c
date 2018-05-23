@@ -115,7 +115,6 @@ Java_org_navitproject_navit_Navit_navitMain(JNIEnv *env,
 	const char *displaydensitystr;
 	const char *map_filename_path;
 	android_version=version;
-	__android_log_print(ANDROID_LOG_ERROR,"test","called");
 	jnienv_t=env;
 	android_activity = (*env)->NewGlobalRef(env, navit);
 	langstr=(*env)->GetStringUTFChars(env, lang, NULL);
