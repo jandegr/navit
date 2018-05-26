@@ -43,7 +43,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
 
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void surfaceCreated(SurfaceHolder holder) {
         // The Surface has been created, acquire the camera and tell it where
@@ -61,7 +61,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
 
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void surfaceDestroyed(SurfaceHolder holder) {
         // Surface will be destroyed when we return, so stop the preview.
@@ -74,12 +74,12 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
 
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         // Now that the size is known, set up the camera parameters and begin
         // the preview.
-        Log.d(TAG,"surfaceChanged " + w + "x" + h);
+        Log.d(TAG,"surfaceChanged " + w + "x " + h);
         mCamera.stopPreview();
         Camera.Parameters parameters = mCamera.getParameters();
         parameters.setPreviewSize(w, h);
