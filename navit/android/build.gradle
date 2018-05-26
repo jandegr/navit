@@ -93,6 +93,8 @@ android {
 
             verbose = true
 	    
+	    options.memberLevel = JavadocMemberLevel.PROTECTED
+	    
             // you will probably get errors from using the @annotations and 
             // the support library, so just turn off failing for errors
             failOnError false    
