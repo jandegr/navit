@@ -79,7 +79,7 @@ android {
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
             //source = variant.javaCompile.source
             //source = sourceSets.allJava
-	    source = project.sourceSets.allJava
+	    source = project.sourceSets
             classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 
             // choose the destination that works best for you here
