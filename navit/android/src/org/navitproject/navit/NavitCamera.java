@@ -26,7 +26,9 @@ import java.io.IOException;
 
 
 
-
+/**
+ * Some dummy doc.
+ */
 class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
 
     private Camera mCamera;
