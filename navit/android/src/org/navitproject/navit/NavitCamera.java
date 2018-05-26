@@ -32,7 +32,7 @@ import java.io.IOException;
 class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
 
     private Camera mCamera;
-    private final String TAG = getClass().getName();
+    private static final String TAG = NavitCamera.class.getName();
 
     NavitCamera(Context context) {
         super(context);
