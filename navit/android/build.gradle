@@ -90,7 +90,7 @@ android {
 
             // the name that will appear in the docs
             title = rootProject.name
-
+            options.memberLevel = JavadocMemberLevel.PACKAGE
             verbose = true
 	    
             // you will probably get errors from using the @annotations and 
