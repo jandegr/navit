@@ -48,11 +48,9 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
     /**
      * {@inheritDoc}
      *
-     * acquire the camera and tell it where to draw.
-   
+     * <p>acquire the camera and tell it where to draw.</p>
      */
     public void surfaceCreated(SurfaceHolder holder) {
-
         try {
             mCamera = Camera.open();
             mCamera.setPreviewDisplay(holder);
@@ -67,11 +65,10 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>stop the preview and release the camera.</p>
      */
     public void surfaceDestroyed(SurfaceHolder holder) {
-        // Surface will be destroyed when we return, so stop the preview.
-        // Because the CameraDevice object is not a shared resource, it's very
-        // important to release it when the activity is paused.
         mCamera.stopPreview();
         mCamera = null;
         Log.d(TAG,"surfaceDestroyed");
@@ -80,10 +77,10 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>set up the camera with the new parameters and begin the preview.</p>
      */
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-        // Now that the size is known, set up the camera parameters and begin
-        // the preview.
         Log.d(TAG,"surfaceChanged " + w + "x " + h);
         mCamera.stopPreview();
         Camera.Parameters parameters = mCamera.getParameters();
