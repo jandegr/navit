@@ -33,7 +33,7 @@ class NavitSensors implements SensorEventListener {
                 SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
                 SensorManager.SENSOR_DELAY_NORMAL);
-        mCallbackid=cbid;
+        mCallbackid = cbid;
     }
 
     public native void sensorCallback(int id, int sensor, float x, float y, float z);
