@@ -27,8 +27,10 @@ import android.hardware.SensorManager;
 @SuppressWarnings("unused")
 class NavitSensors implements SensorEventListener {
     private int mCallbackid;
+
     NavitSensors(Context context, int cbid) {
-        SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        SensorManager sensorManager;
+        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
