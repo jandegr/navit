@@ -39,13 +39,13 @@ public class NavitDialogs extends Handler {
 
     private final Navit mActivity;
 
-    public NavitDialogs(Navit activity) {
+    NavitDialogs(Navit activity) {
         super();
         mActivity = activity;
         mHandler = this;
     }
 
-    public static void sendDialogMessage(int what, String title, String text, int dialogNum,
+    static void sendDialogMessage(int what, String title, String text, int dialogNum,
             int value1, int value2) {
 
         Bundle data = new Bundle();

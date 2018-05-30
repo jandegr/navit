@@ -43,7 +43,7 @@ public class NavitAppConfig extends Application {
         super.onCreate();
     }
 
-    public List<NavitSearchAddress> getLastAddresses() {
+    List<NavitSearchAddress> getLastAddresses() {
         if (mLastAddresses == null) {
             mLastAddresses = new ArrayList<>();
             int lastAddressField = mSettings.getInt("LastAddress", -1);
@@ -70,7 +70,7 @@ public class NavitAppConfig extends Application {
         return mLastAddresses;
     }
 
-    public void addLastAddress(NavitSearchAddress newAddress) {
+    void addLastAddress(NavitSearchAddress newAddress) {
         getLastAddresses();
 
         mLastAddresses.add(newAddress);
