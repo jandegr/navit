@@ -103,7 +103,7 @@ public class Navit extends Activity {
     }
 
     static native void navitMain(Navit navit, String lang, int version,
-            String display_density_string, String path, String map_path);
+            String displaydensity, String path, String mappath);
 
     /*
      * this is used to load the 'navit' native library on

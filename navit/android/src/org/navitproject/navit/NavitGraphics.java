@@ -638,7 +638,8 @@ public class NavitGraphics {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } catch (NoSuchFieldException ex) {
+            } catch (NoSuchFieldException e) {
+                Log.e(TAG,"Exception " + e.getMessage());
             }
 
             return retValue;
@@ -765,6 +766,7 @@ public class NavitGraphics {
                     Float y = (java.lang.Float) mEventGetY.invoke(instance, argument);
                     pos.set(x, y);
                 } catch (Exception e) {
+                    Log.e(TAG,"Exception " + e.getMessage());
                 }
             }
             return pos;
