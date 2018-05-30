@@ -47,6 +47,7 @@ public class NavitGraphics {
     /* These constants must be synchronized with enum draw_mode_num in graphics.h. */
     private static final int draw_mode_begin = 0;
     private static final int draw_mode_end = 1;
+    private static final int draw_mode_begin_clear = 2;
     private static final String TAG = "NavitGraphics";
     private static Boolean in_map = false;
     private static final MsgType[] msg_values = MsgType.values();
@@ -67,13 +68,14 @@ public class NavitGraphics {
     private ImageButton mZoomOutButton;
     private final NavitGraphics mParentGraphics;
     private final ArrayList<NavitGraphics> mOverlays = new ArrayList<>();
-
+    private NavitCamera                    camera;
     private Canvas mDrawCanvas;
     private Bitmap mDrawBitmap;
     private int mSizeChangedCallbackID;
     private int mButtonCallbackID;
     private int mMotionCallbackID;
     private int mKeypressCallbackID;
+    RelativeLayout relativelayout;
 
     /**
      * Constructs a NavitGraphics object.
@@ -88,7 +90,7 @@ public class NavitGraphics {
      * @param wraparound to be clarified
      */
     public NavitGraphics(final Activity activity, NavitGraphics parent, int x, int y, int w, int h,
-                         @SuppressWarnings("unused") int alpha, int wraparound) {
+                         @SuppressWarnings("unused") int alpha, int wraparound, int useCamera) {
         if (parent == null) {
             this.mActivity = activity;
             mView = new NavitView(activity);
@@ -97,7 +99,10 @@ public class NavitGraphics {
             mView.setFocusable(true);
             mView.setFocusableInTouchMode(true);
             mView.setKeepScreenOn(true);
-            RelativeLayout relativelayout = new RelativeLayout(activity);
+            relativelayout = new RelativeLayout(activity);
+            if (useCamera != 0) {
+                setCamera(useCamera);
+            }
             relativelayout.addView(mView);
 
             RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(96,96);
@@ -189,7 +194,7 @@ public class NavitGraphics {
         mButtonCallbackID = id;
     }
 
-    public void setMotionCallback(int id) {
+    void setMotionCallback(int id) {
         mMotionCallbackID = id;
         Navit.getInstance().setMotionCallback(id, this);
     }
@@ -200,6 +205,14 @@ public class NavitGraphics {
         Navit.getInstance().setKeypressCallback(id, this);
     }
 
+    private void setCamera(int useCamera) {
+        if (useCamera != 0 && camera == null) {
+            // activity.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            camera = new NavitCamera(mActivity);
+            relativelayout.addView(camera);
+            relativelayout.bringChildToFront(mView);
+        }
+    }
 
     protected void draw_polyline(Paint paint, int[] c) {
 
@@ -392,7 +405,7 @@ public class NavitGraphics {
                 mParentGraphics.mView.invalidate(get_rect());
             }
         }
-        if (mode == draw_mode_begin && mParentGraphics != null) {
+        if (mode == draw_mode_begin_clear || (mode == draw_mode_begin && mParentGraphics != null)) {
             mDrawBitmap.eraseColor(0);
         }
 
