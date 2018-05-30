@@ -68,14 +68,14 @@ public class NavitGraphics {
     private ImageButton mZoomOutButton;
     private final NavitGraphics mParentGraphics;
     private final ArrayList<NavitGraphics> mOverlays = new ArrayList<>();
-    private NavitCamera                    camera;
+    private NavitCamera mCamera;
     private Canvas mDrawCanvas;
     private Bitmap mDrawBitmap;
     private int mSizeChangedCallbackID;
     private int mButtonCallbackID;
     private int mMotionCallbackID;
     private int mKeypressCallbackID;
-    RelativeLayout relativelayout;
+    RelativeLayout mRelativelayout;
 
     /**
      * Constructs a NavitGraphics object.
@@ -99,11 +99,11 @@ public class NavitGraphics {
             mView.setFocusable(true);
             mView.setFocusableInTouchMode(true);
             mView.setKeepScreenOn(true);
-            relativelayout = new RelativeLayout(activity);
+            mRelativelayout = new RelativeLayout(activity);
             if (useCamera != 0) {
                 setCamera(useCamera);
             }
-            relativelayout.addView(mView);
+            mRelativelayout.addView(mView);
 
             RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(96,96);
 
@@ -130,9 +130,9 @@ public class NavitGraphics {
                 }
             });
 
-            relativelayout.addView(mZoomInButton);
-            relativelayout.addView(mZoomOutButton);
-            activity.setContentView(relativelayout);
+            mRelativelayout.addView(mZoomInButton);
+            mRelativelayout.addView(mZoomOutButton);
+            activity.setContentView(mRelativelayout);
             mView.requestFocus();
         } else {
             mDrawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -199,18 +199,18 @@ public class NavitGraphics {
         Navit.getInstance().setMotionCallback(id, this);
     }
 
-    public void setKeypressCallback(int id) {
+    void setKeypressCallback(int id) {
         mKeypressCallbackID = id;
         // set callback id also in main intent (for menus)
         Navit.getInstance().setKeypressCallback(id, this);
     }
 
     private void setCamera(int useCamera) {
-        if (useCamera != 0 && camera == null) {
+        if (useCamera != 0 && mCamera == null) {
             // activity.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            camera = new NavitCamera(mActivity);
-            relativelayout.addView(camera);
-            relativelayout.bringChildToFront(mView);
+            mCamera = new NavitCamera(mActivity);
+            mRelativelayout.addView(mCamera);
+            mRelativelayout.bringChildToFront(mView);
         }
     }
 
