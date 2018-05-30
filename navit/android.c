@@ -107,9 +107,9 @@ Java_org_navitproject_navit_Navit_navitMain(JNIEnv *env,
                                             jobject navit,
                                             jstring lang,
                                             jint version,
-                                            jstring display_density_string,
+                                            jstring displaydensity,
                                             jstring path,
-                                            jstring map_path)
+                                            jstring mappath)
 {
 	const char *langstr;
 	const char *displaydensitystr;
@@ -122,14 +122,14 @@ Java_org_navitproject_navit_Navit_navitMain(JNIEnv *env,
 	setenv("LANG",langstr,1);
 	(*env)->ReleaseStringUTFChars(env, lang, langstr);
 
-	displaydensitystr=(*env)->GetStringUTFChars(env, display_density_string, NULL);
+	displaydensitystr=(*env)->GetStringUTFChars(env, displaydensity, NULL);
 	dbg(lvl_debug,"*****displaydensity=%s\n",displaydensitystr);
 	setenv("ANDROID_DENSITY",displaydensitystr,1);
-	(*env)->ReleaseStringUTFChars(env, display_density_string, displaydensitystr);
+	(*env)->ReleaseStringUTFChars(env, displaydensity, displaydensitystr);
 
-	map_filename_path=(*env)->GetStringUTFChars(env, map_path, NULL);
+	map_filename_path=(*env)->GetStringUTFChars(env, mappath, NULL);
 	setenv("NAVIT_USER_DATADIR",map_filename_path,1);
-	(*env)->ReleaseStringUTFChars(env, display_density_string, map_filename_path);
+	(*env)->ReleaseStringUTFChars(env, displaydensity, map_filename_path);
 
 	const char *strings=(*env)->GetStringUTFChars(env, path, NULL);
 	main_real(1, &strings);
