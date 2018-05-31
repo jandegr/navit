@@ -1,15 +1,15 @@
-/**
- * Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team
- *
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
- * License version 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+  Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team
+
+  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
+  License version 2 as published by the Free Software Foundation.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  details.
+
+  You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
+  Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 package org.navitproject.navit;
@@ -75,7 +75,7 @@ public class NavitGraphics {
     private int mButtonCallbackID;
     private int mMotionCallbackID;
     private int mKeypressCallbackID;
-    RelativeLayout mRelativelayout;
+    private RelativeLayout mRelativelayout;
 
     /**
      * Constructs a NavitGraphics object.
@@ -641,7 +641,6 @@ public class NavitGraphics {
             } catch (NoSuchFieldException e) {
                 Log.e(TAG,"Exception " + e.getMessage());
             }
-
             return retValue;
         }
 
@@ -652,13 +651,13 @@ public class NavitGraphics {
             int x = (int) event.getX();
             int y = (int) event.getY();
 
-            final int ACTION_POINTER_UP = getActionField("ACTION_POINTER_UP", event);
-            final int ACTION_POINTER_DOWN = getActionField("ACTION_POINTER_DOWN", event);
-            final int ACTION_MASK = getActionField("ACTION_MASK", event);
+            final int actionPointerUp = getActionField("ACTION_POINTER_UP", event);
+            final int actionPointerDown = getActionField("ACTION_POINTER_DOWN", event);
+            final int actionMask = getActionField("ACTION_MASK", event);
 
             int switchValue = event.getAction();
-            if (ACTION_MASK != -999) {
-                switchValue = (event.getAction() & ACTION_MASK);
+            if (actionMask != -999) {
+                switchValue = (event.getAction() & actionMask);
             }
 
             if (switchValue == MotionEvent.ACTION_DOWN) {
@@ -668,7 +667,7 @@ public class NavitGraphics {
                 }
                 mPressedPosition = new PointF(x, y);
                 postDelayed(this, time_for_long_press);
-            } else if ((switchValue == MotionEvent.ACTION_UP) || (switchValue == ACTION_POINTER_UP)) {
+            } else if ((switchValue == MotionEvent.ACTION_UP) || (switchValue == actionPointerUp)) {
                 Log.e("NavitGraphics", "ACTION_UP");
 
                 switch (mTouchMode) {
@@ -741,7 +740,7 @@ public class NavitGraphics {
                     default:
                         break;
                 }
-            } else if (switchValue == ACTION_POINTER_DOWN) {
+            } else if (switchValue == actionPointerDown) {
                 //Log.e("NavitGraphics", "ACTION_POINTER_DOWN");
                 mOldDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
                 if (mOldDist > 2f) {
