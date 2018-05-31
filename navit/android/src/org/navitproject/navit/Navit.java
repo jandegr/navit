@@ -358,14 +358,14 @@ public class Navit extends Activity {
         //map_filename_path = navitfiles[0].getParent() + "/";
 
         navitMapsDir.mkdirs();
-        final String NAVIT_DATA_DIR = getFilesDir().toString();
+        final String navitDataDir = getFilesDir().toString();
         //final String NAVIT_DATA_DIR = navitfiles[0].getParent();
-        final String NAVIT_DATA_SHARE_DIR = NAVIT_DATA_DIR + "/share";
+        final String navitDataShare = navitDataDir + "/share";
 
-        Log.e(TAG,"data dir = " + NAVIT_DATA_DIR);
-        Log.e(TAG,"data share dir = " + NAVIT_DATA_SHARE_DIR);
+        Log.e(TAG,"data dir = " + navitDataDir);
+        Log.e(TAG,"data share dir = " + navitDataShare);
         // make sure the share dir exists
-        File navitDataShareDir = new File(NAVIT_DATA_SHARE_DIR);
+        File navitDataShareDir = new File(navitDataShare);
         navitDataShareDir.mkdirs();
 
         Display display = getWindowManager().getDefaultDisplay();
@@ -384,7 +384,7 @@ public class Navit extends Activity {
         w.setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        if (!extractRes(langc, NAVIT_DATA_DIR + "/locale/" + langc + "/LC_MESSAGES/navit.mo")) {
+        if (!extractRes(langc, navitDataDir + "/locale/" + langc + "/LC_MESSAGES/navit.mo")) {
             Log.e(TAG, "Failed to extract language resource " + langc);
         }
 
@@ -406,13 +406,13 @@ public class Navit extends Activity {
             Log.w(TAG, "using xxxhdpi values");
             myDisplayDensity = "xxxhdpi";
         }
-        if (!extractRes("navit" + myDisplayDensity, NAVIT_DATA_DIR + "/share/navit.xml")) {
+        if (!extractRes("navit" + myDisplayDensity, navitDataDir + "/share/navit.xml")) {
             Log.e(TAG, "Failed to extract navit.xml for " + myDisplayDensity);
         }
 
         Log.d(TAG, "android.os.Build.VERSION.SDK_INT = " + android.os.Build.VERSION.SDK_INT);
         navitMain(this, navitLanguage, android.os.Build.VERSION.SDK_INT, myDisplayDensity,
-                NAVIT_DATA_DIR + "/bin/navit", map_filename_path);
+                navitDataDir + "/bin/navit", map_filename_path);
         showInfos();
         Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
