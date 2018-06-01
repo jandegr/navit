@@ -94,6 +94,7 @@
 #   command.
 
 SET(CMAKE_XCODE_GENERATE_SCHEME YES)
+SET(USE_UIKIT 1)
 
 # Fix for PThread library not in path
 set(CMAKE_THREAD_LIBS_INIT "-lpthread")
