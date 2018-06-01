@@ -27,4 +27,5 @@ ls -la navit/RelWithDebInfo-iphoneos/navit.app/share/navit
 # try to make bitrise show the available simulators
 xcrun simctl list
 ls -la
+xcodebuild -list -project navit.xcodeproj
 echo "END OF build_iOS.sh"
