@@ -598,7 +598,7 @@ if (SAMPLE_MAP)
 endif(SAMPLE_MAP)
 
 if(ANDROID)
-   message(STATUS "Using generator "${CMAKE_GENERATOR})
+   message(STATUS "Using generator " ${CMAKE_GENERATOR})
    if (NOT ${CMAKE_GENERATOR} STREQUAL Ninja)
      find_program(ANDROID_LOCATION NAMES android android.bat)
      find_program(ANT_LOCATION NAMES ant) 
