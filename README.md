@@ -3,11 +3,6 @@ circleci
 
 [![Circle CI](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep)
 
-incubating iOS iPhone builds
-============================
-
-[![Build Status](https://www.bitrise.io/app/6ba6846418e30215/status.svg?token=Lfiw0WJBXimhu2XLaaUp-Q)](https://www.bitrise.io/app/6ba6846418e30215)
-
 
 A branch to work on routing a bit.
 
