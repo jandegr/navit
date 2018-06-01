@@ -93,6 +93,8 @@
 #   iOS environment.  Thanks to the android-cmake project for providing the
 #   command.
 
+SET(CMAKE_XCODE_GENERATE_SCHEME YES)
+
 # Fix for PThread library not in path
 set(CMAKE_THREAD_LIBS_INIT "-lpthread")
 set(CMAKE_HAVE_THREADS_LIBRARY 1)
