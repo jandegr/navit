@@ -20,10 +20,10 @@ xcodebuild -list -project navit.xcodeproj
 #ipa --help
 #ipa build
 #xcodebuild -configuration RelWithDebInfo ARCHS="arm64"
-xcodebuild -configuration Release ARCHS="arm64"
-ls -la navit/RelWithDebInfo-iphoneos/navit.app
-ls -la navit/RelWithDebInfo-iphoneos/navit.app/share
-ls -la navit/RelWithDebInfo-iphoneos/navit.app/share/navit
+#xcodebuild -configuration Release ARCHS="arm64"
+#ls -la navit/RelWithDebInfo-iphoneos/navit.app
+#ls -la navit/RelWithDebInfo-iphoneos/navit.app/share
+#ls -la navit/RelWithDebInfo-iphoneos/navit.app/share/navit
 # try to make bitrise show the available simulators
 xcrun simctl list
 ls -la
