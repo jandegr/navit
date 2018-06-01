@@ -4,6 +4,7 @@ echo "build iOS"
 brew install cmake
 brew install gettext
 brew link --force gettext
+brew install librsvg
 #gem install shenzhen
 cd $HOME/git
 rm navit/xpm/gui_map.svg
