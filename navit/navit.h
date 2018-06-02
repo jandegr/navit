@@ -17,6 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
+
 #ifndef NAVIT_NAVIT_H
 #define NAVIT_NAVIT_H
 

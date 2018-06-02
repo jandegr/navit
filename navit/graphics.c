@@ -58,16 +58,8 @@
 //# Comment:
 //# Authors: Martin Schaller (04/2008)
 //##############################################################################################################
-/**
- * @brief graphics object
- * A graphics object serves as the target for drawing operations.
- * It encapsulates various settings, and a drawing target, such as an image buffer or a window.
- * Currently, in Navit, there is always one main graphics object, which is used to draw the
- * map, and optionally additional graphics objects for overlays.
- * @see graphics_overlay_new()
- * @see struct graphics_gc
- */
-struct graphics {
+struct graphics
+{
     struct graphics* parent;
     struct graphics_priv *priv;
     struct graphics_methods meth;
@@ -90,7 +82,8 @@ struct graphics {
     GHashTable *image_cache_hash;
 };
 
-struct display_context {
+struct display_context
+{
     struct graphics *gra;
     struct element *e;
     struct graphics_gc *gc;
@@ -104,7 +97,8 @@ struct display_context {
 };
 
 #define HASH_SIZE 1024
-struct hash_entry {
+struct hash_entry
+{
     enum item_type type;
     struct displayitem *di;
 };
@@ -135,20 +129,21 @@ struct displaylist_icon_cache {
 
 };
 
-static void draw_circle(struct point *pnt, int diameter, int scale, int start, int len, struct point *res, int *pos,
-                        int dir);
+static void draw_circle(struct point *pnt, int diameter, int scale, int start, int len, struct point *res, int *pos, int dir);
 static void graphics_process_selection(struct graphics *gra, struct displaylist *dl);
 static void graphics_gc_init(struct graphics *this_);
 
 static void
-clear_hash(struct displaylist *dl) {
+clear_hash(struct displaylist *dl)
+{
     int i;
     for (i = 0 ; i < HASH_SIZE ; i++)
         dl->hash_entries[i].type=type_none;
 }
 
 static struct hash_entry *
-get_hash_entry(struct displaylist *dl, enum item_type type) {
+get_hash_entry(struct displaylist *dl, enum item_type type)
+{
     int hashidx=(type*2654435761UL) & (HASH_SIZE-1);
     int offset=dl->max_offset;
     do {
@@ -162,7 +157,8 @@ get_hash_entry(struct displaylist *dl, enum item_type type) {
 }
 
 static struct hash_entry *
-set_hash_entry(struct displaylist *dl, enum item_type type) {
+set_hash_entry(struct displaylist *dl, enum item_type type)
+{
     int hashidx=(type*2654435761UL) & (HASH_SIZE-1);
     int offset=0;
     for (;;) {
@@ -180,22 +176,9 @@ set_hash_entry(struct displaylist *dl, enum item_type type) {
     return NULL;
 }
 
-/**
- * @brief Sets a generic attribute of the graphics instance
- *
- * This will only set one of the supported generic graphics attributes (currently {@code gamma},
- * {@code brightness}, {@code contrast} or {@code font_size}) and fail for other attribute types.
- *
- * To set an attribute provided by a graphics plugin, use {@link graphics_set_attr(struct graphics *, struct attr *)}
- * instead.
- *
- * @param gra The graphics instance
- * @param attr The attribute to set
- *
- * @return True if the attribute was set, false if not
- */
 static int
-graphics_set_attr_do(struct graphics *gra, struct attr *attr) {
+graphics_set_attr_do(struct graphics *gra, struct attr *attr)
+{
     switch (attr->type) {
     case attr_gamma:
         gra->gamma=attr->u.num;
@@ -217,34 +200,21 @@ graphics_set_attr_do(struct graphics *gra, struct attr *attr) {
     return 1;
 }
 
-/**
- * @brief Sets an attribute of the graphics instance
- *
- * This method first tries to set one of the private attributes implemented by the current graphics
- * plugin. If this fails, it tries to set one of the generic attributes.
- *
- * If the graphics plugin does not supply a {@code set_attr} method, this method currently does nothing
- * and returns true, even if the attribute is a generic one.
- *
- * @param gra The graphics instance
- * @param attr The attribute to set
- *
- * @return True if the attribute was successfully set, false otherwise.
- */
 int
-graphics_set_attr(struct graphics *gra, struct attr *attr) {
+graphics_set_attr(struct graphics *gra, struct attr *attr)
+{
     int ret=1;
-    /* FIXME if gra->meth doesn't have a setter, we don't even try the generic attrs - is that what we want? */
-    dbg(lvl_debug,"enter");
+    dbg(lvl_debug,"enter\n");
     if (gra->meth.set_attr)
         ret=gra->meth.set_attr(gra->priv, attr);
     if (!ret)
         ret=graphics_set_attr_do(gra, attr);
-    return ret != 0;
+        return ret != 0;
 }
 
 void
-graphics_set_rect(struct graphics *gra, struct point_rect *pr) {
+graphics_set_rect(struct graphics *gra, struct point_rect *pr)
+{
     gra->r=*pr;
 }
 
@@ -255,28 +225,28 @@ graphics_set_rect(struct graphics *gra, struct point_rect *pr) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct graphics * graphics_new(struct attr *parent, struct attr **attrs) {
+struct graphics * graphics_new(struct attr *parent, struct attr **attrs)
+{
     struct graphics *this_;
-    struct attr *type_attr, cbl_attr;
-    struct graphics_priv * (*graphicstype_new)(struct navit *nav, struct graphics_methods *meth, struct attr **attrs,
-            struct callback_list *cbl);
+        struct attr *type_attr, cbl_attr;
+    struct graphics_priv * (*graphicstype_new)(struct navit *nav, struct graphics_methods *meth, struct attr **attrs, struct callback_list *cbl);
 
-    if (! (type_attr=attr_search(attrs, NULL, attr_type))) {
-        dbg(lvl_error,"Graphics plugin type is not set.");
-        return NULL;
-    }
+        if (! (type_attr=attr_search(attrs, NULL, attr_type))) {
+        dbg(lvl_error,"Graphics plugin type is not set.\n");
+                return NULL;
+        }
 
-    graphicstype_new=plugin_get_category_graphics(type_attr->u.str);
+    graphicstype_new=plugin_get_graphics_type(type_attr->u.str);
     if (! graphicstype_new) {
-        dbg(lvl_error,"Failed to load graphics plugin %s.", type_attr->u.str);
+        dbg(lvl_error,"Failed to load graphics plugin %s.\n", type_attr->u.str);
         return NULL;
     }
     this_=g_new0(struct graphics, 1);
     this_->attrs=attr_list_dup(attrs);
     this_->cbl=callback_list_new();
     cbl_attr.type=attr_callback_list;
-    cbl_attr.u.callback_list=this_->cbl;
-    this_->attrs=attr_generic_add_attr(this_->attrs, &cbl_attr);
+        cbl_attr.u.callback_list=this_->cbl;
+        this_->attrs=attr_generic_add_attr(this_->attrs, &cbl_attr);
     this_->priv=(*graphicstype_new)(parent->u.navit, &this_->meth, this_->attrs, this_->cbl);
     this_->brightness=0;
     this_->contrast=65536;
@@ -291,60 +261,30 @@ struct graphics * graphics_new(struct attr *parent, struct attr **attrs) {
 }
 
 /**
- * @brief Gets an attribute of the graphics instance
- *
- * This function searches the attribute list of the graphics object for an attribute of a given type and
- * stores it in the attr parameter.
- * <p>
- * Searching for attr_any or attr_any_xml is supported.
- * <p>
- * An iterator can be specified to get multiple attributes of the same type:
- * The first call will return the first match from attr; each subsequent call
- * with the same iterator will return the next match. If no more matching
- * attributes are found in either of them, false is returned.
- * <p>
- * Note that currently this will only return the generic attributes which can be set with
- * {@link graphics_set_attr_do(struct graphics *, struct attr *)}. Attributes implemented by a graphics
- * plugin cannot be retrieved with this method.
- *
- * @param this The graphics instance
- * @param type The attribute type to search for
- * @param attr Points to a {@code struct attr} which will receive the attribute
- * @param iter An iterator. This parameter may be NULL.
- *
- * @return True if a matching attribute was found, false if not.
- *
+ * FIXME
+ * @param <>
+ * @returns <>
  * @author Martin Schaller (04/2008)
 */
-int graphics_get_attr(struct graphics *this_, enum attr_type type, struct attr *attr, struct attr_iter *iter) {
+int graphics_get_attr(struct graphics *this_, enum attr_type type, struct attr *attr, struct attr_iter *iter)
+{
     return attr_generic_get_attr(this_->attrs, NULL, type, attr, iter);
 }
 
 /**
- * @brief Create a new graphics overlay.
- * An overlay is a graphics object that is independent of the main graphics object. When
- * drawing everything to a window, the overlay will be shown on top of the main graphics
- * object. Navit uses overlays for OSD elements and for the vehicle on the map.
- * This allows updating OSD elements and the vehicle without redrawing the map.
- *
- * @param parent parent graphics context (should be the main graphics context as returned by
- *        graphics_new)
- * @param p drawing position for the overlay
- * @param w width of overlay
- * @param h height of overlay
- * @param wraparound use wraparound (0/1). If set, position, width and height "wrap around":
- * negative position coordinates wrap around the window, negative width/height specify
- * difference to window width/height.
- * @returns new overlay
+ * FIXME
+ * @param <>
+ * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct graphics * graphics_overlay_new(struct graphics *parent, struct point *p, int w, int h, int wraparound) {
+struct graphics * graphics_overlay_new(struct graphics *parent, struct point *p, int w, int h, int alpha, int wraparound)
+{
     struct graphics *this_;
     struct point_rect pr;
     if (!parent->meth.overlay_new)
         return NULL;
     this_=g_new0(struct graphics, 1);
-    this_->priv=parent->meth.overlay_new(parent->priv, &this_->meth, p, w, h, wraparound);
+    this_->priv=parent->meth.overlay_new(parent->priv, &this_->meth, p, w, h, alpha, wraparound);
     this_->image_cache_hash = parent->image_cache_hash;
     this_->parent = parent;
     pr.lu.x=0;
@@ -361,28 +301,31 @@ struct graphics * graphics_overlay_new(struct graphics *parent, struct point *p,
 }
 
 /**
- * @brief Alters the size, position and wraparound for an overlay
+ * @brief Alters the size, position, alpha and wraparound for an overlay
  *
  * @param this_ The overlay's graphics struct
  * @param p The new position of the overlay
  * @param w The new width of the overlay
  * @param h The new height of the overlay
+ * @param alpha The new alpha of the overlay
  * @param wraparound The new wraparound of the overlay
  */
 void
-graphics_overlay_resize(struct graphics *this_, struct point *p, int w, int h, int wraparound) {
+graphics_overlay_resize(struct graphics *this_, struct point *p, int w, int h, int alpha, int wraparound)
+{
     if (! this_->meth.overlay_resize) {
         return;
     }
 
-    this_->meth.overlay_resize(this_->priv, p, w, h, wraparound);
+    this_->meth.overlay_resize(this_->priv, p, w, h, alpha, wraparound);
 }
 
 static void
-graphics_gc_init(struct graphics *this_) {
-    struct color background= { COLOR_BACKGROUND_ };
-    struct color black= { COLOR_BLACK_ };
-    struct color white= { COLOR_WHITE_ };
+graphics_gc_init(struct graphics *this_)
+{
+    struct color background={ COLOR_BACKGROUND_ };
+    struct color black={ COLOR_BLACK_ };
+    struct color white={ COLOR_WHITE_ };
     if (!this_->gc[0] || !this_->gc[1] || !this_->gc[2])
         return;
     graphics_gc_set_background(this_->gc[0], &background );
@@ -401,7 +344,8 @@ graphics_gc_init(struct graphics *this_) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_init(struct graphics *this_) {
+void graphics_init(struct graphics *this_)
+{
     if (this_->gc[0])
         return;
     this_->gc[0]=graphics_gc_new(this_);
@@ -417,15 +361,18 @@ void graphics_init(struct graphics *this_) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void * graphics_get_data(struct graphics *this_, const char *type) {
+void * graphics_get_data(struct graphics *this_, const char *type)
+{
     return (this_->meth.get_data(this_->priv, type));
 }
 
-void graphics_add_callback(struct graphics *this_, struct callback *cb) {
+void graphics_add_callback(struct graphics *this_, struct callback *cb)
+{
     callback_list_add(this_->cbl, cb);
 }
 
-void graphics_remove_callback(struct graphics *this_, struct callback *cb) {
+void graphics_remove_callback(struct graphics *this_, struct callback *cb)
+{
     callback_list_remove(this_->cbl, cb);
 }
 
@@ -435,7 +382,8 @@ void graphics_remove_callback(struct graphics *this_, struct callback *cb) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct graphics_font * graphics_font_new(struct graphics *gra, int size, int flags) {
+struct graphics_font * graphics_font_new(struct graphics *gra, int size, int flags)
+{
     struct graphics_font *this_;
 
     this_=g_new0(struct graphics_font,1);
@@ -443,7 +391,8 @@ struct graphics_font * graphics_font_new(struct graphics *gra, int size, int fla
     return this_;
 }
 
-struct graphics_font * graphics_named_font_new(struct graphics *gra, char *font, int size, int flags) {
+struct graphics_font * graphics_named_font_new(struct graphics *gra, char *font, int size, int flags)
+{
     struct graphics_font *this_;
 
     this_=g_new0(struct graphics_font,1);
@@ -465,7 +414,8 @@ void graphics_font_destroy(struct graphics_font *gra_font) {
  * @returns nothing
  * @author David Tegze (02/2011)
  */
-void graphics_free(struct graphics *gra) {
+void graphics_free(struct graphics *gra)
+{
     if (!gra)
         return;
 
@@ -478,7 +428,7 @@ void graphics_free(struct graphics *gra) {
            so we have to free img->priv manually, the rest would be freed by g_hash_table_destroy. GHashTableIter isn't used because it
            broke n800 build at r5107.
         */
-        for(ll=l=g_hash_to_list(gra->image_cache_hash); l; l=g_list_next(l)) {
+        for(ll=l=g_hash_to_list(gra->image_cache_hash);l;l=g_list_next(l)) {
             img=l->data;
             if (img && gra->meth.image_free)
                 gra->meth.image_free(gra->priv, img->priv);
@@ -488,9 +438,9 @@ void graphics_free(struct graphics *gra) {
     }
 
     attr_list_free(gra->attrs);
-    graphics_gc_destroy(gra->gc[0]);
-    graphics_gc_destroy(gra->gc[1]);
-    graphics_gc_destroy(gra->gc[2]);
+        graphics_gc_destroy(gra->gc[0]);
+        graphics_gc_destroy(gra->gc[1]);
+        graphics_gc_destroy(gra->gc[2]);
     g_free(gra->default_font);
     graphics_font_destroy_all(gra);
     g_free(gra->font);
@@ -505,23 +455,25 @@ void graphics_free(struct graphics *gra) {
  * @returns nothing
  * @author Sarah Nordstrom (05/2008)
  */
-void graphics_font_destroy_all(struct graphics *gra) {
+void graphics_font_destroy_all(struct graphics *gra)
+{
     int i;
     for(i = 0 ; i < gra->font_len; i++) {
         if(!gra->font[i]) continue;
         gra->font[i]->meth.font_destroy(gra->font[i]->priv);
         g_free(gra->font[i]);
-        gra->font[i] = NULL;
+                gra->font[i] = NULL;
     }
 }
 
 /**
- * Create a new graphics context.
- * @param gra associated graphics object for the new context
- * @returns new graphics context
+ * FIXME
+ * @param <>
+ * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct graphics_gc * graphics_gc_new(struct graphics *gra) {
+struct graphics_gc * graphics_gc_new(struct graphics *gra)
+{
     struct graphics_gc *this_;
 
     this_=g_new0(struct graphics_gc,1);
@@ -531,19 +483,22 @@ struct graphics_gc * graphics_gc_new(struct graphics *gra) {
 }
 
 /**
- * Destroy a graphics context, freeing associated resources.
- * @param gc context to destroy
+ * FIXME
+ * @param <>
+ * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_gc_destroy(struct graphics_gc *gc) {
+void graphics_gc_destroy(struct graphics_gc *gc)
+{
     if (!gc)
-        return;
+            return;
     gc->meth.gc_destroy(gc->priv);
     g_free(gc);
 }
 
 static void
-graphics_convert_color(struct graphics *gra, struct color *in, struct color *out) {
+graphics_convert_color(struct graphics *gra, struct color *in, struct color *out)
+{
     *out=*in;
     if (gra->brightness) {
         out->r+=gra->brightness;
@@ -575,12 +530,13 @@ graphics_convert_color(struct graphics *gra, struct color *in, struct color *out
 }
 
 /**
- * Set foreground color.
- * @param gc graphics context to set color for
- * @param c color to set
+ * FIXME
+ * @param <>
+ * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_gc_set_foreground(struct graphics_gc *gc, struct color *c) {
+void graphics_gc_set_foreground(struct graphics_gc *gc, struct color *c)
+{
     struct color cn;
     if (gc->gra->colormgmt) {
         graphics_convert_color(gc->gra, c, &cn);
@@ -595,7 +551,8 @@ void graphics_gc_set_foreground(struct graphics_gc *gc, struct color *c) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_gc_set_background(struct graphics_gc *gc, struct color *c) {
+void graphics_gc_set_background(struct graphics_gc *gc, struct color *c)
+{
     struct color cn;
     if (gc->gra->colormgmt) {
         graphics_convert_color(gc->gra, c, &cn);
@@ -611,7 +568,8 @@ void graphics_gc_set_background(struct graphics_gc *gc, struct color *c) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_gc_set_linewidth(struct graphics_gc *gc, int width) {
+void graphics_gc_set_linewidth(struct graphics_gc *gc, int width)
+{
     gc->meth.gc_set_linewidth(gc->priv, width);
 }
 
@@ -621,30 +579,31 @@ void graphics_gc_set_linewidth(struct graphics_gc *gc, int width) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_gc_set_dashes(struct graphics_gc *gc, int width, int offset, unsigned char dash_list[], int n) {
+void graphics_gc_set_dashes(struct graphics_gc *gc, int width, int offset, unsigned char dash_list[], int n)
+{
     if (gc->meth.gc_set_dashes)
         gc->meth.gc_set_dashes(gc->priv, width, offset, dash_list, n);
 }
 
 /**
- * @brief Create a new image from file path, optionally scaled to w and h pixels.
- *
+ * Create a new image from file path scaled to w and h pixels
  * @param gra the graphics instance
  * @param path path of the image to load
- * @param w width to rescale to, or IMAGE_W_H_UNSET for original width
- * @param h height to rescale to, or IMAGE_W_H_UNSET for original height
+ * @param w width to rescale to
+ * @param h height to rescale to
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct graphics_image * graphics_image_new_scaled(struct graphics *gra, char *path, int w, int h) {
+struct graphics_image * graphics_image_new_scaled(struct graphics *gra, char *path, int w, int h)
+{
     return graphics_image_new_scaled_rotated(gra, path, w, h, 0);
 }
 
 static void
-image_new_helper(struct graphics *gra, struct graphics_image *this_, char *path, char *name, int width, int height,
-                 int rotate, int zip) {
+image_new_helper(struct graphics *gra, struct graphics_image *this_, char *path, char *name, int width, int height, int rotate, int zip)
+{
     int i=0;
-    int stdsizes[]= {8,12,16,22,24,32,36,48,64,72,96,128,192,256};
+    int stdsizes[]={8,12,16,22,24,32,36,48,64,72,96,128,192,256};
     const int numstdsizes=sizeof(stdsizes)/sizeof(int);
     int sz;
     int mode=1;
@@ -654,92 +613,94 @@ image_new_helper(struct graphics *gra, struct graphics_image *this_, char *path,
         char *new_name=NULL;
         int n;
         switch (mode) {
-        case 1:
-            /* The best variant both for cpu usage and quality would be prescaled png of a needed size */
-            mode++;
-            if (width != IMAGE_W_H_UNSET && height != IMAGE_W_H_UNSET) {
-                new_name=g_strdup_printf("%s_%d_%d.png", name, width, height);
-            }
-            break;
-        case 2:
-            mode++;
-            /* Try to load image by the exact name given by user. For example, if she wants to
-              scale some prescaled png variant to a new size given as function params, or have
-              default png image to be displayed unscaled. */
-            new_name=g_strdup(path);
-            break;
-        case 3:
-            mode++;
-            /* Next, try uncompressed and compressed svgs as they should give best quality but
-               rendering might take more cpu resources when the image is displayed for the first time */
-            new_name=g_strdup_printf("%s.svg", name);
-            break;
-        case 4:
-            mode++;
-            new_name=g_strdup_printf("%s.svgz", name);
-            break;
-        case 5:
-            mode++;
-            i=0;
-            /* If we have no size specifiers, try the default png now */
-            if(sz<=0) {
+            case 1:
+                /* The best variant both for cpu usage and quality would be prescaled png of a needed size */
+                mode++;
+                if (width != -1 && height != -1) {
+                    new_name=g_strdup_printf("%s_%d_%d.png", name, width, height);
+                }
+                break;
+            case 2:
+                mode++;
+
+                /* Try to load image by the exact name given by user. For example, if she wants to
+                  scale some prescaled png variant to a new size given as function params, or have
+                  default png image to be displayed unscaled. */
+                new_name=g_strdup(path);
+                break;
+
+            case 3:
+                mode++;
+                /* Next, try uncompressed and compressed svgs as they should give best quality but 
+                   rendering might take more cpu resources when the image is displayed for the first time */
+                new_name=g_strdup_printf("%s.svg", name);
+                break;
+            case 4:
+                mode++;
+                new_name=g_strdup_printf("%s.svgz", name);
+                break;
+
+            case 5:
+                mode++;
+                i=0;
+                /* If we have no size specifiers, try the default png now */
+                if(sz<=0) {
+                    new_name=g_strdup_printf("%s.png", name);
+                    break;
+                }
+                /* Find best matching size from standard row */
+                for(bmstd=0;bmstd<numstdsizes;bmstd++)
+                    if(stdsizes[bmstd]>sz)
+                        break;
+                i=1;
+                /* Fall through */
+            case 6:
+                /* Select best matching image from standard row */
+                if(sz>0) {
+                    /* If size were specified, start with bmstd and then try standard sizes in row
+                     * bmstd, bmstd+1, bmstd+2, .. numstdsizes-1, bmstd-1, bmstd-2, .., 0 */
+                    n=bmstd+i;
+                    if((bmstd+i)>=numstdsizes)
+                        n=numstdsizes-i-1;
+                    
+                    if(++i==numstdsizes)
+                        mode++;
+                } else {
+                    /* If no size were specified, start with the smallest standard size and then try following ones */
+                    n=i++;
+                    if(i==numstdsizes)
+                        mode+=2;
+                }
+                if(n<0||n>=numstdsizes)
+                    break;
+                new_name=g_strdup_printf("%s_%d_%d.png", name, stdsizes[n],stdsizes[n]);
+                break;
+                
+            case 7:
+                /* Scaling the default prescaled png of unknown size to the needed size will give random quality loss */
+                mode++;
                 new_name=g_strdup_printf("%s.png", name);
                 break;
-            }
-            /* Find best matching size from standard row */
-            for(bmstd=0; bmstd<numstdsizes; bmstd++)
-                if(stdsizes[bmstd]>sz)
-                    break;
-            i=1;
-        /* Fall through */
-        case 6:
-            /* Select best matching image from standard row */
-            if(sz>0) {
-                /* If size were specified, start with bmstd and then try standard sizes in row
-                 * bmstd, bmstd+1, bmstd+2, .. numstdsizes-1, bmstd-1, bmstd-2, .., 0 */
-                n=bmstd+i;
-                if((bmstd+i)>=numstdsizes)
-                    n=numstdsizes-i-1;
-
-                if(++i==numstdsizes)
-                    mode++;
-            } else {
-                /* If no size were specified, start with the smallest standard size and then try following ones */
-                n=i++;
-                if(i==numstdsizes)
-                    mode+=2;
-            }
-            if(n<0||n>=numstdsizes)
+            case 8: 
+                /* xpm format is used as a last resort, because its not widely supported and we are moving to svg and png formats */
+                mode++;
+                new_name=g_strdup_printf("%s.xpm", name);
                 break;
-            new_name=g_strdup_printf("%s_%d_%d.png", name, stdsizes[n],stdsizes[n]);
-            break;
-
-        case 7:
-            /* Scaling the default prescaled png of unknown size to the needed size will give random quality loss */
-            mode++;
-            new_name=g_strdup_printf("%s.png", name);
-            break;
-        case 8:
-            /* xpm format is used as a last resort, because its not widely supported and we are moving to svg and png formats */
-            mode++;
-            new_name=g_strdup_printf("%s.xpm", name);
-            break;
         }
         if (! new_name)
             continue;
 
         this_->width=width;
         this_->height=height;
-        dbg(lvl_debug,"Trying to load image '%s' for '%s' at %dx%d", new_name, path, width, height);
+        dbg(lvl_debug,"Trying to load image '%s' for '%s' at %dx%d\n", new_name, path, width, height);
         if (zip) {
             unsigned char *start;
             int len;
             if (file_get_contents(new_name, &start, &len)) {
-                struct graphics_image_buffer buffer= {"buffer:",graphics_image_type_unknown};
+                struct graphics_image_buffer buffer={"buffer:",graphics_image_type_unknown};
                 buffer.start=start;
                 buffer.len=len;
-                this_->priv=gra->meth.image_new(gra->priv, &this_->meth, (char *)&buffer, &this_->width, &this_->height, &this_->hot,
-                                                rotate);
+                this_->priv=gra->meth.image_new(gra->priv, &this_->meth, (char *)&buffer, &this_->width, &this_->height, &this_->hot, rotate);
                 g_free(start);
             }
         } else {
@@ -747,7 +708,7 @@ image_new_helper(struct graphics *gra, struct graphics_image *this_, char *path,
                 this_->priv=gra->meth.image_new(gra->priv, &this_->meth, new_name, &this_->width, &this_->height, &this_->hot, rotate);
         }
         if (this_->priv) {
-            dbg(lvl_info,"Using image '%s' for '%s' at %dx%d", new_name, path, width, height);
+            dbg(lvl_info,"Using image '%s' for '%s' at %dx%d\n", new_name, path, width, height);
             g_free(new_name);
             break;
         }
@@ -756,17 +717,17 @@ image_new_helper(struct graphics *gra, struct graphics_image *this_, char *path,
 }
 
 /**
- * @brief Create a new image from file path, optionally scaled to w and h pixels and rotated.
- *
+ * Create a new image from file path scaled to w and h pixels and possibly rotated
  * @param gra the graphics instance
  * @param path path of the image to load
- * @param w width to rescale to, or IMAGE_W_H_UNSET for original width
- * @param h height to rescale to, or IMAGE_W_H_UNSET for original height
- * @param rotate angle to rotate the image, in 90 degree steps (not supported by all plugins).
+ * @param w width to rescale to
+ * @param h height to rescale to
+ * @param rotate angle to rotate the image. Warning, graphics might only support 90 degree steps here
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, char *path, int w, int h, int rotate) {
+struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, char *path, int w, int h, int rotate)
+{
     struct graphics_image *this_;
     char* hash_key = g_strdup_printf("%s*%d*%d*%d",path,w,h,rotate);
     struct file_wordexp *we;
@@ -775,7 +736,7 @@ struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, 
 
     if ( g_hash_table_lookup_extended( gra->image_cache_hash, hash_key, NULL, (gpointer)&this_) ) {
         g_free(hash_key);
-        dbg(lvl_debug,"Found cached image%sfor '%s'",this_?" ":" miss ",path);
+        dbg(lvl_debug,"Found cached image%sfor '%s'\n",this_?" ":" miss ",path);
         return this_;
     }
 
@@ -785,18 +746,18 @@ struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, 
 
     we=file_wordexp_new(path);
     paths=file_wordexp_get_array(we);
-
-    for(i=0; i<file_wordexp_get_count(we) && !this_->priv; i++) {
+    
+    for(i=0;i<file_wordexp_get_count(we) && !this_->priv;i++) {
         char *ext;
         char *s, *name;
         char *pathi=paths[i];
         int len=strlen(pathi);
         int i,k;
-        int newwidth=IMAGE_W_H_UNSET, newheight=IMAGE_W_H_UNSET;
+        int newwidth=-1, newheight=-1;
 
         ext=g_utf8_strrchr(pathi,-1,'.');
         i=pathi-ext+len;
-
+        
         /* Dont allow too long or too short file name extensions*/
         if(ext && ((i>5) || (i<1)))
             ext=NULL;
@@ -806,7 +767,7 @@ struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, 
             s=ext-1;
         else
             s=pathi+len;
-
+        
         k=1;
         while(s>pathi && g_ascii_isdigit(*s)) {
             if(newheight<0)
@@ -815,7 +776,7 @@ struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, 
             k*=10;
             s--;
         }
-
+        
         if(k>1 && s>pathi && *s=='_') {
             k=1;
             s--;
@@ -827,24 +788,27 @@ struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, 
                 s--;
             }
         }
-
+        
         if(k==1 || s<=pathi || *s!='_') {
-            newwidth=IMAGE_W_H_UNSET;
-            newheight=IMAGE_W_H_UNSET;
+            newwidth=-1;
+            newheight=-1;
             if(ext)
                 s=ext;
             else
                 s=pathi+len;
-
+                
         }
-
+        
         /* If exact h and w values were given as function parameters, they take precedence over values guessed from the image name */
-        if(w!=IMAGE_W_H_UNSET)
+        if(w!=-1)
             newwidth=w;
-        if(h!=IMAGE_W_H_UNSET)
+        if(h!=-1)
             newheight=h;
-
+            
         name=g_strndup(pathi,s-pathi);
+#if 0
+        if (!strstr(name,"test.zip"))
+#endif
         image_new_helper(gra, this_, pathi, name, newwidth, newheight, rotate, 0);
         if (!this_->priv && strstr(pathi, ".zip/"))
             image_new_helper(gra, this_, pathi, name, newwidth, newheight, rotate, 1);
@@ -854,12 +818,12 @@ struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, 
     file_wordexp_destroy(we);
 
     if (! this_->priv) {
-        dbg(lvl_error,"No image for '%s'", path);
+        dbg(lvl_error,"No image for '%s'\n", path);
         g_free(this_);
         this_=NULL;
     }
 
-    g_hash_table_insert(gra->image_cache_hash, hash_key,  (gpointer)this_ );
+        g_hash_table_insert(gra->image_cache_hash, hash_key,  (gpointer)this_ );
 
     return this_;
 }
@@ -871,8 +835,9 @@ struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, 
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct graphics_image * graphics_image_new(struct graphics *gra, char *path) {
-    return graphics_image_new_scaled_rotated(gra, path, IMAGE_W_H_UNSET, IMAGE_W_H_UNSET, 0);
+struct graphics_image * graphics_image_new(struct graphics *gra, char *path)
+{
+    return graphics_image_new_scaled_rotated(gra, path, -1, -1, 0);
 }
 
 /**
@@ -881,22 +846,19 @@ struct graphics_image * graphics_image_new(struct graphics *gra, char *path) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_image_free(struct graphics *gra, struct graphics_image *img) {
+void graphics_image_free(struct graphics *gra, struct graphics_image *img)
+{
     /* Image is cached inside gra->image_cache_hash. So it would be freed only when graphics is destroyed => Do nothing here. */
 }
 
 /**
- * @brief Start or finish a set of drawing operations.
- *
- * graphics_draw_mode(draw_mode_begin) must be invoked before performing any drawing
- * operations; this allows the graphics driver to perform any necessary setup.
- * graphics_draw_mode(draw_mode_end) must be invoked to finish a set of drawing operations;
- * this will typically clean up drawing resources and display the drawing result.
- * @param this_ graphics object that is being drawn to
- * @param mode specify beginning or end of drawing
+ * FIXME
+ * @param <>
+ * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_draw_mode(struct graphics *this_, enum draw_mode_num mode) {
+void graphics_draw_mode(struct graphics *this_, enum draw_mode_num mode)
+{
     this_->meth.draw_mode(this_->priv, mode);
 }
 
@@ -906,7 +868,8 @@ void graphics_draw_mode(struct graphics *this_, enum draw_mode_num mode) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_draw_lines(struct graphics *this_, struct graphics_gc *gc, struct point *p, int count) {
+void graphics_draw_lines(struct graphics *this_, struct graphics_gc *gc, struct point *p, int count)
+{
     this_->meth.draw_lines(this_->priv, gc->priv, p, count);
 }
 
@@ -916,13 +879,15 @@ void graphics_draw_lines(struct graphics *this_, struct graphics_gc *gc, struct 
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_draw_circle(struct graphics *this_, struct graphics_gc *gc, struct point *p, int r) {
+void graphics_draw_circle(struct graphics *this_, struct graphics_gc *gc, struct point *p, int r)
+{
     struct point *pnt=g_alloca(sizeof(struct point)*(r*4+64));
     int i=0;
 
     if(this_->meth.draw_circle)
         this_->meth.draw_circle(this_->priv, gc->priv, p, r);
-    else {
+    else
+    {
         draw_circle(p, r, 0, -1, 1026, pnt, &i, 1);
         pnt[i] = pnt[0];
         i++;
@@ -936,17 +901,18 @@ void graphics_draw_circle(struct graphics *this_, struct graphics_gc *gc, struct
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_draw_rectangle(struct graphics *this_, struct graphics_gc *gc, struct point *p, int w, int h) {
+void graphics_draw_rectangle(struct graphics *this_, struct graphics_gc *gc, struct point *p, int w, int h)
+{
     this_->meth.draw_rectangle(this_->priv, gc->priv, p, w, h);
 }
 
-void graphics_draw_rectangle_rounded(struct graphics *this_, struct graphics_gc *gc, struct point *plu, int w, int h,
-                                     int r, int fill) {
+void graphics_draw_rectangle_rounded(struct graphics *this_, struct graphics_gc *gc, struct point *plu, int w, int h, int r, int fill)
+{
     struct point *p=g_alloca(sizeof(struct point)*(r*4+32));
-    struct point pi0= {plu->x+r,plu->y+r};
-    struct point pi1= {plu->x+w-r,plu->y+r};
-    struct point pi2= {plu->x+w-r,plu->y+h-r};
-    struct point pi3= {plu->x+r,plu->y+h-r};
+    struct point pi0={plu->x+r,plu->y+r};
+    struct point pi1={plu->x+w-r,plu->y+r};
+    struct point pi2={plu->x+w-r,plu->y+h-r};
+    struct point pi3={plu->x+r,plu->y+h-r};
     int i=0;
 
     draw_circle(&pi2, r*2, 0, -1, 258, p, &i, 1);
@@ -968,8 +934,8 @@ void graphics_draw_rectangle_rounded(struct graphics *this_, struct graphics_gc 
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_draw_text(struct graphics *this_, struct graphics_gc *gc1, struct graphics_gc *gc2,
-                        struct graphics_font *font, char *text, struct point *p, int dx, int dy) {
+void graphics_draw_text(struct graphics *this_, struct graphics_gc *gc1, struct graphics_gc *gc2, struct graphics_font *font, char *text, struct point *p, int dx, int dy)
+{
     this_->meth.draw_text(this_->priv, gc1->priv, gc2 ? gc2->priv : NULL, font->priv, text, p, dx, dy);
 }
 
@@ -980,8 +946,8 @@ void graphics_draw_text(struct graphics *this_, struct graphics_gc *gc1, struct 
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_get_text_bbox(struct graphics *this_, struct graphics_font *font, char *text, int dx, int dy,
-                            struct point *ret, int estimate) {
+void graphics_get_text_bbox(struct graphics *this_, struct graphics_font *font, char *text, int dx, int dy, struct point *ret, int estimate)
+{
     this_->meth.get_text_bbox(this_->priv, font->priv, text, dx, dy, ret, estimate);
 }
 
@@ -991,13 +957,15 @@ void graphics_get_text_bbox(struct graphics *this_, struct graphics_font *font, 
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_overlay_disable(struct graphics *this_, int disable) {
+void graphics_overlay_disable(struct graphics *this_, int disable)
+{
     this_->disabled = disable;
     if (this_->meth.overlay_disable)
         this_->meth.overlay_disable(this_->priv, disable);
 }
 
-int  graphics_is_disabled(struct graphics *this_) {
+int  graphics_is_disabled(struct graphics *this_)
+{
     return this_->disabled || (this_->parent && this_->parent->disabled);
 }
 
@@ -1007,7 +975,8 @@ int  graphics_is_disabled(struct graphics *this_) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_draw_image(struct graphics *this_, struct graphics_gc *gc, struct point *p, struct graphics_image *img) {
+void graphics_draw_image(struct graphics *this_, struct graphics_gc *gc, struct point *p, struct graphics_image *img)
+{
     this_->meth.draw_image(this_->priv, gc->priv, p, img->priv);
 }
 
@@ -1018,7 +987,8 @@ void graphics_draw_image(struct graphics *this_, struct graphics_gc *gc, struct 
 //# Authors: Martin Schaller (04/2008)
 //##############################################################################################################
 int
-graphics_draw_drag(struct graphics *this_, struct point *p) {
+graphics_draw_drag(struct graphics *this_, struct point *p)
+{
     if (!this_->meth.draw_drag)
         return 0;
     this_->meth.draw_drag(this_->priv, p);
@@ -1026,98 +996,64 @@ graphics_draw_drag(struct graphics *this_, struct point *p) {
 }
 
 void
-graphics_background_gc(struct graphics *this_, struct graphics_gc *gc) {
+graphics_background_gc(struct graphics *this_, struct graphics_gc *gc)
+{
     this_->meth.background_gc(this_->priv, gc ? gc->priv : NULL);
-}
-
-
-/**
- * @brief Shows the native on-screen keyboard or other input method
- *
- * This method is a wrapper around the respective method of the graphics plugin.
- *
- * The caller should populate the {@code kbd} argument with appropriate {@code mode} and {@code lang}
- * members so the graphics plugin can determine the best matching layout.
- *
- * If an input method is shown, the graphics plugin should try to select the configuration which best
- * matches the specified {@code mode}. For example, if {@code mode} specifies a numeric layout, the
- * graphics plugin should select a numeric keyboard layout (if available), or the equivalent for another
- * input method (such as setting stroke recognition to identify strokes as numbers). Likewise, when an
- * alphanumeric-uppercase mode is requested, it should switch to uppercase input.
- *
- * Implementations should, however, consider that Navit's internal keyboard allows the user to switch
- * modes at will (the only exception being degree mode) and thus must not "lock" the user into a limited
- * layout with no means to switch to a general-purpose one. For example, house number entry in an
- * address search dialog may default to numeric mode, but since some house numbers may contain
- * non-numeric characters, a pure numeric keyboard is suitable only if the user has the option to switch
- * to an alphanumeric layout.
- *
- * When multiple alphanumeric layouts are available, the graphics plugin should use the {@code lang}
- * argument to determine the best layout.
- *
- * When selecting an input method, preference should always be given to the default or last selected
- * input method and configuration if it matches the requested {@code mode} and {@code lang}.
- *
- * If the native input method is going to obstruct parts of Navit's UI, the graphics plugin should set
- * {@code kbd->w} and {@code kbd->h} to the height and width to the appropriate value in pixels. A value
- * of -1 indicates that the input method fills the entire available width or height of the space
- * available to Navit. On windowed platforms, where the on-screen input method and Navit's window may be
- * moved relative to each other as needed and can be displayed alongside each other, the graphics plugin
- * should report 0 for both dimensions.
- *
- * @param this_ The graphics instance
- * @param kbd The keyboard instance
- *
- * @return 1 if the native keyboard is going to be displayed, 0 if not, -1 if the method is not
- * supported by the plugin
- */
-int graphics_show_native_keyboard (struct graphics *this_, struct graphics_keyboard *kbd) {
-    int ret;
-    if (!this_->meth.show_native_keyboard)
-        ret = -1;
-    else
-        ret = this_->meth.show_native_keyboard(kbd);
-    dbg(lvl_debug, "return %d", ret);
-    return ret;
-}
-
-
-/**
- * @brief Hides the native on-screen keyboard or other input method
- *
- * This method is a wrapper around the respective method of the graphics plugin.
- *
- * A call to this function indicates that Navit no longer needs the input method and is about to reclaim
- * any screen real estate it may have previously reserved for the input method.
- *
- * On platforms that don't support overlapping windows this means that the on-screen input method should
- * be hidden, as it may otherwise obstruct parts of Navit's UI.
- *
- * On windowed platforms, where on-screen input methods can be displayed alongside Navit or moved around
- * as needed, the graphics driver should instead notify the on-screen method that it is no longer
- * expecting user input, allowing the input method to take the appropriate action.
- *
- * The graphics plugin must free any data it has stored in {@code kbd->gra_priv} and reset the pointer
- * to {@code NULL} to indicate it has done so.
- *
- * The caller may free {@code kbd} after this function returns.
- *
- * @param this The graphics instance
- * @param kbd The keyboard instance
- *
- * @return True if the call was successfully passed to the plugin, false if the method is not supported
- * by the plugin
- */
-int graphics_hide_native_keyboard (struct graphics *this_, struct graphics_keyboard *kbd) {
-    if (!this_->meth.hide_native_keyboard)
-        return 0;
-    this_->meth.hide_native_keyboard(kbd);
-    return 1;
 }
 
 #include "attr.h"
 #include "popup.h"
 #include <stdio.h>
+
+
+#if 0
+//##############################################################################################################
+//# Description:
+//# Comment:
+//# Authors: Martin Schaller (04/2008)
+//##############################################################################################################
+static void popup_view_html(struct popup_item *item, char *file)
+{
+    char command[1024];
+    sprintf(command,"firefox %s", file);
+    system(command);
+}
+
+struct transformatin *tg;
+enum projection pg;
+
+//##############################################################################################################
+//# Description:
+//# Comment:
+//# Authors: Martin Schaller (04/2008)
+//##############################################################################################################
+static void graphics_popup(struct display_list *list, struct popup_item **popup)
+{
+    struct item *item;
+    struct attr attr;
+    struct map_rect *mr;
+    struct coord c;
+    struct popup_item *curr_item,*last=NULL;
+    item=list->data;
+    mr=map_rect_new(item->map, NULL, NULL, 0);
+    printf("id hi=0x%x lo=0x%x\n", item->id_hi, item->id_lo);
+    item=map_rect_get_item_byid(mr, item->id_hi, item->id_lo);
+    if (item) {
+        if (item_attr_get(item, attr_name, &attr)) {
+            curr_item=popup_item_new_text(popup,attr.u.str,1);
+            if (item_attr_get(item, attr_info_html, &attr)) {
+                popup_item_new_func(&last,"HTML Info",1, popup_view_html, g_strdup(attr.u.str));
+            }
+            if (item_attr_get(item, attr_price_html, &attr)) {
+                popup_item_new_func(&last,"HTML Preis",2, popup_view_html, g_strdup(attr.u.str));
+            }
+            curr_item->submenu=last;
+        }
+    }
+    map_rect_destroy(mr);
+}
+#endif
+
 
 /**
  * FIXME
@@ -1140,7 +1076,8 @@ struct displayitem {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static void xdisplay_free(struct displaylist *dl) {
+static void xdisplay_free(struct displaylist *dl)
+{
     int i;
     for (i = 0 ; i < HASH_SIZE ; i++) {
         struct displayitem *di=dl->hash_entries[i].di;
@@ -1159,8 +1096,8 @@ static void xdisplay_free(struct displaylist *dl) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static void display_add(struct hash_entry *entry, struct item *item, int count, struct coord *c, char **label,
-                        int label_count) {
+static void display_add(struct hash_entry *entry, struct item *item, int count, struct coord *c, char **label, int label_count)
+{
     struct displayitem *di;
     int len,i;
     char *p;
@@ -1204,8 +1141,8 @@ static void display_add(struct hash_entry *entry, struct item *item, int count, 
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static void label_line(struct graphics *gra, struct graphics_gc *fg, struct graphics_gc *bg, struct graphics_font *font,
-                       struct point *p, int count, char *label) {
+static void label_line(struct graphics *gra, struct graphics_gc *fg, struct graphics_gc *bg, struct graphics_font *font, struct point *p, int count, char *label)
+{
     int i,x,y,tl,tlm,th,thm,tlsq,l;
     float lsq;
     double dx,dy;
@@ -1245,13 +1182,17 @@ static void label_line(struct graphics *gra, struct graphics_gc *fg, struct grap
             y+=dx*thm/l/64;
             p_t.x=x;
             p_t.y=y;
+#if 0
+            dbg(lvl_debug,"display_text: '%s', %d, %d, %d, %d %d\n", label, x, y, dx*0x10000/l, dy*0x10000/l, l);
+#endif
             if (x < gra->r.rl.x && x + tl > gra->r.lu.x && y + tl > gra->r.lu.y && y - tl < gra->r.rl.y)
                 gra->meth.draw_text(gra->priv, fg->priv, bg?bg->priv:NULL, font->priv, label, &p_t, dx*0x10000/l, dy*0x10000/l);
         }
     }
 }
 
-static void display_draw_arrow(struct point *p, int dx, int dy, int l, struct graphics_gc *gc, struct graphics *gra) {
+static void display_draw_arrow(struct point *p, int dx, int dy, int l, struct graphics_gc *gc, struct graphics *gra)
+{
     struct point pnt[3];
     pnt[0]=pnt[1]=pnt[2]=*p;
     pnt[0].x+=-dx*l/65536+dy*l/65536;
@@ -1261,7 +1202,8 @@ static void display_draw_arrow(struct point *p, int dx, int dy, int l, struct gr
     gra->meth.draw_lines(gra->priv, gc->priv, pnt, 3);
 }
 
-static void display_draw_arrows(struct graphics *gra, struct graphics_gc *gc, struct point *pnt, int count) {
+static void display_draw_arrows(struct graphics *gra, struct graphics_gc *gc, struct point *pnt, int count)
+{
     int i,dx,dy,l;
     struct point p;
     for (i = 0 ; i < count-1 ; i++) {
@@ -1285,98 +1227,110 @@ static void display_draw_arrows(struct graphics *gra, struct graphics_gc *gc, st
 
 static int
 intersection(struct point * a1, int adx, int ady, struct point * b1, int bdx, int bdy,
-             struct point * res) {
+          struct point * res)
+{
     int n, a, b;
-    dbg(lvl_debug,"%d,%d - %d,%d x %d,%d-%d,%d",a1->x,a1->y,a1->x+adx,a1->y+ady,b1->x,b1->y,b1->x+bdx,b1->y+bdy);
+    dbg(lvl_debug,"%d,%d - %d,%d x %d,%d-%d,%d\n",a1->x,a1->y,a1->x+adx,a1->y+ady,b1->x,b1->y,b1->x+bdx,b1->y+bdy);
     n = bdy * adx - bdx * ady;
     a = bdx * (a1->y - b1->y) - bdy * (a1->x - b1->x);
     b = adx * (a1->y - b1->y) - ady * (a1->x - b1->x);
-    dbg(lvl_debug,"a %d b %d n %d",a,b,n);
+    dbg(lvl_debug,"a %d b %d n %d\n",a,b,n);
     if (n < 0) {
         n = -n;
         a = -a;
         b = -b;
     }
+#if 0
+    if (a < 0 || b < 0)
+        return 0;
+    if (a > n || b > n)
+        return 0;
+#endif
     if (n == 0)
         return 0;
     res->x = a1->x + a * adx / n;
     res->y = a1->y + a * ady / n;
-    dbg(lvl_debug,"%d,%d",res->x,res->y);
+    dbg(lvl_debug,"%d,%d\n",res->x,res->y);
     return 1;
 }
 
 struct circle {
     short x,y,fowler;
-} circle64[]= {
-    {0,128,0},
-    {13,127,13},
-    {25,126,25},
-    {37,122,38},
-    {49,118,53},
-    {60,113,67},
-    {71,106,85},
-    {81,99,104},
-    {91,91,128},
-    {99,81,152},
-    {106,71,171},
-    {113,60,189},
-    {118,49,203},
-    {122,37,218},
-    {126,25,231},
-    {127,13,243},
-    {128,0,256},
-    {127,-13,269},
-    {126,-25,281},
-    {122,-37,294},
-    {118,-49,309},
-    {113,-60,323},
-    {106,-71,341},
-    {99,-81,360},
-    {91,-91,384},
-    {81,-99,408},
-    {71,-106,427},
-    {60,-113,445},
-    {49,-118,459},
-    {37,-122,474},
-    {25,-126,487},
-    {13,-127,499},
-    {0,-128,512},
-    {-13,-127,525},
-    {-25,-126,537},
-    {-37,-122,550},
-    {-49,-118,565},
-    {-60,-113,579},
-    {-71,-106,597},
-    {-81,-99,616},
-    {-91,-91,640},
-    {-99,-81,664},
-    {-106,-71,683},
-    {-113,-60,701},
-    {-118,-49,715},
-    {-122,-37,730},
-    {-126,-25,743},
-    {-127,-13,755},
-    {-128,0,768},
-    {-127,13,781},
-    {-126,25,793},
-    {-122,37,806},
-    {-118,49,821},
-    {-113,60,835},
-    {-106,71,853},
-    {-99,81,872},
-    {-91,91,896},
-    {-81,99,920},
-    {-71,106,939},
-    {-60,113,957},
-    {-49,118,971},
-    {-37,122,986},
-    {-25,126,999},
-    {-13,127,1011},
+} circle64[]={
+{0,128,0},
+{13,127,13},
+{25,126,25},
+{37,122,38},
+{49,118,53},
+{60,113,67},
+{71,106,85},
+{81,99,104},
+{91,91,128},
+{99,81,152},
+{106,71,171},
+{113,60,189},
+{118,49,203},
+{122,37,218},
+{126,25,231},
+{127,13,243},
+{128,0,256},
+{127,-13,269},
+{126,-25,281},
+{122,-37,294},
+{118,-49,309},
+{113,-60,323},
+{106,-71,341},
+{99,-81,360},
+{91,-91,384},
+{81,-99,408},
+{71,-106,427},
+{60,-113,445},
+{49,-118,459},
+{37,-122,474},
+{25,-126,487},
+{13,-127,499},
+{0,-128,512},
+{-13,-127,525},
+{-25,-126,537},
+{-37,-122,550},
+{-49,-118,565},
+{-60,-113,579},
+{-71,-106,597},
+{-81,-99,616},
+{-91,-91,640},
+{-99,-81,664},
+{-106,-71,683},
+{-113,-60,701},
+{-118,-49,715},
+{-122,-37,730},
+{-126,-25,743},
+{-127,-13,755},
+{-128,0,768},
+{-127,13,781},
+{-126,25,793},
+{-122,37,806},
+{-118,49,821},
+{-113,60,835},
+{-106,71,853},
+{-99,81,872},
+{-91,91,896},
+{-81,99,920},
+{-71,106,939},
+{-60,113,957},
+{-49,118,971},
+{-37,122,986},
+{-25,126,999},
+{-13,127,1011},
 };
 
 static void
-draw_circle(struct point *pnt, int diameter, int scale, int start, int len, struct point *res, int *pos, int dir) {
+draw_circle(struct point *pnt, int diameter, int scale, int start, int len, struct point *res, int *pos, int dir)
+{
     struct circle *c;
+
+#if 0
+    dbg(lvl_debug,"diameter=%d start=%d len=%d pos=%d dir=%d\n", diameter, start, len, *pos, dir);
+#endif
     int count=64;
     int end=start+len;
     int i,step;
@@ -1436,9 +1390,10 @@ draw_circle(struct point *pnt, int diameter, int scale, int start, int len, stru
 
 
 static int
-fowler(int dy, int dx) {
-    int adx, ady;		/* Absolute Values of Dx and Dy */
-    int code;		/* Angular Region Classification Code */
+fowler(int dy, int dx)
+{
+    int adx, ady;       /* Absolute Values of Dx and Dy */
+    int code;       /* Angular Region Classification Code */
 
     adx = (dx < 0) ? -dx : dx;      /* Compute the absolute values. */
     ady = (dy < 0) ? -dy : dy;
@@ -1470,7 +1425,8 @@ fowler(int dy, int dx) {
     return 0;
 }
 static int
-int_sqrt(unsigned int n) {
+int_sqrt(unsigned int n)
+{
     unsigned int h, p= 0, q= 1, r= n;
 
     /* avoid q rollover */
@@ -1495,6 +1451,32 @@ int_sqrt(unsigned int n) {
     return p;
 }
 
+#if 0
+static void
+debug_line(struct graphics *gra, struct graphics_gc *gc, struct point *pnt, int dx, int dy)
+{
+    struct point p[2];
+    p[0]=p[1]=*pnt;
+    p[1].x+=dx;
+    p[1].y+=dy;
+    gra->meth.draw_lines(gra->priv, gc->priv, p, 2);
+}
+
+static void
+debug_point(struct graphics *gra, struct graphics_gc *gc, struct point *pnt, int s)
+{
+    struct point p[4];
+    p[0]=p[1]=p[2]=*pnt;
+    p[0].x-=s;
+    p[0].y+=s;
+    p[1].x+=s;
+    p[1].y+=s;
+    p[2].y-=s;
+    p[3]=p[0];
+    gra->meth.draw_lines(gra->priv, gc->priv, p, 4);
+}
+#endif
+
 struct draw_polyline_shape {
     int wi;
     int step;
@@ -1512,18 +1494,24 @@ struct draw_polyline_context {
 };
 
 static void
-draw_shape_update(struct draw_polyline_shape *shape) {
+draw_shape_update(struct draw_polyline_shape *shape)
+{
     shape->dxw = -(shape->dx * shape->wi * shape->lscale) / shape->l;
     shape->dyw = (shape->dy * shape->wi * shape->lscale) / shape->l;
 }
 
 static void
-draw_shape(struct draw_polyline_context *ctx, struct point *pnt, int wi) {
+draw_shape(struct draw_polyline_context *ctx, struct point *pnt, int wi)
+{
     int dxs,dys,lscales;
     int lscale=16;
     int l;
     struct draw_polyline_shape *shape=&ctx->shape;
     struct draw_polyline_shape *prev=&ctx->prev_shape;
+
+#if 0
+    dbg(lvl_debug,"enter %d,%d - %d,%d %d\n",pnt[0].x,pnt[0].y,pnt[1].x,pnt[1].y,wi);
+#endif
 
     *prev=*shape;
     if (prev->wi != wi && prev->l) {
@@ -1539,6 +1527,9 @@ draw_shape(struct draw_polyline_context *ctx, struct point *pnt, int wi) {
         shape->step=8;
     else
         shape->step=16;
+#if 0
+    l = int_sqrt(dx * dx * lscale * lscale + dy * dy * lscale * lscale);
+#else
     dxs=shape->dx*shape->dx;
     dys=shape->dy*shape->dy;
     lscales=lscale*lscale;
@@ -1546,9 +1537,9 @@ draw_shape(struct draw_polyline_context *ctx, struct point *pnt, int wi) {
         l = int_sqrt(dxs+dys)*lscale;
     else
         l = int_sqrt((dxs+dys)*lscales);
-
+#endif
     shape->fow=fowler(-shape->dy, shape->dx);
-    dbg(lvl_debug,"fow=%d",shape->fow);
+    dbg(lvl_debug,"fow=%d\n",shape->fow);
     if (! l)
         l=1;
     if (wi*lscale > 10000)
@@ -1561,7 +1552,8 @@ draw_shape(struct draw_polyline_context *ctx, struct point *pnt, int wi) {
 }
 
 static void
-draw_point(struct draw_polyline_shape *shape, struct point *src, struct point *dst, int pos) {
+draw_point(struct draw_polyline_shape *shape, struct point *src, struct point *dst, int pos)
+{
     if (pos) {
         dst->x=(src->x*2-shape->dyw)/2;
         dst->y=(src->y*2-shape->dxw)/2;
@@ -1572,7 +1564,8 @@ draw_point(struct draw_polyline_shape *shape, struct point *src, struct point *d
 }
 
 static void
-draw_begin(struct draw_polyline_context *ctx, struct point *p) {
+draw_begin(struct draw_polyline_context *ctx, struct point *p)
+{
     struct draw_polyline_shape *shape=&ctx->shape;
     int i;
     for (i = 0 ; i <= 32 ; i+=shape->step) {
@@ -1583,7 +1576,8 @@ draw_begin(struct draw_polyline_context *ctx, struct point *p) {
 }
 
 static int
-draw_middle(struct draw_polyline_context *ctx, struct point *p) {
+draw_middle(struct draw_polyline_context *ctx, struct point *p)
+{
     int delta=ctx->prev_shape.fow-ctx->shape.fow;
     if (delta > 512)
         delta-=1024;
@@ -1594,15 +1588,14 @@ draw_middle(struct draw_polyline_context *ctx, struct point *p) {
         draw_point(&ctx->shape, p, &ctx->res[ctx->ppos++], 1);
         return 1;
     }
-    dbg(lvl_debug,"delta %d",delta);
+    dbg(lvl_debug,"delta %d\n",delta);
     if (delta > 0) {
         struct point pos,poso;
         draw_point(&ctx->shape, p, &pos, 1);
         draw_point(&ctx->prev_shape, p, &poso, 1);
         if (delta >= 256)
             return 0;
-        if (intersection(&pos, ctx->shape.dx, ctx->shape.dy, &poso, ctx->prev_shape.dx, ctx->prev_shape.dy,
-                         &ctx->res[ctx->ppos])) {
+        if (intersection(&pos, ctx->shape.dx, ctx->shape.dy, &poso, ctx->prev_shape.dx, ctx->prev_shape.dy, &ctx->res[ctx->ppos])) {
             ctx->ppos++;
             draw_point(&ctx->prev_shape, p, &ctx->res[ctx->npos--], 0);
             draw_point(&ctx->shape, p, &ctx->res[ctx->npos--], 0);
@@ -1614,8 +1607,7 @@ draw_middle(struct draw_polyline_context *ctx, struct point *p) {
         draw_point(&ctx->prev_shape, p, &nego, 0);
         if (delta <= -256)
             return 0;
-        if (intersection(&neg, ctx->shape.dx, ctx->shape.dy, &nego, ctx->prev_shape.dx, ctx->prev_shape.dy,
-                         &ctx->res[ctx->npos])) {
+        if (intersection(&neg, ctx->shape.dx, ctx->shape.dy, &nego, ctx->prev_shape.dx, ctx->prev_shape.dy, &ctx->res[ctx->npos])) {
             ctx->npos--;
             draw_point(&ctx->prev_shape, p, &ctx->res[ctx->ppos++], 1);
             draw_point(&ctx->shape, p, &ctx->res[ctx->ppos++], 1);
@@ -1626,7 +1618,8 @@ draw_middle(struct draw_polyline_context *ctx, struct point *p) {
 }
 
 static void
-draw_end(struct draw_polyline_context *ctx, struct point *p) {
+draw_end(struct draw_polyline_context *ctx, struct point *p)
+{
     int i;
     struct draw_polyline_shape *shape=&ctx->prev_shape;
     for (i = 0 ; i <= 32 ; i+=shape->step) {
@@ -1637,7 +1630,8 @@ draw_end(struct draw_polyline_context *ctx, struct point *p) {
 }
 
 static void
-draw_init_ctx(struct draw_polyline_context *ctx, int maxpoints) {
+draw_init_ctx(struct draw_polyline_context *ctx, int maxpoints)
+{
     ctx->prec=1;
     ctx->ppos=maxpoints/2;
     ctx->npos=maxpoints/2-1;
@@ -1645,17 +1639,20 @@ draw_init_ctx(struct draw_polyline_context *ctx, int maxpoints) {
 
 
 static void
-graphics_draw_polyline_as_polygon(struct graphics_priv *gra_priv, struct graphics_gc_priv *gc_priv, struct point *pnt,
-                                  int count, int *width,  void (*draw)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p,
-                                          int count)) {
+graphics_draw_polyline_as_polygon(struct graphics_priv *gra_priv, struct graphics_gc_priv *gc_priv, struct point *pnt, int count, int *width,  void (*draw)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int count))
+{
     int maxpoints=200;
     struct draw_polyline_context ctx;
     int i=0;
     int max_circle_points=20;
     if (count < 2)
         return;
+#if 0
+    dbg(lvl_debug,"count=%d\n",count);
+    for (i = 0 ; i < count ; i++)
+        dbg(lvl_debug,"%d,%d width %d\n",pnt[i].x,pnt[i].y,width[i]);
+#endif
     ctx.shape.l=0;
-    ctx.shape.wi=0;
     ctx.res=g_alloca(sizeof(struct point)*maxpoints);
     i=0;
     draw_init_ctx(&ctx, maxpoints);
@@ -1692,7 +1689,8 @@ enum relative_pos {
 };
 
 static int
-relative_pos(struct wpoint *p, struct point_rect *r) {
+relative_pos(struct wpoint *p, struct point_rect *r)
+{
     int relative_pos=INSIDE;
     if (p->x < r->lu.x)
         relative_pos=LEFT_OF;
@@ -1706,7 +1704,8 @@ relative_pos(struct wpoint *p, struct point_rect *r) {
 }
 
 static void
-clip_line_endoint_to_rect_edge(struct wpoint *p, int rel_pos, int dx, int dy, int dw, struct point_rect *clip_rect) {
+clip_line_endoint_to_rect_edge(struct wpoint *p, int rel_pos, int dx, int dy, int dw, struct point_rect *clip_rect)
+{
     // We must cast to float to avoid integer
     // overflow (i.e. undefined behaviour) at high
     // zoom levels.
@@ -1737,7 +1736,8 @@ enum clip_result {
 };
 
 static int
-clip_line(struct wpoint *p1, struct wpoint *p2, struct point_rect *clip_rect) {
+clip_line(struct wpoint *p1, struct wpoint *p2, struct point_rect *clip_rect)
+{
     int rel_pos1,rel_pos2;
     int ret = CLIPRES_VISIBLE;
     int dx,dy,dw;
@@ -1763,21 +1763,9 @@ clip_line(struct wpoint *p1, struct wpoint *p2, struct point_rect *clip_rect) {
     return ret;
 }
 
-/**
- * @brief Draw polyline on the display
- *
- * Polylines are a serie of lines connected to each other.
- *
- * @param gra The graphics instance on which to draw
- * @param gc The color to use for the drawing
- * @param[in] pin An array of points forming the polygon
- * @param count_in The number of elements inside @p pin
- * @param[in] width An array of width matching the line starting from the corresponding @p pa (if all equal, all lines will have the same width)
- * @param poly A boolean indicating whether the polyline should be closed to form a polygon (only the contour of this polygon will be drawn)
- */
-void
-graphics_draw_polyline_clipped(struct graphics *gra, struct graphics_gc *gc, struct point *pa, int count, int *width,
-                               int poly) {
+static void
+graphics_draw_polyline_clipped(struct graphics *gra, struct graphics_gc *gc, struct point *pa, int count, int *width, int poly)
+{
     struct point *points_to_draw=g_alloca(sizeof(struct point)*(count+1));
     int *w=g_alloca(sizeof(int)*(count+1));
     struct wpoint segment_start,segment_end;
@@ -1809,10 +1797,10 @@ graphics_draw_polyline_clipped(struct graphics *gra, struct graphics_gc *gc, str
             segment_end.x=pa[i].x;
             segment_end.y=pa[i].y;
             segment_end.w=width[i];
-            dbg(lvl_debug, "Segment: [%d, %d] - [%d, %d]...", segment_start.x, segment_start.y, segment_end.x, segment_end.y);
+            dbg(lvl_debug, "Segment: [%d, %d] - [%d, %d]...\n", segment_start.x, segment_start.y, segment_end.x, segment_end.y);
             clip_result=clip_line(&segment_start, &segment_end, &r);
             if (clip_result != CLIPRES_INVISIBLE) {
-                dbg(lvl_debug, "....clipped to [%d, %d] - [%d, %d]", segment_start.x, segment_start.y, segment_end.x, segment_end.y);
+                    dbg(lvl_debug, "....clipped to [%d, %d] - [%d, %d]\n", segment_start.x, segment_start.y, segment_end.x, segment_end.y);
                 if ((i == 1) || (clip_result & CLIPRES_START_CLIPPED)) {
                     points_to_draw[points_to_draw_cnt].x=segment_start.x;
                     points_to_draw[points_to_draw_cnt].y=segment_start.y;
@@ -1829,6 +1817,9 @@ graphics_draw_polyline_clipped(struct graphics *gra, struct graphics_gc *gc, str
                 if (points_to_draw_cnt > 1) {
                     if (poly) {
                         graphics_draw_polyline_as_polygon(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt, w, gra->meth.draw_polygon);
+#if 0
+                        gra->meth.draw_lines(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt);
+#endif
                     } else
                         gra->meth.draw_lines(gra->priv, gc->priv, points_to_draw, points_to_draw_cnt);
                     points_to_draw_cnt=0;
@@ -1839,7 +1830,8 @@ graphics_draw_polyline_clipped(struct graphics *gra, struct graphics_gc *gc, str
 }
 
 static int
-is_inside(struct point *p, struct point_rect *r, int edge) {
+is_inside(struct point *p, struct point_rect *r, int edge)
+{
     switch(edge) {
     case 0:
         return p->x >= r->lu.x;
@@ -1855,7 +1847,8 @@ is_inside(struct point *p, struct point_rect *r, int edge) {
 }
 
 static void
-poly_intersection(struct point *p1, struct point *p2, struct point_rect *r, int edge, struct point *ret) {
+poly_intersection(struct point *p1, struct point *p2, struct point_rect *r, int edge, struct point *ret)
+{
     int dx=p2->x-p1->x;
     int dy=p2->y-p1->y;
     switch(edge) {
@@ -1878,16 +1871,9 @@ poly_intersection(struct point *p1, struct point *p2, struct point_rect *r, int 
     }
 }
 
-/**
- * @brief Draw a plain polygon on the display
- *
- * @param gra The graphics instance on which to draw
- * @param gc The color to use for the drawing
- * @param[in] pin An array of points forming the polygon
- * @param count_in The number of elements inside @p pin
- */
-void
-graphics_draw_polygon_clipped(struct graphics *gra, struct graphics_gc *gc, struct point *pin, int count_in) {
+static void
+graphics_draw_polygon_clipped(struct graphics *gra, struct graphics_gc *gc, struct point *pin, int count_in)
+{
     struct point_rect r=gra->r;
     struct point *pout,*p,*s,pi,*p1,*p2;
     int limit=10000;
@@ -1895,6 +1881,12 @@ graphics_draw_polygon_clipped(struct graphics *gra, struct graphics_gc *gc, stru
     struct point *pa2=g_alloca(sizeof(struct point) * (count_in < limit ? count_in*8+1:0));
     int count_out,edge=3;
     int i;
+#if 0
+    r.lu.x+=20;
+    r.lu.y+=20;
+    r.rl.x-=20;
+    r.rl.y-=20;
+#endif
     if (count_in < limit) {
         p1=pa1;
         p2=pa2;
@@ -1942,7 +1934,8 @@ graphics_draw_polygon_clipped(struct graphics *gra, struct graphics_gc *gc, stru
 
 
 static void
-display_context_free(struct display_context *dc) {
+display_context_free(struct display_context *dc)
+{
     if (dc->gc)
         graphics_gc_destroy(dc->gc);
     if (dc->gc_background)
@@ -1955,7 +1948,8 @@ display_context_free(struct display_context *dc) {
 }
 
 static struct graphics_font *
-get_font(struct graphics *gra, int size) {
+get_font(struct graphics *gra, int size)
+{
     if (size > 64)
         size=64;
     if (size >= gra->font_len) {
@@ -1968,7 +1962,8 @@ get_font(struct graphics *gra, int size) {
     return gra->font[size];
 }
 
-void graphics_draw_text_std(struct graphics *this_, int text_size, char *text, struct point *p) {
+void graphics_draw_text_std(struct graphics *this_, int text_size, char *text, struct point *p)
+{
     struct graphics_font *font=get_font(this_, text_size);
     struct point bbox[4];
     int i;
@@ -1983,11 +1978,12 @@ void graphics_draw_text_std(struct graphics *this_, int text_size, char *text, s
 }
 
 char *
-graphics_icon_path(const char *icon) {
+graphics_icon_path(const char *icon)
+{
     static char *navit_sharedir;
     char *ret=NULL;
     struct file_wordexp *wordexp=NULL;
-    dbg(lvl_debug,"enter %s",icon);
+    dbg(lvl_debug,"enter %s\n",icon);
     if (strchr(icon, '$')) {
         wordexp=file_wordexp_new(icon);
         if (file_wordexp_get_count(wordexp))
@@ -2000,15 +1996,15 @@ graphics_icon_path(const char *icon) {
         // get resources for the correct screen density
         //
         // this part not needed, android unpacks only the correct version into res/drawable dir!
-        // dbg(lvl_debug,"android icon_path %s",icon);
+        // dbg(lvl_debug,"android icon_path %s\n",icon);
         // static char *android_density;
         // android_density = getenv("ANDROID_DENSITY");
         // ret=g_strdup_printf("res/drawable-%s/%s",android_density ,icon);
-        ret=g_strdup_printf("res/drawable/%s",icon);
+        ret=g_strdup_printf("res/drawable/%s" ,icon);
 #else
         if (! navit_sharedir)
             navit_sharedir = getenv("NAVIT_SHAREDIR");
-        ret=g_strdup_printf("%s/icons/%s", navit_sharedir, icon);
+        ret=g_strdup_printf("%s/xpm/%s", navit_sharedir, icon);
 #endif
     }
     if (wordexp)
@@ -2017,7 +2013,8 @@ graphics_icon_path(const char *icon) {
 }
 
 static int
-limit_count(struct coord *c, int count) {
+limit_count(struct coord *c, int count)
+{
     int i;
     for (i = 1 ; i < count ; i++) {
         if (c[i].x == c[0].x && c[i].y == c[0].y)
@@ -2028,7 +2025,8 @@ limit_count(struct coord *c, int count) {
 
 
 static void
-displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc) {
+displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc)
+{
     int *width=g_alloca(sizeof(int)*dc->maxlen);
     struct point *pa=g_alloca(sizeof(struct point)*dc->maxlen);
     struct graphics *gra=dc->gra;
@@ -2036,37 +2034,52 @@ displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc
     struct element *e=dc->e;
     struct graphics_image *img=dc->img;
     struct point p;
+    struct coord *c;
     char *path;
 
     while (di) {
-        int i,count=di->count,mindist=dc->mindist;
+    int i,count=di->count,mindist=dc->mindist;
 
-        di->z_order=++(gra->current_z_order);
-
-        if (! gc) {
-            gc=graphics_gc_new(gra);
-            graphics_gc_set_foreground(gc, &e->color);
-            dc->gc=gc;
-        }
-        if (item_type_is_area(dc->type) && (dc->e->type == element_polyline || dc->e->type == element_text))
-            count=limit_count(di->c, count);
-        if (dc->type == type_poly_water_tiled)
-            mindist=0;
-        if (dc->e->type == element_polyline)
-            count=transform(dc->trans, dc->pro, di->c, pa, count, mindist, e->u.polyline.width, width);
-        else
-            count=transform(dc->trans, dc->pro, di->c, pa, count, mindist, 0, NULL);
-        switch (e->type) {
-        case element_polygon:
-            graphics_draw_polygon_clipped(gra, gc, pa, count);
-            break;
-        case element_polyline: {
+    di->z_order=++(gra->current_z_order);
+    
+    if (! gc) {
+        gc=graphics_gc_new(gra);
+        graphics_gc_set_foreground(gc, &e->color);
+        dc->gc=gc;
+    }
+    if (item_type_is_area(dc->type) && (dc->e->type == element_polyline || dc->e->type == element_text))
+        count=limit_count(di->c, count);
+    if (dc->type == type_poly_water_tiled)
+        mindist=0;
+    c=di->c;
+#if 0
+    if (dc->e->type == element_polygon) {
+        int max=1000;
+        int offset=5600;
+        c+=offset;
+        count-=offset;
+        if (count < 0)
+            count=0;
+        if (count > max)
+            count=max;
+    }
+#endif
+    if (dc->e->type == element_polyline)
+        count=transform(dc->trans, dc->pro, c, pa, count, mindist, e->u.polyline.width, width);
+    else
+        count=transform(dc->trans, dc->pro, c, pa, count, mindist, 0, NULL);
+    switch (e->type) {
+    case element_polygon:
+        graphics_draw_polygon_clipped(gra, gc, pa, count);
+        break;
+    case element_polyline:
+        {   
             gc->meth.gc_set_linewidth(gc->priv, 1);
             if (e->u.polyline.width > 0 && e->u.polyline.dash_num > 0)
                 graphics_gc_set_dashes(gc, e->u.polyline.width,
-                                       e->u.polyline.offset,
-                                       e->u.polyline.dash_table,
-                                       e->u.polyline.dash_num);
+                               e->u.polyline.offset,
+                               e->u.polyline.dash_table,
+                               e->u.polyline.dash_num);
             for (i = 0 ; i < count ; i++) {
                 if (width[i] < 2)
                     width[i]=2;
@@ -2074,95 +2087,100 @@ displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc
             graphics_draw_polyline_clipped(gra, gc, pa, count, width, e->u.polyline.width > 1);
         }
         break;
-        case element_circle:
-            if (count) {
-                if (e->u.circle.width > 1)
-                    gc->meth.gc_set_linewidth(gc->priv, e->u.polyline.width);
-                graphics_draw_circle(gra, gc, pa, e->u.circle.radius);
-                if (di->label && e->text_size) {
-                    struct graphics_font *font=get_font(gra, e->text_size);
-                    struct graphics_gc *gc_background=dc->gc_background;
-                    if (! gc_background && e->u.circle.background_color.a) {
-                        gc_background=graphics_gc_new(gra);
-                        graphics_gc_set_foreground(gc_background, &e->u.circle.background_color);
-                        dc->gc_background=gc_background;
-                    }
-                    p.x=pa[0].x+3;
-                    p.y=pa[0].y+10;
-                    if (font)
-                        gra->meth.draw_text(gra->priv, gc->priv, gc_background?gc_background->priv:NULL, font->priv, di->label, &p, 0x10000, 0);
-                    else
-                        dbg(lvl_error,"Failed to get font with size %d",e->text_size);
-                }
-            }
-            break;
-        case element_text:
-            if (count && di->label) {
+    case element_circle:
+        if (count) {
+            if (e->u.circle.width > 1)
+                gc->meth.gc_set_linewidth(gc->priv, e->u.polyline.width);
+            graphics_draw_circle(gra, gc, pa, e->u.circle.radius);
+            if (di->label && e->text_size) {
                 struct graphics_font *font=get_font(gra, e->text_size);
                 struct graphics_gc *gc_background=dc->gc_background;
-                if (! gc_background && e->u.text.background_color.a) {
+                if (! gc_background && e->u.circle.background_color.a) {
                     gc_background=graphics_gc_new(gra);
-                    graphics_gc_set_foreground(gc_background, &e->u.text.background_color);
+                    graphics_gc_set_foreground(gc_background, &e->u.circle.background_color);
                     dc->gc_background=gc_background;
                 }
+                p.x=pa[0].x+3;
+                p.y=pa[0].y+10;
                 if (font)
-                    label_line(gra, gc, gc_background, font, pa, count, di->label);
+                    gra->meth.draw_text(gra->priv, gc->priv, gc_background?gc_background->priv:NULL, font->priv, di->label, &p, 0x10000, 0);
                 else
-                    dbg(lvl_error,"Failed to get font with size %d",e->text_size);
+                    dbg(lvl_error,"Failed to get font with size %d\n",e->text_size);
             }
-            break;
-        case element_icon:
-            if (count) {
-                if (!img || item_is_custom_poi(di->item)) {
-                    if (item_is_custom_poi(di->item)) {
-                        char *icon;
-                        char *src;
-                        if (img)
-                            graphics_image_free(dc->gra, img);
-                        src=e->u.icon.src;
-                        if (!src || !src[0])
-                            src="%s";
-                        icon=g_strdup_printf(src,di->label+strlen(di->label)+1);
-                        path=graphics_icon_path(icon);
-                        g_free(icon);
-                    } else
-                        path=graphics_icon_path(e->u.icon.src);
-                    img=graphics_image_new_scaled_rotated(gra, path, e->u.icon.width, e->u.icon.height, e->u.icon.rotation);
-                    if (img)
-                        dc->img=img;
-                    else
-                        dbg(lvl_debug,"failed to load icon '%s'", path);
-                    g_free(path);
-                }
-                if (img) {
-                    if (e->u.icon.x != -1 || e->u.icon.y != -1) {
-                        p.x=pa[0].x - e->u.icon.x;
-                        p.y=pa[0].y - e->u.icon.y;
-                    } else {
-                        p.x=pa[0].x - img->hot.x;
-                        p.y=pa[0].y - img->hot.y;
-                    }
-                    gra->meth.draw_image(gra->priv, gra->gc[0]->priv, &p, img->priv);
-                }
-            }
-            break;
-        case element_image:
-            dbg(lvl_debug,"image: '%s'", di->label);
-            if (gra->meth.draw_image_warp) {
-                img=graphics_image_new_scaled_rotated(gra, di->label, IMAGE_W_H_UNSET, IMAGE_W_H_UNSET, 0);
-                if (img)
-                    gra->meth.draw_image_warp(gra->priv, gra->gc[0]->priv, pa, count, img->priv);
-            } else
-                dbg(lvl_error,"draw_image_warp not supported by graphics driver drawing '%s'", di->label);
-            break;
-        case element_arrows:
-            display_draw_arrows(gra,gc,pa,count);
-            break;
-        default:
-            dbg(lvl_error, "Unhandled element type %d", e->type);
-
         }
-        di=di->next;
+        break;
+    case element_text:
+        if (count && di->label) {
+            struct graphics_font *font=get_font(gra, e->text_size);
+            struct graphics_gc *gc_background=dc->gc_background;
+            if (! gc_background && e->u.text.background_color.a) {
+                gc_background=graphics_gc_new(gra);
+                graphics_gc_set_foreground(gc_background, &e->u.text.background_color);
+                dc->gc_background=gc_background;
+            }
+            if (font)
+                label_line(gra, gc, gc_background, font, pa, count, di->label);
+            else
+                dbg(lvl_error,"Failed to get font with size %d\n",e->text_size);
+        }
+        break;
+    case element_icon:
+        if (count) {
+            if (!img || item_is_custom_poi(di->item)) {
+                if (item_is_custom_poi(di->item)) {
+                    char *icon;
+                    char *src;
+                    if (img)
+                        graphics_image_free(dc->gra, img);
+                    src=e->u.icon.src;
+                    if (!src || !src[0])
+                        src="%s";
+                    icon=g_strdup_printf(src,di->label+strlen(di->label)+1);
+                    path=graphics_icon_path(icon);
+                    g_free(icon);
+                } else
+                    path=graphics_icon_path(e->u.icon.src);
+                img=graphics_image_new_scaled_rotated(gra, path, e->u.icon.width, e->u.icon.height, e->u.icon.rotation);
+                if (img)
+                    dc->img=img;
+                else
+                    dbg(lvl_debug,"failed to load icon '%s'\n", path);
+                g_free(path);
+            }
+            if (img) {
+                if (e->u.icon.x != -1 || e->u.icon.y != -1) {
+                    p.x=pa[0].x - e->u.icon.x;
+                    p.y=pa[0].y - e->u.icon.y;
+                } else {
+                    p.x=pa[0].x - img->hot.x;
+                    p.y=pa[0].y - img->hot.y;
+                }
+                gra->meth.draw_image(gra->priv, gra->gc[0]->priv, &p, img->priv);
+            }
+        }
+        break;
+    case element_image:
+        if (gra->meth.draw_image_warp)
+#ifdef HAVE_API_ANDROID
+        gra->meth.draw_image_warp(gra->priv, gra->gc[0]->priv, pa, count, di->label);
+#else
+        {
+            img=graphics_image_new_scaled_rotated(gra, di->label, -1, -1, 0);
+            if (img)
+                gra->meth.draw_image_warp(gra->priv, gra->gc[0]->priv, pa, count, img->priv);
+        }
+        else
+            dbg(lvl_error,"draw_image_warp not supported by graphics driver drawing '%s'\n", di->label);
+#endif
+        break;
+    case element_arrows:
+        display_draw_arrows(gra,gc,pa,count);
+        break;
+    default:
+        dbg(lvl_error, "Unhandled element type %d\n", e->type);
+
+    }
+    di=di->next;
     }
 }
 /**
@@ -2171,7 +2189,8 @@ displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static void xdisplay_draw_elements(struct graphics *gra, struct displaylist *display_list, struct itemgra *itm) {
+static void xdisplay_draw_elements(struct graphics *gra, struct displaylist *display_list, struct itemgra *itm)
+{
     struct element *e;
     GList *es,*types;
     struct display_context *dc=&display_list->dc;
@@ -2196,7 +2215,8 @@ static void xdisplay_draw_elements(struct graphics *gra, struct displaylist *dis
 }
 
 void
-graphics_draw_itemgra(struct graphics *gra, struct itemgra *itm, struct transformation *t, char *label) {
+graphics_draw_itemgra(struct graphics *gra, struct itemgra *itm, struct transformation *t, char *label)
+{
     GList *es;
     struct display_context dc;
     int max_coord=32;
@@ -2222,7 +2242,7 @@ graphics_draw_itemgra(struct graphics *gra, struct itemgra *itm, struct transfor
         struct element *e=es->data;
         if (e->coord_count) {
             if (e->coord_count > max_coord) {
-                dbg(lvl_error,"maximum number of coords reached: %d > %d",e->coord_count,max_coord);
+                dbg(lvl_error,"maximum number of coords reached: %d > %d\n",e->coord_count,max_coord);
                 di->count=max_coord;
             } else
                 di->count=e->coord_count;
@@ -2246,16 +2266,17 @@ graphics_draw_itemgra(struct graphics *gra, struct itemgra *itm, struct transfor
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static void xdisplay_draw_layer(struct displaylist *display_list, struct graphics *gra, struct layer *lay, int order) {
+static void xdisplay_draw_layer(struct displaylist *display_list, struct graphics *gra, struct layer *lay, int order)
+{
     GList *itms;
     struct itemgra *itm;
 
     itms=lay->itemgras;
     while (itms) {
-        itm=itms->data;
-        if (order >= itm->order.min && order <= itm->order.max)
-            xdisplay_draw_elements(gra, display_list, itm);
-        itms=g_list_next(itms);
+           itm=itms->data;
+           if (order >= itm->order.min && order <= itm->order.max)
+               xdisplay_draw_elements(gra, display_list, itm);
+           itms=g_list_next(itms);
     }
 }
 
@@ -2266,7 +2287,8 @@ static void xdisplay_draw_layer(struct displaylist *display_list, struct graphic
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static void xdisplay_draw(struct displaylist *display_list, struct graphics *gra, struct layout *l, int order) {
+static void xdisplay_draw(struct displaylist *display_list, struct graphics *gra, struct layout *l, int order)
+{
     GList *lays;
     struct layer *lay;
 
@@ -2292,7 +2314,8 @@ static void xdisplay_draw(struct displaylist *display_list, struct graphics *gra
 extern void *route_selection;
 
 static void
-displaylist_update_layers(struct displaylist *displaylist, GList *layers, int order) {
+displaylist_update_layers(struct displaylist *displaylist, GList *layers, int order)
+{
     while (layers) {
         struct layer *layer=layers->data;
         GList *itemgras;
@@ -2316,29 +2339,32 @@ displaylist_update_layers(struct displaylist *displaylist, GList *layers, int or
 }
 
 static void
-displaylist_update_hash(struct displaylist *displaylist) {
+displaylist_update_hash(struct displaylist *displaylist)
+{
     displaylist->max_offset=0;
     clear_hash(displaylist);
     displaylist_update_layers(displaylist, displaylist->layout->layers, displaylist->order);
-    dbg(lvl_debug,"max offset %d",displaylist->max_offset);
+    dbg(lvl_debug,"max offset %d\n",displaylist->max_offset);
 }
 
 
 /**
  * @brief Returns selection structure based on displaylist transform, projection and order.
  * Use this function to get map selection if you are going to fetch complete item data from the map based on displayitem reference.
- * @param displaylist
+ * @param displaylist 
  * @returns Pointer to selection structure
  */
-struct map_selection *displaylist_get_selection(struct displaylist *displaylist) {
-    return transform_get_selection(displaylist->dc.trans, displaylist->dc.pro, displaylist->order);
+struct map_selection *displaylist_get_selection(struct displaylist *displaylist)
+{
+    return transform_get_selection(displaylist->dc.trans, displaylist->dc.pro, displaylist->order); 
 }
 
 /**
- * @brief Compare displayitems based on their zorder values.
+ * @brief Compare displayitems based on their zorder values. 
  * Use with g_list_insert_sorted to sort less shaded items to be before more shaded ones in the result list.
  */
-static int displaylist_cmp_zorder(const struct displayitem *a, const struct displayitem *b) {
+static int displaylist_cmp_zorder(const struct displayitem *a, const struct displayitem *b)
+{
     if(a->z_order>b->z_order)
         return -1;
     if(a->z_order<b->z_order)
@@ -2348,12 +2374,13 @@ static int displaylist_cmp_zorder(const struct displayitem *a, const struct disp
 
 /**
  * @brief Returns list of displayitems clicked at given coordinates. The deeper item is in current layout, the deeper it will be in the list.
- * @param displaylist
+ * @param displaylist 
  * @param p clicked point
- * @param radius radius of clicked area
+ * @param radius radius of clicked area 
  * @returns GList of displayitems
  */
-GList *displaylist_get_clicked_list(struct displaylist *displaylist, struct point *p, int radius) {
+GList *displaylist_get_clicked_list(struct displaylist *displaylist, struct point *p, int radius)
+{
     GList *l=NULL;
     struct displayitem *di;
     struct displaylist_handle *dlh=graphics_displaylist_open(displaylist);
@@ -2371,7 +2398,8 @@ GList *displaylist_get_clicked_list(struct displaylist *displaylist, struct poin
 
 
 static void
-do_draw(struct displaylist *displaylist, int cancel, int flags) {
+do_draw(struct displaylist *displaylist, int cancel, int flags)
+{
     struct item *item;
     int count,max=displaylist->dc.maxlen,workload=0;
     struct coord *ca=g_alloca(sizeof(struct coord)*max);
@@ -2401,6 +2429,10 @@ do_draw(struct displaylist *displaylist, int cancel, int flags) {
                 displaylist->sel=route_selection;
             else
                 displaylist->sel=displaylist_get_selection(displaylist);
+            if (displaylist->sel->order > 4){
+                displaylist->sel->order = displaylist->sel->order -1;
+                dbg(lvl_debug,"depth reduction -1\n");
+            }
             displaylist->mr=map_rect_new(displaylist->m, displaylist->sel);
         }
         if (displaylist->mr) {
@@ -2420,10 +2452,13 @@ do_draw(struct displaylist *displaylist, int cancel, int flags) {
                 count=item_coord_get_within_selection(item, ca, item->type < type_line ? 1: max, displaylist->sel);
                 if (! count)
                     continue;
+#if 0
+                dbg(lvl_debug,"%s 0x%x 0x%x\n",item_to_name(item->type), item->id_hi, item->id_lo);
+#endif
                 if (displaylist->dc.pro != pro)
                     transform_from_to_count(ca, displaylist->dc.pro, ca, pro, count);
                 if (count == max) {
-                    dbg(lvl_error,"point count overflow %d for %s "ITEM_ID_FMT"", count,item_to_name(item->type),ITEM_ID_ARGS(*item));
+                    dbg(lvl_error,"point count overflow %d for %s "ITEM_ID_FMT"\n", count,item_to_name(item->type),ITEM_ID_ARGS(*item));
                     displaylist->dc.maxlen=max*2;
                 }
                 if (item_is_custom_poi(*item)) {
@@ -2492,8 +2527,8 @@ do_draw(struct displaylist *displaylist, int cancel, int flags) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_displaylist_draw(struct graphics *gra, struct displaylist *displaylist, struct transformation *trans,
-                               struct layout *l, int flags) {
+void graphics_displaylist_draw(struct graphics *gra, struct displaylist *displaylist, struct transformation *trans, struct layout *l, int flags)
+{
     int order=transform_get_order(trans);
     if(displaylist->dc.trans && displaylist->dc.trans!=trans)
         transform_destroy(displaylist->dc.trans);
@@ -2514,7 +2549,7 @@ void graphics_displaylist_draw(struct graphics *gra, struct displaylist *display
     gra->meth.draw_mode(gra->priv, (flags & 8)?draw_mode_begin_clear:draw_mode_begin);
     if (!(flags & 2))
         gra->meth.draw_rectangle(gra->priv, gra->gc[0]->priv, &gra->r.lu, gra->r.rl.x-gra->r.lu.x, gra->r.rl.y-gra->r.lu.y);
-    if (l)	{
+    if (l)  {
         order+=l->order_delta;
         xdisplay_draw(displaylist, gra, l, order>0?order:0);
     }
@@ -2524,8 +2559,8 @@ void graphics_displaylist_draw(struct graphics *gra, struct displaylist *display
         gra->meth.draw_mode(gra->priv, draw_mode_end);
 }
 
-static void graphics_load_mapset(struct graphics *gra, struct displaylist *displaylist, struct mapset *mapset,
-                                 struct transformation *trans, struct layout *l, int async, struct callback *cb, int flags) {
+static void graphics_load_mapset(struct graphics *gra, struct displaylist *displaylist, struct mapset *mapset, struct transformation *trans, struct layout *l, int async, struct callback *cb, int flags)
+{
     int order=transform_get_order(trans);
 
     dbg(lvl_debug,"enter");
@@ -2535,7 +2570,7 @@ static void graphics_load_mapset(struct graphics *gra, struct displaylist *displ
         do_draw(displaylist, 1, flags);
     }
     xdisplay_free(displaylist);
-    dbg(lvl_debug,"order=%d", order);
+    dbg(lvl_debug,"order=%d\n", order);
 
     displaylist->dc.gra=gra;
     displaylist->ms=mapset;
@@ -2564,13 +2599,14 @@ static void graphics_load_mapset(struct graphics *gra, struct displaylist *displ
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_draw(struct graphics *gra, struct displaylist *displaylist, struct mapset *mapset,
-                   struct transformation *trans, struct layout *l, int async, struct callback *cb, int flags) {
+void graphics_draw(struct graphics *gra, struct displaylist *displaylist, struct mapset *mapset, struct transformation *trans, struct layout *l, int async, struct callback *cb, int flags)
+{
     graphics_load_mapset(gra, displaylist, mapset, trans, l, async, cb, flags);
 }
 
 int
-graphics_draw_cancel(struct graphics *gra, struct displaylist *displaylist) {
+graphics_draw_cancel(struct graphics *gra, struct displaylist *displaylist)
+{
     if (!displaylist->busy)
         return 0;
     do_draw(displaylist, 1, 0);
@@ -2595,7 +2631,8 @@ struct displaylist_handle {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct displaylist_handle * graphics_displaylist_open(struct displaylist *displaylist) {
+struct displaylist_handle * graphics_displaylist_open(struct displaylist *displaylist)
+{
     struct displaylist_handle *ret;
 
     ret=g_new0(struct displaylist_handle, 1);
@@ -2610,7 +2647,8 @@ struct displaylist_handle * graphics_displaylist_open(struct displaylist *displa
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct displayitem * graphics_displaylist_next(struct displaylist_handle *dlh) {
+struct displayitem * graphics_displaylist_next(struct displaylist_handle *dlh)
+{
     struct displayitem *ret;
     if (!dlh)
         return NULL;
@@ -2637,7 +2675,8 @@ struct displayitem * graphics_displaylist_next(struct displaylist_handle *dlh) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-void graphics_displaylist_close(struct displaylist_handle *dlh) {
+void graphics_displaylist_close(struct displaylist_handle *dlh)
+{
     g_free(dlh);
 }
 
@@ -2647,7 +2686,8 @@ void graphics_displaylist_close(struct displaylist_handle *dlh) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-struct displaylist * graphics_displaylist_new(void) {
+struct displaylist * graphics_displaylist_new(void)
+{
     struct displaylist *ret=g_new0(struct displaylist, 1);
 
     ret->dc.maxlen=16384;
@@ -2655,11 +2695,12 @@ struct displaylist * graphics_displaylist_new(void) {
     return ret;
 }
 
-void graphics_displaylist_destroy(struct displaylist *displaylist) {
+void graphics_displaylist_destroy(struct displaylist *displaylist)
+{
     if(displaylist->dc.trans)
         transform_destroy(displaylist->dc.trans);
     g_free(displaylist);
-
+    
 }
 
 
@@ -2670,24 +2711,27 @@ void graphics_displaylist_destroy(struct displaylist *displaylist) {
  * @returns Pointer to struct item
  * @author Martin Schaller (04/2008)
 */
-struct item * graphics_displayitem_get_item(struct displayitem *di) {
+struct item * graphics_displayitem_get_item(struct displayitem *di)
+{
     return &di->item;
 }
 
 /**
- * Get the number of this item as it was last displayed on the screen, dependent of current layout. Items with lower numbers
- * are shaded by items with higher ones when they overlap. Zero means item was not displayed at all. If the item is displayed twice, its topmost
+ * Get the number of this item as it was last displayed on the screen, dependent of current layout. Items with lower numbers  
+ * are shaded by items with higher ones when they overlap. Zero means item was not displayed at all. If the item is displayed twice, its topmost 
  * occurence is used.
  * @param di pointer to displayitem structure
- * @returns z-order of current item.
+ * @returns z-order of current item. 
 */
-int graphics_displayitem_get_z_order(struct displayitem *di) {
+int graphics_displayitem_get_z_order(struct displayitem *di)
+{
     return di->z_order;
 }
 
 
 int
-graphics_displayitem_get_coord_count(struct displayitem *di) {
+graphics_displayitem_get_coord_count(struct displayitem *di)
+{
     return di->count;
 }
 
@@ -2697,12 +2741,14 @@ graphics_displayitem_get_coord_count(struct displayitem *di) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-char * graphics_displayitem_get_label(struct displayitem *di) {
+char * graphics_displayitem_get_label(struct displayitem *di)
+{
     return di->label;
 }
 
 int
-graphics_displayitem_get_displayed(struct displayitem *di) {
+graphics_displayitem_get_displayed(struct displayitem *di)
+{
     return 1;
 }
 
@@ -2712,15 +2758,16 @@ graphics_displayitem_get_displayed(struct displayitem *di) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static int within_dist_point(struct point *p0, struct point *p1, int dist) {
+static int within_dist_point(struct point *p0, struct point *p1, int dist)
+{
     if (p0->x == 32767 || p0->y == 32767 || p1->x == 32767 || p1->y == 32767)
         return 0;
     if (p0->x == -32768 || p0->y == -32768 || p1->x == -32768 || p1->y == -32768)
         return 0;
-    if ((p0->x-p1->x)*(p0->x-p1->x) + (p0->y-p1->y)*(p0->y-p1->y) <= dist*dist) {
-        return 1;
-    }
-    return 0;
+        if ((p0->x-p1->x)*(p0->x-p1->x) + (p0->y-p1->y)*(p0->y-p1->y) <= dist*dist) {
+                return 1;
+        }
+        return 0;
 }
 
 /**
@@ -2729,7 +2776,8 @@ static int within_dist_point(struct point *p0, struct point *p1, int dist) {
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static int within_dist_line(struct point *p, struct point *line_p0, struct point *line_p1, int dist) {
+static int within_dist_line(struct point *p, struct point *line_p0, struct point *line_p1, int dist)
+{
     int vx,vy,wx,wy;
     int c1,c2;
     struct point line_p;
@@ -2780,7 +2828,8 @@ static int within_dist_line(struct point *p, struct point *line_p0, struct point
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static int within_dist_polyline(struct point *p, struct point *line_pnt, int count, int dist, int close) {
+static int within_dist_polyline(struct point *p, struct point *line_pnt, int count, int dist, int close)
+{
     int i;
     for (i = 0 ; i < count-1 ; i++) {
         if (within_dist_line(p,line_pnt+i,line_pnt+i+1,dist)) {
@@ -2798,17 +2847,18 @@ static int within_dist_polyline(struct point *p, struct point *line_pnt, int cou
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-static int within_dist_polygon(struct point *p, struct point *poly_pnt, int count, int dist) {
+static int within_dist_polygon(struct point *p, struct point *poly_pnt, int count, int dist)
+{
     int i, j, c = 0;
-    for (i = 0, j = count-1; i < count; j = i++) {
+        for (i = 0, j = count-1; i < count; j = i++) {
         if ((((poly_pnt[i].y <= p->y) && ( p->y < poly_pnt[j].y )) ||
-                ((poly_pnt[j].y <= p->y) && ( p->y < poly_pnt[i].y))) &&
-                (p->x < (poly_pnt[j].x - poly_pnt[i].x) * (p->y - poly_pnt[i].y) / (poly_pnt[j].y - poly_pnt[i].y) + poly_pnt[i].x))
-            c = !c;
-    }
+        ((poly_pnt[j].y <= p->y) && ( p->y < poly_pnt[i].y))) &&
+        (p->x < (poly_pnt[j].x - poly_pnt[i].x) * (p->y - poly_pnt[i].y) / (poly_pnt[j].y - poly_pnt[i].y) + poly_pnt[i].x))
+                        c = !c;
+        }
     if (! c)
         return within_dist_polyline(p, poly_pnt, count, dist, 1);
-    return c;
+        return c;
 }
 
 /**
@@ -2817,8 +2867,8 @@ static int within_dist_polygon(struct point *p, struct point *poly_pnt, int coun
  * @returns <>
  * @author Martin Schaller (04/2008)
 */
-int graphics_displayitem_within_dist(struct displaylist *displaylist, struct displayitem *di, struct point *p,
-                                     int dist) {
+int graphics_displayitem_within_dist(struct displaylist *displaylist, struct displayitem *di, struct point *p, int dist)
+{
     struct point *pa=g_alloca(sizeof(struct point)*displaylist->dc.maxlen);
     int count;
 
@@ -2835,7 +2885,8 @@ int graphics_displayitem_within_dist(struct displaylist *displaylist, struct dis
 
 
 static void
-graphics_process_selection_item(struct displaylist *dl, struct item *item) {
+graphics_process_selection_item(struct displaylist *dl, struct item *item)
+{
 #if 0 /* FIXME */
     struct displayitem di,*di_res;
     GHashTable *h;
@@ -2872,7 +2923,8 @@ graphics_process_selection_item(struct displaylist *dl, struct item *item) {
 }
 
 void
-graphics_add_selection(struct graphics *gra, struct item *item, enum item_type type, struct displaylist *dl) {
+graphics_add_selection(struct graphics *gra, struct item *item, enum item_type type, struct displaylist *dl)
+{
     struct item *item_dup=g_new(struct item, 1);
     *item_dup=*item;
     item_dup->priv_data=(void *)type;
@@ -2882,7 +2934,8 @@ graphics_add_selection(struct graphics *gra, struct item *item, enum item_type t
 }
 
 void
-graphics_remove_selection(struct graphics *gra, struct item *item, enum item_type type, struct displaylist *dl) {
+graphics_remove_selection(struct graphics *gra, struct item *item, enum item_type type, struct displaylist *dl)
+{
     GList *curr;
     int found;
 
@@ -2917,7 +2970,8 @@ graphics_remove_selection(struct graphics *gra, struct item *item, enum item_typ
 }
 
 void
-graphics_clear_selection(struct graphics *gra, struct displaylist *dl) {
+graphics_clear_selection(struct graphics *gra, struct displaylist *dl)
+{
     while (gra->selection) {
         struct item *item=(struct item *)gra->selection->data;
         graphics_remove_selection(gra, item, (enum item_type)item->priv_data,dl);
@@ -2925,7 +2979,8 @@ graphics_clear_selection(struct graphics *gra, struct displaylist *dl) {
 }
 
 static void
-graphics_process_selection(struct graphics *gra, struct displaylist *dl) {
+graphics_process_selection(struct graphics *gra, struct displaylist *dl)
+{
     GList *curr;
 
     curr=gra->selection;
@@ -2935,4 +2990,3 @@ graphics_process_selection(struct graphics *gra, struct displaylist *dl) {
         curr=g_list_next(curr);
     }
 }
-
