@@ -794,8 +794,6 @@ Java_org_navitproject_navit_NavitAddressSearchActivity_callbackStartAddressSearc
         dbg(lvl_error, "**** Unable to get methodID: receiveAddress\n");
     }
 
-
-
     (*env)->ReleaseStringUTFChars(env, str, search_string);
 
     return (jlong)(long)search_priv;
@@ -836,7 +834,7 @@ Java_org_navitproject_navit_NavitAddressSearchActivity_callbackSearch(JNIEnv *en
                 search_list_select(priv->search_list, attr_street_name, id, 1);
             }
         } else if (type){
-        start_search(priv, search_string, type);// 2 = search for town, 3 = street
+            start_search(priv, search_string, type);// 2 = search for town, 3 = street
         }
     } else {
         dbg(lvl_error, "Error: no priv (handle), failed");

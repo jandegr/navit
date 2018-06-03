@@ -641,7 +641,7 @@ navit_autozoom(struct navit *this_, struct coord *center, int speed, int draw)
 {
     struct point pc;
     int distance,w,h;
-    double new_scale;
+    float new_scale;
     long scale;
 
     if (! this_->autozoom_active) {
@@ -660,12 +660,12 @@ navit_autozoom(struct navit *this_, struct coord *center, int speed, int draw)
      * perspective etc. Quite rough, but should be enough. */
     
     if (w > h) {
-        new_scale = (double)distance / h * 16; 
+        new_scale = (float)distance / h * 16;
     } else {
-        new_scale = (double)distance / w * 16; 
+        new_scale = (float)distance / w * 16;
     }
 
-    if (abs(new_scale - scale) < 2) { 
+    if (fabs(new_scale - scale) < 2) {
         return; // Smoothing
     }
     if (new_scale > this_->autozoom_max)
@@ -2446,7 +2446,7 @@ navit_set_attr_do(struct navit *this_, struct attr *attr, int init)
         break;
     case attr_drag_bitmap:
         attr_updated = (this_->drag_bitmap != !!attr->u.num);
-        this_->drag_bitmap = !!attr->u.num;
+        this_->drag_bitmap = attr->u.num != 0;
         break;
     case attr_flags:
         attr_updated = (this_->flags != attr->u.num);
@@ -3064,7 +3064,7 @@ navit_vehicle_update_position(struct navit *this_, struct navit_vehicle *nv) {
         get_attr=(int (*)(void *, enum attr_type, struct attr *, struct attr_iter *))vehicle_get_attr;
     }
     if (get_attr(attr_object, attr_position_valid, &attr_valid, NULL))
-        if (!attr_valid.u.num != attr_position_valid_invalid)
+        if ((!attr_valid.u.num) != attr_position_valid_invalid)
             return;
     if (! get_attr(attr_object, attr_position_direction, &attr_dir, NULL) ||
         ! get_attr(attr_object, attr_position_speed, &attr_speed, NULL) ||
