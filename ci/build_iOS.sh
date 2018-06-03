@@ -21,7 +21,7 @@ xcodebuild -list -project navit.xcodeproj
 #ipa --help
 #ipa build
 #xcodebuild -configuration RelWithDebInfo ARCHS="arm64"
-#xcodebuild -configuration Release
+xcodebuild -configuration Release
 ls -la navit
 ls -la navit/Release-iphoneos/navit.app
 ls -la navit/Release-iphoneos/navit.app/share
