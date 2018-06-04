@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-#include <math.h>
 #include "config.h"
 #include "debug.h"
 #include "plugin.h"
@@ -33,7 +32,6 @@
 #include "attr.h"
 #include "transform.h"
 #include "file.h"
-
 #include "textfile.h"
 
 static int map_id;
@@ -49,16 +47,18 @@ static void
 get_line(struct map_rect_priv *mr)
 {
 	if(mr->f) {
-		if (!mr->m->is_pipe) 
-			mr->pos=ftell(mr->f);
-		else
+		if (!mr->m->is_pipe) {
+			mr->pos = ftell(mr->f);
+		} else {
 			mr->pos+=mr->lastlen;
+		}
 		fgets(mr->line, TEXTFILE_LINE_SIZE, mr->f);
 	        dbg(lvl_debug,"read textfile line: %s\n", mr->line);
 		remove_comment_line(mr->line);
-		mr->lastlen=strlen(mr->line)+1;
-		if (strlen(mr->line) >= TEXTFILE_LINE_SIZE-1) 
+		mr->lastlen= (int) (strlen(mr->line) + 1);
+		if (strlen(mr->line) >= TEXTFILE_LINE_SIZE-1) {
 			dbg(lvl_error, "line too long: %s\n", mr->line);
+		}
 	}
 }
 
@@ -104,8 +104,9 @@ textfile_coord_get(void *priv_data, struct coord *c, int count)
 			}
 			ret++;		
 			get_line(mr);
-			if (mr->item.id_hi)
-				mr->eoc=1;
+			if (mr->item.id_hi) {
+                mr->eoc = 1;
+            }
 		} else {
 			mr->more=0;
 			break;
@@ -288,7 +289,7 @@ map_rect_get_item_textfile(struct map_rect_priv *mr)
 			}
 			dbg(lvl_debug,"map_rect_get_item_textfile: point found\n");
 			mr->eoc=0;
-			mr->item.id_lo=mr->pos;
+			mr->item.id_lo= (int) mr->pos;
 		} else {
 			if (parse_line(mr, 1)) {
 				get_line(mr);
@@ -299,7 +300,7 @@ map_rect_get_item_textfile(struct map_rect_priv *mr)
 				get_line(mr);
 				continue;
 			}
-			mr->item.id_lo=mr->pos;
+			mr->item.id_lo= (int) mr->pos;
 			strcpy(mr->attrs, mr->line);
 			get_line(mr);
 			dbg(lvl_debug,"mr=%p attrs=%s\n", mr, mr->attrs);
@@ -364,7 +365,7 @@ map_new_textfile(struct map_methods *meth, struct attr **attrs, struct callback_
 		return NULL;
 	dbg(lvl_debug,"map_new_textfile %s\n", data->u.str);	
 	wdata=g_strdup(data->u.str);
-	len=strlen(wdata);
+	len= (int) strlen(wdata);
 	if (len && wdata[len-1] == '|') {
 		wdata[len-1]='\0';
 		is_pipe=1;
@@ -379,7 +380,7 @@ map_new_textfile(struct map_methods *meth, struct attr **attrs, struct callback_
 	m->is_pipe=is_pipe;
 	m->no_warning_if_map_file_missing=(no_warn!=NULL) && (no_warn->u.num);
 	if (flags) 
-		m->flags=flags->u.num;
+		m->flags= (int) flags->u.num;
 	dbg(lvl_debug,"map_new_textfile %s %s\n", m->filename, wdata);
 	if (charset) {
 		m->charset=g_strdup(charset->u.str);
