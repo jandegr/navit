@@ -41,7 +41,7 @@ class NavitTimeout implements Runnable {
     public native void timeoutCallback(int id);
 
     public void run() {
-        // Log.e("Navit","Handle Event");
+        Log.d("Navit","Handle Event");
         if (mEventMulti) {
             handler.postDelayed(this, mEventTimeout);
         }
@@ -54,7 +54,7 @@ class NavitTimeout implements Runnable {
 
     static class TimeoutHandler extends Handler {
         public void handleMessage(Message m) {
-            Log.e("NavitTimeout", "Handler received message");
+            Log.d("NavitTimeout", "Handler received message");
         }
     }
 }
