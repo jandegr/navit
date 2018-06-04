@@ -24,16 +24,12 @@ import android.os.Message;
 import android.util.Log;
 
 
-
 class NavitTimeout implements Runnable {
-    private static Handler handler = new Handler() {
-            public void handleMessage(Message m) {
-                Log.e("NavitTimeout","Handler received message");
-            }
-        };
+
+    private static final TimeoutHandler handler = new TimeoutHandler();
+    private final int mEventCallbackid;
+    private final int mEventTimeout;
     private boolean mEventMulti;
-    private int mEventCallbackid;
-    private int mEventTimeout;
 
     NavitTimeout(int timeout, boolean multi, int callbackid) {
         mEventTimeout = timeout;
@@ -54,6 +50,12 @@ class NavitTimeout implements Runnable {
 
     public void remove() {
         handler.removeCallbacks(this);
+    }
+
+    static class TimeoutHandler extends Handler {
+        public void handleMessage(Message m) {
+            Log.e("NavitTimeout", "Handler received message");
+        }
     }
 }
 
