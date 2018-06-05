@@ -1,16 +1,16 @@
-/**
- * Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team
- *
- * This program is free software; you can redistribute it and/or modify it under the terms of the
- * GNU General Public License version 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; if
- * not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+/*
+  Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team
+
+  This program is free software; you can redistribute it and/or modify it under the terms of the
+  GNU General Public License version 2 as published by the Free Software Foundation.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+  even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with this program; if
+  not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  02110-1301, USA.
  */
 
 package org.navitproject.navit;
@@ -49,12 +49,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 
+
 public class NavitAddressSearchActivity extends Activity {
 
     private static final String TAG = "NavitAddress";
     private static String mAddressString = "";
-    // TODO remember settings
-    private static String last_address_search_string = "";
     private ProgressBar mZoekBar;
     private final int mZoekTypeTown = 2; // in enum steken ?
     private int mZoektype = mZoekTypeTown; // town
@@ -63,7 +62,6 @@ public class NavitAddressSearchActivity extends Activity {
     private final NavitAddressList mAddressesFound = new NavitAddressList();
     private NavitSearchAddress mSelectedTown;
     private NavitSearchAddress mSelectedStreet;
-    private boolean mPartialSearch = true;
     private String mCountry;
     private ImageButton mCountryButton;
     private Button mResultActionButton;
@@ -86,7 +84,7 @@ public class NavitAddressSearchActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         // mPartialSearch = last_address_partial_match;
-        mAddressString = last_address_search_string;
+        mAddressString = "";
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
                 WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
@@ -267,6 +265,7 @@ public class NavitAddressSearchActivity extends Activity {
         mapModeChooser.show();
     }
 
+
     private void addressDialog(NavitSearchAddress address) {
 
         final NavitSearchAddress addressSelected = address;
@@ -338,6 +337,7 @@ public class NavitAddressSearchActivity extends Activity {
     /**
      * Receives found addresses from the navitve code.
      */
+    @SuppressWarnings("unused")
     public void receiveAddress(int type, int id, float latitude, float longitude, String address, String extras) {
 
         mAddressesFound.insert(new NavitSearchAddress(type, id, latitude, longitude, address, extras));
@@ -358,6 +358,7 @@ public class NavitAddressSearchActivity extends Activity {
     * no more search results are following
     *
     * */
+    @SuppressWarnings("unused")
     void finishAddressSearch() {
         // search_handle = 0;
         // versie update when complete
@@ -388,6 +389,7 @@ public class NavitAddressSearchActivity extends Activity {
         }
         mAddressAdapter.clear();
         if (mSearchHandle == 0) {
+            boolean mPartialSearch = true;
             mSearchHandle = callbackStartAddressSearch(mPartialSearch ? 1 : 0,
                     mCountry, mAddressString);
         }
@@ -399,7 +401,7 @@ public class NavitAddressSearchActivity extends Activity {
 
         private static final long serialVersionUID = 1L;
 
-        public void insert(NavitSearchAddress address) {
+        void insert(NavitSearchAddress address) {
             //  NavitAddressComparator comp = new NavitAddressComparator();
             int index = this.size() - 1;
             if (index >= 0) {
