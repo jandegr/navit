@@ -32,7 +32,7 @@ class NavitWatch implements Runnable {
     private Runnable mCallbackRunnable;
 
     NavitWatch(int func, int fd, int cond, int callbackid) {
-        Log.d("NavitWatch","Creating new thread for "+fd+" "+cond+" from current thread "
+        Log.d("NavitWatch","Creating new thread for " + fd + " " + cond + " from current thread "
                 + java.lang.Thread.currentThread().getName());
         mWatchFunc = func;
         mWatchFd = fd;
