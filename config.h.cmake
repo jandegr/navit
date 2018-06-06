@@ -10,7 +10,7 @@
 #cmakedefine HAVE_GLIB 1
 #cmakedefine HAVE_GMODULE 1
 #cmakedefine HAVE_GETCWD 1
-#define CACHE_SIZE ${CACHE_SIZE}
+#cmakedefine CACHE_SIZE ${CACHE_SIZE}
 #cmakedefine AVOID_FLOAT 1
 #cmakedefine AVOID_UNALIGNED 1
 #cmakedefine USE_LIBGNUINTL 1
