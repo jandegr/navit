@@ -62,17 +62,17 @@ static int map_id;
 struct tile {
     int *start;             //!< Memory address of the buffer containing the tile data (the actual map data).
     int *end;               //!< First memory address not belonging to the tile data.
-                                /**< Thus tile->end - tile->start represents the size of the tile data
-                                 * in multiples of 4 Bytes.
-                                 */
+    /**< Thus tile->end - tile->start represents the size of the tile data
+     * in multiples of 4 Bytes.
+     */
     int *pos;               //!< Pointer to current position (start of current item) inside the tile data.
     int *pos_coord_start;   //!< Pointer to the first element inside the current item that is a coordinate.
-                                /**< That is the first position after the header of an
-                                 * item. The header holds 3 entries each 32bit wide integers:
-                                 * header[0] holds the size of the whole item (excluding this size field)
-                                 * header[1] holds the type of the item
-                                 * header[2] holds the size of the coordinates in the tile
-                                 */
+    /**< That is the first position after the header of an
+     * item. The header holds 3 entries each 32bit wide integers:
+     * header[0] holds the size of the whole item (excluding this size field)
+     * header[1] holds the type of the item
+     * header[2] holds the size of the coordinates in the tile
+     */
     int *pos_coord;         //!< Current position in the coordinates region of the current item.
     int *pos_attr_start;    //!< Pointer to the first attr data structure of the current item.
     int *pos_attr;          //!< Current position in the attr region of the current item.
@@ -103,7 +103,7 @@ struct map_download {
 struct map_priv {
     int id;
     char *filename;              //!< Filename of the binfile.
-    char *cachedir;              // dit is blijkbaar voor als er met download gewerkt wordt (/tmp/navit)
+    char *cachedir;
     struct file *fi,*http;
     struct file **fis;
     struct zip_cd *index_cd;
@@ -129,7 +129,7 @@ struct map_priv {
     struct map_download *download;
     int redirect;
     long download_enabled;
-    int last_searched_town_id_hi;   
+    int last_searched_town_id_hi;
     int last_searched_town_id_lo;
 };
 
@@ -139,9 +139,9 @@ struct map_rect_priv {
     enum attr_type attr_last;
     int label;
     int *label_attr[5];
-        struct map_selection *sel;
-        struct map_priv *m;
-        struct item item;
+    struct map_selection *sel;
+    struct map_priv *m;
+    struct item item;
     int tile_depth;
     struct tile tiles[8];
     struct tile *t;
@@ -267,7 +267,7 @@ binfile_read_eoc64(struct file *fi)
     if (eoc) {
         if (eoc->zip64esig != zip64_eoc_sig) {
             file_data_free(fi,(unsigned char *)eoc);
-        dbg(lvl_warning,"map file %s: eoc wrong\n", fi->name);
+            dbg(lvl_warning,"map file %s: eoc wrong\n", fi->name);
             eoc=NULL;
         }
         dbg(lvl_debug,"eoc64 ok 0x"LONGLONG_HEX_FMT " 0x"LONGLONG_HEX_FMT "\n",eoc->zip64eofst,eoc->zip64ecsz);
@@ -366,32 +366,32 @@ binfile_read_content(struct map_priv *m, struct file *fi, long long offset, stru
 
     offset+=sizeof(struct zip_lfh)+lfh->zipfnln;
     switch (lfh->zipmthd) {
-    case 0:
-        offset+=lfh->zipxtraln;
-        ret=file_data_read(fi,offset, lfh->zipuncmp);
-        break;
-    case 8:
-        offset+=lfh->zipxtraln;
-        ret=file_data_read_compressed(fi,offset, lfh->zipsize, lfh->zipuncmp);
-        break;
-    case 99:
-        if (!m->passwd)
-            break;
-        enc=(struct zip_enc *)file_data_read(fi, offset, sizeof(*enc));
-        offset+=lfh->zipxtraln;
-        switch (enc->compress_method) {
         case 0:
-            ret=file_data_read_encrypted(fi, offset, lfh->zipsize, lfh->zipuncmp, 0, m->passwd);
+            offset+=lfh->zipxtraln;
+            ret=file_data_read(fi,offset, lfh->zipuncmp);
             break;
         case 8:
-            ret=file_data_read_encrypted(fi, offset, lfh->zipsize, lfh->zipuncmp, 1, m->passwd);
+            offset+=lfh->zipxtraln;
+            ret=file_data_read_compressed(fi,offset, lfh->zipsize, lfh->zipuncmp);
+            break;
+        case 99:
+            if (!m->passwd)
+                break;
+            enc=(struct zip_enc *)file_data_read(fi, offset, sizeof(*enc));
+            offset+=lfh->zipxtraln;
+            switch (enc->compress_method) {
+                case 0:
+                    ret=file_data_read_encrypted(fi, offset, lfh->zipsize, lfh->zipuncmp, 0, m->passwd);
+                    break;
+                case 8:
+                    ret=file_data_read_encrypted(fi, offset, lfh->zipsize, lfh->zipuncmp, 1, m->passwd);
+                    break;
+                default:
+                dbg(lvl_error,"map file %s: unknown encrypted compression method %d\n", fi->name, enc->compress_method);
+            }
+            file_data_free(fi, (unsigned char *)enc);
             break;
         default:
-            dbg(lvl_error,"map file %s: unknown encrypted compression method %d\n", fi->name, enc->compress_method);
-        }
-        file_data_free(fi, (unsigned char *)enc);
-        break;
-    default:
         dbg(lvl_error,"map file %s: unknown compression method %d\n", fi->name, lfh->zipmthd);
     }
     return ret;
@@ -402,7 +402,7 @@ binfile_search_cd(struct map_priv *m, int offset, char *name, int partial, int s
 {
     int size=4096;
     int end=m->eoc64?m->eoc64->zip64ecsz:m->eoc->zipecsz;
-    int len= (int) strlen(name);
+    int len=strlen(name);
     long long cdoffset=m->eoc64?m->eoc64->zip64eofst:m->eoc->zipeofst;
     struct zip_cd *cd;
 #if 0
@@ -411,10 +411,10 @@ binfile_search_cd(struct map_priv *m, int offset, char *name, int partial, int s
     while (offset < end) {
         cd=(struct zip_cd *)(m->search_data+offset-m->search_offset);
         if (! m->search_data ||
-              m->search_offset > offset ||
-              offset-m->search_offset+sizeof(*cd) > m->search_size ||
-              offset-m->search_offset+sizeof(*cd)+cd->zipcfnl+cd->zipcxtl > m->search_size
-           ) {
+            m->search_offset > offset ||
+            offset-m->search_offset+sizeof(*cd) > m->search_size ||
+            offset-m->search_offset+sizeof(*cd)+cd->zipcfnl+cd->zipcxtl > m->search_size
+                ) {
 #if 0
             dbg(lvl_debug,"reload %p %d %d\n", m->search_data, m->search_offset, offset);
 #endif
@@ -437,7 +437,7 @@ binfile_search_cd(struct map_priv *m, int offset, char *name, int partial, int s
             return offset;
         skip=0;
         offset+=sizeof(*cd)+cd->zipcfnl+cd->zipcxtl+cd->zipccml;
-;
+        ;
     }
     return -1;
 }
@@ -687,7 +687,7 @@ binfile_coord_set(void *priv_data, struct coord *c, int count, enum change_mode 
         int *i=t->pos,j=0;
         dbg(lvl_debug,"Before: pos_coord=%td\n",t->pos_coord-i);
         while (i < t->pos_next)
-            dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
+        dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
 
     }
     aoffset=t->pos_attr-t->pos_attr_start;
@@ -695,40 +695,40 @@ binfile_coord_set(void *priv_data, struct coord *c, int count, enum change_mode 
     clen=t->pos_attr_start-t->pos_coord+2;
     dbg(lvl_debug,"coffset=%d clen=%d\n",coffset,clen);
     switch (mode) {
-    case change_mode_delete:
-        if (count*2 > clen)
-            count=clen/2;
-        delta=-count*2;
-        move_offset=coffset+count*2;
-        move_len=t->pos_next-t->pos_coord_start-move_offset;
-        write_offset=0;
-        break;
-    case change_mode_modify:
-        write_offset=coffset;
-        if (count*2 > clen) {
-            delta=count*2-clen;
-            move_offset=t->pos_attr_start-t->pos_coord_start;
+        case change_mode_delete:
+            if (count*2 > clen)
+                count=clen/2;
+            delta=-count*2;
+            move_offset=coffset+count*2;
             move_len=t->pos_next-t->pos_coord_start-move_offset;
-        } else {
-            move_len=0;
-            move_offset=0;
-            delta=0;
-        }
-        break;
-    case change_mode_prepend:
-        delta=count*2;
-        move_offset=coffset-2;
-        move_len=t->pos_next-t->pos_coord_start-move_offset;
-        write_offset=coffset-2;
-        break;
-    case change_mode_append:
-        delta=count*2;
-        move_offset=coffset;
-        move_len=t->pos_next-t->pos_coord_start-move_offset;
-        write_offset=coffset;
-        break;
-    default:
-        return 0;
+            write_offset=0;
+            break;
+        case change_mode_modify:
+            write_offset=coffset;
+            if (count*2 > clen) {
+                delta=count*2-clen;
+                move_offset=t->pos_attr_start-t->pos_coord_start;
+                move_len=t->pos_next-t->pos_coord_start-move_offset;
+            } else {
+                move_len=0;
+                move_offset=0;
+                delta=0;
+            }
+            break;
+        case change_mode_prepend:
+            delta=count*2;
+            move_offset=coffset-2;
+            move_len=t->pos_next-t->pos_coord_start-move_offset;
+            write_offset=coffset-2;
+            break;
+        case change_mode_append:
+            delta=count*2;
+            move_offset=coffset;
+            move_len=t->pos_next-t->pos_coord_start-move_offset;
+            write_offset=coffset;
+            break;
+        default:
+            return 0;
     }
     dbg(lvl_debug,"delta %d\n",delta);
     data=binfile_item_dup(mr->m, &mr->item, t, delta > 0 ? delta:0);
@@ -748,7 +748,7 @@ binfile_coord_set(void *priv_data, struct coord *c, int count, enum change_mode 
         int *i =tn->pos, j = 0;
         dbg(lvl_debug,"After move: pos_coord=%td\n",tn->pos_coord-i);
         while (i < tn->pos_next)
-            dbg(lvl_debug,"%d:0x%x\n",j ++,*i++);
+        dbg(lvl_debug,"%d:0x%x\n",j ++,*i++);
     }
     if (mode != change_mode_append)
         tn->pos_coord+=move_offset;
@@ -764,7 +764,7 @@ binfile_coord_set(void *priv_data, struct coord *c, int count, enum change_mode 
         int *i = tn->pos, j  = 0;
         dbg(lvl_debug,"After: pos_coord=%td\n",tn->pos_coord-i);
         while (i < tn->pos_next)
-            dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
+        dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
     }
     return 1;
 }
@@ -783,7 +783,7 @@ binfile_attr_set(void *priv_data, struct attr *attr, enum change_mode mode)
         int *i=t->pos,j=0;
         dbg(lvl_debug,"Before: pos_attr=%td\n",t->pos_attr-i);
         while (i < t->pos_next)
-            dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
+        dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
 
     }
 
@@ -809,27 +809,27 @@ binfile_attr_set(void *priv_data, struct attr *attr, enum change_mode mode)
     move_len=t->pos_next-t->pos_attr_start-offset;
     move_offset=offset;
     switch (mode) {
-    case change_mode_delete:
-        nattr_size=0;
-        nattr_len=0;
-        pad=0;
-        break;
-    case change_mode_modify:
-    case change_mode_prepend:
-    case change_mode_append:
-        nattr_size=attr_data_size(attr);
-        pad=(4-(nattr_size%4))%4;
-        nattr_len=(nattr_size+pad)/4+2;
-        if (mode == change_mode_prepend) {
-            move_offset=write_offset;
-            move_len+=oattr_len;
-        }
-        if (mode == change_mode_append) {
-            write_offset=move_offset;
-        }
-        break;
-    default:
-        return 0;
+        case change_mode_delete:
+            nattr_size=0;
+            nattr_len=0;
+            pad=0;
+            break;
+        case change_mode_modify:
+        case change_mode_prepend:
+        case change_mode_append:
+            nattr_size=attr_data_size(attr);
+            pad=(4-(nattr_size%4))%4;
+            nattr_len=(nattr_size+pad)/4+2;
+            if (mode == change_mode_prepend) {
+                move_offset=write_offset;
+                move_len+=oattr_len;
+            }
+            if (mode == change_mode_append) {
+                write_offset=move_offset;
+            }
+            break;
+        default:
+            return 0;
     }
     if (mode == change_mode_delete || mode == change_mode_modify)
         delta=nattr_len-oattr_len;
@@ -855,7 +855,7 @@ binfile_attr_set(void *priv_data, struct attr *attr, enum change_mode mode)
         int *i=tn->pos,j=0;
         dbg(lvl_debug,"After move: pos_attr=%td\n",tn->pos_attr-i);
         while (i < tn->pos_next)
-            dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
+        dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
     }
     if (nattr_len) {
         int *nattr=tn->pos_attr_start+write_offset;
@@ -871,7 +871,7 @@ binfile_attr_set(void *priv_data, struct attr *attr, enum change_mode mode)
         while (i < tn->pos_next)
         dbg(lvl_debug,"After: pos_attr=%td\n",tn->pos_attr-i);
         while (i < tn->pos_next)
-            dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
+        dbg(lvl_debug,"%d:0x%x\n",j++,*i++);
     }
     return 1;
 }
@@ -881,7 +881,7 @@ static struct item_methods methods_binfile = {
         binfile_coord_get,
         binfile_attr_rewind,
         binfile_attr_get,
-    NULL,
+        NULL,
         binfile_attr_set,
         binfile_coord_set,
 };
@@ -907,7 +907,7 @@ pop_tile(struct map_rect_priv *mr)
     if (mr->t->mode < 2)
         file_data_free(mr->m->fi, (unsigned char *)(mr->t->start));
 #ifdef DEBUG_SIZE
-#if DEBUG_SIZE > 0
+    #if DEBUG_SIZE > 0
     dbg(lvl_debug,"leave %d\n",mr->t->zipfile_num);
 #endif
 #endif
@@ -1300,12 +1300,12 @@ push_zipfile_tile_do(struct map_rect_priv *mr, struct zip_cd *cd, int zipfile, i
 
 {
     struct tile t;
-        struct map_priv *m=mr->m;
+    struct map_priv *m=mr->m;
     struct file *f=m->fi;
 
     dbg(lvl_debug,"enter %p %d\n", mr, zipfile);
 #ifdef DEBUG_SIZE
-#if DEBUG_SIZE > 0
+    #if DEBUG_SIZE > 0
     {
         char filename[cd->zipcfnl+1];
         memcpy(filename, cd+1, cd->zipcfnl);
@@ -1325,10 +1325,9 @@ push_zipfile_tile_do(struct map_rect_priv *mr, struct zip_cd *cd, int zipfile, i
 #ifdef HAVE_SOCKET
 
 static struct zip_cd *
-download(struct map_priv *m, struct map_rect_priv *mr, struct zip_cd *cd, int zipfile, int offset, int length)
+download(struct map_priv *m, struct map_rect_priv *mr, struct zip_cd *cd, int zipfile, int offset, int length, int async)
 {
     struct map_download *download;
-    int async = 1;
 
     if(!m->download_enabled)
         return NULL;
@@ -1467,7 +1466,7 @@ download(struct map_priv *m, struct map_rect_priv *mr, struct zip_cd *cd, int zi
 #endif
 
 static int
-push_zipfile_tile(struct map_rect_priv *mr, int zipfile, int offset, int length)
+push_zipfile_tile(struct map_rect_priv *mr, int zipfile, int offset, int length, int async)
 {
     struct map_priv *m=mr->m;
     struct file *f=m->fi;
@@ -1479,7 +1478,7 @@ push_zipfile_tile(struct map_rect_priv *mr, int zipfile, int offset, int length)
 #ifdef HAVE_SOCKET
 
     if (!cd->zipcunc && m->url) {
-        cd=download(m, mr, cd, zipfile, offset, length);
+        cd=download(m, mr, cd, zipfile, offset, length, async);
         if (!cd)
             return 1;
     }
@@ -1515,42 +1514,42 @@ map_rect_new_binfile_int(struct map_priv *map, struct map_selection *sel)
 static void
 tile_bbox(char *tile, int len, struct coord_rect *r)
 {
-        struct coord c;
+    struct coord c;
     int overlap=1;
-        int xo,yo;
+    int xo,yo;
     struct coord_rect world_bbox = {
             { WORLD_BOUNDINGBOX_MIN_X, WORLD_BOUNDINGBOX_MAX_Y}, /* left upper corner */
             { WORLD_BOUNDINGBOX_MAX_X, WORLD_BOUNDINGBOX_MIN_Y}, /* right lower corner */
     };
-        *r=world_bbox;
-        while (len) {
-                c.x=(r->lu.x+r->rl.x)/2;
-                c.y=(r->lu.y+r->rl.y)/2;
-                xo=(r->rl.x-r->lu.x)*overlap/100;
-                yo=(r->lu.y-r->rl.y)*overlap/100;
-                switch (*tile) {
-                case 'a':
-                        r->lu.x=c.x-xo;
-                        r->rl.y=c.y-yo;
-                        break;
-                case 'b':
-                        r->rl.x=c.x+xo;
-                        r->rl.y=c.y-yo;
-                        break;
-                case 'c':
-                        r->lu.x=c.x-xo;
-                        r->lu.y=c.y+yo;
-                        break;
-                case 'd':
-                        r->rl.x=c.x+xo;
-                        r->lu.y=c.y+yo;
-                        break;
-                default:
-                        return;
-                }
-                tile++;
-                len--;
+    *r=world_bbox;
+    while (len) {
+        c.x=(r->lu.x+r->rl.x)/2;
+        c.y=(r->lu.y+r->rl.y)/2;
+        xo=(r->rl.x-r->lu.x)*overlap/100;
+        yo=(r->lu.y-r->rl.y)*overlap/100;
+        switch (*tile) {
+            case 'a':
+                r->lu.x=c.x-xo;
+                r->rl.y=c.y-yo;
+                break;
+            case 'b':
+                r->rl.x=c.x+xo;
+                r->rl.y=c.y-yo;
+                break;
+            case 'c':
+                r->lu.x=c.x-xo;
+                r->lu.y=c.y+yo;
+                break;
+            case 'd':
+                r->rl.x=c.x+xo;
+                r->lu.y=c.y+yo;
+                break;
+            default:
+                return;
         }
+        tile++;
+        len--;
+    }
 }
 
 static int
@@ -1694,7 +1693,7 @@ map_rect_destroy_binfile(struct map_rect_priv *mr)
 #ifdef HAVE_SOCKET
     map_binfile_http_close(mr->m);
 #endif
-        g_free(mr);
+    g_free(mr);
 }
 
 static void
@@ -1771,7 +1770,7 @@ map_parse_country_binfile(struct map_rect_priv *mr)
         }
     }
 
-    push_zipfile_tile(mr, at.u.num, 0, 0);
+    push_zipfile_tile(mr, at.u.num, 0, 0, 0);
 }
 
 static int
@@ -1800,7 +1799,7 @@ map_parse_submap(struct map_rect_priv *mr, int async)
     if (!binfile_attr_get(mr->item.priv_data, attr_zipfile_ref, &at))
         return 0;
     dbg(lvl_debug,"pushing zipfile %ld from %d\n", at.u.num, mr->t->zipfile_num);
-    return push_zipfile_tile(mr, at.u.num, 0, 0);
+    return push_zipfile_tile(mr, at.u.num, 0, 0, async);
 }
 
 static int
@@ -1836,7 +1835,7 @@ map_rect_get_item_binfile(struct map_rect_priv *mr)
 #endif
     if (mr->status == 1) {
         mr->status=0;
-        if (push_zipfile_tile(mr, m->zip_members-1, 0, 0))
+        if (push_zipfile_tile(mr, m->zip_members-1, 0, 0, 1))
             return &busy_item;
     }
     for (;;) {
@@ -1885,7 +1884,7 @@ map_rect_get_item_byid_binfile(struct map_rect_priv *mr, int id_hi, int id_lo)
     struct tile *t;
     if (mr->m->eoc) {
         while (pop_tile(mr));
-        push_zipfile_tile(mr, id_hi, 0, 0);
+        push_zipfile_tile(mr, id_hi, 0, 0, 0);
     }
     t=mr->t;
     t->pos=t->start+id_lo;
@@ -1912,18 +1911,18 @@ binmap_search_by_index(struct map_priv *map, struct item *item, struct map_rect_
     if (item_attr_get(item, attr_item_id, &zipfile_ref)) {
         data=zipfile_ref.u.data;
         *ret=map_rect_new_binfile_int(map, NULL);
-        push_zipfile_tile(*ret, le32_to_cpu(data[0]), le32_to_cpu(data[1]), -1);
+        push_zipfile_tile(*ret, le32_to_cpu(data[0]), le32_to_cpu(data[1]), -1, 0);
         return 3;
     }
     if (item_attr_get(item, attr_zipfile_ref, &zipfile_ref)) {
         *ret=map_rect_new_binfile_int(map, NULL);
-        push_zipfile_tile(*ret, zipfile_ref.u.num, 0, 0);
+        push_zipfile_tile(*ret, zipfile_ref.u.num, 0, 0, 0);
         return 1;
     }
     if (item_attr_get(item, attr_zipfile_ref_block, &zipfile_ref)) {
         data=zipfile_ref.u.data;
         *ret=map_rect_new_binfile_int(map, NULL);
-        push_zipfile_tile(*ret, le32_to_cpu(data[0]), le32_to_cpu(data[1]), le32_to_cpu(data[2]));
+        push_zipfile_tile(*ret, le32_to_cpu(data[0]), le32_to_cpu(data[1]), le32_to_cpu(data[2]), 0);
         return 2;
     }
     *ret=NULL;
@@ -1950,20 +1949,20 @@ binmap_search_street_by_place(struct map_priv *map, struct item *town, struct co
         if (item_is_poly_place(*place) &&
             item_attr_get(place, attr_label, &poly_town_name) &&
             !strcmp(poly_town_name.u.str,town_name.u.str)) {
-                struct coord *c;
-                int i,count;
-                struct geom_poly_segment *bnd;
-                count=binfile_coord_left(map_rec2);
-                c=g_new(struct coord,count);
-                found=1;
-                item_coord_get(place, c, count);
-                for (i = 0 ; i < count ; i++)
-                    coord_rect_extend(&sel->u.c_rect, &c[i]);
-                bnd=g_new(struct geom_poly_segment,1);
-                bnd->first=c;
-                bnd->last=c+count-1;
-                bnd->type=geom_poly_segment_type_way_outer;
-                *boundaries=g_list_prepend(*boundaries,bnd);
+            struct coord *c;
+            int i,count;
+            struct geom_poly_segment *bnd;
+            count=binfile_coord_left(map_rec2);
+            c=g_new(struct coord,count);
+            found=1;
+            item_coord_get(place, c, count);
+            for (i = 0 ; i < count ; i++)
+                coord_rect_extend(&sel->u.c_rect, &c[i]);
+            bnd=g_new(struct geom_poly_segment,1);
+            bnd->first=c;
+            bnd->last=c+count-1;
+            bnd->type=geom_poly_segment_type_way_outer;
+            *boundaries=g_list_prepend(*boundaries,bnd);
         }
     }
     map_rect_destroy_binfile(map_rec2);
@@ -2144,7 +2143,7 @@ binmap_search_new(struct map_priv *map, struct item *item, struct attr *search, 
             map_rect_destroy_binfile(map_rec);
             break;
         case attr_house_number:
-            dbg(lvl_debug,"case house_number");
+        dbg(lvl_debug,"case house_number");
             if (! item->map)
                 break;
             if (!map_priv_is(item->map, map))
@@ -2153,9 +2152,8 @@ binmap_search_new(struct map_priv *map, struct item *item, struct attr *search, 
             msp->mr_item = map_rect_new_binfile(map, NULL);
             msp->item = map_rect_get_item_byid_binfile(msp->mr_item, item->id_hi, item->id_lo);
             idx=binmap_search_by_index(map, msp->item, &msp->mr);
-            if (idx) {
+            if (idx)
                 msp->mode = 1;
-            }
             else
             {
                 struct coord c;
@@ -2164,18 +2162,16 @@ binmap_search_new(struct map_priv *map, struct item *item, struct attr *search, 
                     struct attr attr;
                     map_rec = map_rect_new_binfile(map, NULL);
                     town = map_rect_get_item_byid_binfile(map_rec, map->last_searched_town_id_hi, map->last_searched_town_id_lo);
-                    if (town) {
-                        msp->mr = binmap_search_street_by_place(map, town, &c, &msp->ms,
-                                                                &msp->boundaries);
-                    }
+                    if (town)
+                        msp->mr = binmap_search_street_by_place(map, town, &c, &msp->ms, &msp->boundaries);
                     if (msp->boundaries)
-                        dbg(lvl_debug, "using map town boundaries\n");
+                    dbg(lvl_debug, "using map town boundaries\n");
                     if (!msp->boundaries && town)
-                        {
-                            binmap_get_estimated_boundaries(town, &msp->boundaries);
-                            if (msp->boundaries)
-                                dbg(lvl_debug, "using estimated boundaries\n");
-                        }
+                    {
+                        binmap_get_estimated_boundaries(town, &msp->boundaries);
+                        if (msp->boundaries)
+                        dbg(lvl_debug, "using estimated boundaries\n");
+                    }
                     map_rect_destroy_binfile(map_rec);
                     /* start searching in area around the street segment even if town boundaries are available */
                     msp->mr=binmap_search_housenumber_by_estimate(map, &c, &msp->ms);
@@ -2332,7 +2328,7 @@ item_inside_poly_list(struct item *it, GList *l)
                 item_coord_get(it,&c,1);
         }
         if(geom_poly_point_inside(p->first,count,&c))
-                return 1;
+            return 1;
         l=g_list_next(l);
     }
     return 0;
@@ -2349,91 +2345,91 @@ binmap_search_get_item(struct map_search_priv *map_search)
         while ((it  = map_rect_get_item_binfile(map_search->mr))) {
             int has_house_number=0;
             switch (map_search->search.type) {
-            case attr_town_postal:
-            case attr_town_name:
-            case attr_district_name:
-            case attr_town_or_district_name:
-                if (map_search->mr->tile_depth > 1 && item_is_town(*it) && map_search->search.type == attr_town_postal) {
-                    if (binfile_attr_get(it->priv_data, attr_town_postal, &at)) {
-                        if (!linguistics_compare(at.u.str, map_search->search.u.str, mode)) {
-                            /* check for duplicate combination of town_name and town_postal */
-                            if (!duplicate(map_search, it, attr_town_name, attr_town_postal)) {
-                                return it;
-                            } else {
-                                break;
+                case attr_town_postal:
+                case attr_town_name:
+                case attr_district_name:
+                case attr_town_or_district_name:
+                    if (map_search->mr->tile_depth > 1 && item_is_town(*it) && map_search->search.type == attr_town_postal) {
+                        if (binfile_attr_get(it->priv_data, attr_town_postal, &at)) {
+                            if (!linguistics_compare(at.u.str, map_search->search.u.str, mode)) {
+                                /* check for duplicate combination of town_name and town_postal */
+                                if (!duplicate(map_search, it, attr_town_name, attr_town_postal)) {
+                                    return it;
+                                } else {
+                                    break;
+                                }
                             }
                         }
                     }
-                }
-                if (map_search->mr->tile_depth > 1 && item_is_town(*it) && map_search->search.type != attr_district_name) {
-                    if (binfile_attr_get(it->priv_data, attr_town_name_match, &at) || binfile_attr_get(it->priv_data, attr_town_name, &at)) {
-                        if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_town_name,0))
-                            return it;
-                    }
-                }
-                if (map_search->mr->tile_depth > 1 && item_is_district(*it) && map_search->search.type != attr_town_name) {
-                    if (binfile_attr_get(it->priv_data, attr_district_name_match, &at) || binfile_attr_get(it->priv_data, attr_district_name, &at)) {
-                        if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_town_name,0))
-                            return it;
-                    }
-                }
-                break;
-            case attr_street_name:
-                if (map_search->mode == 1) {
-                    if (binfile_attr_get(it->priv_data, attr_street_name_match, &at) || binfile_attr_get(it->priv_data, attr_street_name, &at)) {
-                        if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_street_name,0)) {
-                            return it;
+                    if (map_search->mr->tile_depth > 1 && item_is_town(*it) && map_search->search.type != attr_district_name) {
+                        if (binfile_attr_get(it->priv_data, attr_town_name_match, &at) || binfile_attr_get(it->priv_data, attr_town_name, &at)) {
+                            if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_town_name,0))
+                                return it;
                         }
                     }
-                    continue;
-                }
-                if (item_is_street(*it)) {
-                    struct attr at;
-                    if (!map_selection_contains_item_rect(map_search->mr->sel, it))
-                        break;
-
-                    if(binfile_attr_get(it->priv_data, attr_label, &at)) {
-                        struct coord c[128];
-                        struct duplicate *d;
-
-                        /* Extracting all coords here makes duplicate_new() not consider them (we don't want all
-                         * street segments to be reported as separate streets). */
-                        while(item_coord_get(it,c,128)>0);
-                        d=duplicate_test(map_search, it, attr_label,0);
-                        if(!d)
+                    if (map_search->mr->tile_depth > 1 && item_is_district(*it) && map_search->search.type != attr_town_name) {
+                        if (binfile_attr_get(it->priv_data, attr_district_name_match, &at) || binfile_attr_get(it->priv_data, attr_district_name, &at)) {
+                            if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_town_name,0))
+                                return it;
+                        }
+                    }
+                    break;
+                case attr_street_name:
+                    if (map_search->mode == 1) {
+                        if (binfile_attr_get(it->priv_data, attr_street_name_match, &at) || binfile_attr_get(it->priv_data, attr_street_name, &at)) {
+                            if (!linguistics_compare(at.u.str, map_search->search.u.str, mode) && !duplicate(map_search, it, attr_street_name,0)) {
+                                return it;
+                            }
+                        }
+                        continue;
+                    }
+                    if (item_is_street(*it)) {
+                        struct attr at;
+                        if (!map_selection_contains_item_rect(map_search->mr->sel, it))
                             break;
 
-                        if(linguistics_compare(at.u.str, map_search->search.u.str, mode|linguistics_cmp_expand|linguistics_cmp_words)) {
-                            /* Remember this non-matching street name in duplicate hash to skip name
-                             * comparison for its following segments */
+                        if(binfile_attr_get(it->priv_data, attr_label, &at)) {
+                            struct coord c[128];
+                            struct duplicate *d;
+
+                            /* Extracting all coords here makes duplicate_new() not consider them (we don't want all
+                             * street segments to be reported as separate streets). */
+                            while(item_coord_get(it,c,128)>0);
+                            d=duplicate_test(map_search, it, attr_label,0);
+                            if(!d)
+                                break;
+
+                            if(linguistics_compare(at.u.str, map_search->search.u.str, mode|linguistics_cmp_expand|linguistics_cmp_words)) {
+                                /* Remember this non-matching street name in duplicate hash to skip name
+                                 * comparison for its following segments */
+                                duplicate_insert(map_search, d);
+                                break;
+                            }
+
+                            if(map_search->boundaries && !item_inside_poly_list(it,map_search->boundaries)) {
+                                /* Other segments may fit the town poly. Do not update hash for now. */
+                                g_free(d);
+                                break;
+                            }
+
                             duplicate_insert(map_search, d);
-                            break;
+                            item_coord_rewind(it);
+                            return it;
                         }
-
-                        if(map_search->boundaries && !item_inside_poly_list(it,map_search->boundaries)) {
-                            /* Other segments may fit the town poly. Do not update hash for now. */
-                            g_free(d);
-                            break;
-                        }
-
-                        duplicate_insert(map_search, d);
-                        item_coord_rewind(it);
-                        return it;
                     }
-                }
-                break;
-            case attr_house_number:
-                has_house_number=binfile_attr_get(it->priv_data, attr_house_number, &at);
-                if ((has_house_number
-                    || it->type == type_house_number_interpolation_even || it->type == type_house_number_interpolation_odd
-                    || it->type == type_house_number_interpolation_all
-                    || (map_search->mode == 1 && item_is_street(*it))|| it->type == type_house_number)
-                     && !(map_search->boundaries && !item_inside_poly_list(it,map_search->boundaries)))
-                {
-                    if (has_house_number)
+                    break;
+                case attr_house_number:
+                    has_house_number=binfile_attr_get(it->priv_data, attr_house_number, &at);
+                    if ((has_house_number
+                         || it->type == type_house_number_interpolation_even || it->type == type_house_number_interpolation_odd
+                         || it->type == type_house_number_interpolation_all
+                         || (map_search->mode == 1 && item_is_street(*it))|| it->type == type_house_number)
+                        && !(map_search->boundaries && !item_inside_poly_list(it,map_search->boundaries)))
                     {
-                        struct attr at2;
-                        if ((binfile_attr_get(it->priv_data, attr_street_name, &at2) || map_search->mode!=2) && !linguistics_compare(at.u.str, map_search->search.u.str, mode)
+                        if (has_house_number)
+                        {
+                            struct attr at2;
+                            if ((binfile_attr_get(it->priv_data, attr_street_name, &at2) || map_search->mode!=2) && !linguistics_compare(at.u.str, map_search->search.u.str, mode)
                                 && !strcmp(at2.u.str, map_search->parent_name))
                             {
                                 if (!duplicate(map_search, it, attr_house_number,0))
@@ -2442,61 +2438,61 @@ binmap_search_get_item(struct map_search_priv *map_search)
                                     return it;
                                 }
                             }
-                    }
-                    else
-                    {
-                        struct attr at2;
-                        if ((binfile_attr_get(it->priv_data, attr_street_name, &at2) || map_search->mode!=2) && !strcmp(at2.u.str, map_search->parent_name))
-                        {
-                            if (!duplicate(map_search, it, attr_house_number_interpolation_no_ends_incrmt_2,0))
-                            {
-                                binfile_attr_rewind(it->priv_data);
-                                return it;
-                            }
-                            else if (!duplicate(map_search, it, attr_house_number_interpolation_no_ends_incrmt_1,0))
-                            {
-                                binfile_attr_rewind(it->priv_data);
-                                return it;
-                            }
-                        } else {
-                            if (!( it->type == type_house_number_interpolation_even || it->type == type_house_number_interpolation_odd
-                                    || it->type == type_house_number_interpolation_all))
-                                return it;
                         }
-
-                    }
-                } else if( item_is_street(*it) && map_search->mode==2 && map_search->parent_name && binfile_attr_get(it->priv_data, attr_street_name, &at) && !strcmp(at.u.str, map_search->parent_name) )
+                        else
                         {
-                        /* If matching street segment found, prepare to expand house number search region +100m around each way point */
-                            if (!(map_search->boundaries && !item_inside_poly_list(it,map_search->boundaries)))
+                            struct attr at2;
+                            if ((binfile_attr_get(it->priv_data, attr_street_name, &at2) || map_search->mode!=2) && !strcmp(at2.u.str, map_search->parent_name))
                             {
-                                struct coord c;
-                                while(item_coord_get(it,&c,1))
+                                if (!duplicate(map_search, it, attr_house_number_interpolation_no_ends_incrmt_2,0))
                                 {
-                                    c.x-=100;
-                                    c.y-=100;
-                                    coord_rect_extend(&map_search->rect_new,&c);
-                                    c.x+=200;
-                                    c.y+=200;
-                                    coord_rect_extend(&map_search->rect_new,&c);
+                                    binfile_attr_rewind(it->priv_data);
+                                    return it;
                                 }
+                                else if (!duplicate(map_search, it, attr_house_number_interpolation_no_ends_incrmt_1,0))
+                                {
+                                    binfile_attr_rewind(it->priv_data);
+                                    return it;
+                                }
+                            } else {
+                                if (!( it->type == type_house_number_interpolation_even || it->type == type_house_number_interpolation_odd
+                                       || it->type == type_house_number_interpolation_all))
+                                    return it;
+                            }
+
+                        }
+                    } else if( item_is_street(*it) && map_search->mode==2 && map_search->parent_name && binfile_attr_get(it->priv_data, attr_street_name, &at) && !strcmp(at.u.str, map_search->parent_name) )
+                    {
+                        /* If matching street segment found, prepare to expand house number search region +100m around each way point */
+                        if (!(map_search->boundaries && !item_inside_poly_list(it,map_search->boundaries)))
+                        {
+                            struct coord c;
+                            while(item_coord_get(it,&c,1))
+                            {
+                                c.x-=100;
+                                c.y-=100;
+                                coord_rect_extend(&map_search->rect_new,&c);
+                                c.x+=200;
+                                c.y+=200;
+                                coord_rect_extend(&map_search->rect_new,&c);
                             }
                         }
-                continue;
-            default:
-                return NULL;
+                    }
+                    continue;
+                default:
+                    return NULL;
             }
         }
         if(map_search->search.type==attr_house_number && map_search->mode==2 && map_search->parent_name) {
             /* For unindexed house number search, check if street segments extending possible housenumber locations were found */
             if(map_search->ms.u.c_rect.lu.x!=map_search->rect_new.lu.x || map_search->ms.u.c_rect.lu.y!=map_search->rect_new.lu.y ||
-                map_search->ms.u.c_rect.rl.x!=map_search->rect_new.rl.x || map_search->ms.u.c_rect.rl.y!=map_search->rect_new.rl.y) {
-                    map_search->ms.u.c_rect=map_search->rect_new;
-                    map_rect_destroy_binfile(map_search->mr);
-                    map_search->mr=map_rect_new_binfile(map_search->map, &map_search->ms);
-                    dbg(lvl_debug,"Extended house number search region to %d x %d, restarting...\n",map_search->ms.u.c_rect.rl.x - map_search->ms.u.c_rect.lu.x, map_search->ms.u.c_rect.lu.y-map_search->ms.u.c_rect.rl.y);
-                    continue;
-                }
+               map_search->ms.u.c_rect.rl.x!=map_search->rect_new.rl.x || map_search->ms.u.c_rect.rl.y!=map_search->rect_new.rl.y) {
+                map_search->ms.u.c_rect=map_search->rect_new;
+                map_rect_destroy_binfile(map_search->mr);
+                map_search->mr=map_rect_new_binfile(map_search->map, &map_search->ms);
+                dbg(lvl_debug,"Extended house number search region to %d x %d, restarting...\n",map_search->ms.u.c_rect.rl.x - map_search->ms.u.c_rect.lu.x, map_search->ms.u.c_rect.lu.y-map_search->ms.u.c_rect.rl.y);
+                continue;
+            }
         }
         if (!map_search->mr_item) {
             return NULL;
@@ -2534,19 +2530,19 @@ binmap_get_attr(struct map_priv *m, enum attr_type type, struct attr *attr)
 {
     attr->type=type;
     switch (type) {
-    case attr_map_release:
-        if (m->map_release) {
-            attr->u.str=m->map_release;
-            return 1;
-        }
-        break;
-    case attr_progress:
-        if (m->progress) {
-            attr->u.str=m->progress;
-            return 1;
-        }
-    default:
-        break;
+        case attr_map_release:
+            if (m->map_release) {
+                attr->u.str=m->map_release;
+                return 1;
+            }
+            break;
+        case attr_progress:
+            if (m->progress) {
+                attr->u.str=m->progress;
+                return 1;
+            }
+        default:
+            break;
     }
     return 0;
 }
@@ -2555,29 +2551,29 @@ static int
 binmap_set_attr(struct map_priv *map, struct attr *attr)
 {
     switch (attr->type) {
-    case attr_update:
-        map->download_enabled = attr->u.num;
-        return 1;
-    default:
-        return 0;
+        case attr_update:
+            map->download_enabled = attr->u.num;
+            return 1;
+        default:
+            return 0;
     }
 
 }
 
 static struct map_methods map_methods_binfile = {
-    projection_mg,
-    "utf-8",
-    map_destroy_binfile,
-    map_rect_new_binfile,
-    map_rect_destroy_binfile,
-    map_rect_get_item_binfile,
-    map_rect_get_item_byid_binfile,
-    binmap_search_new,
-    binmap_search_destroy,
-    binmap_search_get_item,
-    NULL,
-    binmap_get_attr,
-    binmap_set_attr,
+        projection_mg,
+        "utf-8",
+        map_destroy_binfile,
+        map_rect_new_binfile,
+        map_rect_destroy_binfile,
+        map_rect_get_item_binfile,
+        map_rect_get_item_byid_binfile,
+        binmap_search_new,
+        binmap_search_destroy,
+        binmap_search_get_item,
+        NULL,
+        binmap_get_attr,
+        binmap_set_attr,
 };
 
 static int
@@ -2588,7 +2584,7 @@ binfile_get_index(struct map_priv *m)
     int offset;
     struct zip_cd *cd;
 
-    len = (int) strlen("index");
+    len = strlen("index");
     cde_index_size = sizeof(struct zip_cd)+len;
     if (m->eoc64)
         offset = m->eoc64->zip64ecsz-cde_index_size;
@@ -2645,17 +2641,17 @@ map_binfile_zip_setup(struct map_priv *m, char *filename, int mmap)
         g_free(tmpfilename);
     }
     dbg(lvl_debug,"num_disk %d\n",m->eoc->zipedsk);
-    m->eoc64 = binfile_read_eoc64(m->fi);
+    m->eoc64=binfile_read_eoc64(m->fi);
     if (!binfile_get_index(m)) {
         dbg(lvl_error,"map file %s: no index found\n", filename);
         return 0;
     }
-    if (!(first_cd = binfile_read_cd(m, 0, 0))) {
+    if (!(first_cd=binfile_read_cd(m, 0, 0))) {
         dbg(lvl_error,"map file %s: unable to get first cd\n", filename);
         return 0;
     }
-    m->cde_size = sizeof(struct zip_cd)+first_cd->zipcfnl+first_cd->zipcxtl;
-    m->zip_members = m->index_offset/m->cde_size+1;
+    m->cde_size=sizeof(struct zip_cd)+first_cd->zipcfnl+first_cd->zipcxtl;
+    m->zip_members=m->index_offset/m->cde_size+1;
     dbg(lvl_debug,"cde_size %d\n", m->cde_size);
     dbg(lvl_debug,"members %d\n",m->zip_members);
     file_data_free(m->fi, (unsigned char *)first_cd);
@@ -2753,11 +2749,11 @@ map_binfile_open(struct map_priv *m)
     struct map_rect_priv *mr;
     struct item *item;
     struct attr attr;
-    struct attr readwrite = {attr_readwrite, {(void *)1}};
-    struct attr *attrs[] = {&readwrite, NULL};
+    struct attr readwrite={attr_readwrite, {(void *)1}};
+    struct attr *attrs[]={&readwrite, NULL};
 
     dbg(lvl_debug,"file_create %s\n", m->filename);
-    m->fi = file_create(m->filename, m->url?attrs:NULL);
+    m->fi=file_create(m->filename, m->url?attrs:NULL);
     if (! m->fi && m->url)
         return 0;
     if (! m->fi) {
@@ -2769,7 +2765,7 @@ map_binfile_open(struct map_priv *m)
     magic=(int *)file_data_read(m->fi, 0, 4);
     if (!magic) {
         file_destroy(m->fi);
-        m->fi = NULL;
+        m->fi=NULL;
         return 0;
     }
     *magic = le32_to_cpu(*magic);
@@ -2777,33 +2773,33 @@ map_binfile_open(struct map_priv *m)
         if (!map_binfile_zip_setup(m, m->filename, m->flags & 1)) {
             dbg(lvl_error,"invalid file format for '%s'\n", m->filename);
             file_destroy(m->fi);
-            m->fi = NULL;
+            m->fi=NULL;
             return 0;
         }
     } else if (*magic == zip_lfh_sig_rev || *magic == zip_split_sig_rev || *magic == zip_cd_sig_rev || *magic == zip64_eoc_sig_rev) {
         dbg(lvl_error,"endianness mismatch for '%s'\n", m->filename);
         file_destroy(m->fi);
-        m->fi = NULL;
+        m->fi=NULL;
         return 0;
     } else
         file_mmap(m->fi);
     file_data_free(m->fi, (unsigned char *)magic);
     m->cachedir=g_strdup("/tmp/navit");
     m->map_version=0;
-    mr = map_rect_new_binfile(m, NULL);
+    mr=map_rect_new_binfile(m, NULL);
     if (mr) {
-        while ((item = map_rect_get_item_binfile(mr)) == &busy_item);
+        while ((item=map_rect_get_item_binfile(mr)) == &busy_item);
         if (item && item->type == type_map_information)  {
             if (binfile_attr_get(item->priv_data, attr_version, &attr))
-                m->map_version = attr.u.num;
+                m->map_version=attr.u.num;
             if (binfile_attr_get(item->priv_data, attr_map_release, &attr))
-                m->map_release = g_strdup(attr.u.str);
+                m->map_release=g_strdup(attr.u.str);
             if (m->url && binfile_attr_get(item->priv_data, attr_url, &attr)) {
                 dbg(lvl_debug,"url config %s map %s\n",m->url,attr.u.str);
                 if (strcmp(m->url, attr.u.str))
                     m->update_available=1;
                 g_free(m->url);
-                m->url = g_strdup(attr.u.str);
+                m->url=g_strdup(attr.u.str);
             }
         }
         map_rect_destroy_binfile(mr);
@@ -2846,7 +2842,7 @@ map_binfile_destroy(struct map_priv *m)
 static void
 binfile_check_version(struct map_priv *m)
 {
-    int version = -1;
+    int version=-1;
     if (!m->check_version)
         return;
     if (m->fi)
@@ -2863,42 +2859,42 @@ static struct map_priv *
 map_new_binfile(struct map_methods *meth, struct attr **attrs, struct callback_list *cbl)
 {
     struct map_priv *m;
-    struct attr *data = attr_search(attrs, NULL, attr_data);
+    struct attr *data=attr_search(attrs, NULL, attr_data);
     struct attr *check_version,*map_pass,*flags,*url,*download_enabled;
     struct file_wordexp *wexp;
     char **wexp_data;
     if (! data)
         return NULL;
 
-    wexp = file_wordexp_new(data->u.str);
-    wexp_data = file_wordexp_get_array(wexp);
+    wexp=file_wordexp_new(data->u.str);
+    wexp_data=file_wordexp_get_array(wexp);
     dbg(lvl_debug,"map_new_binfile %s\n", data->u.str);
-    *meth = map_methods_binfile;
+    *meth=map_methods_binfile;
 
-    m = g_new0(struct map_priv, 1);
-    m->cbl = cbl;
-    m->id = ++map_id;
-    m->filename = g_strdup(wexp_data[0]);
+    m=g_new0(struct map_priv, 1);
+    m->cbl=cbl;
+    m->id=++map_id;
+    m->filename=g_strdup(wexp_data[0]);
     file_wordexp_destroy(wexp);
-    check_version = attr_search(attrs, NULL, attr_check_version);
+    check_version=attr_search(attrs, NULL, attr_check_version);
     if (check_version)
-        m->check_version = check_version->u.num;
-    map_pass = attr_search(attrs, NULL, attr_map_pass);
+        m->check_version=check_version->u.num;
+    map_pass=attr_search(attrs, NULL, attr_map_pass);
     if (map_pass)
-        m->passwd = g_strdup(map_pass->u.str);
+        m->passwd=g_strdup(map_pass->u.str);
     flags=attr_search(attrs, NULL, attr_flags);
     if (flags)
-        m->flags = flags->u.num;
-    url = attr_search(attrs, NULL, attr_url);
+        m->flags=flags->u.num;
+    url=attr_search(attrs, NULL, attr_url);
     if (url)
-        m->url = g_strdup(url->u.str);
+        m->url=g_strdup(url->u.str);
     download_enabled = attr_search(attrs, NULL, attr_update);
     if (download_enabled)
-        m->download_enabled = download_enabled->u.num;
+        m->download_enabled=download_enabled->u.num;
 
     if (!map_binfile_open(m) && !m->check_version && !m->url) {
         map_binfile_destroy(m);
-        m = NULL;
+        m=NULL;
     } else {
         load_changes(m);
     }
