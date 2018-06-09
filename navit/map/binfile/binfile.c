@@ -1325,9 +1325,10 @@ push_zipfile_tile_do(struct map_rect_priv *mr, struct zip_cd *cd, int zipfile, i
 #ifdef HAVE_SOCKET
 
 static struct zip_cd *
-download(struct map_priv *m, struct map_rect_priv *mr, struct zip_cd *cd, int zipfile, int offset, int length, int async)
+download(struct map_priv *m, struct map_rect_priv *mr, struct zip_cd *cd, int zipfile, int offset, int length)
 {
     struct map_download *download;
+    int async = 1;
 
     if(!m->download_enabled)
         return NULL;
