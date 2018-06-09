@@ -1478,7 +1478,7 @@ push_zipfile_tile(struct map_rect_priv *mr, int zipfile, int offset, int length)
 #ifdef HAVE_SOCKET
 
     if (!cd->zipcunc && m->url) {
-        cd=download(m, mr, cd, zipfile, offset, length, async);
+        cd=download(m, mr, cd, zipfile, offset, length);
         if (!cd)
             return 1;
     }
