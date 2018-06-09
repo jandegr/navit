@@ -3114,15 +3114,43 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 	return ret;
 }
 
+/**
+ * returns false for heightlines map or any other non
+ * binfile map
+ */
+static int
+is_routable_map(struct map *m)
+{
+    struct attr map_name_attr;
+    if (map_get_attr(m, attr_name, &map_name_attr, NULL)) {
+        dbg(lvl_debug, "map name = %s\n", map_name_attr.u.str);
+        if(!strstr(map_name_attr.u.str, ".bin")){
+            dbg(lvl_debug, "not a binfile = %s\n", map_name_attr.u.str);
+            return 0;
+        }
+        if(strstr(map_name_attr.u.str, "heightlines.bin")){
+            dbg(lvl_debug, "not routable = %s\n", map_name_attr.u.str);
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
 static int
 route_graph_build_next_map(struct route_graph *rg)
 {
 	do {
 		rg->m=mapset_next(rg->h, 2);
-		if (! rg->m)
-			return 0;
+        if (! rg->m) {
+            return 0;
+        }
 		map_rect_destroy(rg->mr);
 		rg->mr=map_rect_new(rg->m, rg->sel);
+        if (!is_routable_map(rg->m)){
+            map_rect_destroy(rg->mr);
+            rg->mr = NULL;
+        }
 	} while (!rg->mr);
 		
 	return 1;
@@ -3203,21 +3231,21 @@ route_graph_build_done(struct route_graph *rg, int cancel)
 	rg->busy=0;
 }
 
+
+
+
 static void
 route_graph_build_idle(struct route_graph *rg, struct vehicleprofile *profile)
 {
-
-	int count=1;
 	struct item *item;
-
 //	double timestamp_build_idle = now_ms();
 
-
 	//untill done
-	while (count > 0)
+	while (TRUE)
 	{
 		for (;;)
 		{
+
 			item=map_rect_get_item(rg->mr);
 			if (item)
 				break;
@@ -3234,9 +3262,7 @@ route_graph_build_idle(struct route_graph *rg, struct vehicleprofile *profile)
 			route_graph_add_turn_restriction(rg, item);
 		else
 			route_graph_add_item(rg, item, profile);
-		count++;
 	}
-
 //	 dbg(0,"build_idle took: %.3f ms\n",now_ms() - timestamp_build_idle);
 }
 
