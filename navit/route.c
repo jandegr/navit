@@ -3147,7 +3147,7 @@ route_graph_build_next_map(struct route_graph *rg)
         }
 		map_rect_destroy(rg->mr);
         rg->mr = NULL;
-        if (is_routable_map(rg->m)){
+        if (is_routable_map(rg->m)) {
             rg->mr=map_rect_new(rg->m, rg->sel);
         }
 	} while (!rg->mr);
