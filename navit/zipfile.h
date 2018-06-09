@@ -68,7 +68,7 @@ struct zip_lfh {
 
 //! See the documentation of the ZIP format for the meaning
 //! of these fields.
-struct zip_cd {
+struct zip_cent_dir {
 	int zipcensig;   //!< central directory signature
 	char zipcver;    //!< zip spec version of creating software
 	char zipcos;     //!< os compatibility of the file attribute information
@@ -168,7 +168,7 @@ struct zip64_eocl {
 } ATTRIBUTE_PACKED;
 
 struct zip_alignment_check {
-	int x[sizeof(struct zip_cd) == 46 ? 1:-1];
+	int x[sizeof(struct zip_cent_dir) == 46 ? 1:-1];
 };
 
 #ifdef HAVE_PRAGMA_PACK
