@@ -103,7 +103,7 @@ struct map_download {
 struct map_priv {
     int id;
     char *filename;              //!< Filename of the binfile.
-    char *cachedir;
+    char *cachedir;              // dit is blijkbaar voor als er met download gewerkt wordt (/tmp/navit)
     struct file *fi,*http;
     struct file **fis;
     struct zip_cd *index_cd;
@@ -402,7 +402,7 @@ binfile_search_cd(struct map_priv *m, int offset, char *name, int partial, int s
 {
     int size=4096;
     int end=m->eoc64?m->eoc64->zip64ecsz:m->eoc->zipecsz;
-    int len=strlen(name);
+    int len= (int) strlen(name);
     long long cdoffset=m->eoc64?m->eoc64->zip64eofst:m->eoc->zipeofst;
     struct zip_cd *cd;
 #if 0
@@ -1466,9 +1466,9 @@ download(struct map_priv *m, struct map_rect_priv *mr, struct zip_cd *cd, int zi
 #endif
 
 static int
-push_zipfile_tile(struct map_rect_priv *mr, int zipfile, int offset, int length, int async)
+push_zipfile_tile(struct map_rect_priv *mr, int zipfile, int offset, int length)
 {
-        struct map_priv *m=mr->m;
+    struct map_priv *m=mr->m;
     struct file *f=m->fi;
     long long cdoffset=m->eoc64?m->eoc64->zip64eofst:m->eoc->zipeofst;
     struct zip_cd *cd=(struct zip_cd *)(file_data_read(f, cdoffset + zipfile*m->cde_size, m->cde_size));
@@ -1770,7 +1770,7 @@ map_parse_country_binfile(struct map_rect_priv *mr)
         }
     }
 
-    push_zipfile_tile(mr, at.u.num, 0, 0, 0);
+    push_zipfile_tile(mr, at.u.num, 0, 0);
 }
 
 static int
@@ -1799,7 +1799,7 @@ map_parse_submap(struct map_rect_priv *mr, int async)
     if (!binfile_attr_get(mr->item.priv_data, attr_zipfile_ref, &at))
         return 0;
     dbg(lvl_debug,"pushing zipfile %ld from %d\n", at.u.num, mr->t->zipfile_num);
-    return push_zipfile_tile(mr, at.u.num, 0, 0, async);
+    return push_zipfile_tile(mr, at.u.num, 0, 0);
 }
 
 static int
@@ -1835,7 +1835,7 @@ map_rect_get_item_binfile(struct map_rect_priv *mr)
 #endif
     if (mr->status == 1) {
         mr->status=0;
-        if (push_zipfile_tile(mr, m->zip_members-1, 0, 0, 1))
+        if (push_zipfile_tile(mr, m->zip_members-1, 0, 0))
             return &busy_item;
     }
     for (;;) {
@@ -1884,7 +1884,7 @@ map_rect_get_item_byid_binfile(struct map_rect_priv *mr, int id_hi, int id_lo)
     struct tile *t;
     if (mr->m->eoc) {
         while (pop_tile(mr));
-        push_zipfile_tile(mr, id_hi, 0, 0, 0);
+        push_zipfile_tile(mr, id_hi, 0, 0);
     }
     t=mr->t;
     t->pos=t->start+id_lo;
@@ -1911,18 +1911,18 @@ binmap_search_by_index(struct map_priv *map, struct item *item, struct map_rect_
     if (item_attr_get(item, attr_item_id, &zipfile_ref)) {
         data=zipfile_ref.u.data;
         *ret=map_rect_new_binfile_int(map, NULL);
-        push_zipfile_tile(*ret, le32_to_cpu(data[0]), le32_to_cpu(data[1]), -1, 0);
+        push_zipfile_tile(*ret, le32_to_cpu(data[0]), le32_to_cpu(data[1]), -1);
         return 3;
     }
     if (item_attr_get(item, attr_zipfile_ref, &zipfile_ref)) {
         *ret=map_rect_new_binfile_int(map, NULL);
-        push_zipfile_tile(*ret, zipfile_ref.u.num, 0, 0, 0);
+        push_zipfile_tile(*ret, zipfile_ref.u.num, 0, 0);
         return 1;
     }
     if (item_attr_get(item, attr_zipfile_ref_block, &zipfile_ref)) {
         data=zipfile_ref.u.data;
         *ret=map_rect_new_binfile_int(map, NULL);
-        push_zipfile_tile(*ret, le32_to_cpu(data[0]), le32_to_cpu(data[1]), le32_to_cpu(data[2]), 0);
+        push_zipfile_tile(*ret, le32_to_cpu(data[0]), le32_to_cpu(data[1]), le32_to_cpu(data[2]));
         return 2;
     }
     *ret=NULL;
@@ -2152,8 +2152,9 @@ binmap_search_new(struct map_priv *map, struct item *item, struct attr *search, 
             msp->mr_item = map_rect_new_binfile(map, NULL);
             msp->item = map_rect_get_item_byid_binfile(msp->mr_item, item->id_hi, item->id_lo);
             idx=binmap_search_by_index(map, msp->item, &msp->mr);
-            if (idx)
+            if (idx) {
                 msp->mode = 1;
+            }
             else
             {
                 struct coord c;
@@ -2162,8 +2163,10 @@ binmap_search_new(struct map_priv *map, struct item *item, struct attr *search, 
                     struct attr attr;
                     map_rec = map_rect_new_binfile(map, NULL);
                     town = map_rect_get_item_byid_binfile(map_rec, map->last_searched_town_id_hi, map->last_searched_town_id_lo);
-                    if (town)
-                        msp->mr = binmap_search_street_by_place(map, town, &c, &msp->ms, &msp->boundaries);
+                    if (town) {
+                        msp->mr = binmap_search_street_by_place(map, town, &c, &msp->ms,
+                                                                &msp->boundaries);
+                    }
                     if (msp->boundaries)
                         dbg(lvl_debug, "using map town boundaries\n");
                     if (!msp->boundaries && town)
@@ -2584,7 +2587,7 @@ binfile_get_index(struct map_priv *m)
     int offset;
     struct zip_cd *cd;
 
-    len = strlen("index");
+    len = (int) strlen("index");
     cde_index_size = sizeof(struct zip_cd)+len;
     if (m->eoc64)
         offset = m->eoc64->zip64ecsz-cde_index_size;
@@ -2641,17 +2644,17 @@ map_binfile_zip_setup(struct map_priv *m, char *filename, int mmap)
         g_free(tmpfilename);
     }
     dbg(lvl_debug,"num_disk %d\n",m->eoc->zipedsk);
-    m->eoc64=binfile_read_eoc64(m->fi);
+    m->eoc64 = binfile_read_eoc64(m->fi);
     if (!binfile_get_index(m)) {
         dbg(lvl_error,"map file %s: no index found\n", filename);
         return 0;
     }
-    if (!(first_cd=binfile_read_cd(m, 0, 0))) {
+    if (!(first_cd = binfile_read_cd(m, 0, 0))) {
         dbg(lvl_error,"map file %s: unable to get first cd\n", filename);
         return 0;
     }
-    m->cde_size=sizeof(struct zip_cd)+first_cd->zipcfnl+first_cd->zipcxtl;
-    m->zip_members=m->index_offset/m->cde_size+1;
+    m->cde_size = sizeof(struct zip_cd)+first_cd->zipcfnl+first_cd->zipcxtl;
+    m->zip_members = m->index_offset/m->cde_size+1;
     dbg(lvl_debug,"cde_size %d\n", m->cde_size);
     dbg(lvl_debug,"members %d\n",m->zip_members);
     file_data_free(m->fi, (unsigned char *)first_cd);
@@ -2749,11 +2752,11 @@ map_binfile_open(struct map_priv *m)
     struct map_rect_priv *mr;
     struct item *item;
     struct attr attr;
-    struct attr readwrite={attr_readwrite, {(void *)1}};
-    struct attr *attrs[]={&readwrite, NULL};
+    struct attr readwrite = {attr_readwrite, {(void *)1}};
+    struct attr *attrs[] = {&readwrite, NULL};
 
     dbg(lvl_debug,"file_create %s\n", m->filename);
-    m->fi=file_create(m->filename, m->url?attrs:NULL);
+    m->fi = file_create(m->filename, m->url?attrs:NULL);
     if (! m->fi && m->url)
         return 0;
     if (! m->fi) {
@@ -2765,7 +2768,7 @@ map_binfile_open(struct map_priv *m)
     magic=(int *)file_data_read(m->fi, 0, 4);
     if (!magic) {
         file_destroy(m->fi);
-        m->fi=NULL;
+        m->fi = NULL;
         return 0;
     }
     *magic = le32_to_cpu(*magic);
@@ -2773,33 +2776,33 @@ map_binfile_open(struct map_priv *m)
         if (!map_binfile_zip_setup(m, m->filename, m->flags & 1)) {
             dbg(lvl_error,"invalid file format for '%s'\n", m->filename);
             file_destroy(m->fi);
-            m->fi=NULL;
+            m->fi = NULL;
             return 0;
         }
     } else if (*magic == zip_lfh_sig_rev || *magic == zip_split_sig_rev || *magic == zip_cd_sig_rev || *magic == zip64_eoc_sig_rev) {
         dbg(lvl_error,"endianness mismatch for '%s'\n", m->filename);
         file_destroy(m->fi);
-        m->fi=NULL;
+        m->fi = NULL;
         return 0;
     } else
         file_mmap(m->fi);
     file_data_free(m->fi, (unsigned char *)magic);
     m->cachedir=g_strdup("/tmp/navit");
     m->map_version=0;
-    mr=map_rect_new_binfile(m, NULL);
+    mr = map_rect_new_binfile(m, NULL);
     if (mr) {
-        while ((item=map_rect_get_item_binfile(mr)) == &busy_item);
+        while ((item = map_rect_get_item_binfile(mr)) == &busy_item);
         if (item && item->type == type_map_information)  {
             if (binfile_attr_get(item->priv_data, attr_version, &attr))
-                m->map_version=attr.u.num;
+                m->map_version = attr.u.num;
             if (binfile_attr_get(item->priv_data, attr_map_release, &attr))
-                m->map_release=g_strdup(attr.u.str);
+                m->map_release = g_strdup(attr.u.str);
             if (m->url && binfile_attr_get(item->priv_data, attr_url, &attr)) {
                 dbg(lvl_debug,"url config %s map %s\n",m->url,attr.u.str);
                 if (strcmp(m->url, attr.u.str))
                     m->update_available=1;
                 g_free(m->url);
-                m->url=g_strdup(attr.u.str);
+                m->url = g_strdup(attr.u.str);
             }
         }
         map_rect_destroy_binfile(mr);
@@ -2842,7 +2845,7 @@ map_binfile_destroy(struct map_priv *m)
 static void
 binfile_check_version(struct map_priv *m)
 {
-    int version=-1;
+    int version = -1;
     if (!m->check_version)
         return;
     if (m->fi)
@@ -2859,42 +2862,42 @@ static struct map_priv *
 map_new_binfile(struct map_methods *meth, struct attr **attrs, struct callback_list *cbl)
 {
     struct map_priv *m;
-    struct attr *data=attr_search(attrs, NULL, attr_data);
+    struct attr *data = attr_search(attrs, NULL, attr_data);
     struct attr *check_version,*map_pass,*flags,*url,*download_enabled;
     struct file_wordexp *wexp;
     char **wexp_data;
     if (! data)
         return NULL;
 
-    wexp=file_wordexp_new(data->u.str);
-    wexp_data=file_wordexp_get_array(wexp);
+    wexp = file_wordexp_new(data->u.str);
+    wexp_data = file_wordexp_get_array(wexp);
     dbg(lvl_debug,"map_new_binfile %s\n", data->u.str);
-    *meth=map_methods_binfile;
+    *meth = map_methods_binfile;
 
-    m=g_new0(struct map_priv, 1);
-    m->cbl=cbl;
-    m->id=++map_id;
-    m->filename=g_strdup(wexp_data[0]);
+    m = g_new0(struct map_priv, 1);
+    m->cbl = cbl;
+    m->id = ++map_id;
+    m->filename = g_strdup(wexp_data[0]);
     file_wordexp_destroy(wexp);
-    check_version=attr_search(attrs, NULL, attr_check_version);
+    check_version = attr_search(attrs, NULL, attr_check_version);
     if (check_version)
-        m->check_version=check_version->u.num;
-    map_pass=attr_search(attrs, NULL, attr_map_pass);
+        m->check_version = check_version->u.num;
+    map_pass = attr_search(attrs, NULL, attr_map_pass);
     if (map_pass)
-        m->passwd=g_strdup(map_pass->u.str);
+        m->passwd = g_strdup(map_pass->u.str);
     flags=attr_search(attrs, NULL, attr_flags);
     if (flags)
-        m->flags=flags->u.num;
-    url=attr_search(attrs, NULL, attr_url);
+        m->flags = flags->u.num;
+    url = attr_search(attrs, NULL, attr_url);
     if (url)
-        m->url=g_strdup(url->u.str);
+        m->url = g_strdup(url->u.str);
     download_enabled = attr_search(attrs, NULL, attr_update);
     if (download_enabled)
-        m->download_enabled=download_enabled->u.num;
+        m->download_enabled = download_enabled->u.num;
 
     if (!map_binfile_open(m) && !m->check_version && !m->url) {
         map_binfile_destroy(m);
-        m=NULL;
+        m = NULL;
     } else {
         load_changes(m);
     }
