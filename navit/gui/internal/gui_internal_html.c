@@ -192,7 +192,7 @@ html_image(struct gui_priv *this, const char **names, const char **values)
 	size=find_attr(names, values, "size");
 	if (!size) {
 		const char *class=find_attr(names, values, "class");
-		if (class && !strcasecmp(class,"centry"))
+		if (class && !g_strcasecmp(class,"centry"))
 			size="xs";
 		else
 			size="l";
@@ -427,7 +427,7 @@ gui_internal_html_text(xml_context *dummy, const char *text, gsize len, void *da
 	switch (html->tag) {
 	case html_tag_a:
 		if (html->name && len) {
-			if (html->class && !strcasecmp(html->class,"clist"))
+			if (html->class && !g_strcasecmp(html->class,"clist"))
 				this->html_container=gui_internal_box_new(this, gravity_left_top|orientation_vertical|flags_expand|flags_fill /* |flags_scrolly */);
 			else
 				this->html_container=gui_internal_box_new(this, gravity_center|orientation_horizontal_vertical|flags_expand|flags_fill);
@@ -446,7 +446,7 @@ gui_internal_html_text(xml_context *dummy, const char *text, gsize len, void *da
 		break;
 	case html_tag_img:
 		if (len) {
-			if (html->class && !strcasecmp(html->class, "centry"))
+			if (html->class && !g_strcasecmp(html->class, "centry"))
 				w=gui_internal_box_new(this, gravity_left_top|orientation_horizontal|flags_fill);
 			else
 				w=gui_internal_box_new(this, gravity_center|orientation_vertical);
