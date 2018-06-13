@@ -506,7 +506,7 @@ if(WIN32 OR WINCE)
    set_with_reason(speech/espeak "Windows detected" TRUE)
    set_with_reason(support/espeak "Windows detected" TRUE)
    set_with_reason(binding/win32 "Windows detected" TRUE)
-
+   set_with_reason(vehicle/demo "Windows detected" TRUE)
    # vehicle_file is broken for windows. use vehicle_wince instead
    # whicle_wince isn't buildable on non-CE windows ssytems
 
