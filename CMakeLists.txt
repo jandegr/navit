@@ -407,7 +407,7 @@ endif(GETTEXT_FOUND)
 #Independent modules
 add_module(graphics/null "Default" TRUE)
 add_module(osd/core "Default" TRUE)
-add_module(vehicle/demo "Default" FALSE)#hack voor androidstudio
+add_module(vehicle/demo "Default" TRUE)
 add_module(vehicle/file "Default" TRUE)
 add_module(vehicle/null "Default" FALSE)
 add_module(gui/internal "Default" TRUE)
@@ -506,7 +506,6 @@ if(WIN32 OR WINCE)
    set_with_reason(speech/espeak "Windows detected" TRUE)
    set_with_reason(support/espeak "Windows detected" TRUE)
    set_with_reason(binding/win32 "Windows detected" TRUE)
-   set_with_reason(vehicle/demo "Windows detected" TRUE)
    # vehicle_file is broken for windows. use vehicle_wince instead
    # whicle_wince isn't buildable on non-CE windows ssytems
 
