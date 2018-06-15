@@ -1433,7 +1433,7 @@ static struct graphics_image_priv *image_new(struct graphics_priv *gr, struct gr
                 rc=xpmdecode(name, ret);
             } else if (!strcmp(ext,".png")) {
                 rc=pngdecode(gr, name, ret);
-            }
+            } 
         }
         if (!rc) {
             dbg(lvl_warning, "failed loading '%s'\n", name );
@@ -1472,6 +1472,15 @@ static void draw_image(struct graphics_priv *gr, struct graphics_gc_priv *fg, st
         Xpm2bmp_paint( img->pxpm , gr->hMemDC, p->x, p->y );
     if (img->png_pixels)
         pngrender(img, gr, p->x, p->y);
+}
+
+static void
+draw_image_warp(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, struct graphics_image_priv *img)
+{
+	int w, h;
+	
+	dbg(lvl_error, "draw_image_warp data=%p\n", img);
+
 }
 
 static struct graphics_priv *
@@ -1566,11 +1575,7 @@ static struct graphics_methods graphics_methods =
     draw_circle,
     draw_text,
     draw_image,
-#ifdef HAVE_IMLIB2
-    NULL, // draw_image_warp,
-#else
-    NULL,
-#endif
+    draw_image_warp,
     draw_drag,
     font_new,
     gc_new,
