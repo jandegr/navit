@@ -2160,13 +2160,11 @@ displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc
         }
         break;
     case element_image:
-        dbg(lvl_error,"element image  '%s'\n", di->label);  
         if (gra->meth.draw_image_warp)
 #ifdef HAVE_API_ANDROID
         gra->meth.draw_image_warp(gra->priv, gra->gc[0]->priv, pa, count, di->label);
 #else
         {
-            dbg(lvl_error,"element image try scale rotate '%s'\n", di->label);
             img=graphics_image_new_scaled_rotated(gra, di->label, -1, -1, 0);
             if (img) {
                 gra->meth.draw_image_warp(gra->priv, gra->gc[0]->priv, pa, count, img->priv);
