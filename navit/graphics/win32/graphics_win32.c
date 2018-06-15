@@ -1489,7 +1489,7 @@ draw_image_warp(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct po
 			dbg(lvl_error, "draw_image_warp width = %i\n", w);
 		}
 		if (count > 2) {
-			h =  p->y - p[1].y;
+			h =  p->y - p[2].y;
 			dbg(lvl_error, "draw_image_warp height = %i\n", h);
 		}
 		pngrender(img, gr, p->x, p->y);
