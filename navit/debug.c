@@ -325,7 +325,7 @@ debug_vprintf(dbg_level level, const char *module, const int mlen, const char *f
 		FILE *fp=debug_fp;
 		if (! fp)
 			fp = stderr;
-		fprintf(fp,"%s",debug_message);
+		fprintf(stderr,"%s",debug_message);
 		fflush(fp);
 #endif
 #endif
