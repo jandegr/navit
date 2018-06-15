@@ -1468,10 +1468,12 @@ static struct graphics_image_priv *image_new(struct graphics_priv *gr, struct gr
 
 static void draw_image(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, struct graphics_image_priv *img)
 {
-    if (img->pxpm)
-        Xpm2bmp_paint( img->pxpm , gr->hMemDC, p->x, p->y );
-    if (img->png_pixels)
-        pngrender(img, gr, p->x, p->y);
+	if (img->pxpm) {
+		Xpm2bmp_paint(img->pxpm, gr->hMemDC, p->x, p->y);
+	}
+	if (img->png_pixels) {
+		pngrender(img, gr, p->x, p->y);
+	}
 }
 
 static void
@@ -1480,7 +1482,9 @@ draw_image_warp(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct po
 	int w, h;
 	
 	dbg(lvl_error, "draw_image_warp data=%p\n", img);
-
+	if (img->png_pixels) {
+		pngrender(img, gr, p->x, p->y);
+	}
 }
 
 static struct graphics_priv *
