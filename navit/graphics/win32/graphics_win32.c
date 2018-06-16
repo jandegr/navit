@@ -1479,25 +1479,41 @@ static void draw_image(struct graphics_priv *gr, struct graphics_gc_priv *fg, st
 static void
 draw_image_warp(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, struct graphics_image_priv *img)
 {
-	int *w, *h;
+	int w = -1, h = -1;
 	
-	dbg(lvl_error, "draw_image_warp data=%p\n", img);
+	dbg(lvl_debug, "draw_image_warp enter\n");
 	if (img->png_pixels) {
-		dbg(lvl_error, "draw_image_warp count = %i\n", count);
+		dbg(lvl_debug, "draw_image_warp count = %i\n", count);
 		if (count > 1) {
-			*w = p[1].x - p->x;
-			dbg(lvl_error, "draw_image_warp width = %i\n", *w);
+			w = p[1].x - p->x;
+			dbg(lvl_debug, "draw_image_warp width = %i\n", w);
 		}
 		if (count > 2) {
-			*h =  p[2].y - p->y;
-			dbg(lvl_error, "draw_image_warp height = %i\n", *h);
+			h =  p[2].y - p->y;
+			dbg(debug, "draw_image_warp height = %i\n", h);
 		}
 
-		if (*w > img->width && *h > img->height) {
-			pngscale(img, gr, *w, *h);
+		if (w != img->width && h != img->height && w > 0 && h > 0 ) {
+			if (gr->AlphaBlend && img->hBitmap)
+			{
+				dbg(lvl_error, "draw_warp with alphablend rescaled\n")
+				HDC hdc;
+				HBITMAP oldBitmap;
+				BLENDFUNCTION blendFunction;
+				blendFunction.BlendOp = AC_SRC_OVER;
+				blendFunction.BlendFlags = 0;
+				blendFunction.SourceConstantAlpha = 255;
+				blendFunction.AlphaFormat = AC_SRC_ALPHA;
+				hdc = CreateCompatibleDC(NULL);
+				oldBitmap = SelectBitmap(hdc, img->hBitmap);
+				gr->AlphaBlend(gr->hMemDC, p->x, p->y, w, h, hdc, 0, 0, img->width, img->height, blendFunction);
+				(void)SelectBitmap(hdc, oldBitmap);
+				DeleteDC(hdc);
+			}
 		}
-
-		pngrender(img, gr, p->x, p->y);
+		else {
+			pngrender(img, gr, p->x, p->y);
+		}
 
 	}
 }
