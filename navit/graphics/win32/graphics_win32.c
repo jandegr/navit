@@ -1490,7 +1490,7 @@ draw_image_warp(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct po
 		}
 		if (count > 2) {
 			h =  p[2].y - p->y;
-			dbg(debug, "draw_image_warp height = %i\n", h);
+			dbg(lvl_debug, "draw_image_warp height = %i\n", h);
 		}
 
 		if (w != img->width && h != img->height && w > 0 && h > 0 ) {
