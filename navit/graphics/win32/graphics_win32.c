@@ -1496,7 +1496,6 @@ draw_image_warp(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct po
 		if (w != img->width && h != img->height && w > 0 && h > 0 ) {
 			if (gr->AlphaBlend && img->hBitmap)
 			{
-				dbg(lvl_error, "draw_warp with alphablend rescaled\n")
 				HDC hdc;
 				HBITMAP oldBitmap;
 				BLENDFUNCTION blendFunction;
