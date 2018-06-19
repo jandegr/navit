@@ -8,5 +8,5 @@ make package
 popd
 
 ls -la
+cp win32/navit.exe win32/navit32install.exe
 ls -la win32
-cp win32/*.exe $CIRCLE_ARTIFACTS/
