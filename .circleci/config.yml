@@ -145,7 +145,7 @@ jobs:
             bash ci/build_win32.sh
       - store_artifacts:
           path: win32/navit.exe
-  build_win32_new:
+  build_win_new:
     docker:
       - image: ubuntu:16.04
     steps:
@@ -154,7 +154,7 @@ jobs:
           name: Build for Windows
           command: |
             bash ci/setup_common_requirements.sh
-            bash ci/build_win32.sh
+            bash ci/build_win64.sh
       - store_artifacts:
           path: win32/navit.exe          
 workflows:
@@ -164,4 +164,4 @@ workflows:
       - build_linux
       - build_android
       - build_win32
-      - build_win32_new
+      - build_win_new
