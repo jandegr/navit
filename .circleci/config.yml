@@ -145,6 +145,18 @@ jobs:
             bash ci/build_win_i686.sh
       - store_artifacts:
           path: win32/navit.exe          
+  build_win_64:
+    docker:
+      - image: ubuntu:16.04
+    steps:
+      - checkout
+      - run:
+          name: Build for Windows 64
+          command: |
+            bash ci/setup_common_requirements.sh
+            bash ci/build_win64.sh
+      - store_artifacts:
+          path: win64/navit.exe          
 workflows:
   version: 2
   build_all:
@@ -152,3 +164,5 @@ workflows:
       - build_linux
       - build_android
       - build_win_32
+      - build_win_32
+      
