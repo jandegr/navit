@@ -9,4 +9,4 @@ popd
 
 ls -la
 ls -la win64
-cp win32/*.exe $CIRCLE_ARTIFACTS/
+cp win64/*.exe $CIRCLE_ARTIFACTS/
