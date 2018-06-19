@@ -133,19 +133,7 @@ jobs:
           destination: reports
       - store_test_results:
           path: test-results
-  build_win32:
-    docker:
-      - image: ubuntu:14.04
-    steps:
-      - checkout
-      - run:
-          name: Build for Windows
-          command: |
-            bash ci/setup_common_requirements.sh
-            bash ci/build_win32.sh
-      - store_artifacts:
-          path: win32/navit.exe
-  build_win_new:
+  build_win_32:
     docker:
       - image: ubuntu:16.04
     steps:
@@ -163,5 +151,4 @@ workflows:
     jobs:
       - build_linux
       - build_android
-      - build_win32
-      - build_win_new
+      - build_win_32
