@@ -8,5 +8,6 @@ make package
 popd
 
 ls -la
-ls -la win64
+
 cp win64/navit.exe win64/navit64install.exe
+ls -la win64
