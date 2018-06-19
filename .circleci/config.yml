@@ -155,8 +155,8 @@ jobs:
           command: |
             bash ci/setup_common_requirements.sh
             bash ci/build_win64.sh
-  #     - store_artifacts:
-  #        path: win64/navit64install.exe          
+      - store_artifacts:
+          path: win64/navit64install.exe          
 workflows:
   version: 2
   build_all:
