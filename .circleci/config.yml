@@ -164,5 +164,5 @@ workflows:
       - build_linux
       - build_android
       - build_win_32
-      - build_win_32
+      - build_win_64
       
