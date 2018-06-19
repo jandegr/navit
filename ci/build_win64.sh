@@ -9,4 +9,4 @@ popd
 
 ls -la
 ls -la win64
-cp win64/navit.exe $CIRCLE_ARTIFACTS/navit64install.exe
+cp win64/navit.exe win64/navit64install.exe
