@@ -72,6 +72,8 @@
 
 #cmakedefine HAVE_STPCPY 1
 
+#cmakedefine HAVE_MEMPCPY 1
+
 #cmakedefine HAVE_SBRK 1
 
 #cmakedefine HAVE_PRAGMA_PACK 1
