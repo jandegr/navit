@@ -84,7 +84,7 @@ static char *environment_vars[][5]={
     {"NAVIT_LIBDIR",      ":",          "::/navit",      ":\\lib",      ":/lib"},
     {"NAVIT_SHAREDIR",    ":",          ":/share/navit", ":",           ":/share"},
     {"NAVIT_LOCALEDIR",   ":/../locale",":/share/locale",":\\locale",   ":/locale"},
-    {"NAVIT_USER_DATADIR",":",          "~/.navit",      ":\\data",     ":/home"},
+    {"NAVIT_USER_DATADIR",":",          "~/.navit",      "~\\data",     ":/home"},
     {"NAVIT_LOGFILE",     NULL,         NULL,            ":\\navit.log",NULL},
     {"NAVIT_LIBPREFIX",   "*/.libs/",   NULL,            NULL,          NULL},
     {NULL,                NULL,         NULL,            NULL,          NULL},
@@ -401,6 +401,15 @@ main_init(const char *program)
         }
         setenv("NAVIT_PREFIX", filename, 0);
     }
+    dbg(lvl_error,"windows USERPROFILE = %s\n", getenv("USERPROFILE"));
+	setenv("HOME",g_strdup_printf("%s%s",getenv("USERPROFILE"),"\\Navit"),0);
+	if (!file_exists(getenv("HOME"))) {
+        dbg(lvl_error,"creating dir %s\n", getenv("HOME"));
+        if (file_mkdir(getenv("HOME"),0)) {
+            dbg(lvl_error,"failed creating dir %s\n", getenv("HOME"));
+        }
+    }
+		dbg(lvl_error,"windows Navit home = %s\n", getenv("HOME"));
     if (!getenv("HOME"))
         setenv("HOME", getenv("NAVIT_PREFIX"), 0);
     main_setup_environment(2);
