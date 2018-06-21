@@ -166,6 +166,9 @@ int main_real(int argc, char * const* argv)
 	if (config_file) {
 		list = g_list_append(list,g_strdup(config_file));
 	} else {
+#ifdef _WIN32
+		list = g_list_append(list,g_strjoin(NULL,getenv("HOME"), "\\navit.xml" , NULL));
+#endif
 		list = g_list_append(list,g_strjoin(NULL,getenv("NAVIT_USER_DATADIR"), "/navit.xml" , NULL));
 		list = g_list_append(list,g_strdup("navit.xml.local"));
 		list = g_list_append(list,g_strdup("navit.xml"));
