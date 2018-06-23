@@ -897,13 +897,21 @@ gui_internal_cmd_view_in_browser(struct gui_priv *this, struct widget *wm, void 
 		}
 		map_rect_destroy(mr);
 	} else {
+#ifndef HAVE_API_WIN32_BASE
 		cmd=g_strdup_printf("navit-browser.sh '%s' &",wm->name);
+#else
+		cmd = g_strdup_printf("%s", wm->name);
+#endif	
 	}
 	if (cmd) {
+#ifndef HAVE_API_WIN32_BASE
 #ifdef HAVE_SYSTEM
 		system(cmd);
 #else
 		dbg(lvl_error,"Error: External commands were disabled during compilation, cannot call '%s'.\n",cmd);
+#endif
+#else
+		ShellExecute(0, "open", cmd, 0, 0 , SW_SHOW );
 #endif
 		g_free(cmd);
 	}
