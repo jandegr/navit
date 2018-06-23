@@ -1433,7 +1433,7 @@ static struct graphics_image_priv *image_new(struct graphics_priv *gr, struct gr
                 rc=xpmdecode(name, ret);
             } else if (!strcmp(ext,".png")) {
                 rc=pngdecode(gr, name, ret);
-            }
+            } 
         }
         if (!rc) {
             dbg(lvl_warning, "failed loading '%s'\n", name );
@@ -1468,10 +1468,53 @@ static struct graphics_image_priv *image_new(struct graphics_priv *gr, struct gr
 
 static void draw_image(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, struct graphics_image_priv *img)
 {
-    if (img->pxpm)
-        Xpm2bmp_paint( img->pxpm , gr->hMemDC, p->x, p->y );
-    if (img->png_pixels)
-        pngrender(img, gr, p->x, p->y);
+	if (img->pxpm) {
+		Xpm2bmp_paint(img->pxpm, gr->hMemDC, p->x, p->y);
+	}
+	if (img->png_pixels) {
+		pngrender(img, gr, p->x, p->y);
+	}
+}
+
+static void
+draw_image_warp(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, struct graphics_image_priv *img)
+{
+	int w = -1, h = -1;
+	
+	dbg(lvl_debug, "draw_image_warp enter\n");
+	if (img->png_pixels) {
+		dbg(lvl_debug, "draw_image_warp count = %i\n", count);
+		if (count > 1) {
+			w = p[1].x - p->x;
+			dbg(lvl_debug, "draw_image_warp width = %i\n", w);
+		}
+		if (count > 2) {
+			h =  p[2].y - p->y;
+			dbg(lvl_debug, "draw_image_warp height = %i\n", h);
+		}
+
+		if (w != img->width && h != img->height && w > 0 && h > 0 ) {
+			if (gr->AlphaBlend && img->hBitmap)
+			{
+				HDC hdc;
+				HBITMAP oldBitmap;
+				BLENDFUNCTION blendFunction;
+				blendFunction.BlendOp = AC_SRC_OVER;
+				blendFunction.BlendFlags = 0;
+				blendFunction.SourceConstantAlpha = 255;
+				blendFunction.AlphaFormat = AC_SRC_ALPHA;
+				hdc = CreateCompatibleDC(NULL);
+				oldBitmap = SelectBitmap(hdc, img->hBitmap);
+				gr->AlphaBlend(gr->hMemDC, p->x, p->y, w, h, hdc, 0, 0, img->width, img->height, blendFunction);
+				(void)SelectBitmap(hdc, oldBitmap);
+				DeleteDC(hdc);
+			}
+		}
+		else {
+			pngrender(img, gr, p->x, p->y);
+		}
+
+	}
 }
 
 static struct graphics_priv *
@@ -1566,11 +1609,7 @@ static struct graphics_methods graphics_methods =
     draw_circle,
     draw_text,
     draw_image,
-#ifdef HAVE_IMLIB2
-    NULL, // draw_image_warp,
-#else
-    NULL,
-#endif
+    draw_image_warp,
     draw_drag,
     font_new,
     gc_new,

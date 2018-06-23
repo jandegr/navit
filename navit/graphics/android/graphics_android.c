@@ -20,7 +20,6 @@
 #include <unistd.h>
 #include <glib.h>
 #include <poll.h>
-#include "config.h"
 #include "window.h"
 #include "point.h"
 #include "graphics.h"
@@ -39,7 +38,7 @@ struct graphics_priv {
 	jmethodID NavitGraphics_draw_polyline, NavitGraphics_draw_polygon, NavitGraphics_draw_rectangle, 
 		NavitGraphics_draw_circle, NavitGraphics_draw_text, NavitGraphics_draw_image, 
 		NavitGraphics_draw_image_warp, NavitGraphics_draw_mode, NavitGraphics_draw_drag, 
-		NavitGraphics_overlay_disable, NavitGraphics_overlay_resize;
+		NavitGraphics_overlay_disable, NavitGraphics_overlay_resize, NavitGraphics_setCamera;
 
 	jclass PaintClass;
 	jmethodID Paint_init,Paint_setStrokeWidth,Paint_setARGB;
@@ -400,8 +399,6 @@ draw_image(struct graphics_priv *gra, struct graphics_gc_priv *fg, struct point 
 static void
 draw_image_warp (struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, char *label)
 {
-	JNIEnv *jnienv2;
-	jnienv2 = jni_getenv();
         /*
          *
          *
@@ -411,9 +408,9 @@ draw_image_warp (struct graphics_priv *gr, struct graphics_gc_priv *fg, struct p
 
         if (count==3)
         {
-        	jstring string = (*jnienv2)->NewStringUTF(jnienv2, label);
-        	(*jnienv2)->CallVoidMethod(jnienv2, gr->NavitGraphics, gr->NavitGraphics_draw_image_warp, string, count,  p[0].x, p[0].y,p[1].x, p[1].y, p[2].x, p[2].y);
-        	(*jnienv2)->DeleteLocalRef(jnienv2, string);
+        	jstring string = (*jnienv)->NewStringUTF(jnienv, label);
+        	(*jnienv)->CallVoidMethod(jnienv, gr->NavitGraphics, gr->NavitGraphics_draw_image_warp, string, count,  p[0].x, p[0].y,p[1].x, p[1].y, p[2].x, p[2].y);
+        	(*jnienv)->DeleteLocalRef(jnienv, string);
         }
 }
 
@@ -481,7 +478,7 @@ set_attr(struct graphics_priv *gra, struct attr *attr)
 {
 	switch (attr->type) {
 	case attr_use_camera:
-	//	(*jnienv)->CallVoidMethod(jnienv, gra->NavitGraphics, gra->NavitGraphics_SetCamera, attr->u.num);
+		(*jnienv)->CallVoidMethod(jnienv, gra->NavitGraphics, gra->NavitGraphics_setCamera, attr->u.num);
 		return 1;
 	default:
 		return 0;
@@ -570,7 +567,8 @@ set_activity(jobject graphics)
 }
 
 static int
-graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, struct point *pnt, int w, int h, int alpha, int wraparound)
+graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, struct point *pnt,
+                      int w, int h, int alpha, int wraparound, int use_camera)
 {
 	struct callback *cb;
 	jmethodID cid, Context_getPackageName;
@@ -623,13 +621,15 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 	if (!find_class_global("org/navitproject/navit/NavitGraphics", &ret->NavitGraphicsClass))
 		return 0;
 	dbg(lvl_debug,"at 3\n");
-	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "<init>", "(Landroid/app/Activity;Lorg/navitproject/navit/NavitGraphics;IIIIII)V");
+	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "<init>", "(Landroid/app/Activity;Lorg/navitproject/navit/NavitGraphics;IIIIIII)V");
 	if (cid == NULL) {
 		dbg(lvl_error,"no method found\n");
 		return 0; /* exception thrown */
 	}
 	dbg(lvl_debug,"at 4 android_activity=%p\n",android_activity);
-	ret->NavitGraphics=(*jnienv)->NewObject(jnienv, ret->NavitGraphicsClass, cid, android_activity, parent ? parent->NavitGraphics : NULL, pnt ? pnt->x:0 , pnt ? pnt->y:0, w, h, alpha, wraparound);
+	ret->NavitGraphics=(*jnienv)->NewObject(jnienv, ret->NavitGraphicsClass, cid, android_activity,
+                                            parent ? parent->NavitGraphics : NULL, pnt ? pnt->x:0 ,
+                                            pnt ? pnt->y:0, w, h, alpha, wraparound, use_camera);
 	dbg(lvl_debug,"result=%p\n",ret->NavitGraphics);
 	if (ret->NavitGraphics)
 		ret->NavitGraphics = (*jnienv)->NewGlobalRef(jnienv, ret->NavitGraphics);
@@ -699,6 +699,8 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 		return 0;
 	if (!find_method(ret->NavitGraphicsClass, "overlay_resize", "(IIIIII)V", &ret->NavitGraphics_overlay_resize))
 		return 0;
+    if (!find_method(ret->NavitGraphicsClass, "setCamera", "(I)V", &ret->NavitGraphics_setCamera))
+        return 0;
 #if 0
 	set_activity(ret->NavitGraphics);
 #endif
@@ -748,6 +750,7 @@ graphics_android_new(struct navit *nav, struct graphics_methods *meth, struct at
 {
 	struct graphics_priv *ret;
 	struct attr *attr;
+    int use_camera=0;
 	if (!event_request_system("android","graphics_android"))
 		return NULL;
 	ret=g_new0(struct graphics_priv, 1);
@@ -757,11 +760,14 @@ graphics_android_new(struct navit *nav, struct graphics_methods *meth, struct at
 	ret->win.priv=ret;
 	ret->win.fullscreen=graphics_android_fullscreen;
 	ret->win.disable_suspend=graphics_android_disable_suspend;
-        if ((attr=attr_search(attrs, NULL, attr_callback_list))) {
+    if ((attr=attr_search(attrs, NULL, attr_use_camera))) {
+        use_camera=attr->u.num;
+    }
+    if ((attr=attr_search(attrs, NULL, attr_callback_list))) {
 		command_add_table(attr->u.callback_list, commands, sizeof(commands)/sizeof(struct command_table), ret);
-        }
+    }
 	image_cache_hash = g_hash_table_new(g_str_hash, g_str_equal);
-	if (graphics_android_init(ret, NULL, NULL, 0, 0, 0, 0)) {
+	if (graphics_android_init(ret, NULL, NULL, 0, 0, 0, 0, use_camera)) {
 		dbg(lvl_debug,"returning %p\n",ret);
 		return ret;
 	} else {
@@ -775,7 +781,7 @@ overlay_new(struct graphics_priv *gr, struct graphics_methods *meth, struct poin
 {
 	struct graphics_priv *ret=g_new0(struct graphics_priv, 1);
 	*meth=graphics_methods;
-	if (graphics_android_init(ret, gr, p, w, h, alpha, wraparound)) {
+	if (graphics_android_init(ret, gr, p, w, h, alpha, wraparound, 0)) {
 		dbg(lvl_debug,"returning %p\n",ret);
 		return ret;
 	} else {
@@ -814,22 +820,22 @@ static jmethodID NavitWatch_remove;
 static void do_poll(JNIEnv *env, int fd, int cond)
 {
 	struct pollfd pfd;
-	pfd.fd=fd;
-	dbg(lvl_debug,"%p poll called for %d %d\n", fd, cond);
+	pfd.fd = fd;
+	dbg(lvl_debug,"%i poll called for %i\n", fd, cond);
 	switch ((enum event_watch_cond)cond) {
 	case event_watch_cond_read:
-		pfd.events=POLLIN;
+		pfd.events = POLLIN;
 		break;
 	case event_watch_cond_write:
-		pfd.events=POLLOUT;
+		pfd.events = POLLOUT;
 		break;
 	case event_watch_cond_except:
-		pfd.events=POLLERR;
+		pfd.events = POLLERR;
 		break;
 	default:
-		pfd.events=0;
+		pfd.events = 0;
 	}
-	pfd.revents=0;
+	pfd.revents = 0;
 	poll(&pfd, 1, -1);
 }
 
@@ -849,7 +855,7 @@ event_android_remove_watch(struct event_watch *ev)
 {
 	dbg(lvl_debug,"enter %p\n",ev);
 	if (ev) {
-		jobject obj=(jobject )ev;
+		jobject obj = (jobject )ev;
 		(*jnienv)->CallVoidMethod(jnienv, obj, NavitWatch_remove);
 		(*jnienv)->DeleteGlobalRef(jnienv, obj);
 	}

@@ -56,6 +56,14 @@
 #ifdef HAVE_API_ANDROID
 #include <navit/android.h>
 #endif
+
+#define ORIENTATION_UNKNOWN 0
+#define ORIENTATION_PORTRAIT 1
+#define ORIENTATION_LANDSCAPE 2
+#define ORIENTATION_FLAT 3
+#define TYPE_ACCELEROMETER 1
+#define TYPE_MAGNETIC_FIELD 2
+
 static struct map *global_map;
 
 int orientation,orientation_old;
@@ -299,15 +307,15 @@ map_route_occluded_bbox(struct map *map, struct coord_rect *bbox)
 {
 	struct coord c[128];
 	struct coord_rect r;
-	int i,first=1,ccount;
-	struct map_rect *map_rect=map_rect_new(map, NULL);
+	int i,first = 1,ccount;
+	struct map_rect *map_rect = map_rect_new(map, NULL);
 	struct item *item;
-	while ((item=map_rect_get_item(map_rect))) {
-		ccount=item_coord_get(item, c, 128);
+	while ((item = map_rect_get_item(map_rect))) {
+		ccount = item_coord_get(item, c, 128);
 		if (ccount && first) {
-			r.lu=c[0];
-			r.rl=c[0];
-			first=0;
+			r.lu = c[0];
+			r.rl = c[0];
+			first = 0;
 		}
 		for (i = 0 ; i < ccount ; i++) 
 			coord_rect_extend(&r, &c[i]);
@@ -315,7 +323,7 @@ map_route_occluded_bbox(struct map *map, struct coord_rect *bbox)
 	map_rect_destroy(map_rect);
 	if (first)
 		return 0;
-	*bbox=r;
+	*bbox = r;
 	return 1;
 }
 
@@ -331,9 +339,9 @@ map_route_occluded_buildings_free(void)
 	struct building *next,*b=buildings;
 	while (b) {
 		street_data_free(b->sd);
-		next=b->next;
+		next = b->next;
 		g_free(b);
-		b=next;
+		b = next;
 	}
 	buildings=NULL;
 }
@@ -347,15 +355,15 @@ map_route_occluded_get_buildings(struct mapset *mapset, struct coord_rect *r)
 	struct map_rect *mr;
 	struct item *item;
 	struct building *b;
-	sel.next=NULL;
-	sel.u.c_rect=*r;
-	sel.order=18;
+	sel.next = NULL;
+	sel.u.c_rect = *r;
+	sel.order = 18;
 	sel.range.min=type_poly_building;
 	sel.range.max=type_poly_building;
 
 	map_route_occluded_buildings_free();
 	while ((map = mapset_next(msh, 1))) {
-		mr=map_rect_new(map, &sel);
+		mr = map_rect_new(map, &sel);
 		while ((item = map_rect_get_item(mr))) {
 			if (item->type == type_poly_building) {
 #if 0
@@ -372,10 +380,10 @@ map_route_occluded_get_buildings(struct mapset *mapset, struct coord_rect *r)
 #endif
 					continue;
 #endif					
-				b=g_new(struct building, 1);
-				b->sd=street_get_data(item);
-				b->next=buildings;
-				buildings=b;
+				b = g_new(struct building, 1);
+				b->sd = street_get_data(item);
+				b->next = buildings;
+				buildings = b;
 			}
 		}
 		map_rect_destroy(mr);
@@ -389,12 +397,12 @@ FILE *debug,*debug2;
 static int
 side(struct coord *l0, struct coord *l1, struct coord *p)
 {
-	int dxl=l1->x-l0->x;
-	int dyl=l1->y-l0->y;
-	int dxp=p->x-l0->x;
-	int dyp=p->y-l0->y;
+	int dxl = l1->x-l0->x;
+	int dyl = l1->y-l0->y;
+	int dxp = p->x-l0->x;
+	int dyp = p->y-l0->y;
 	
-	return dxp*dyl-dyp*dxl;
+	return dxp * dyl - dyp * dxl;
 }
 
 static void
@@ -629,9 +637,9 @@ map_route_occluded_coord_get(void *priv_data, struct coord *c, int count)
 #endif	
 	dbg_assert(count >= 2);
 	if (! mr->checked) {
-		mr->c0=mr->sd->c[0];
+		mr->c0 = mr->sd->c[0];
 		map_route_occluded_check_buildings(&mr->c0);
-		mr->checked=1;
+		mr->checked = 1;
 	}
 	while (ret < count && !mr->last) {
 #ifdef DEBUG_COORD_GET
@@ -643,25 +651,25 @@ map_route_occluded_coord_get(void *priv_data, struct coord *c, int count)
 #endif	
 			if (!mr->idx) {
 				if (coord_next(mr, &mr->lseg[0])) {
-					mr->route_item_done=1;
-					mr->last=1;
-					mr->idx_base=mr->idx=0;
+					mr->route_item_done = 1;
+					mr->last = 1;
+					mr->idx_base = mr->idx = 0;
 					break;
 				}
 				mr->first=1;
 			} else 
-				mr->lseg[0]=mr->lseg[1];
+				mr->lseg[0] = mr->lseg[1];
 			if (coord_next(mr, &mr->lseg[1])) {
 				mr->route_item_done=1;
-				mr->last=1;
-				mr->idx_base=mr->idx=0;
+				mr->last = 1;
+				mr->idx_base = mr->idx=0;
 				break;
 			}
-			mr->c_next=mr->lseg[0];
-			mr->lseg_done=0;
+			mr->c_next = mr->lseg[0];
+			mr->lseg_done = 0;
 		}
-		l0=mr->c_next;
-		l1=mr->lseg[1];
+		l0 = mr->c_next;
+		l1 = mr->lseg[1];
 #ifdef DEBUG_COORD_GET
 		dbg(lvl_debug,"line (0x%x,0x%x)-(0x%x,0x%x)\n", l0.x,l0.y,l1.x,l1.y);
 #endif	
@@ -768,7 +776,9 @@ map_route_occluded_coord_get(void *priv_data, struct coord *c, int count)
 			}
 			if (!vis)
 				break;
-#endif		
+#endif
+            default:
+                break;
 		}
 	}
 #ifdef DEBUG_COORD_GET
@@ -922,13 +932,13 @@ map_route_occluded_new(struct map_methods *meth, struct attr **attrs)
 	struct map_priv *ret;
 	struct attr *navit;
 	dbg(lvl_debug,"enter\n");
-	navit=attr_search(attrs, NULL, attr_navit);
+	navit = attr_search(attrs, NULL, attr_navit);
         if (! navit)
 		return NULL;
-	ret=g_new0(struct map_priv, 1);
-	*meth=map_route_occluded_methods;
-	ret->navit=navit->u.navit;
-	dbg(lvl_debug,"m=%p navit=%p\n", ret, ret->navit);
+	ret = g_new0(struct map_priv, 1);
+	*meth = map_route_occluded_methods;
+	ret->navit = navit->u.navit;
+	dbg(lvl_debug,"m = %p navit = %p\n", ret, ret->navit);
 	return ret;
 }
 
@@ -945,22 +955,22 @@ pedestrian_graphics_resize(struct graphics *gra, int w, int h)
 		done=1;
 	}
 #endif
-	pedestrian_data.w=w;
-	pedestrian_data.h=h;
+	pedestrian_data.w = w;
+	pedestrian_data.h = h;
 }
 
 
 static void
 pedestrian_draw_arrow(struct graphics *gra, char *name, int x, int y)
 {
-	char *src=graphics_icon_path(name);
-	struct graphics_image *img=graphics_image_new(gra, src);
-	struct graphics_gc *gc=graphics_gc_new(gra);
-	struct color col={0xffff,0xffff,0xffff,0xffff};
+	char *src = graphics_icon_path(name);
+	struct graphics_image *img = graphics_image_new(gra, src);
+	struct graphics_gc *gc = graphics_gc_new(gra);
+	struct color col = {0xffff,0xffff,0xffff,0xffff};
 	struct point p;
 	graphics_gc_set_foreground(gc, &col);
-	p.x=x;
-	p.y=y;
+	p.x = x;
+	p.y = y;
 	graphics_draw_image(gra, gc, &p, img);
 	graphics_image_free(gra, img);
 	graphics_gc_destroy(gc);
@@ -974,7 +984,7 @@ pedestrian_draw_arrows(struct graphics *gra)
 	struct map_rect *route_map_rect;
 	struct item *item;
 
-	if (orientation == 2)
+	if (orientation == ORIENTATION_FLAT)
 		return;
 	if (!navit_get_attr(pedestrian_data.nav, attr_route, &route, NULL)) {
 		dbg(lvl_debug,"no route in navit\n");
@@ -989,17 +999,17 @@ pedestrian_draw_arrows(struct graphics *gra)
 		dbg(lvl_debug,"no route map rect\n");
 		return;
 	}
-	while ((item=map_rect_get_item(route_map_rect))) {
+	while ((item = map_rect_get_item(route_map_rect))) {
 		if (item->type == type_street_route) {
 			struct coord c[2];
 			if (item_coord_get(item, c, 2) == 2) {
-				struct coord *center=transform_get_center(navit_get_trans(pedestrian_data.nav));
-				int angle=transform_get_angle_delta(center, &c[1], 0);
-				angle-=pedestrian_data.yaw;
+				struct coord *center = transform_get_center(navit_get_trans(pedestrian_data.nav));
+				int angle = transform_get_angle_delta(center, &c[1], 0);
+				angle -= pedestrian_data.yaw;
 				if (angle < 0)
-					angle+=360;
+					angle += 360;
 				if (angle >= 360)
-					angle-=360;
+					angle -= 360;
 				if (angle > 180 && angle < 350)
 					pedestrian_draw_arrow(gra,"gui_arrow_left_32_32.png",0,pedestrian_data.h/2-16);
 				if (angle > 10 && angle <= 180)	
@@ -1118,77 +1128,81 @@ float sensors[2][3];
 static void
 android_sensors(struct navit *nav, int sensor, float *x, float *y, float *z)
 {
-	float yaw=0,pitch=0;
+	int yaw = 0, pitch = 0;
 	struct attr attr;
-	sensors[sensor-1][0]=*x;
-	sensors[sensor-1][1]=*y;
-	sensors[sensor-1][2]=*z;
+	sensors[sensor-1][0] =* x;
+	sensors[sensor-1][1] =* y;
+	sensors[sensor-1][2] =* z;
 	if (sensors_locked)
 		return;
 	dbg(lvl_debug,"enter %d %f %f %f\n",sensor,*x,*y,*z);
-	if (sensor == 1) {
+	if (sensor == TYPE_ACCELEROMETER) {
 		if (*x > 7.5)
-			orientation=1; /* landscape */
+			orientation = ORIENTATION_LANDSCAPE;
 		if (*y > 7.5)
-			orientation=0; /* portrait */
+			orientation = ORIENTATION_PORTRAIT;
 		if (*z > 7.5)
-			orientation=2; /* flat */
-		dbg(lvl_debug,"orientation=%d\n",orientation);
+			orientation = ORIENTATION_FLAT;
+		dbg(lvl_debug,"orientation = %d\n",orientation);
 	}
-	if ((orientation_old == 2) != (orientation == 2)) {
-		struct attr attr, flags_graphics, osd_configuration;
-		navit_set_attr(nav, orientation == 2 ? &initial_layout:&main_layout);
-		navit_get_attr(nav, attr_transformation, &attr, NULL);
-		transform_set_scale(attr.u.transformation, orientation == 2 ? 64:16);
-		flags_graphics.type=attr_flags_graphics;
-		flags_graphics.u.num=orientation == 2 ? 0:10;
-		navit_set_attr(nav, &flags_graphics);
-		osd_configuration.type=attr_osd_configuration;
-		osd_configuration.u.num=orientation == 2 ? 1:2;
-		navit_set_attr(nav, &osd_configuration);
+	if ((orientation_old != orientation)) {
+        struct attr attr, flags_graphics, osd_configuration;
+        navit_set_attr(nav, orientation == ORIENTATION_FLAT ? &initial_layout : &main_layout);
+        navit_get_attr(nav, attr_transformation, &attr, NULL);
+        transform_set_scale(attr.u.transformation, orientation == ORIENTATION_FLAT ? 64 : 16);
+        flags_graphics.type = attr_flags_graphics;
+        flags_graphics.u.num = orientation == ORIENTATION_FLAT ? 0 : 10;
+        navit_set_attr(nav, &flags_graphics);
+        osd_configuration.type = attr_osd_configuration;
+        osd_configuration.u.num = orientation == ORIENTATION_FLAT ? 1 : 2;
+        navit_set_attr(nav, &osd_configuration);
+        orientation_old = orientation;
 	}
-	orientation_old=orientation;
+
 	switch (orientation) {
-	case 2:
-		if (sensor == 2) {
-			yaw=atan2f(-*y,-*x)*180/M_PI+180;
-		}
-		pitch=0;
-		break;
-	case 1:
-		if (sensor == 1) {
-			pitch=atan2f(*x,*z)*180/M_PI;	
-		}
-		if (sensor == 2) {
-			yaw=atan2f(-*y,*z)*180/M_PI+180;
-		}
-		break;
-	case 0:
-		if (sensor == 1) {
-			pitch=atan2f(*y,*z)*180/M_PI;
-		}
-		if (sensor == 2) {
-			yaw=atan2f(*x,*z)*180/M_PI+180;
-		}
-		break;
+	    case ORIENTATION_FLAT:
+		    if (sensor == TYPE_MAGNETIC_FIELD) {
+			    yaw = (int)(atan2f(-*y,-*x)*180 / M_PI + 180);
+		    }
+		    pitch = 0;
+		    break;
+	    case ORIENTATION_LANDSCAPE:
+		    if (sensor == TYPE_ACCELEROMETER) {
+			    pitch = (int)(atan2f(*x,*z) * 180 / M_PI);
+		    }
+		    if (sensor == TYPE_MAGNETIC_FIELD) {
+			    yaw = (int)(atan2f(-*y,*z) * 180 / M_PI + 180);
+		    }
+		    break;
+	    case ORIENTATION_PORTRAIT:
+	    	if (sensor == TYPE_ACCELEROMETER) {
+		    	pitch = (int)(atan2f(*y,*z) * 180 / M_PI);
+		    }
+		    if (sensor == TYPE_MAGNETIC_FIELD) {
+			    yaw = (int)(atan2f(*x,*z) * 180 / M_PI + 180);
+		    }
+		    break;
+        default:
+            break;
 	}
 	if (navit_get_attr(nav, attr_transformation, &attr, NULL)) {
-		struct transformation *trans=attr.u.transformation;
-		if (sensor == 1) {
-			if (orientation != 2)
-				pitch+=2.0;
-			transform_set_pitch(trans, (int)pitch);
-			dbg(lvl_debug,"pich %d %f\n",orientation,pitch);
+		struct transformation *trans = attr.u.transformation;
+		if (sensor == TYPE_ACCELEROMETER) {
+            if (orientation != ORIENTATION_FLAT) {
+                pitch += 2.0;
+            }
+			transform_set_pitch(trans, pitch);
+			dbg(lvl_debug,"pich %d %i\n",orientation,pitch);
 		} else {
 			struct attr attr;
-			attr.type=attr_orientation;
-			attr.u.num=yaw-1.0;
+			attr.type = attr_orientation;
+			attr.u.num = yaw - 1;
 			if (attr.u.num < 0)
-				attr.u.num+=360;
-			pedestrian_data.yaw=attr.u.num;
+				attr.u.num += 360;
+			pedestrian_data.yaw = (int) attr.u.num;
 			navit_set_attr(nav, &attr);
-			dbg(lvl_debug,"yaw %d %f\n",orientation,yaw);
-			if (orientation == 2) 
+			dbg(lvl_debug,"yaw %d %i\n",orientation,yaw);
+			if (orientation == ORIENTATION_FLAT)
 				navit_set_center_cursor(nav, 1, 0);
 		}
 	}
@@ -1245,31 +1259,33 @@ pedestrian_navit_init(struct navit *nav)
 	jobject navitsensors;
 
 	dbg(lvl_debug,"enter\n");
+    orientation = ORIENTATION_UNKNOWN;
+    orientation_old = ORIENTATION_UNKNOWN;
 	if (android_find_class_global("org/navitproject/navit/NavitSensors", &navitsensorsclass)) {
 		dbg(lvl_debug,"class found\n");
 		cid = (*jnienv)->GetMethodID(jnienv, navitsensorsclass, "<init>", "(Landroid/content/Context;I)V");
 		dbg(lvl_debug,"cid=%p\n",cid);
 		if (cid) {
-			cb=callback_new_1(callback_cast(android_sensors), nav);
-			navitsensors=(*jnienv)->NewObject(jnienv, navitsensorsclass, cid, android_activity, cb);
+			cb = callback_new_1(callback_cast(android_sensors), nav);
+			navitsensors = (*jnienv)->NewObject(jnienv, navitsensorsclass, cid, android_activity, cb);
 			dbg(lvl_debug,"object=%p\n",navitsensors);
 			if (navitsensors)
 				navitsensors = (*jnienv)->NewGlobalRef(jnienv, navitsensors);
 		}
 	}
 #endif
-	pedestrian_data.nav=nav;
-	flags_graphics.type=attr_flags_graphics;
-	flags_graphics.u.num=10;
+	pedestrian_data.nav = nav;
+	flags_graphics.type = attr_flags_graphics;
+	flags_graphics.u.num = 10;
 	navit_set_attr(nav, &flags_graphics);
 	if (navit_get_attr(nav, attr_graphics, &graphics, NULL)) {
 		struct attr attr;
-		struct callback *cb=callback_new_attr_1(callback_cast(pedestrian_graphics_resize),attr_resize,graphics.u.graphics);
+		struct callback *cb = callback_new_attr_1(callback_cast(pedestrian_graphics_resize),attr_resize,graphics.u.graphics);
 		graphics_add_callback(graphics.u.graphics, cb);
-		cb=callback_new_attr_1(callback_cast(pedestrian_graphics_postdraw),attr_postdraw,graphics.u.graphics);
+		cb = callback_new_attr_1(callback_cast(pedestrian_graphics_postdraw),attr_postdraw,graphics.u.graphics);
 		graphics_add_callback(graphics.u.graphics, cb);
-		attr.type=attr_use_camera;
-		attr.u.num=1;
+		attr.type = attr_use_camera;
+		attr.u.num = 1;
 		graphics_set_attr(graphics.u.graphics, &attr);
 	}
 	osd_rocket_init(nav);
@@ -1298,14 +1314,14 @@ pedestrian_navit_init(struct navit *nav)
 #endif
 	if (!navit_get_attr(nav, attr_mapset, &mapset, NULL))
 		return;
-	map.type=attr_map;
-	map.u.map=map_new(NULL, (struct attr*[]){
+	map.type = attr_map;
+	map.u.map = map_new(NULL, (struct attr*[]){
                                 &(struct attr){attr_type,{"route_occluded"}},
                                 &(struct attr){attr_data,{""}},
                                 &(struct attr){attr_description,{"Occluded Route"}},
                                 &(struct attr){attr_navit,{(void *)nav}},
                                 NULL});
-	global_map=map.u.map;
+	global_map = map.u.map;
 	mapset_add_attr(mapset.u.mapset, &map);
 
 #if 0
@@ -1318,7 +1334,7 @@ pedestrian_navit_init(struct navit *nav)
 	while(navit_get_attr(nav, attr_layout, &attr, iter)) {
 		if (!strcmp(attr.u.layout->name, "Route")) {
 			dbg(lvl_debug,"found %s\n",attr_to_name(attr.type));
-			main_layout=attr;
+			main_layout = attr;
 #if 1
 			navit_set_attr(nav, &attr);
 #endif
@@ -1328,8 +1344,8 @@ pedestrian_navit_init(struct navit *nav)
 	navit_attr_iter_destroy(iter);
 	if (navit_get_attr(nav, attr_vehicle, &attr, NULL)) {
 		struct attr cbattr;
-		cbattr.u.callback=callback_new_attr_0(callback_cast(pedestrian_log), attr_log_gpx);
-		cbattr.type=attr_callback;
+		cbattr.u.callback = callback_new_attr_0(callback_cast(pedestrian_log), attr_log_gpx);
+		cbattr.type = attr_callback;
 		vehicle_add_attr(attr.u.vehicle, &cbattr);
 #ifdef DEMO
 		cbattr.u.callback=callback_new_attr_2(callback_cast(vehicle_changed), attr_position_coord_geo, attr.u.vehicle, trans);
@@ -1346,8 +1362,8 @@ pedestrian_navit(struct navit *nav, int add)
 	dbg(lvl_debug,"enter\n");
 	struct attr callback;
 	if (add) {
-		callback.type=attr_callback;
-		callback.u.callback=callback_new_attr_0(callback_cast(pedestrian_navit_init), attr_navit);
+		callback.type = attr_callback;
+		callback.u.callback = callback_new_attr_0(callback_cast(pedestrian_navit_init), attr_navit);
 		navit_add_attr(nav, &callback);
 	}
 }
@@ -1371,10 +1387,10 @@ plugin_init(void)
 	
     	plugin_register_osd_type("marker", osd_marker_new);
 	plugin_register_map_type("route_occluded", map_route_occluded_new);
-	callback.type=attr_callback;
-	callback.u.callback=callback_new_attr_0(callback_cast(pedestrian_navit), attr_navit);
+	callback.type = attr_callback;
+	callback.u.callback = callback_new_attr_0(callback_cast(pedestrian_navit), attr_navit);
 	config_add_attr(config, &callback);
-	iter=config_attr_iter_new();
+	iter = config_attr_iter_new();
 	while (config_get_attr(config, attr_navit, &navit, iter)) 
 		pedestrian_navit_init(navit.u.navit);
 	config_attr_iter_destroy(iter);	

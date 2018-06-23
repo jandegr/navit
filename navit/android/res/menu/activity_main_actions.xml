@@ -9,6 +9,10 @@
 	  android:title="@string/action_zoom_to_route" 
 	  android:showAsAction="never">
     </item>
+    <item android:id="@+id/toggle_autozoom"
+        android:title="toggle autozoom"
+        android:showAsAction="never">
+    </item>
     <item android:id="@+id/action_stop_navigation" 
 	  android:title="@string/action_stop_navigation" 
 	  android:showAsAction="never">
@@ -20,6 +24,10 @@
     <item android:title="@string/optionsmenu_set_maplocation"
 	  android:id="@+id/optionsmenu_set_maplocation"
 	  android:showAsAction="never">
+    </item>
+    <item android:title="@string/optionsmenu_settings"
+        android:id="@+id/optionsmenu_settings"
+        android:showAsAction="never">
     </item>
     <item android:id="@+id/action_quit"
 	  android:title="@string/optionsmenu_exit_navit"

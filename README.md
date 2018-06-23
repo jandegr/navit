@@ -1,3 +1,9 @@
+circleci
+========
+
+[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep)
+
+
 A branch to work on routing a bit.
 
 - focussed on OSM only
@@ -7,8 +13,3 @@ A branch to work on routing a bit.
 - contains no-HOV for North-America
 - applies a penalty for (really)sharp turns
 - can work with both Dijkstra and A_star, but A_star is not preferred at present
-
-circleci
-========
-
-[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep)

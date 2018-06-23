@@ -2629,7 +2629,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 
 	heuristic_speed = 130; // in km/h
 
-	double timestamp_graph_flood = now_ms();
+//	double timestamp_graph_flood = now_ms();
 
 	if (!A_star)
 	{
@@ -2809,7 +2809,7 @@ route_graph_flood_frugal(struct route_graph *this, struct route_info *dst, struc
 			break;
 	}
 	dbg(0,"number of edges visited =%i\n",edges_count);
-	dbg(0,"route_graph_flood FRUGAL took: %.3f ms\n", now_ms() - timestamp_graph_flood);
+//	dbg(0,"route_graph_flood FRUGAL took: %.3f ms\n", now_ms() - timestamp_graph_flood);
 	fh_deleteheap(heap);
 	if (cb)
 	{
@@ -3114,15 +3114,42 @@ route_path_new(struct route_graph *this, struct route_path *oldpath, struct rout
 	return ret;
 }
 
+/**
+ * returns false for heightlines map or any other non
+ * binfile map or true for maps presumably routable.
+ */
+static int
+is_routable_map(struct map *m)
+{
+    struct attr map_name_attr;
+    if (map_get_attr(m, attr_name, &map_name_attr, NULL)) {
+        dbg(lvl_debug, "map name = %s\n", map_name_attr.u.str);
+        if(!strstr(map_name_attr.u.str, ".bin")){
+            dbg(lvl_error, "not a binfile = %s\n", map_name_attr.u.str);
+            return 0;
+        }
+        if(strstr(map_name_attr.u.str, "heightlines.bin")){
+            dbg(lvl_error, "not routable = %s\n", map_name_attr.u.str);
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
 static int
 route_graph_build_next_map(struct route_graph *rg)
 {
 	do {
 		rg->m=mapset_next(rg->h, 2);
-		if (! rg->m)
-			return 0;
+        if (! rg->m) {
+            return 0;
+        }
 		map_rect_destroy(rg->mr);
-		rg->mr=map_rect_new(rg->m, rg->sel);
+        rg->mr = NULL;
+        if (is_routable_map(rg->m)) {
+            rg->mr=map_rect_new(rg->m, rg->sel);
+        }
 	} while (!rg->mr);
 		
 	return 1;
@@ -3152,31 +3179,31 @@ is_turn_allowed(struct route_graph_point *p, struct route_graph_segment *from, s
 			tmp1->data.item.type == type_street_turn_restriction_only))
 		{
 			tmp2=p->start;
-			dbg(lvl_debug,"found %s (0x%x,0x%x) (0x%x,0x%x)-(0x%x,0x%x) %p-%p\n",item_to_name(tmp1->data.item.type),tmp1->data.item.id_hi,tmp1->data.item.id_lo,tmp1->start->c.x,tmp1->start->c.y,tmp1->end->c.x,tmp1->end->c.y,tmp1->start,tmp1->end);
+			//dbg(lvl_debug,"found %s (0x%x,0x%x) (0x%x,0x%x)-(0x%x,0x%x) %p-%p\n",item_to_name(tmp1->data.item.type),tmp1->data.item.id_hi,tmp1->data.item.id_lo,tmp1->start->c.x,tmp1->start->c.y,tmp1->end->c.x,tmp1->end->c.y,tmp1->start,tmp1->end);
 			while (tmp2)
 			{
-				dbg(lvl_debug,"compare %s (0x%x,0x%x) (0x%x,0x%x)-(0x%x,0x%x) %p-%p\n",item_to_name(tmp2->data.item.type),tmp2->data.item.id_hi,tmp2->data.item.id_lo,tmp2->start->c.x,tmp2->start->c.y,tmp2->end->c.x,tmp2->end->c.y,tmp2->start,tmp2->end);
+				//dbg(lvl_debug,"compare %s (0x%x,0x%x) (0x%x,0x%x)-(0x%x,0x%x) %p-%p\n",item_to_name(tmp2->data.item.type),tmp2->data.item.id_hi,tmp2->data.item.id_lo,tmp2->start->c.x,tmp2->start->c.y,tmp2->end->c.x,tmp2->end->c.y,tmp2->start,tmp2->end);
 				if (item_is_equal(tmp1->data.item, tmp2->data.item)) 
 					break;
 				tmp2=tmp2->start_next;
 			}
-			dbg(lvl_debug,"tmp2=%p\n",tmp2);
-			if (tmp2)
-			{
-				dbg(lvl_debug,"%s tmp2->end=%p next=%p\n",item_to_name(tmp1->data.item.type),tmp2->end,next);
-			}
+			//dbg(lvl_debug,"tmp2=%p\n",tmp2);
+			//if (tmp2)
+			//{
+			//	dbg(lvl_debug,"%s tmp2->end=%p next=%p\n",item_to_name(tmp1->data.item.type),tmp2->end,next);
+			//}
 			if (tmp1->data.item.type == type_street_turn_restriction_no && tmp2 && tmp2->end->c.x == next->c.x && tmp2->end->c.y == next->c.y) {
-				dbg(lvl_debug,"from 0x%x,0x%x over 0x%x,0x%x to 0x%x,0x%x not allowed (no)\n",prev->c.x,prev->c.y,p->c.x,p->c.y,next->c.x,next->c.y);
+				//dbg(lvl_debug,"from 0x%x,0x%x over 0x%x,0x%x to 0x%x,0x%x not allowed (no)\n",prev->c.x,prev->c.y,p->c.x,p->c.y,next->c.x,next->c.y);
 				return 0;
 			}
 			if (tmp1->data.item.type == type_street_turn_restriction_only && tmp2 && (tmp2->end->c.x != next->c.x || tmp2->end->c.y != next->c.y)) {
-				dbg(lvl_debug,"from 0x%x,0x%x over 0x%x,0x%x to 0x%x,0x%x not allowed (only)\n",prev->c.x,prev->c.y,p->c.x,p->c.y,next->c.x,next->c.y);
+				//dbg(lvl_debug,"from 0x%x,0x%x over 0x%x,0x%x to 0x%x,0x%x not allowed (only)\n",prev->c.x,prev->c.y,p->c.x,p->c.y,next->c.x,next->c.y);
 				return 0;
 			}
 		}
 		tmp1=tmp1->end_next;
 	}
-	dbg(lvl_debug,"from 0x%x,0x%x over 0x%x,0x%x to 0x%x,0x%x allowed\n",prev->c.x,prev->c.y,p->c.x,p->c.y,next->c.x,next->c.y);
+	//dbg(lvl_debug,"from 0x%x,0x%x over 0x%x,0x%x to 0x%x,0x%x allowed\n",prev->c.x,prev->c.y,p->c.x,p->c.y,next->c.x,next->c.y);
 	return 1;
 }
 
@@ -3203,27 +3230,27 @@ route_graph_build_done(struct route_graph *rg, int cancel)
 	rg->busy=0;
 }
 
+
+
+
 static void
 route_graph_build_idle(struct route_graph *rg, struct vehicleprofile *profile)
 {
-
-	int count=1;
 	struct item *item;
-
-	double timestamp_build_idle = now_ms();
-
+//	double timestamp_build_idle = now_ms();
 
 	//untill done
-	while (count > 0)
+	while (TRUE)
 	{
 		for (;;)
 		{
+
 			item=map_rect_get_item(rg->mr);
 			if (item)
 				break;
 			if (!route_graph_build_next_map(rg))
 			{
-				dbg(0,"build_idle final: %.3f ms\n", now_ms() - timestamp_build_idle);
+//				dbg(0,"build_idle final: %.3f ms\n", now_ms() - timestamp_build_idle);
 				route_graph_build_done(rg, 0);
 				return;
 			}
@@ -3234,10 +3261,8 @@ route_graph_build_idle(struct route_graph *rg, struct vehicleprofile *profile)
 			route_graph_add_turn_restriction(rg, item);
 		else
 			route_graph_add_item(rg, item, profile);
-		count++;
 	}
-
-	 dbg(0,"build_idle took: %.3f ms\n",now_ms() - timestamp_build_idle);
+//	 dbg(0,"build_idle took: %.3f ms\n",now_ms() - timestamp_build_idle);
 }
 
 /**

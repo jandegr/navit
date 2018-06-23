@@ -37,7 +37,7 @@ struct mapset;
 
 /* This enum must be synchronized with the constants in NavitGraphics.java. */
 enum draw_mode_num {
-	draw_mode_begin, draw_mode_end
+    draw_mode_begin, draw_mode_end, draw_mode_begin_clear
 };
 
 struct graphics_priv;
@@ -49,83 +49,83 @@ struct graphics_gc_methods;
 struct graphics_image_methods;
 
 enum graphics_image_type {
-	graphics_image_type_unknown=0,
+    graphics_image_type_unknown=0,
 };
 
 struct graphics_image_buffer {
-	char magic[8]; /* buffer:\0 */
-	enum graphics_image_type type;
-	void *start;
-	int len;
+    char magic[8]; /* buffer:\0 */
+    enum graphics_image_type type;
+    void *start;
+    int len;
 };
 
 struct graphics_methods {
-	void (*graphics_destroy)(struct graphics_priv *gr);
-	void (*draw_mode)(struct graphics_priv *gr, enum draw_mode_num mode);
-	void (*draw_lines)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int count);
-	void (*draw_polygon)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int count);
-	void (*draw_rectangle)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int w, int h);
-	void (*draw_circle)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int r);
-	void (*draw_text)(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct graphics_gc_priv *bg, struct graphics_font_priv *font, char *text, struct point *p, int dx, int dy);
-	void (*draw_image)(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, struct graphics_image_priv *img);
+    void (*graphics_destroy)(struct graphics_priv *gr);
+    void (*draw_mode)(struct graphics_priv *gr, enum draw_mode_num mode);
+    void (*draw_lines)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int count);
+    void (*draw_polygon)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int count);
+    void (*draw_rectangle)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int w, int h);
+    void (*draw_circle)(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int r);
+    void (*draw_text)(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct graphics_gc_priv *bg, struct graphics_font_priv *font, char *text, struct point *p, int dx, int dy);
+    void (*draw_image)(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, struct graphics_image_priv *img);
 #ifdef HAVE_API_ANDROID
-	void (*draw_image_warp)(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, char *label);
+    void (*draw_image_warp)(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, char *label);
 #else
-	void (*draw_image_warp)(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, struct graphics_image_priv *img);
+    void (*draw_image_warp)(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, int count, struct graphics_image_priv *img);
 #endif
-	void (*draw_drag)(struct graphics_priv *gr, struct point *p);
-	struct graphics_font_priv *(*font_new)(struct graphics_priv *gr, struct graphics_font_methods *meth, char *font,  int size, int flags);
-	struct graphics_gc_priv *(*gc_new)(struct graphics_priv *gr, struct graphics_gc_methods *meth);
-	void (*background_gc)(struct graphics_priv *gr, struct graphics_gc_priv *gc);
-	struct graphics_priv *(*overlay_new)(struct graphics_priv *gr, struct graphics_methods *meth, struct point *p, int w, int h, int alpha, int wraparound);
-	struct graphics_image_priv *(*image_new)(struct graphics_priv *gr, struct graphics_image_methods *meth, char *path, int *w, int *h, struct point *hot, int rotation);
-	void *(*get_data)(struct graphics_priv *gr, const char *type);
-	void (*image_free)(struct graphics_priv *gr, struct graphics_image_priv *priv);
-	void (*get_text_bbox)(struct graphics_priv *gr, struct graphics_font_priv *font, char *text, int dx, int dy, struct point *ret, int estimate);
-	void (*overlay_disable)(struct graphics_priv *gr, int disable);
-	void (*overlay_resize)(struct graphics_priv *gr, struct point *p, int w, int h, int alpha, int wraparound);
-	int (*set_attr)(struct graphics_priv *gr, struct attr *attr);
+    void (*draw_drag)(struct graphics_priv *gr, struct point *p);
+    struct graphics_font_priv *(*font_new)(struct graphics_priv *gr, struct graphics_font_methods *meth, char *font,  int size, int flags);
+    struct graphics_gc_priv *(*gc_new)(struct graphics_priv *gr, struct graphics_gc_methods *meth);
+    void (*background_gc)(struct graphics_priv *gr, struct graphics_gc_priv *gc);
+    struct graphics_priv *(*overlay_new)(struct graphics_priv *gr, struct graphics_methods *meth, struct point *p, int w, int h, int alpha, int wraparound);
+    struct graphics_image_priv *(*image_new)(struct graphics_priv *gr, struct graphics_image_methods *meth, char *path, int *w, int *h, struct point *hot, int rotation);
+    void *(*get_data)(struct graphics_priv *gr, const char *type);
+    void (*image_free)(struct graphics_priv *gr, struct graphics_image_priv *priv);
+    void (*get_text_bbox)(struct graphics_priv *gr, struct graphics_font_priv *font, char *text, int dx, int dy, struct point *ret, int estimate);
+    void (*overlay_disable)(struct graphics_priv *gr, int disable);
+    void (*overlay_resize)(struct graphics_priv *gr, struct point *p, int w, int h, int alpha, int wraparound);
+    int (*set_attr)(struct graphics_priv *gr, struct attr *attr);
 };
 
 
 struct graphics_font_methods {
-	void (*font_destroy)(struct graphics_font_priv *font);
+    void (*font_destroy)(struct graphics_font_priv *font);
 };
 
 struct graphics_font {
-	struct graphics_font_priv *priv;
-	struct graphics_font_methods meth;
+    struct graphics_font_priv *priv;
+    struct graphics_font_methods meth;
 };
 
 struct graphics_gc_methods {
-	void (*gc_destroy)(struct graphics_gc_priv *gc);
-	void (*gc_set_linewidth)(struct graphics_gc_priv *gc, int width);
-	void (*gc_set_dashes)(struct graphics_gc_priv *gc, int width, int offset, unsigned char dash_list[], int n);
-	void (*gc_set_foreground)(struct graphics_gc_priv *gc, struct color *c);
-	void (*gc_set_background)(struct graphics_gc_priv *gc, struct color *c);
+    void (*gc_destroy)(struct graphics_gc_priv *gc);
+    void (*gc_set_linewidth)(struct graphics_gc_priv *gc, int width);
+    void (*gc_set_dashes)(struct graphics_gc_priv *gc, int width, int offset, unsigned char dash_list[], int n);
+    void (*gc_set_foreground)(struct graphics_gc_priv *gc, struct color *c);
+    void (*gc_set_background)(struct graphics_gc_priv *gc, struct color *c);
 };
 
 struct graphics_gc {
-	struct graphics_gc_priv *priv;
-	struct graphics_gc_methods meth;
-	struct graphics *gra;
+    struct graphics_gc_priv *priv;
+    struct graphics_gc_methods meth;
+    struct graphics *gra;
 };
 
 struct graphics_image_methods {
-	void (*image_destroy)(struct graphics_image_priv *img);
+    void (*image_destroy)(struct graphics_image_priv *img);
 };
 
 struct graphics_image {
-	struct graphics_image_priv *priv;
-	struct graphics_image_methods meth;
-	int width;
-	int height;
-	struct point hot;
+    struct graphics_image_priv *priv;
+    struct graphics_image_methods meth;
+    int width;
+    int height;
+    struct point hot;
 };
 
 struct graphics_data_image {
-	void *data;
-	int size;
+    void *data;
+    int size;
 };
 
 /* prototypes */
