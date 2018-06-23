@@ -96,4 +96,6 @@
 
 #cmakedefine HAVE_IMLIB2 1
 
+#cmakedefine HAVE_POSTGRESQL 1
+
 #cmakedefine ENABLE_ROLL 1
