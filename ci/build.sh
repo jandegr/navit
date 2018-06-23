@@ -1,3 +1,3 @@
 mkdir bin && cd bin
-cmake ../
-  make
+cmake -DSAMPLE_MAP=n ../ 
+make
