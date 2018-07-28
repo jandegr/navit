@@ -52,6 +52,7 @@ static struct item_bin item;
 
 
 int maxspeed_attr_value;
+int lanes_attr_value;
 
 char debug_attr_buffer[BUFFER_SIZE];
 
@@ -1612,6 +1613,7 @@ osm_add_way(osmid id)
 	item.type=type_street_unkn;
 	debug_attr_buffer[0]='\0';
 	maxspeed_attr_value=0;
+	lanes_attr_value=0;
 	flags_attr_value = 0;
 	memset(flags, 0, sizeof(flags));
 	memset(flagsa, 0, sizeof(flagsa));
@@ -1873,6 +1875,9 @@ osm_end_way(struct maptool_osm *osm)
 			item_bin_add_attr_int(item_bin, attr_flags, flags_attr_value);
 		if (maxspeed_attr_value)
 			item_bin_add_attr_int(item_bin, attr_maxspeed, maxspeed_attr_value);
+		if (lanes_attr_value){
+			item_bin_add_attr_int(item_bin, attr_lanes, lanes_attr_value);
+		}
 		if(i>0)
 			item_bin_add_attr_int(item_bin, attr_duplicate, 1);
 		item_bin_write(item_bin,osm->ways);
