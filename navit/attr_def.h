@@ -117,7 +117,7 @@ ATTR(cdf_histsize)
 ATTR(message_maxage)
 ATTR(message_maxnum)
 ATTR(pitch)
-ATTR_UNUSED
+ATTR(lanes)
 ATTR_UNUSED
 ATTR(route_status)
 ATTR(route_weight)
