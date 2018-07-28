@@ -1292,6 +1292,7 @@ osm_add_tag(char *k, char *v)
 		level=5;
 	}
 	if (! strcmp(k,"lanes")) {
+		lanes_attr_value = atoi(v);
 		level=5;
 	}
 	if (attr_debug_level >= level) {
