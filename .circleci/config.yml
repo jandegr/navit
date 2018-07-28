@@ -81,9 +81,9 @@ jobs:
           paths:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
-      - run:
-         name: Install ndk
-         command: sdkmanager ndk-bundle
+#      - run:
+#         name: Install ndk
+#         command: sdkmanager ndk-bundle
       - run:
           name: Build
           command: ./gradlew assembleDebug
