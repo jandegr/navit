@@ -19,6 +19,7 @@ jobs:
       - image: circleci/android:api-28-alpha
     environment:
       JVM_OPTS: -Xmx3200m
+      ANDROID_NDK_HOME: ''
     steps:
       - checkout
       - restore_cache:
@@ -81,9 +82,9 @@ jobs:
           paths:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
-#      - run:
-#         name: Install ndk
-#         command: sdkmanager ndk-bundle
+      - run:
+         name: Install ndk
+         command: sdkmanager ndk-bundle
       - run:
           name: Build
           command: ./gradlew assembleDebug
