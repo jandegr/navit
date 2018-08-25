@@ -250,6 +250,7 @@ struct navigation_maneuver {
 	                                the route stays on the main road and goes straight, while all other candidate ways
 	                                are minor roads and involve a significant turn. */
 	int is_same_street;        /**< Whether the street keeps its name after the maneuver. */
+	int max_alt_lanes;         /**< the maximum number of lanes of alternate roads*/
 };
 
 /**
@@ -276,6 +277,7 @@ struct navigation_way {
 	short dir;				/**< The direction -1 or 1 of the way */
 	short angle2;				/**< The bearing at the start or the way (0 = north, 90 =east etc.) */
 	int flags;				/**< The flags of the way */
+	int lanes;
 	struct item item;			/**< The item of the way */
 	char *name;				/**< The street name ({@code street_name} attribute) */
 	char *name_systematic;			/**< The road number ({@code street_name_systematic} attribute, OSM: {@code ref}) */
@@ -1095,6 +1097,9 @@ navigation_way_init(struct navigation_way *w)
 		w->name=map_convert_string(realitem->map,attr.u.str);
 	else
 		w->name=NULL;
+	if (item_attr_get(realitem, attr_lanes, &attr)){
+		w->lanes = attr.u.num;
+	}
 	if (item_attr_get(realitem, attr_street_name_systematic, &attr))
 		w->name_systematic=map_convert_string(realitem->map,attr.u.str);
 	else
@@ -2055,6 +2060,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 	m.left = -180;
 	m.right = 180;
 	m.is_unambiguous = 1;
+	m.max_alt_lanes = 0; // the maximumum of lanes of any other allowed motorway_like road
 	/* Check whether the street keeps its name */
 	m.is_same_street = is_same_street2(old->way.name, old->way.name_systematic, new->way.name, new->way.name_systematic);
 
@@ -2098,8 +2104,11 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 			if ((w->angle2 != new->way.angle2) || (w == &(new->way))) {
 				dw=angle_delta(old->angle_end, w->angle2);
 				if (is_way_allowed(nav,w,1)) {
-					//dbg(lvl_debug, "- Examining allowed way: %s %s %s, delta=%i\n", item_to_name(w->item.type), w->name_systematic, w->name, dw);
+					//dbg(lvl_error, "- Examining allowed way: %s %s %s, delta=%i, lanes = %i\n", item_to_name(w->item.type), w->name_systematic, w->name, dw, w->lanes);
 					m.num_options++;
+					if (w->lanes > m.max_alt_lanes){
+						m.max_alt_lanes = w->lanes;
+					}
 					/* ways of similar category */
 					if (maneuver_category(w) == m.old_cat) {
 						/* TODO: considering a maneuver_category difference of 1 to be similar, e.g.
@@ -2439,6 +2448,10 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 					r = "yes: leaving motorway-like road";
 			}
 		}
+		
+		if (!ret && m.max_alt_lanes > 1){ // als er een ramp is met meerdere lanes
+			ret = 1;
+		}
 	}
 
 	if (ret) {
@@ -2446,7 +2459,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 		memcpy(*maneuver, &m, sizeof(struct navigation_maneuver));
 	}
 	//if (r)
-	//	dbg(lvl_debug, "%s %s %s -> %s %s %s: %s, delta=%i, merge_or_exit=%i\n", item_to_name(old->way.item.type), old->way.name_systematic, old->way.name, item_to_name(new->way.item.type), new->way.name_systematic, new->way.name, r, m.delta, m.merge_or_exit);
+	//	dbg(lvl_error, "%s %s %s -> %s %s %s: %s, delta=%i, max_alt_lanes=%i, merge_or_exit=%i\n", item_to_name(old->way.item.type), old->way.name_systematic, old->way.name, item_to_name(new->way.item.type), new->way.name_systematic, new->way.name, r, m.delta,m.max_alt_lanes, m.merge_or_exit);
 	return ret;
 }
 
@@ -4400,4 +4413,3 @@ struct object_func navigation_func = {
 	(object_func_ref)navit_object_ref,
 	(object_func_unref)navit_object_unref,
 };
-
