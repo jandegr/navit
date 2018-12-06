@@ -1,0 +1,1 @@
+module_add_library(graphics_eventwin32 event_win32.c)
