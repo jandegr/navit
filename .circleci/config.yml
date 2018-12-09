@@ -135,7 +135,7 @@ jobs:
           path: test-results
   build_win_32:
     docker:
-      - image: ubuntu:16.04
+      - image: ubuntu:18.04
     steps:
       - checkout
       - run:
@@ -147,7 +147,7 @@ jobs:
           path: win32/navit32install.exe        
   build_win_64:
     docker:
-      - image: ubuntu:16.04
+      - image: ubuntu:18.04
     steps:
       - checkout
       - run:
