@@ -135,7 +135,7 @@ jobs:
           path: test-results
   build_win_32:
     docker:
-      - image: ubuntu:18.04
+      - image: ubuntu:16.04
     steps:
       - checkout
       - run:
