@@ -11,3 +11,5 @@ ls -la
 
 cp win64/navit.exe win64/navit64install.exe
 ls -la win64
+ls -la win64/navit
+ls -la win64/navit/maptool
