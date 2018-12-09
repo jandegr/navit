@@ -1,4 +1,4 @@
-apt-get update && apt-get install -y mingw32 mingw32-binutils mingw32-runtime default-jdk nsis libsaxonb-java
+apt-get update && apt-get install -y mingw32 mingw32-binutils mingw32-runtime default-jre nsis libsaxonb-java
 
 mkdir win32
 pushd win32
