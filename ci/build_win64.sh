@@ -1,4 +1,4 @@
-apt-get update && apt-get install -y mingw-w64 default-jdk nsis libsaxonb-java
+apt-get update && apt-get install -y mingw-w64 mingw-w64-x86-64-dev default-jdk nsis libsaxonb-java
 
 mkdir win64
 pushd win64
