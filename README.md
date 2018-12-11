@@ -1,7 +1,7 @@
 circleci
 ========
 
-[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/ext_graph_prep)
+[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/settings.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/settings)
 
 
 A branch to work on routing a bit.
