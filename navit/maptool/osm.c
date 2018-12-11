@@ -52,6 +52,7 @@ static struct item_bin item;
 
 
 int maxspeed_attr_value;
+int lanes_attr_value;
 
 char debug_attr_buffer[BUFFER_SIZE];
 
@@ -1292,6 +1293,7 @@ osm_add_tag(char *k, char *v)
 		level=5;
 	}
 	if (! strcmp(k,"lanes")) {
+		lanes_attr_value = atoi(v);
 		level=5;
 	}
 	if (attr_debug_level >= level) {
@@ -1872,6 +1874,9 @@ osm_end_way(struct maptool_osm *osm)
 			item_bin_add_attr_int(item_bin, attr_flags, flags_attr_value);
 		if (maxspeed_attr_value)
 			item_bin_add_attr_int(item_bin, attr_maxspeed, maxspeed_attr_value);
+		if (lanes_attr_value){
+			item_bin_add_attr_int(item_bin, attr_lanes, lanes_attr_value);
+		}
 		if(i>0)
 			item_bin_add_attr_int(item_bin, attr_duplicate, 1);
 		item_bin_write(item_bin,osm->ways);
