@@ -1613,6 +1613,7 @@ osm_add_way(osmid id)
 	item.type=type_street_unkn;
 	debug_attr_buffer[0]='\0';
 	maxspeed_attr_value=0;
+	lanes_attr_value=0;
 	flags_attr_value = 0;
 	memset(flags, 0, sizeof(flags));
 	memset(flagsa, 0, sizeof(flagsa));
