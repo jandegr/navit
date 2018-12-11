@@ -405,7 +405,7 @@ parse_option(struct maptool_params *p, char **argv, int argc, int *option_index)
 		dedupe_ways_hash=g_hash_table_new(NULL, NULL);
 		break;
 	case 'i':
-		p->input_file = fopen( optarg, "r" );
+		p->input_file = fopen( optarg, "rb" );
 		if (p->input_file ==  NULL )
 		{
 		    fprintf( stderr, "\nInput file (%s) not found\n", optarg );
