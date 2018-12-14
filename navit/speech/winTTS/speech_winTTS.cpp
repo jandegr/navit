@@ -27,8 +27,9 @@ speech_winTTS_say(struct speech_priv *spch, const char *text) {
     wchar_t* wc = new wchar_t[cSize];
     size_t tmp = 0;
     mbstowcs_s(&tmp, wc, cSize, text, cSize);
-	spch->pVoice->Speak(wc, SVSFlagsAsync, NULL); 
-	return 1;
+    spch->pVoice->Speak(wc, SVSFlagsAsync, NULL);
+    delete wc;
+    return 1;
 }
 	
 static int
