@@ -4,7 +4,7 @@ circleci
 [![Circle CI](https://circleci.com/gh/jandegr/navit/tree/settings.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/settings)
 
 
-A branch to work on routing a bit.
+- windows 64 build includes maptool
 
 - focussed on OSM only
 - a node and a segment can be driven more than once to allow P-turns and such
