@@ -1,0 +1,1 @@
+module_add_library(speech_winTTS speech_winTTS.cpp)
