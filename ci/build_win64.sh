@@ -11,7 +11,7 @@ cd ../..
 
 mkdir win64
 pushd win64
-ls-la
+ls -la
 cmake -Dbinding/python:BOOL=FALSE -DSAMPLE_MAP=n -DBUILD_MAPTOOL=y -DHAVE_POSTGRESQL=y -DXSLTS=windows -DCMAKE_TOOLCHAIN_FILE=../Toolchain/mingw-w64-x86_64.cmake  ../ 
 make
 make package
