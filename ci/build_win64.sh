@@ -7,8 +7,7 @@ cd postgresql-11.1
 make
 make install
 
-cd ../..
-
+ls -la
 mkdir win64
 pushd win64
 ls -la
