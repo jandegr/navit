@@ -1,6 +1,6 @@
 apt-get update && apt-get install -y mingw-w64 default-jre nsis libsaxonb-java
 
-pushd
+pushd .
 
 wget ftp.postgresql.org/pub/latest/postgresql-11.1.tar.gz
 tar -z -xf postgresql-11.1.tar.gz
