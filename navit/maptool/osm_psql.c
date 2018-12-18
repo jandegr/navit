@@ -20,8 +20,11 @@
 #include <stdlib.h>
 #include "maptool.h"
 #ifdef HAVE_POSTGRESQL
+#ifndef _WIN32
 #include <postgresql/libpq-fe.h>
-
+#else
+#include <libpq-fe.h>
+#endif
 
 
 /* Do some multipolygon processing
