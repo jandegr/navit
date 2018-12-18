@@ -1,5 +1,7 @@
 apt-get update && apt-get install -y mingw-w64 default-jre nsis libsaxonb-java
 
+pushd
+
 wget ftp.postgresql.org/pub/latest/postgresql-11.1.tar.gz
 tar -z -xf postgresql-11.1.tar.gz
 cd postgresql-11.1
@@ -7,7 +9,8 @@ cd postgresql-11.1
 make
 make install
 
-cd ../../
+popd
+
 ls -la
 mkdir win64
 pushd win64
