@@ -85,7 +85,7 @@ jobs:
          name: Install ndk
          command: |
            echo y | sdkmanager --licenses
-           sdkmanager ndk-bundle
+           echo y | sdkmanager ndk-bundle
       - run:
           name: Build
           command: ./gradlew assembleDebug
