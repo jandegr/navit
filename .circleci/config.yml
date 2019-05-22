@@ -13,9 +13,6 @@ jobs:
       - run:
           name: Build for Linux
           command: bash ci/build_linux.sh
-      - run:
-          name: Build osmconvert
-          command: - wget http://m.m.i24.cc/osmconvert.c && gcc osmconvert.c -lz -o osmconvert
 workflows:
   version: 2
   build_all:
