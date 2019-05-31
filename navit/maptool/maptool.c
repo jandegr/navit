@@ -197,6 +197,7 @@ usage(FILE *f)
 	fprintf(f,"-i (--input-file) <file>          : specify the input file name (OSM), overrules default stdin\n");
 	fprintf(f,"-k (--keep-tmpfiles)              : do not delete tmp files after processing. useful to reuse them\n");
 	fprintf(f,"-M (--o5m)                        : input file os o5m\n");
+	fprintf(f,"-n                                : ignore unknown types\n");
 	fprintf(f,"-N (--nodes-only)                 : process only nodes\n");
 	fprintf(f,"-o (--coverage)                   : map every street to item coverage\n");
 	fprintf(f,"-P (--protobuf)                   : input file is protobuf\n");
