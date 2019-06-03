@@ -278,7 +278,7 @@ static void
 slice_config_init (SliceConfig *config)
 {
   /* don't use g_malloc/g_message here */
-//#if NOT_NEEDED_FOR_NAVIT
+#if NOT_NEEDED_FOR_NAVIT
   gchar buffer[1024];
   const gchar *val = _g_getenv_nomalloc ("G_SLICE", buffer);
   const GDebugKey keys[] = {
@@ -286,13 +286,13 @@ slice_config_init (SliceConfig *config)
     { "debug-blocks",  1 << 1 },
   };
   gint flags = !val ? 0 : g_parse_debug_string (val, keys, G_N_ELEMENTS (keys));
-//#endif
+#endif
   *config = slice_config;
 //#if NOT_NEEDED_FOR_NAVIT
-  if (flags & (1 << 0))         /* always-malloc */
+//  if (flags & (1 << 0))         /* always-malloc */
     config->always_malloc = TRUE;
-  if (flags & (1 << 1))         /* debug-blocks */
-    config->debug_blocks = TRUE;
+//  if (flags & (1 << 1))         /* debug-blocks */
+//    config->debug_blocks = TRUE;
 //#endif
 }
 
