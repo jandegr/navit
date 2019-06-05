@@ -20,8 +20,8 @@ jobs:
           command: bash scripts/build_linux.sh
       - run:
           name: Get OSM data
-          command: |
-            bash scripts/get_OSM_data.sh
+          command: bash scripts/get_OSM_data.sh
+          no_output_timeout: 120m
       - run:
           name: Maptool step 1
           command: bash ./bin/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BFR.bin
