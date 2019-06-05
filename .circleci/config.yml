@@ -18,8 +18,6 @@ jobs:
       - run:
           name: Build for Linux
           command: bash scripts/build_linux.sh
-      - store_artifacts:
-          path: linux/_CPack_Packages
       - run:
           name: Get OSM data
           command: |
