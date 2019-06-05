@@ -67,7 +67,7 @@ jobs:
           command: linux/navit/maptool/maptool -P  -6 -s10 -e10 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool Phase 11 generating tiles      Phase 12: assembling map
+          name: Maptool Phase 11 generating tiles      Phase 12 assembling map
           command: linux/navit/maptool/maptool -P  -6 -s11 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
 workflows:
