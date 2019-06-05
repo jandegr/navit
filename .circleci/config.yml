@@ -24,8 +24,8 @@ jobs:
             bash scripts/get_OSM_data.sh
       - run:
           name: Maptool step 1
-          command: |
-            bash ./bin/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BFR.bin
+          command: bash ./bin/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BFR.bin
+              timeout: 7200
   build_android:
     working_directory: ~/code
     docker:
