@@ -27,47 +27,47 @@ jobs:
           command: ./osmconvert --complete-ways --drop-author --verbose europe-latest-complete.osm.pbf -B=BFR.poly -o=europe-latest.osm.pbf
           no_output_timeout: 120m
       - run:
-          name: Maptool step 1
+          name: Maptool Phase 1: reading input data
           command: linux/navit/maptool/maptool -P  -6 -s1 -e1 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 2
+          name: Maptool Phase 2: counting references and resolving ways
           command: linux/navit/maptool/maptool -P  -6 -s2 -e2 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 3
+          name: Maptool Phase 3: converting ways to pois
           command: linux/navit/maptool/maptool -P  -6 -s3 -e3 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 4
+          name: Maptool Phase 4: splitting at intersections
           command: linux/navit/maptool/maptool -P  -6 -s4 -e4 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 5
+          name: Maptool Phase 5: generating coastlines
           command: linux/navit/maptool/maptool -P  -6 -s5 -e5 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 6
+          name: Maptool Phase 6: assigning towns to countries
           command: linux/navit/maptool/maptool -P  -6 -s6 -e6 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 7
+          name: Maptool Phase 7: sorting countries
           command: linux/navit/maptool/maptool -P  -6 -s7 -e7 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 8
+          name: Maptool Phase 8: generating turn restrictions
           command: linux/navit/maptool/maptool -P  -6 -s8 -e8 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 9
+          name: Maptool Phase 9: processing associated street relations
           command: linux/navit/maptool/maptool -P  -6 -s9 -e9 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 10
+          name: Maptool Phase 10: processing house number interpolations
           command: linux/navit/maptool/maptool -P  -6 -s10 -e10 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
-          name: Maptool step 11 and 12
+          name: Maptool Phase 11: generating tiles      Phase 12: assembling map
           command: linux/navit/maptool/maptool -P  -6 -s11 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
 workflows:
