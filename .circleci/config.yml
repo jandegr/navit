@@ -28,47 +28,47 @@ jobs:
           no_output_timeout: 120m
       - run:
           name: Maptool step 1
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 2
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s2 -e2 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s2 -e2 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 3
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s3 -e3 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s3 -e3 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 4
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s4 -e4 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s4 -e4 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 5
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s5 -e5 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s5 -e5 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 6
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s6 -e6 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s6 -e6 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 7
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s7 -e7 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s7 -e7 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 8
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s8 -e8 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s8 -e8 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 9
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s9 -e9 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s9 -e9 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 10
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s10 -e10 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s10 -e10 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
       - run:
           name: Maptool step 11 and 12
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s11 -i europe-latest.osm.pbf BFR.bin
+          command: linux/navit/maptool/maptool -P  -6 -n -k -s11 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
 workflows:
   version: 2
