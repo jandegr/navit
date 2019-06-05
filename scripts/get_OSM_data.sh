@@ -2,6 +2,9 @@ set -e
 
 ls -la
 ls -la linux
+ls -la linux/navit
+ls -la linux/navit/maptool
+
 
 echo ""
 echo "downloading PBF"
