@@ -1,7 +1,7 @@
 set -e
 
 ls -la
-ls -la/linux
+ls -la linux
 
 echo ""
 echo "downloading PBF"
