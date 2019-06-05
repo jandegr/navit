@@ -138,19 +138,8 @@ workflows:
   version: 2
   build_all:
     jobs:
-      - sanity_check
-      - build_linux:
-          requires:
-            - sanity_check
-      - build_android:
-          requires:
-            - sanity_check
-      - build_win32:
-          requires:
-            - sanity_check
-      - build_wince:
-          requires:
-            - sanity_check
-      - build_tomtom_plugin:
-          requires:
-            - sanity_check
+      - build_linux
+      - build_android
+      - build_win32
+      - build_wince
+      - build_tomtom_plugin
