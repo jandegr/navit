@@ -24,7 +24,7 @@ jobs:
           no_output_timeout: 120m
       - run:
           name: Maptool step 1
-          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BFR.bin
+          command: bash linux/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
 workflows:
   version: 2
