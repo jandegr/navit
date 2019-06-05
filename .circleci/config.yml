@@ -25,7 +25,7 @@ jobs:
       - run:
           name: Maptool step 1
           command: bash ./bin/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i ~/europe-latest.osm.pbf $CIRCLE_ARTIFACTS/BFR.bin
-              timeout: 7200
+          no_output_timeout: 120m
   build_android:
     working_directory: ~/code
     docker:
