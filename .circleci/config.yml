@@ -3,16 +3,6 @@ defaults: &defaults
   docker:
     - image: ubuntu:18.04
 jobs:
-  sanity_check:
-    <<: *defaults
-    steps:
-      - checkout
-      - run:
-          name: Setup requirements
-          command: bash scripts/setup_common_requirements.sh
-      - run:
-          name: run sanity check script
-          command: bash scripts/ci_sanity_checks.sh
   build_linux:
     <<: *defaults
     steps:
@@ -31,40 +21,9 @@ jobs:
       - store_artifacts:
           path: linux/_CPack_Packages
       - run:
-          name: Update Navit-Download-Center
+          name: Get OSM data
           command: |
-            bash scripts/update_download_center.sh
-  run_doxygen:
-    <<: *defaults
-    steps:
-      - checkout
-      - run:
-          name: Install doxygen and other essentials
-          command: apt-get update && apt-get -y install doxygen ca-certificates git rsync
-      - run:
-          name: Run doxygen
-          command: cd navit && doxygen
-      - run:
-          name: Update results to Github
-          command: bash scripts/update_doxygen.sh
-      - store_artifacts:
-          path: /root/project/doc
-  build_sailfish:
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: install docker
-          command: circleci-install docker
-      - run:
-          name: make build dir
-          command:  mkdir ../rpmbuild
-      - run:
-          name: run build
-          command: ls -lah ../rpmbuild && docker run -e VERSION_ID=2.2.1.18 -v `pwd`/../rpmbuild:/home/nemo/rpmbuild:rw -v `pwd`:/home/nemo/navit hoehnp/sailfishos-platform-sdk:2.2.1.18-r1 /bin/bash -x /home/nemo/navit/contrib/sailfish/build_sailfish_ci.sh
-      - store_artifacts:
-          name: Store rpm
-          path: ../rpmbuild/RPMS/
+            bash scripts/get_OSM_data.sh
   build_android:
     working_directory: ~/code
     docker:
@@ -126,10 +85,6 @@ jobs:
           destination: reports
       - store_test_results:
           path: test-results
-      - run:
-          name: Update Navit-Download-Center
-          command: |
-            bash scripts/update_download_center.sh
   build_win32:
     docker:
       - image: ubuntu:14.04
@@ -149,10 +104,6 @@ jobs:
             bash scripts/build_win32.sh
       - store_artifacts:
           path: win32/navit.exe
-      - run:
-          name: Update Navit-Download-Center
-          command: |
-            bash scripts/update_download_center.sh
   build_wince:
     docker:
       - image: navit/dockerfiles:wince
@@ -167,30 +118,6 @@ jobs:
           command: bash scripts/build_wince.sh
       - store_artifacts:
           path: wince/output
-      - run:
-          name: Update Navit-Download-Center
-          command: |
-            bash scripts/update_download_center.sh
-  build_tomtom_minimal:
-    <<: *defaults
-    docker:
-      - image: navit/tomtom-ng
-    steps:
-      - checkout
-      - run:
-          name: Setup common requirements
-          command: |
-            bash scripts/setup_common_requirements.sh
-      - run:
-          name: Build for Tomtom (minimal)
-          command: |
-            bash scripts/build_tomtom_minimal.sh
-      - store_artifacts:
-          path: /output
-      - run:
-          name: Update Navit-Download-Center
-          command: |
-            bash scripts/update_download_center.sh
   build_tomtom_plugin:
     <<: *defaults
     docker:
@@ -207,26 +134,6 @@ jobs:
             bash scripts/build_tomtom_plugin.sh
       - store_artifacts:
           path: /output
-      - run:
-          name: Update Navit-Download-Center
-          command: |
-            bash scripts/update_download_center.sh
-  merge_trunk_in_master:
-    <<: *defaults
-    steps:
-      - checkout
-      - run:
-          name: Install git
-          command: apt-get update && apt-get -y install ca-certificates git
-      - run:
-          name: configure ssh git
-          command: mkdir -p ~/.ssh/ && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-      - add_ssh_keys:
-          fingerprints:
-            - "58:42:73:90:cc:68:f7:34:7e:37:37:fa:b3:26:1f:a5"
-      - run:
-          name: Update results to Github
-          command: export GIT_TERMINAL_PROMPT=0 && git push origin $CIRCLE_SHA1:refs/heads/master
 workflows:
   version: 2
   build_all:
@@ -238,40 +145,12 @@ workflows:
       - build_android:
           requires:
             - sanity_check
-      - build_sailfish:
-          requires:
-            - sanity_check
       - build_win32:
           requires:
             - sanity_check
       - build_wince:
           requires:
             - sanity_check
-      - build_tomtom_minimal:
-          requires:
-            - sanity_check
       - build_tomtom_plugin:
           requires:
             - sanity_check
-      - run_doxygen:
-          requires:
-            - build_linux
-            - build_android
-            - build_win32
-            - build_wince
-            - build_tomtom_minimal
-            - build_tomtom_plugin
-          filters:
-            branches:
-              only: /^trunk$/
-      - merge_trunk_in_master:
-          requires:
-            - build_linux
-            - build_android
-            - build_win32
-            - build_wince
-            - build_tomtom_minimal
-            - build_tomtom_plugin
-          filters:
-            branches:
-              only: /^trunk$/
