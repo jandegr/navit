@@ -23,6 +23,10 @@ jobs:
           command: bash scripts/get_OSM_data.sh
           no_output_timeout: 120m
       - run:
+          name: COnvert OSM data
+          command: ./osmconvert --complete-ways --drop-author --verbose europe-latest-complete.osm.pbf -B=BFR.poly -o=europe-latest.osm.pbf
+          no_output_timeout: 120m
+      - run:
           name: Maptool step 1
           command: bash linux/navit/maptool/maptool -P  -6 -n -k -s1 -e1 -i europe-latest.osm.pbf BFR.bin
           no_output_timeout: 120m
