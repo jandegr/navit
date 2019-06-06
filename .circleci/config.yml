@@ -1,10 +1,15 @@
 version: 2
+defaults: &defaults
+  docker:
+    - image: ubuntu:18.04
 jobs:
   build_linux:
-    docker:
-      - image: ubuntu:18.04
+    <<: *defaults
     steps:
       - checkout
+      - run:
+          name: Id
+          command: cat /etc/*release
       - run:
           name: Setup requirements
           command: |
@@ -13,159 +18,81 @@ jobs:
       - run:
           name: Build for Linux
           command: bash ci/build_linux.sh
-  build_android:
-    working_directory: ~/code
-    docker:
-      - image: circleci/android:api-28-alpha
-    environment:
-      JVM_OPTS: -Xmx3200m
-    steps:
-      - checkout
-      - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
       - run:
-          name: Id
+          name: Get OSM data for France
+          command: wget -c -O france-latest.osm.pbf http://download.geofabrik.de/europe/france-latest.osm.pbf
+          no_output_timeout: 120m
+      - run:
+          name: Get OSM data for Belgium
+          command: wget -c -O belgium-latest.osm.pbf http://download.geofabrik.de/europe/belgium-latest.osm.pbf
+          no_output_timeout: 120m
+      - run:
+          name: Get OSM data for Luxembourg
+          command: wget -c -O luxembourg-latest.osm.pbf http://download.geofabrik.de/europe/luxembourg-latest.osm.pbf
+          no_output_timeout: 120m
+      - run:
+          name: Setup Osmium
+          command: apt-get install -y osmium-tool
+      - run:
+          name: Combine PBF's
+          command: osmium merge -v belgium-latest.osm.pbf luxembourg-latest.osm.pbf france-latest.osm.pbf -o europe-latest.osm.pbf
+      - run:
+          name: Maptool Phase 1 reading input data
+          command: linux/navit/maptool/maptool -P  -6 -s1 -e1 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 2 counting references and resolving ways
+          command: linux/navit/maptool/maptool -P  -6 -s2 -e2 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 3 converting ways to pois
+          command: linux/navit/maptool/maptool -P  -6 -s3 -e3 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 4 splitting at intersections
+          command: linux/navit/maptool/maptool -P  -6 -s4 -e4 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 5 generating coastlines
+          command: linux/navit/maptool/maptool -P  -6 -s5 -e5 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 6 assigning towns to countries
+          command: linux/navit/maptool/maptool -P  -6 -s6 -e6 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 7 sorting countries
+          command: linux/navit/maptool/maptool -P  -6 -s7 -e7 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 8 generating turn restrictions
+          command: linux/navit/maptool/maptool -P  -6 -s8 -e8 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 9 processing associated street relations
+          command: linux/navit/maptool/maptool -P  -6 -s9 -e9 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 10 processing house number interpolations
+          command: linux/navit/maptool/maptool -P  -6 -s10 -e10 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: Maptool Phase 11 generating tiles      Phase 12 assembling map
+          command: linux/navit/maptool/maptool -P  -6 -s11 -i europe-latest.osm.pbf BFRL.bin
+          no_output_timeout: 120m
+      - run:
+          name: split binfile
           command: |
-            cat /etc/*release
-            dpkg --get-selections
-      - run:
-          name: Install cmake gettext libsaxonb-java librsvg2-bin mmv
-          command: |
-            sudo apt-get update
-            sudo apt-get install cmake gettext libsaxonb-java librsvg2-bin mmv
-            cmake ./ -Dsvg2png_scaling:STRING=-1,128 -Dsvg2png_scaling_nav:STRING=-1,128 -Dsvg2png_scaling_flag:STRING=-1,64 -DSAMPLE_MAP=n
-      - run:
-          name: Process icons
-          command: |
-            cd navit/xpm
-            make
-            sudo ls -la
-            mkdir ../android/res/drawable-nodpi
-            rename 'y/A-Z/a-z/' *
-            mmv -m -d '*_128_128.png' '#1.png'
-            mmv -m -d '*_64_64.png' '#1.png'
-            sudo ls -la
-            cp *.png ../android/res/drawable-nodpi
-            cd ../../
-      - run:
-          name: Process translations
-          command: |
-            cd po  
-            make
-            sudo ls -la
-            mkdir ../navit/android/res/raw
-            rename 'y/A-Z/a-z/' *
-            cp *.mo ../navit/android/res/raw
-            cd ../
-      - run:
-          name: Move xml's
-          command: |
-            cd navit
-            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitldpi.xml OSD_SIZE=1 ICON_SMALL=24 ICON_MEDIUM=32 ICON_BIG=48
-            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitmdpi.xml OSD_SIZE=1.33 ICON_SMALL=32 ICON_MEDIUM=48 ICON_BIG=64
-            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navithdpi.xml OSD_SIZE=2 ICON_SMALL=48 ICON_MEDIUM=64 ICON_BIG=96
-            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitxhdpi.xml OSD_SIZE=2.67 ICON_SMALL=64 ICON_MEDIUM=96 ICON_BIG=128
-            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitxxhdpi.xml OSD_SIZE=4 ICON_SMALL=96 ICON_MEDIUM=128 ICON_BIG=192
-            saxonb-xslt -s:navit_shipped.xml -xsl:xslt/android.xslt -o:navitxxxhdpi.xml OSD_SIZE=5.33 ICON_SMALL=128 ICON_MEDIUM=192 ICON_BIG=256
-            sudo ls -la
-            mv *dpi.xml android/res/raw
-            cd ../
-      - run:
-         name: Chmod permissions
-         command: sudo chmod +x ./gradlew
-      - run:
-          name: Download Dependencies
-          command: ./gradlew -v
-#          command: ./gradlew androidDependencies
-      - save_cache:
-          name: Save cache
-          paths:
-            - ~/.gradle
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
-      - run:
-         name: Install ndk
-         command: |
-           echo y | sdkmanager --licenses
-           echo y | sdkmanager ndk-bundle
-      - run:
-          name: Build
-          command: ./gradlew assembleDebug
-      - run:
-          name: Run Tests
-          command: |
-            ln -s navit/navit.dtd navit.dtd
-            mkdir /home/circleci/code/test-results
-            ./gradlew tasks --all
-            ./gradlew lint test
-            ./gradlew checkstyleMain
-            ls -la /home/circleci/code/test-results
-      - run:
-          name: Run Javadoc
-          command: ./gradlew generateDebugJavadoc
-      - run:
-          name: Inspect
-          command: |
-            ls -la navit/android/build
-            ls -la navit/android/build/outputs
-            ls -la navit/android/build/outputs/apk
-            ls -la navit/android/build/outputs/logs
-            ls -la navit/android/build/reports
+            mkdir out
+            cd out
+            split -b 2G ../BFRL.bin BFRL
+            ls -la
+            cd ..
+            ls -la
       - store_artifacts:
-          name: Store APK
-          path: navit/android/build/outputs/apk
-          destination: apk
-      - store_artifacts:
-          name: Store logs
-          path: navit/android/build/outputs/logs
-          destination: logs
-      - store_artifacts:
-          name: Store Javadoc
-          path: navit/android/build/outputs/docs/javadoc
-          destination: doc  
-      - store_artifacts:
-          name: Store Lint reports
-          path: navit/android/build/reports
-          destination: reports     
-      - store_artifacts:
-          name: Store translations
-          path: po
-          destination: translations
-      - store_artifacts:
-          name: Store checkstyle report
-          path: /home/circleci/code/navit/android/checkstyle
-          destination: reports
-      - store_test_results:
-          path: test-results
-  build_win_32:
-    docker:
-      - image: ubuntu:18.04
-    steps:
-      - checkout
-      - run:
-          name: Build for Windows
-          command: |
-            bash ci/setup_common_requirements.sh
-            bash ci/build_win_i686.sh
-      - store_artifacts:
-          path: win32/navit32install.exe
-  build_win_64:
-    docker:
-      - image: ubuntu:18.04
-    steps:
-      - checkout
-      - run:
-          name: Build for Windows 64
-          command: |
-            bash ci/setup_common_requirements.sh
-            bash ci/build_win64.sh
-      - store_artifacts:
-          path: win64/navit64install.exe
+          path: out
 workflows:
   version: 2
   build_all:
     jobs:
       - build_linux
-      - build_android
-      - build_win_32
-      - build_win_64
-      
