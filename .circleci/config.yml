@@ -19,6 +19,12 @@ jobs:
           name: Build for Linux
           command: bash ci/build_linux.sh
       - run:
+          name: look
+          command: | 
+            ls -la
+            ls -la navit
+            ls -la navit/maptool
+      - run:
           name: Get OSM data for France
           command: wget -c -O france-latest.osm.pbf http://download.geofabrik.de/europe/france-latest.osm.pbf
           no_output_timeout: 120m
