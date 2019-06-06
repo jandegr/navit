@@ -19,12 +19,6 @@ jobs:
           name: Build for Linux
           command: bash ci/build_linux.sh
       - run:
-          name: look
-          command: | 
-            ls -la
-            ls -la navit
-            ls -la navit/maptool
-      - run:
           name: Get OSM data for France
           command: wget -c -O france-latest.osm.pbf http://download.geofabrik.de/europe/france-latest.osm.pbf
           no_output_timeout: 120m
@@ -44,47 +38,47 @@ jobs:
           command: osmium merge -v belgium-latest.osm.pbf luxembourg-latest.osm.pbf france-latest.osm.pbf -o europe-latest.osm.pbf
       - run:
           name: Maptool Phase 1 reading input data
-          command: bin/navit/maptool/maptool -P  -6 -s1 -e1 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s1 -e1 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 2 counting references and resolving ways
-          command: bin/navit/maptool/maptool -P  -6 -s2 -e2 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s2 -e2 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 3 converting ways to pois
-          command: bin/navit/maptool/maptool -P  -6 -s3 -e3 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s3 -e3 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 4 splitting at intersections
-          command: bin/navit/maptool/maptool -P  -6 -s4 -e4 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s4 -e4 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 5 generating coastlines
-          command: bin/navit/maptool/maptool -P  -6 -s5 -e5 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s5 -e5 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 6 assigning towns to countries
-          command: bin/navit/maptool/maptool -P  -6 -s6 -e6 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s6 -e6 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 7 sorting countries
-          command: bin/navit/maptool/maptool -P  -6 -s7 -e7 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s7 -e7 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 8 generating turn restrictions
-          command: bin/navit/maptool/maptool -P  -6 -s8 -e8 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s8 -e8 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 9 processing associated street relations
-          command: bin/navit/maptool/maptool -P  -6 -s9 -e9 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s9 -e9 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 10 processing house number interpolations
-          command: bin/navit/maptool/maptool -P  -6 -s10 -e10 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s10 -e10 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 11 generating tiles      Phase 12 assembling map
-          command: bin/navit/maptool/maptool -P  -6 -s11 -i europe-latest.osm.pbf BFRL.bin
+          command: bin/navit/maptool/maptool -P  -6 -n -s11 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
       - run:
           name: split binfile
