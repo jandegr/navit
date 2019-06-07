@@ -1,7 +1,7 @@
 version: 2
 defaults: &defaults
   docker:
-    - image: ubuntu:18.04
+    - image: ubuntu:19.04
 jobs:
   build_linux:
     <<: *defaults
@@ -19,23 +19,9 @@ jobs:
           name: Build for Linux
           command: bash ci/build_linux.sh
       - run:
-          name: Get OSM data for France
-          command: wget -c -O france-latest.osm.pbf http://download.geofabrik.de/europe/france-latest.osm.pbf
-          no_output_timeout: 120m
-      - run:
           name: Get OSM data for Belgium
-          command: wget -c -O belgium-latest.osm.pbf http://download.geofabrik.de/europe/belgium-latest.osm.pbf
+          command: wget -c -O belgium-latest.osm.pbf http://download.geofabrik.de/europe/europe-latest.osm.pbf
           no_output_timeout: 120m
-      - run:
-          name: Get OSM data for Luxembourg
-          command: wget -c -O luxembourg-latest.osm.pbf http://download.geofabrik.de/europe/luxembourg-latest.osm.pbf
-          no_output_timeout: 120m
-      - run:
-          name: Setup Osmium
-          command: apt-get install -y osmium-tool
-      - run:
-          name: Combine PBF's
-          command: osmium merge -v belgium-latest.osm.pbf luxembourg-latest.osm.pbf france-latest.osm.pbf -o europe-latest.osm.pbf
       - run:
           name: Maptool Phase 1 reading input data
           command: bin/navit/maptool/maptool -P  -6 -n -s1 -e1 -i europe-latest.osm.pbf BFRL.bin
