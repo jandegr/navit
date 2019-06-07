@@ -20,7 +20,7 @@ jobs:
           command: bash ci/build_linux.sh
       - run:
           name: Get OSM data for Belgium
-          command: wget -c -O belgium-latest.osm.pbf http://download.geofabrik.de/europe/europe-latest.osm.pbf
+          command: wget -c -O europe-latest.osm.pbf http://download.geofabrik.de/europe/belgium-latest.osm.pbf
           no_output_timeout: 120m
       - run:
           name: Maptool Phase 1 reading input data
