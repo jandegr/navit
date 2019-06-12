@@ -288,12 +288,12 @@ slice_config_init (SliceConfig *config)
   gint flags = !val ? 0 : g_parse_debug_string (val, keys, G_N_ELEMENTS (keys));
 #endif
   *config = slice_config;
-#if NOT_NEEDED_FOR_NAVIT
-  if (flags & (1 << 0))         /* always-malloc */
+//#if NOT_NEEDED_FOR_NAVIT
+//  if (flags & (1 << 0))         /* always-malloc */
     config->always_malloc = TRUE;
-  if (flags & (1 << 1))         /* debug-blocks */
-    config->debug_blocks = TRUE;
-#endif
+//  if (flags & (1 << 1))         /* debug-blocks */
+//    config->debug_blocks = TRUE;
+//#endif
 }
 
 static void
