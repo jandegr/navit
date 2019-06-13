@@ -8,7 +8,7 @@ export ARCH=x86_64-w64-mingw32
 export PREFIX=/usr/x86_64-w64-mingw32
 export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/x86_64-linux-gnu/pkgconfig
 
-cp ci/cross_file_mingw64.txt /tmp # for meson, used to compile glib
+cp Toolchain/cross_file_mingw64.txt /tmp # for meson, used to compile glib
 
 pushd .
 
@@ -20,15 +20,12 @@ cd /tmp
 wget -c http://zlib.net/zlib-1.2.11.tar.gz
 tar xzf zlib-1.2.11.tar.gz
 cd zlib-1.2.11
-#./configure --prefix=$PREFIX
 sed -e s/"PREFIX ="/"PREFIX = x86_64-w64-mingw32-"/ -i win32/Makefile.gcc
 make -f win32/Makefile.gcc
 BINARY_PATH=/usr/x86_64-w64-mingw32/bin \
     INCLUDE_PATH=/usr/x86_64-w64-mingw32/include \
     LIBRARY_PATH=/usr/x86_64-w64-mingw32/lib \
     make -f win32/Makefile.gcc install
-#make -j$JOBS
-#make install
 cd ..
 
 #iconv
