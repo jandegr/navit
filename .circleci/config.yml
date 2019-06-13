@@ -166,7 +166,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Build for Windows 64
+          name: Build for Windows 64 with seperate Glib dll
           command: |
             bash ci/setup_common_requirements.sh
             bash ci/build_win64_glib_dll.sh
