@@ -5,6 +5,8 @@ defaults: &defaults
 jobs:
   build_linux:
     <<: *defaults
+    environment:
+      MAPTOOL_CMD: "bin/navit/maptool/maptool -P  -6"
     steps:
       - checkout
       - run:
@@ -36,7 +38,6 @@ jobs:
       - run:
           name: Combine PBF's
           command: osmium merge -v belgium-latest.osm.pbf luxembourg-latest.osm.pbf france-latest.osm.pbf -o europe-latest.osm.pbf
-      - run: MAPTOOL_CMD="bin/navit/maptool/maptool -P  -6"
       - run:
           name: Maptool Phase 1 reading input data
           command: $MAPTOOL_CMD -s1 -e1 -i europe-latest.osm.pbf BFRL.bin
