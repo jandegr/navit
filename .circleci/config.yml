@@ -160,6 +160,26 @@ jobs:
             bash ci/build_win64.sh
       - store_artifacts:
           path: win64/navit64install.exe
+  build_win_64_glib_dll:
+    docker:
+      - image: ubuntu:19.04
+    steps:
+      - checkout
+      - run:
+          name: Build for Windows 64 with seperate Glib dll
+          command: |
+            bash ci/setup_common_requirements.sh
+            bash ci/build_win64_glib_dll.sh
+      - store_artifacts:
+          path: win64/navit64install.exe
+      - store_artifacts:    
+          path: /usr/x86_64-w64-mingw32/bin/libintl-8.dll
+      - store_artifacts:
+          path: /usr/x86_64-w64-mingw32/bin/libglib-2.0-0.dll
+      - store_artifacts:    
+          path: /usr/x86_64-w64-mingw32/bin/libiconv-2.dll
+      - store_artifacts:
+          path: /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
 workflows:
   version: 2
   build_all:
@@ -168,4 +188,5 @@ workflows:
       - build_android
       - build_win_32
       - build_win_64
+      - build_win_64_glib_dll
       
