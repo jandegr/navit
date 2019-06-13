@@ -33,7 +33,7 @@ cd /tmp
 wget ftp.gnu.org/pub/gnu/libiconv/libiconv-1.16.tar.gz
 tar xzf libiconv-1.16.tar.gz
 cd libiconv-1.16
-./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
+./configure --host=$ARCH --prefix=$PREFIX
 make
 make install-strip
 cd ..
@@ -43,7 +43,7 @@ cd /tmp
 wget ftp.gnu.org/pub/gnu/gettext/gettext-0.20.1.tar.gz
 tar xzf gettext-0.20.1.tar.gz
 cd gettext-0.20.1
-./configure --prefix=/usr/x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --disable-dependency-tracking --enable-silent-rules \
+./configure --prefix=$PREFIX --host=$ARCH --disable-dependency-tracking --enable-silent-rules \
             --disable-rpath --enable-nls --disable-csharp --disable-java \
             --enable-relocatable --enable-static
 #make
