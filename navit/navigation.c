@@ -2608,6 +2608,9 @@ void navigation_analyze_roundabout(struct navigation *this_, struct navigation_c
 			 * The central angle is approximated using the unweighted average of delta1 and delta2,
 			 * which is somewhat crude but sufficient for our purposes. */
 			central_angle = abs((delta1 + delta2) / 2 + ((cmd->delta < dtsir) ? 180 : -180));
+			if (central_angle == 0){
+				central_angle == 360;
+			}
 			roundabout_length = len * 360 / central_angle;
 			dbg(lvl_debug,"roundabout_length = %dm (for central_angle = %d degrees)\n", roundabout_length, central_angle);
 
