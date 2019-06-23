@@ -2448,8 +2448,11 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 					r = "yes: leaving motorway-like road";
 			}
 		}
-		
-		if (!ret && m.max_alt_lanes > 1){ // als er een ramp is met meerdere lanes
+		// als er een ramp is met meerdere lanes
+		//if (!ret && m.max_alt_lanes > 1 )
+		  if (!ret && old->way.lanes > new->way.lanes)
+		{
+			
 			ret = 1;
 		}
 	}
