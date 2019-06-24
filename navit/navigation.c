@@ -2397,8 +2397,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 
 			if (m.merge_or_exit != mex_none) {
 				ret=1;
-				if (!r)
-					r = "yes: merging onto motorway-like road";
+				r = "yes: merging onto motorway-like road";
 			}
 		} else if (is_motorway_like(&(old->way), 1) && is_ramp(&(new->way))) {
 			/* Detect interchanges - if:
@@ -2444,8 +2443,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 
 			if (is_motorway_like(&(old->way), 0) && (m.merge_or_exit != mex_none)) {
 				ret=1;
-				if (!r)
-					r = "yes: leaving motorway-like road";
+				r = "yes: leaving motorway-like road";
 			}
 		}
 		// als er een ramp is met meerdere lanes
