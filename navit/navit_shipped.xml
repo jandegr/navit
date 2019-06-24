@@ -195,7 +195,7 @@ Waypoint</text></img>
 		<!-- For the cumulative displacement filter to be enabled, set cdf_histsize="x" here, with x being an integer somewhere around 4 -->
 		<tracking cdf_histsize="0"/>
 
-		<vehicleprofile name="car" route_depth="4:50000w,7:35000,9:9000" flags="0x4000000" flags_forward_mask="0x4040002" flags_reverse_mask="0x4040001" maxspeed_handling="0" route_mode="0" static_speed="5" static_distance="25" through_traffic_penalty="18000" turn_around_penalty="3600">
+		<vehicleprofile name="car" route_depth="4:50000w,7:35000,9:9000" flags="0x4000000" flags_forward_mask="0x4040002" flags_reverse_mask="0x4040001" maxspeed_handling="0" route_mode="0" static_speed="5" static_distance="25" through_traffic_penalty="18000" turn_around_penalty="3250">
 			<roadprofile item_types="street_parking_lane,street_service,track_unpaved" speed="6"  />
 			<roadprofile item_types="street_0,living_street,track_gravelled,track_paved" speed="10"/>
 			<roadprofile item_types="street_1_city" speed="30" route_weight="85" roundabout_weight="80" link_weight="90" />

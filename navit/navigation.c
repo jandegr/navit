@@ -2397,8 +2397,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 
 			if (m.merge_or_exit != mex_none) {
 				ret=1;
-				if (!r)
-					r = "yes: merging onto motorway-like road";
+				r = "yes: merging onto motorway-like road";
 			}
 		} else if (is_motorway_like(&(old->way), 1) && is_ramp(&(new->way))) {
 			/* Detect interchanges - if:
@@ -2442,15 +2441,17 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 				 * (more likely the end of a motorway) */
 			}
 
-			if (is_motorway_like(&(old->way), 0) && (m.merge_or_exit != mex_none)) {
+			if (!r && is_motorway_like(&(old->way), 0) && (m.merge_or_exit != mex_none)) {
 				ret=1;
-				if (!r)
-					r = "yes: leaving motorway-like road";
+				r = "yes: leaving motorway-like road";
 			}
 		}
-		
-		if (!ret && m.max_alt_lanes > 1){ // als er een ramp is met meerdere lanes
+		// als er een ramp is met meerdere lanes
+		//if (!ret && m.max_alt_lanes > 1 )
+		  if (!ret && old->way.lanes > new->way.lanes && m.num_options > 1)
+		{
 			ret = 1;
+			r = "yes: Motorway splitting";
 		}
 	}
 
@@ -2458,8 +2459,13 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 		*maneuver = g_new(struct navigation_maneuver, 1);
 		memcpy(*maneuver, &m, sizeof(struct navigation_maneuver));
 	}
-	//if (r)
-	//	dbg(lvl_error, "%s %s %s -> %s %s %s: %s, delta=%i, max_alt_lanes=%i, merge_or_exit=%i\n", item_to_name(old->way.item.type), old->way.name_systematic, old->way.name, item_to_name(new->way.item.type), new->way.name_systematic, new->way.name, r, m.delta,m.max_alt_lanes, m.merge_or_exit);
+	if (r) {
+		if (ret){
+			dbg(lvl_info, "%s %s %s -> %s %s %s: %s, delta=%i, max_alt_lanes=%i, merge_or_exit=%i\n", item_to_name(old->way.item.type), old->way.name_systematic, old->way.name, item_to_name(new->way.item.type), new->way.name_systematic, new->way.name, r, m.delta,m.max_alt_lanes, m.merge_or_exit);
+		} else {
+			dbg(lvl_debug, "%s %s %s -> %s %s %s: %s, delta=%i, max_alt_lanes=%i, merge_or_exit=%i\n", item_to_name(old->way.item.type), old->way.name_systematic, old->way.name, item_to_name(new->way.item.type), new->way.name_systematic, new->way.name, r, m.delta,m.max_alt_lanes, m.merge_or_exit);
+		}	
+	}
 	return ret;
 }
 
