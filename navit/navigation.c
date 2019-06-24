@@ -2450,7 +2450,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 		}
 		// als er een ramp is met meerdere lanes
 		//if (!ret && m.max_alt_lanes > 1 )
-		  if (!ret && old->way.lanes > new->way.lanes)
+		  if (!ret && old->way.lanes > new->way.lanes && m.num_options > 1)
 		{
 			ret = 1;
 			r = "yes: Motorway splitting";
@@ -2462,7 +2462,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 		memcpy(*maneuver, &m, sizeof(struct navigation_maneuver));
 	}
 	if (r) {
-		dbg(lvl_error, "%s %s %s -> %s %s %s: %s, delta=%i, max_alt_lanes=%i, merge_or_exit=%i\n", item_to_name(old->way.item.type), old->way.name_systematic, old->way.name, item_to_name(new->way.item.type), new->way.name_systematic, new->way.name, r, m.delta,m.max_alt_lanes, m.merge_or_exit);
+		dbg(lvl_info, "%s %s %s -> %s %s %s: %s, delta=%i, max_alt_lanes=%i, merge_or_exit=%i\n", item_to_name(old->way.item.type), old->way.name_systematic, old->way.name, item_to_name(new->way.item.type), new->way.name_systematic, new->way.name, r, m.delta,m.max_alt_lanes, m.merge_or_exit);
 	}
 	return ret;
 }
