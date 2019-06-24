@@ -2441,7 +2441,7 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 				 * (more likely the end of a motorway) */
 			}
 
-			if (is_motorway_like(&(old->way), 0) && (m.merge_or_exit != mex_none)) {
+			if (!r && is_motorway_like(&(old->way), 0) && (m.merge_or_exit != mex_none)) {
 				ret=1;
 				r = "yes: leaving motorway-like road";
 			}
