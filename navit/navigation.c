@@ -2448,11 +2448,13 @@ maneuver_required2 (struct navigation *nav, struct navigation_itm *old, struct n
 		}
 		// als er een ramp is met meerdere lanes
 		//if (!ret && m.max_alt_lanes > 1 )
-		  if (!ret && old->way.lanes > new->way.lanes && m.num_options > 1)
-		{
-			ret = 1;
-			r = "yes: Motorway splitting";
-		}
+		
+		
+		//  if (!ret && old->way.lanes > new->way.lanes && m.num_options > 1)
+		//{
+		//	ret = 1;
+		//	r = "yes: Motorway splitting";
+		//}
 	}
 
 	if (ret) {
