@@ -499,6 +499,8 @@ if (NOT XSL_PROCESSING)
 "${SUPPORTED_XSLT_PROCESSORS}).")
 endif()
 
+
+
 if(WIN32 OR WINCE)
    SET(CMAKE_EXECUTABLE_SUFFIX ".exe")
    add_module(graphics/win32 "Windows detected" TRUE)
@@ -560,6 +562,9 @@ if(WIN32 OR WINCE)
    set(XSLTS "windows;${XSLTS}" CACHE STRING "define a semicolon seperated list of XSLTs to process")
 endif()
 if (WIN32 AND NOT WINCE)
+   if(NOT CACHE_SIZE)
+       SET(CACHE_SIZE 2097152)
+   endif(NOT CACHE_SIZE)
    set(HAVE_API_WIN32 1)
    set(HAVE_STDINT_H 1)
    list(APPEND NAVIT_LIBS winmm)
@@ -612,6 +617,9 @@ if (SAMPLE_MAP)
 endif(SAMPLE_MAP)
 
 if(ANDROID)
+   if(NOT CACHE_SIZE)
+       SET(CACHE_SIZE 2097152)
+   endif(NOT CACHE_SIZE)
    message(STATUS "Using generator " ${CMAKE_GENERATOR})
    if (NOT ${CMAKE_GENERATOR} STREQUAL Ninja)
      find_program(ANDROID_LOCATION NAMES android android.bat)
@@ -650,6 +658,11 @@ if(ANDROID)
    set(NAVIT_COMPILE_FLAGS "${NAVIT_COMPILE_FLAGS} -fPIC")
 
 endif(ANDROID)
+
+#
+if(NOT CACHE_SIZE)
+   SET(CACHE_SIZE 1048576)
+endif(NOT CACHE_SIZE)
 
 if(FREETYPE_FOUND AND NOT FONTCONFIG_FOUND)
    add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/navit/fonts")
