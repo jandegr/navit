@@ -2,7 +2,7 @@ version: 2
 jobs:
   build_linux:
     docker:
-      - image: ubuntu:18.04
+      - image: ubuntu:19.04
     steps:
       - checkout
       - run:
@@ -111,9 +111,13 @@ jobs:
             ls -la navit/android/build/outputs/logs
             ls -la navit/android/build/reports
       - store_artifacts:
-          name: Store APK
+          name: Store outputs
           path: navit/android/build/outputs/apk
-          destination: apk
+          destination: outputs
+      - store_artifacts:
+          name: Store versioned apk
+          path: navit/android/build/outputs/apk/debug/android-debug.apk
+          destination: apk/$CIRCLE_BUILD_NUM.apk
       - store_artifacts:
           name: Store logs
           path: navit/android/build/outputs/logs
@@ -138,7 +142,7 @@ jobs:
           path: test-results
   build_win_32:
     docker:
-      - image: ubuntu:18.04
+      - image: ubuntu:19.04
     steps:
       - checkout
       - run:
@@ -150,7 +154,7 @@ jobs:
           path: win32/navit32install.exe
   build_win_64:
     docker:
-      - image: ubuntu:18.04
+      - image: ubuntu:19.04
     steps:
       - checkout
       - run:
