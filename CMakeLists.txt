@@ -618,7 +618,7 @@ endif(SAMPLE_MAP)
 
 if(ANDROID)
    if(NOT CACHE_SIZE)
-       SET(CACHE_SIZE 2097152)
+       SET(CACHE_SIZE 8388608)
    endif(NOT CACHE_SIZE)
    message(STATUS "Using generator " ${CMAKE_GENERATOR})
    if (NOT ${CMAKE_GENERATOR} STREQUAL Ninja)
