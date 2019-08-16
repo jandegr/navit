@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "29.0.1"
     defaultConfig {
         applicationId "org.navitproject.navit"
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
