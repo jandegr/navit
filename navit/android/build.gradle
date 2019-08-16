@@ -3,12 +3,12 @@ apply from: "$project.rootDir/gradle/scripts/git-scm-version.gradle"
 apply plugin: 'checkstyle'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "29.0.1"
     defaultConfig {
         applicationId "org.navitproject.navit"
         minSdkVersion 9
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode gitVersionCode
         versionName gitVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
