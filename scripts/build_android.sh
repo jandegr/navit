@@ -45,6 +45,11 @@ rename 'y/A-Z/a-z/' ./*.mo
 popd
 popd
 
+# processing xml is messed up a bit after the original introduction of gradle
+# so a useless install of ant here even if using gradle/ninja
+
+apt-get install -y ant
+
 echo Process xml config files
 make navit_config_xml || exit 96
 pushd navit
