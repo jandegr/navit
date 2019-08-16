@@ -29,10 +29,11 @@ jobs:
             cat /etc/*release
             dpkg --get-selections
       - run:
-          name: Install cmake gettext libsaxonb-java librsvg2-bin mmv
+          name: Install cmake gettext libsaxonb-java librsvg2-bin mmv util-linux
           command: |
             sudo apt-get update
             sudo apt-get install cmake gettext libsaxonb-java librsvg2-bin mmv
+            sudo apt-get install util-linux # provides rename cmd
             cmake ./ -Dsvg2png_scaling:STRING=-1,128 -Dsvg2png_scaling_nav:STRING=-1,128 -Dsvg2png_scaling_flag:STRING=-1,64 -DSAMPLE_MAP=n
       - run:
           name: Process icons
