@@ -25,7 +25,7 @@ export GRADLE_OPTS='-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryEr
 # processing xml is messed up a bit after the original introduction of gradle
 # so a useless install of ant here even if using gradle/ninja
 
-apt-get install -y ant
+sudo apt-get install -y ant
 
 echo Run CMake
 cmake ./ -Dvehicle/gpsd_dbus:BOOL=FALSE -Dsvg2png_scaling:STRING=-1,24,32,48,64,96,128,192,256 -Dsvg2png_scaling_nav:STRING=-1,24,32,48,64,96,128,192,256 -Dsvg2png_scaling_flag:STRING=-1,24,32,64,96 -DXSL_PROCESSING=y -DXSLTS=android -DANDROID=y || exit 1
