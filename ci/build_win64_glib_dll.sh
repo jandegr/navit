@@ -1,7 +1,11 @@
 set -e
 
 # mingw-w64-tools is there to provide pkg-config
-apt-get update && apt-get install -y mingw-w64 mingw-w64-tools default-jre nsis libsaxonb-java xz-utils meson
+apt-get update && apt-get install -y mingw-w64 mingw-w64-tools default-jre nsis libsaxonb-java xz-utils ninja-build
+
+# ubuntu version of mesa is too old at this time to compile latest glib
+apt-get install -y python3-pip
+pip3 install meson==0.49.2
 
 
 export ARCH=x86_64-w64-mingw32
