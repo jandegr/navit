@@ -5,12 +5,12 @@ apt-get update && apt-get install -y mingw-w64 mingw-w64-tools default-jre nsis 
 
 # ubuntu version of mesa is too old at this time to compile latest glib
 apt-get install -y python3-pip
-pip3 install meson==0.49.2
+pip3 install meson==0.51.1
 
 
 export ARCH=x86_64-w64-mingw32
 export PREFIX=/usr/x86_64-w64-mingw32
-export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/x86_64-linux-gnu/pkgconfig
+export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig
 
 cp Toolchain/cross_file_mingw64.txt /tmp # for meson, used to compile glib
 
