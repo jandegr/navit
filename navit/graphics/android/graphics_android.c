@@ -643,37 +643,38 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 	if (ret->Paint)
 		ret->Paint = (*jnienv)->NewGlobalRef(jnienv, ret->Paint);
 
-	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setSizeChangedCallback", "(I)V");
+	// J denotes long where I denotes int
+	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setSizeChangedCallback", "(J)V");
 	if (cid == NULL) {
 		dbg(lvl_error,"no SetResizeCallback method found\n");
 		return 0; /* exception thrown */
 	}
 	cb=callback_new_1(callback_cast(resize_callback), ret);
-	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (int)cb);
+	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (long)cb);
 
-	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setButtonCallback", "(I)V");
+	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setButtonCallback", "(J)V");
 	if (cid == NULL) {
 		dbg(lvl_error,"no SetButtonCallback method found\n");
 		return 0; /* exception thrown */
 	}
 	cb=callback_new_1(callback_cast(button_callback), ret);
-	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (int)cb);
+	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (long)cb);
 
-	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setMotionCallback", "(I)V");
+	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setMotionCallback", "(J)V");
 	if (cid == NULL) {
 		dbg(lvl_error,"no SetMotionCallback method found\n");
 		return 0; /* exception thrown */
 	}
 	cb=callback_new_1(callback_cast(motion_callback), ret);
-	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (int)cb);
+	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (long)cb);
 
-	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setKeypressCallback", "(I)V");
+	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setKeypressCallback", "(J)V");
 	if (cid == NULL) {
 		dbg(lvl_error,"no SetKeypressCallback method found\n");
 		return 0; /* exception thrown */
 	}
 	cb=callback_new_1(callback_cast(keypress_callback), ret);
-	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (int)cb);
+	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (long)cb);
 
 	if (!find_method(ret->NavitGraphicsClass, "draw_polyline", "(Landroid/graphics/Paint;[I)V", &ret->NavitGraphics_draw_polyline))
 		return 0;
@@ -893,7 +894,7 @@ event_android_add_timeout(int timeout, int multi, struct callback *cb)
 	ret->cb = cb;
 	ret->multi = multi;
 	ret->handle_timeout = event_android_handle_timeout;
-	ret->jni_timeout = (*jnienv)->NewObject(jnienv, NavitTimeoutClass, NavitTimeout_init, timeout, multi, (int)ret);
+	ret->jni_timeout = (*jnienv)->NewObject(jnienv, NavitTimeoutClass, NavitTimeout_init, timeout, multi, (long)ret);
 	if (ret->jni_timeout)
 		ret->jni_timeout = (*jnienv)->NewGlobalRef(jnienv, ret->jni_timeout);
 	return ret;
@@ -953,7 +954,7 @@ event_android_new(struct event_methods *meth)
 	dbg(lvl_debug,"enter\n");
 	if (!find_class_global("org/navitproject/navit/NavitTimeout", &NavitTimeoutClass))
 		return NULL;
-	NavitTimeout_init = (*jnienv)->GetMethodID(jnienv, NavitTimeoutClass, "<init>", "(IZI)V");
+	NavitTimeout_init = (*jnienv)->GetMethodID(jnienv, NavitTimeoutClass, "<init>", "(IZJ)V");
 	if (NavitTimeout_init == NULL) 
 		return NULL;
 	NavitTimeout_remove = (*jnienv)->GetMethodID(jnienv, NavitTimeoutClass, "remove", "()V");
