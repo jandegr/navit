@@ -193,13 +193,13 @@ Java_org_navitproject_navit_NavitTimeout_timeoutCallback(JNIEnv *env, jobject in
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitVehicle_vehicleCallback( JNIEnv * env, jobject thiz, int id, jobject location)
+Java_org_navitproject_navit_NavitVehicle_vehicleCallback( JNIEnv * env, jobject thiz, jlong id, jobject location)
 {
     callback_call_1((struct callback *)id, (void *)location);
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitIdle_IdleCallback( JNIEnv* env, jobject thiz, int id)
+Java_org_navitproject_navit_NavitIdle_IdleCallback( JNIEnv* env, jobject thiz, jlong id)
 {
     dbg(lvl_error,"enter %p %p\n",thiz, (void *)id);
     callback_call_0((struct callback *)id);
@@ -207,7 +207,7 @@ Java_org_navitproject_navit_NavitIdle_IdleCallback( JNIEnv* env, jobject thiz, i
 
 JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitWatch_poll(JNIEnv *env,
                                                 jobject instance,
-                                                jint func,
+                                                jlong func,
                                                 jint fd,
                                                 jint cond)
 {
@@ -217,7 +217,7 @@ JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitWatch_poll(JNIEnv *env,
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitWatch_watchCallback(JNIEnv *env, jobject instance, jint id) {
+Java_org_navitproject_navit_NavitWatch_watchCallback(JNIEnv *env, jobject instance, jlong id) {
 
   dbg(lvl_error,"enter %p %p\n",instance, (void *)id);
     callback_call_0((struct callback *)id);
@@ -226,7 +226,7 @@ Java_org_navitproject_navit_NavitWatch_watchCallback(JNIEnv *env, jobject instan
 
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitSensors_sensorCallback( JNIEnv* env, jobject thiz, int id, int sensor, float x, float y, float z)
+Java_org_navitproject_navit_NavitSensors_sensorCallback( JNIEnv* env, jobject thiz, jlong id, int sensor, float x, float y, float z)
 {
     dbg(lvl_debug,"enter %p %p %f %f %f\n",thiz, (void *)id,x,y,z);
     callback_call_4((struct callback *)id, sensor, &x, &y, &z);
