@@ -144,34 +144,34 @@ Java_org_navitproject_navit_Navit_navitDestroy(JNIEnv *env, jobject instance)
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitGraphics_sizeChangedCallback( JNIEnv* env, jobject thiz, int id, int w, int h)
+Java_org_navitproject_navit_NavitGraphics_sizeChangedCallback( JNIEnv* env, jobject thiz, long id, int w, int h)
 {
-    dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)id,w,h);
+    dbg(lvl_error,"enter %p %d %d\n",(struct callback *)id,w,h);
     if (id) {
         callback_call_2((struct callback *) id, w, h);
     }
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitGraphics_buttonCallback( JNIEnv* env, jobject thiz, int id, int pressed, int button, int x, int y)
+Java_org_navitproject_navit_NavitGraphics_buttonCallback( JNIEnv* env, jobject thiz, long id, int pressed, int button, int x, int y)
 {
-    dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)id,pressed,button);
+    dbg(lvl_error,"enter %p %d %d\n",(struct callback *)id,pressed,button);
     if (id) {
         callback_call_4((struct callback *) id, pressed, button, x, y);
     }
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitGraphics_motionCallback( JNIEnv* env, jobject thiz, int id, int x, int y)
+Java_org_navitproject_navit_NavitGraphics_motionCallback( JNIEnv* env, jobject thiz, long id, int x, int y)
 {
-    dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)id,x,y);
+    dbg(lvl_error,"enter %p %d %d\n",(struct callback *)id,x,y);
     if (id) {
         callback_call_2((struct callback *) id, x, y);
     }
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitGraphics_keypressCallback( JNIEnv* env, jobject thiz, int id, jobject str)
+Java_org_navitproject_navit_NavitGraphics_keypressCallback( JNIEnv* env, jobject thiz, long id, jobject str)
 {
     const char *s;
     dbg(lvl_debug,"enter %p %p\n",(struct callback *)id,str);
@@ -184,10 +184,11 @@ Java_org_navitproject_navit_NavitGraphics_keypressCallback( JNIEnv* env, jobject
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitTimeout_timeoutCallback(JNIEnv *env, jobject instance, jint id)
+Java_org_navitproject_navit_NavitTimeout_timeoutCallback(JNIEnv *env, jobject instance, jlong id)
 {
+    dbg(lvl_error,"enter %p %p\n",instance, (void *)id);
     void (*event_handler)(void *) = *(void **)id;
-    dbg(lvl_debug,"enter %p %p\n",instance, (void *)id);
+    
     event_handler((void*)id);
 }
 
@@ -200,7 +201,7 @@ Java_org_navitproject_navit_NavitVehicle_vehicleCallback( JNIEnv * env, jobject 
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitIdle_IdleCallback( JNIEnv* env, jobject thiz, int id)
 {
-    dbg(lvl_debug,"enter %p %p\n",thiz, (void *)id);
+    dbg(lvl_error,"enter %p %p\n",thiz, (void *)id);
     callback_call_0((struct callback *)id);
 }
 
@@ -218,7 +219,7 @@ JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitWatch_poll(JNIEnv *env,
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitWatch_watchCallback(JNIEnv *env, jobject instance, jint id) {
 
-//  dbg(lvl_debug,"enter %p %p\n",instance, (void *)id);
+  dbg(lvl_error,"enter %p %p\n",instance, (void *)id);
     callback_call_0((struct callback *)id);
 
 }
