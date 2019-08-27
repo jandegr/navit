@@ -11,12 +11,12 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        ndk {// 'x86_64' ??
-            abiFilters 'x86', 'armeabi-v7a', 'arm64-v8a'
+        ndk {// 'x86_64' ?? 'x86', 'armeabi-v7a', 
+            abiFilters 'arm64-v8a'
         }
         externalNativeBuild {
             cmake {
-                arguments '-DUSE_PLUGINS=n', '-DBUILD_MAPTOOL=n', '-DXSL_PROCESSING=n', '-DSAMPLE_MAP=n'
+                arguments '-D__LP64__=1', '-DUSE_PLUGINS=n', '-DBUILD_MAPTOOL=n', '-DXSL_PROCESSING=n', '-DSAMPLE_MAP=n'
             }
         }
     }
