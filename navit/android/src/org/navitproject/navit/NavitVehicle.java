@@ -38,8 +38,8 @@ public class NavitVehicle {
     private static LocationManager sLocationManager = null;
     private static NavitLocationListener preciseLocationListener = null;
     private static NavitLocationListener fastLocationListener = null;
-    private int mVehiclePcbid;
-    private int mVehicleFcbid;
+    private long mVehiclePcbid;
+    private long mVehicleFcbid;
     private String mFastProvider;
 
     /**
@@ -52,7 +52,7 @@ public class NavitVehicle {
      * @param fcbid The address of the fix callback function which will be called when a {@code
      *        android.location.GPS_FIX_CHANGE} is received, indicating a change in GPS fix status
      */
-    NavitVehicle(Context navit, int pcbid, int scbid, int fcbid) {
+    NavitVehicle(Context navit, long pcbid, long scbid, long fcbid) {
         if (ContextCompat.checkSelfPermission(navit, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted
@@ -124,9 +124,9 @@ public class NavitVehicle {
         }
     }
 
-    public native void vehicleCallback(int id, Location location);
+    public native void vehicleCallback(long id, Location location);
 
-    public native void vehicleCallback(int id, int enabled);
+    public native void vehicleCallback(long id, int enabled);
 
     private class NavitLocationListener extends BroadcastReceiver implements LocationListener {
 
