@@ -94,11 +94,11 @@ public class Navit extends Activity {
     }
 
     // callback id gets set here when called from NavitGraphics
-    public void setKeypressCallback(int kpCbId, NavitGraphics ng) {
+    public void setKeypressCallback(long kpCbId, NavitGraphics ng) {
         mNavitGraphics = ng;
     }
 
-    public void setMotionCallback(int moCbId, NavitGraphics navitGraphics) {
+    public void setMotionCallback(long moCbId, NavitGraphics navitGraphics) {
         this.mNavitGraphics = navitGraphics;
     }
 
@@ -352,8 +352,9 @@ public class Navit extends Activity {
         Log.e(TAG,"package = " + getApplicationContext().getPackageName());
 
 
-        map_filename_path = prefs.getString("filenamePath", navitfiles[0].toString() + "/");
-
+        //map_filename_path = prefs.getString("filenamePath", navitfiles[0].toString() + "/");
+        map_filename_path  = prefs.getString("filenamePath", getApplicationContext().getFilesDir().getPath());
+        Log.e(TAG,"path = " + map_filename_path);
         File navitMapsDir = new File(map_filename_path);
         //map_filename_path = navitfiles[0].getParent() + "/";
 

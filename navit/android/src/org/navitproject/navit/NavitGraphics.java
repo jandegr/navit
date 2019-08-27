@@ -71,10 +71,10 @@ public class NavitGraphics {
     private NavitCamera mCamera;
     private Canvas mDrawCanvas;
     private Bitmap mDrawBitmap;
-    private int mSizeChangedCallbackID;
-    private int mButtonCallbackID;
-    private int mMotionCallbackID;
-    private int mKeypressCallbackID;
+    private long mSizeChangedCallbackID;
+    private long mButtonCallbackID;
+    private long mMotionCallbackID;
+    private long mKeypressCallbackID;
     private RelativeLayout mRelativelayout;
 
     /**
@@ -174,32 +174,32 @@ public class NavitGraphics {
         return ret;
     }
 
-    public native void sizeChangedCallback(int id, int x, int y);
+    public native void sizeChangedCallback(long id, int x, int y);
 
-    public native void keypressCallback(int id, String s);
+    public native void keypressCallback(long id, String s);
 
     public static native int callbackMessageChannel(int i, String s);
 
-    public native void buttonCallback(int id, int pressed, int button, int x, int y);
+    public native void buttonCallback(long id, int pressed, int button, int x, int y);
 
-    public native void motionCallback(int id, int x, int y);
+    public native void motionCallback(long id, int x, int y);
 
     public native String getDefaultCountry(int id, String s);
 
-    public void setSizeChangedCallback(int id) {
+    public void setSizeChangedCallback(long id) {
         mSizeChangedCallbackID = id;
     }
 
-    public void setButtonCallback(int id) {
+    public void setButtonCallback(long id) {
         mButtonCallbackID = id;
     }
 
-    void setMotionCallback(int id) {
+    void setMotionCallback(long id) {
         mMotionCallbackID = id;
         Navit.getInstance().setMotionCallback(id, this);
     }
 
-    void setKeypressCallback(int id) {
+    void setKeypressCallback(long id) {
         mKeypressCallbackID = id;
         // set callback id also in main intent (for menus)
         Navit.getInstance().setKeypressCallback(id, this);
