@@ -24,6 +24,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
@@ -282,7 +283,8 @@ public class Navit extends Activity {
         Navit.startupIntentTimestamp = System.currentTimeMillis();
         Log.e(TAG, "**1**A " + startupIntent.getAction());
         Log.e(TAG, "**1**D " + startupIntent.getDataString());
-
+        Log.i(TAG, "arch = " + System.getProperty("os.arch"));
+        Log.i(TAG, "android.os.Build.VERSION.SDK_INT = " + android.os.Build.VERSION.SDK_INT);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "ask for permission storage");
@@ -411,7 +413,6 @@ public class Navit extends Activity {
             Log.e(TAG, "Failed to extract navit.xml for " + myDisplayDensity);
         }
 
-        Log.d(TAG, "android.os.Build.VERSION.SDK_INT = " + android.os.Build.VERSION.SDK_INT);
         navitMain(this, navitLanguage, android.os.Build.VERSION.SDK_INT, myDisplayDensity,
                 navitDataDir + "/bin/navit", map_filename_path);
         showInfos();
