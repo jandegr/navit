@@ -146,7 +146,7 @@ callback_call(struct callback *cb, int pcount, void **p)
 		return;
 	if (cb->pcount + pcount <= 8) {
 		dbg(lvl_debug,"cb->pcount=%d\n", cb->pcount);
-		if (cb->pcount && cb->p) 
+		if (cb->pcount) 
 			dbg(lvl_debug,"cb->p[0]=%p\n", cb->p[0]);
 		dbg(lvl_debug,"pcount=%d\n", pcount);
 		if (pcount) {
