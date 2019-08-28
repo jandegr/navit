@@ -887,6 +887,7 @@ public class Navit extends Activity {
     private void exit() {
         Log.w("Navit", "exit--");
         NavitVehicle.removeListener(this);
+        super.onDestroy();
         navitDestroy();
     }
 
