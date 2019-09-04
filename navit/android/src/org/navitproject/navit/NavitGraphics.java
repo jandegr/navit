@@ -35,6 +35,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.RequiresApi;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -825,104 +826,116 @@ class NavitGraphics {
         mPaddingBottom = 0;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            /*
-             * On API 23+ we can query window insets to determine the area which is obscured by the system bars.
-             * This appears to have a bug, though, causing an inset to be reported for the navigation bar even
-             * when it is not obstructing the window. Therefore, we are relying on the values previously obtained
-             * by NavitView#onApplyWindowInsets(), though this is affected by a different bug. Luckily, the two
-             * bugs appear to be complementary, allowing us to mix and match results.
-             */
-            if (mView == null) {
-                Log.w(TAG, "view is null, cannot update padding");
-            } else {
-                Log.d(TAG, String.format("view w=%d h=%d x=%.0f y=%.0f",
-                        mView.getWidth(), mView.getHeight(), mView.getX(), mView.getY()));
-                if (mView.getRootWindowInsets() == null) {
-                    Log.w(TAG, "No root window insets, cannot update padding");
-                } else {
-                    Log.d(TAG, String.format("RootWindowInsets left=%d right=%d top=%d bottom=%d",
-                            mView.getRootWindowInsets().getSystemWindowInsetLeft(),
-                            mView.getRootWindowInsets().getSystemWindowInsetRight(),
-                            mView.getRootWindowInsets().getSystemWindowInsetTop(),
-                            mView.getRootWindowInsets().getSystemWindowInsetBottom()));
-                    mPaddingTop = mView.getRootWindowInsets().getSystemWindowInsetTop();
-                }
-            }
+            resizePaddingM();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            /*
-             * API 20-22 do not support root window insets, forcing us to make an educated guess about the
-             * navigation bar height:
-             *
-             * The size is a platform default and does not change with rotation, but we have to figure out if it
-             * applies, i.e. if the status bar is visible.
-             *
-             * The status bar is always visible unless we are in fullscreen mode. (Fortunately, none of the
-             * versions affected by this support split screen mode, which would have further complicated things.)
-             */
-            if (mActivity.mIsFullscreen) {
-                mPaddingTop = 0;
-            } else {
-                Resources resources = mView.getResources();
-                int shid = resources.getIdentifier("status_bar_height", "dimen", "android");
-                mPaddingTop = (shid > 0) ? resources.getDimensionPixelSize(shid) : 0;
-            }
+            resizePaddingKitkatWatch();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            /*
-             * API 19 does not support window insets at all, forcing us to do even more guessing than on API 20-22:
-             *
-             * All system bar sizes are platform defaults and do not change with rotation, but we have
-             * to figure out which ones apply.
-             *
-             * Status bar visibility is as on API 20-22.
-             *
-             * The navigation bar is shown on devices that report they have no physical menu button. This seems to
-             * work even on devices that allow disabling the physical buttons (and use the navigation bar, in which
-             * case they report no physical menu button is available; tested with a OnePlus One running CyanogenMod)
-             *
-             * If shown, the navigation bar may appear on the side or at the bottom. The logic to determine this is
-             * taken from AOSP RenderSessionImpl.findNavigationBar()
-             * platform/frameworks/base/tools/layoutlib/bridge/src/com/android/
-             * layoutlib/bridge/impl/RenderSessionImpl.java
-             */
+            resizePaddingKitkat();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void resizePaddingKitkat() {
+        /*
+         * API 19 does not support window insets at all, forcing us to do even more guessing than on API 20-22:
+         *
+         * All system bar sizes are platform defaults and do not change with rotation, but we have
+         * to figure out which ones apply.
+         *
+         * Status bar visibility is as on API 20-22.
+         *
+         * The navigation bar is shown on devices that report they have no physical menu button. This seems to
+         * work even on devices that allow disabling the physical buttons (and use the navigation bar, in which
+         * case they report no physical menu button is available; tested with a OnePlus One running CyanogenMod)
+         *
+         * If shown, the navigation bar may appear on the side or at the bottom. The logic to determine this is
+         * taken from AOSP RenderSessionImpl.findNavigationBar()
+         * platform/frameworks/base/tools/layoutlib/bridge/src/com/android/
+         * layoutlib/bridge/impl/RenderSessionImpl.java
+         */
+        Resources resources = mView.getResources();
+        int shid = resources.getIdentifier("statusBarHeight", "dimen", "android");
+        int adhid = resources.getIdentifier("actionBarDefaultHeight", "dimen", "android");
+        int nhid = resources.getIdentifier("navigationBarHeight", "dimen", "android");
+        int nhlid = resources.getIdentifier("navigationBarHeightLandscape", "dimen", "android");
+        int nwid = resources.getIdentifier("navigationBarWidth", "dimen", "android");
+        int statusBarHeight = (shid > 0) ? resources.getDimensionPixelSize(shid) : 0;
+        int actionBarDefaultHeight = (adhid > 0) ? resources.getDimensionPixelSize(adhid) : 0;
+        int navigationBarHeight = (nhid > 0) ? resources.getDimensionPixelSize(nhid) : 0;
+        int navigationBarHeightLandscape = (nhlid > 0) ? resources.getDimensionPixelSize(nhlid) : 0;
+        int navigationBarWidth = (nwid > 0) ? resources.getDimensionPixelSize(nwid) : 0;
+        Log.d(TAG, String.format(
+                "statusBarHeight=%d, actionBarDefaultHeight=%d, navigationBarHeight=%d, "
+                        + "navigationBarHeightLandscape=%d, navigationBarWidth=%d",
+                        statusBarHeight, actionBarDefaultHeight, navigationBarHeight,
+                        navigationBarHeightLandscape, navigationBarWidth));
+
+        if (mActivity == null) {
+            Log.w(TAG, "Main Activity is not a Navit instance, cannot update padding");
+        } else if (mFrameLayout != null) {
+            /* mFrameLayout is only created on platforms supporting navigation and status bar tinting */
+
+            Navit navit = mActivity;
+            boolean isStatusShowing = !navit.mIsFullscreen;
+            boolean isNavShowing = !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(navit));
+            Log.d(TAG, String.format("isStatusShowing=%b isNavShowing=%b", isStatusShowing, isNavShowing));
+
+            boolean isLandscape = (navit.getResources().getConfiguration().orientation
+                    == Configuration.ORIENTATION_LANDSCAPE);
+            boolean isNavAtBottom = (!isLandscape)
+                    || (navit.getResources().getConfiguration().smallestScreenWidthDp >= 600);
+            Log.d(TAG, String.format("isNavAtBottom=%b (Config.smallestScreenWidthDp=%d, isLandscape=%b)",
+                    isNavAtBottom, navit.getResources().getConfiguration().smallestScreenWidthDp, isLandscape));
+
+            mPaddingLeft = 0;
+            mPaddingTop = isStatusShowing ? statusBarHeight : 0;
+            mPaddingRight = (isNavShowing && !isNavAtBottom) ? navigationBarWidth : 0;
+            mPaddingBottom = (!(isNavShowing && isNavAtBottom)) ? 0 : (
+                    isLandscape ? navigationBarHeightLandscape : navigationBarHeight);
+        }
+    }
+
+    private void resizePaddingKitkatWatch() {
+        /*
+         * API 20-22 do not support root window insets, forcing us to make an educated guess about the
+         * navigation bar height:
+         *
+         * The size is a platform default and does not change with rotation, but we have to figure out if it
+         * applies, i.e. if the status bar is visible.
+         *
+         * The status bar is always visible unless we are in fullscreen mode. (Fortunately, none of the
+         * versions affected by this support split screen mode, which would have further complicated things.)
+         */
+        if (!mActivity.mIsFullscreen) {
             Resources resources = mView.getResources();
-            int shid = resources.getIdentifier("statusBarHeight", "dimen", "android");
-            int adhid = resources.getIdentifier("actionBarDefaultHeight", "dimen", "android");
-            int nhid = resources.getIdentifier("navigationBarHeight", "dimen", "android");
-            int nhlid = resources.getIdentifier("navigationBarHeightLandscape", "dimen", "android");
-            int nwid = resources.getIdentifier("navigationBarWidth", "dimen", "android");
-            int statusBarHeight = (shid > 0) ? resources.getDimensionPixelSize(shid) : 0;
-            int actionBarDefaultHeight = (adhid > 0) ? resources.getDimensionPixelSize(adhid) : 0;
-            int navigationBarHeight = (nhid > 0) ? resources.getDimensionPixelSize(nhid) : 0;
-            int navigationBarHeightLandscape = (nhlid > 0) ? resources.getDimensionPixelSize(nhlid) : 0;
-            int navigationBarWidth = (nwid > 0) ? resources.getDimensionPixelSize(nwid) : 0;
-            Log.d(TAG, String.format(
-                    "statusBarHeight=%d, actionBarDefaultHeight=%d, navigationBarHeight=%d, "
-                            + "navigationBarHeightLandscape=%d, navigationBarWidth=%d",
-                            statusBarHeight, actionBarDefaultHeight, navigationBarHeight,
-                            navigationBarHeightLandscape, navigationBarWidth));
+            int shid = resources.getIdentifier("status_bar_height", "dimen", "android");
+            mPaddingTop = (shid > 0) ? resources.getDimensionPixelSize(shid) : 0;
+        }
+    }
 
-            if (mActivity == null) {
-                Log.w(TAG, "Main Activity is not a Navit instance, cannot update padding");
-            } else if (mFrameLayout != null) {
-                /* mFrameLayout is only created on platforms supporting navigation and status bar tinting */
-
-                Navit navit = mActivity;
-                boolean isStatusShowing = !navit.mIsFullscreen;
-                boolean isNavShowing = !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(navit));
-                Log.d(TAG, String.format("isStatusShowing=%b isNavShowing=%b", isStatusShowing, isNavShowing));
-
-                boolean isLandscape = (navit.getResources().getConfiguration().orientation
-                        == Configuration.ORIENTATION_LANDSCAPE);
-                boolean isNavAtBottom = (!isLandscape)
-                        || (navit.getResources().getConfiguration().smallestScreenWidthDp >= 600);
-                Log.d(TAG, String.format("isNavAtBottom=%b (Config.smallestScreenWidthDp=%d, isLandscape=%b)",
-                        isNavAtBottom, navit.getResources().getConfiguration().smallestScreenWidthDp, isLandscape));
-
-                mPaddingLeft = 0;
-                mPaddingTop = isStatusShowing ? statusBarHeight : 0;
-                mPaddingRight = (isNavShowing && !isNavAtBottom) ? navigationBarWidth : 0;
-                mPaddingBottom = (!(isNavShowing && isNavAtBottom)) ? 0 : (
-                        isLandscape ? navigationBarHeightLandscape : navigationBarHeight);
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void resizePaddingM() {
+        /*
+         * On API 23+ we can query window insets to determine the area which is obscured by the system bars.
+         * This appears to have a bug, though, causing an inset to be reported for the navigation bar even
+         * when it is not obstructing the window. Therefore, we are relying on the values previously obtained
+         * by NavitView#onApplyWindowInsets(), though this is affected by a different bug. Luckily, the two
+         * bugs appear to be complementary, allowing us to mix and match results.
+         */
+        if (mView == null) {
+            Log.w(TAG, "view is null, cannot update padding");
+        } else {
+            Log.d(TAG, String.format("view w=%d h=%d x=%.0f y=%.0f",
+                    mView.getWidth(), mView.getHeight(), mView.getX(), mView.getY()));
+            if (mView.getRootWindowInsets() == null) {
+                Log.w(TAG, "No root window insets, cannot update padding");
+            } else {
+                Log.d(TAG, String.format("RootWindowInsets left=%d right=%d top=%d bottom=%d",
+                        mView.getRootWindowInsets().getSystemWindowInsetLeft(),
+                        mView.getRootWindowInsets().getSystemWindowInsetRight(),
+                        mView.getRootWindowInsets().getSystemWindowInsetTop(),
+                        mView.getRootWindowInsets().getSystemWindowInsetBottom()));
+                mPaddingTop = mView.getRootWindowInsets().getSystemWindowInsetTop();
             }
         }
     }

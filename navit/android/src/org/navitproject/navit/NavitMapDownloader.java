@@ -1,4 +1,4 @@
-/**
+/*
  * Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
@@ -37,7 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-/**
+/*
  * @author rikky
  *
  */
