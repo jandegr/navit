@@ -937,7 +937,7 @@ public class NavitMapDownloader extends Thread {
             if (location.getLatitude() < Double.valueOf(this.mLat1)) {
                 return false;
             }
-            return !(location.getLatitude() > Double.valueOf(this.mLat2) );
+            return !(location.getLatitude() > Double.valueOf(this.mLat2));
         }
     }
 }

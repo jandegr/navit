@@ -1,4 +1,4 @@
-/**
+/*
  * Navit, a modular navigation system.
  * Copyright (C) 2005-2008 Navit Team
  *
@@ -42,7 +42,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -278,7 +277,7 @@ public class NavitAddressSearchActivity extends Activity {
 
     //start a search on the map
     void receiveAddress(int type, float latitude, float longitude, String address) {
-        Log.e(TAG, "(" + latitude + ", " + longitude + ") " + address);
+        Log.d(TAG, "(" + latitude + ", " + longitude + ") " + address);
 
         switch (type) {
             case 0:
@@ -290,7 +289,8 @@ public class NavitAddressSearchActivity extends Activity {
             case 2:
                 mSearchResultsStreetsHn++;
                 break;
-
+            default:
+                Log.e(TAG,"Unexpected value: " + type);
         }
         mSearchResultsWait.setMessage(Navit.getInstance().getTstring(R.string.address_search_towns) + ":"
                 + mSearchResultsTowns + " "
