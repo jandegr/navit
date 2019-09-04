@@ -250,13 +250,11 @@ class NavitGraphics {
             Log.d(TAG, "onSizeChanged density=" + Navit.metrics.density);
             Log.d(TAG, "onSizeChanged scaledDensity=" + Navit.metrics.scaledDensity);
             super.onSizeChanged(w, h, oldw, oldh);
-
             handleResize(w, h);
         }
 
         void do_longpress_action() {
             Log.d(TAG, "do_longpress_action enter");
-
             mActivity.openContextMenu(this);
         }
 

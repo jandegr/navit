@@ -1,4 +1,4 @@
-/**
+/*
  * Navit, a modular navigation system.
  * Copyright (C) 2005-2008 Navit Team
  *
@@ -73,11 +73,17 @@ public class NavitVehicle {
             vehicleCallback(mVehicleFcbid, 1);
         }
 
-        public void onProviderDisabled(String provider) {}
+        public void onProviderDisabled(String provider) {
+            //unhandled
+        }
 
-        public void onProviderEnabled(String provider) {}
+        public void onProviderEnabled(String provider) {
+            //unhandled
+        }
 
-        public void onStatusChanged(String provider, int status, Bundle extras) {}
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            //unhandled
+        }
 
         /**
          * Called when the status of the GPS changes.
