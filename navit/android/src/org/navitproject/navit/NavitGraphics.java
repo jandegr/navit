@@ -1,4 +1,4 @@
-/**
+/*
  * Navit, a modular navigation system.
  * Copyright (C) 2005-2008 Navit Team
  *
@@ -209,14 +209,12 @@ class NavitGraphics {
 
         @Override
         public boolean onMenuItemClick(MenuItem item) {
-            switch (item.getItemId()) {
-                case 1:
-                    Message msg = Message.obtain(mCallbackHandler, MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
-                            (int)mPressedPosition.x, (int)mPressedPosition.y);
-                    msg.sendToTarget();
-                    break;
+            if (item.getItemId() == 1) {
+                Message msg = Message.obtain(mCallbackHandler, MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
+                        (int) mPressedPosition.x, (int) mPressedPosition.y);
+                msg.sendToTarget();
             }
-            return false;
+            return true;
         }
 
 
@@ -477,7 +475,7 @@ class NavitGraphics {
                 keypressCallback(mKeypressCallbackID, keyStr);
                 return true;
             }
-           return false;
+            return false;
         }
 
         @Override
@@ -657,6 +655,7 @@ class NavitGraphics {
 
     private static final MsgType[] msg_values = MsgType.values();
 
+
     final Handler mCallbackHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg_values[msg.what]) {
@@ -703,6 +702,9 @@ class NavitGraphics {
                 case CLB_UNLOAD_MAP:
                     callbackMessageChannel(7, msg.getData().getString(("title")));
                     break;
+                case CLB_REDRAW:
+                default:
+                    Log.e(TAG, "Unhandled callback : " + msg_values[msg.what]);
             }
         }
     };

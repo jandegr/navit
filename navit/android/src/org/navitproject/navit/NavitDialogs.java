@@ -158,9 +158,9 @@ public class NavitDialogs extends Handler {
                                                 .getTstring(R.string.please_insert_an_sd_card),
                                                 Toast.LENGTH_LONG).show();
                                     }
-                                    if (which == 0) {/* Backup */
+                                    if (which == 0) { /* Backup */
                                         new NavitBackupTask(mActivity).execute();
-                                    } else if (which == 1) {/* Restore */
+                                    } else if (which == 1) { /* Restore */
                                         mActivity.showDialog(DIALOG_SELECT_BACKUP);
                                     }
                                 }
