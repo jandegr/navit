@@ -373,31 +373,7 @@ public class Navit extends Activity {
             createNotificationChannel();
         }
         navit = this;
-        nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);  // Grab a handle to the NotificationManager
-        PendingIntent appIntent = PendingIntent.getActivity(getApplicationContext(), 0, getIntent(), 0);
-
-        Notification navitNotification;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder builder;
-            builder = new Notification.Builder(getApplicationContext(), CHANNEL_ID);
-            builder.setContentIntent(appIntent);
-            builder.setAutoCancel(false).setOngoing(true);
-            builder.setContentTitle(getTstring(R.string.app_name));
-            builder.setContentText(getTstring(R.string.notification_event_default));
-            builder.setSmallIcon(R.drawable.ic_notify);
-            navitNotification = builder.build();
-        } else {
-            NotificationCompat.Builder builder;
-            builder = new NotificationCompat.Builder(getApplicationContext());
-            builder.setContentIntent(appIntent);
-            builder.setAutoCancel(false).setOngoing(true);
-            builder.setContentTitle(getTstring(R.string.app_name));
-            builder.setContentText(getTstring(R.string.notification_event_default));
-            builder.setSmallIcon(R.drawable.ic_notify);
-            navitNotification = builder.build();
-        }
-        nm.notify(R.string.app_name, navitNotification);// Show the notification
-
+        buildNotification();
         verifyPermissions();
         // get the local language -------------
         Locale locale = java.util.Locale.getDefault();
@@ -421,7 +397,7 @@ public class Navit extends Activity {
         SharedPreferences prefs = getSharedPreferences(NAVIT_PREFS,MODE_PRIVATE);
         NAVIT_DATA_DIR = getApplicationContext().getFilesDir().getPath();
         mapFilenamePath = prefs.getString("filenamePath", NAVIT_DATA_DIR + '/');
-        Log.i(TAG,"NAVITDATADIR = " + NAVIT_DATA_DIR );
+        Log.i(TAG,"NAVITDATADIR = " + NAVIT_DATA_DIR);
         Log.i(TAG,"mapFilenamePath = " + mapFilenamePath);
         // make sure the new path for the navitmap.bin file(s) exist!!
         File navitMapsDir = new File(mapFilenamePath);
@@ -493,6 +469,33 @@ public class Navit extends Activity {
         showInfos();
 
         Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    }
+
+    private void buildNotification() {
+        nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);  // Grab a handle to the NotificationManager
+        PendingIntent appIntent = PendingIntent.getActivity(getApplicationContext(), 0, getIntent(), 0);
+
+        Notification navitNotification;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder builder;
+            builder = new Notification.Builder(getApplicationContext(), CHANNEL_ID);
+            builder.setContentIntent(appIntent);
+            builder.setAutoCancel(false).setOngoing(true);
+            builder.setContentTitle(getTstring(R.string.app_name));
+            builder.setContentText(getTstring(R.string.notification_event_default));
+            builder.setSmallIcon(R.drawable.ic_notify);
+            navitNotification = builder.build();
+        } else {
+            NotificationCompat.Builder builder;
+            builder = new NotificationCompat.Builder(getApplicationContext());
+            builder.setContentIntent(appIntent);
+            builder.setAutoCancel(false).setOngoing(true);
+            builder.setContentTitle(getTstring(R.string.app_name));
+            builder.setContentText(getTstring(R.string.notification_event_default));
+            builder.setSmallIcon(R.drawable.ic_notify);
+            navitNotification = builder.build();
+        }
+        nm.notify(R.string.app_name, navitNotification);// Show the notification
     }
 
     @Override
@@ -816,12 +819,12 @@ public class Navit extends Activity {
         Toast.makeText(getApplicationContext(),getTstring(R.string.address_search_set_destination) + "\n"
                 + address, Toast.LENGTH_LONG).show(); //TRANS
 
-        Message msg = Message.obtain(mNavitGraphics.mCallbackHandler,
-                NavitGraphics.MsgType.CLB_SET_DESTINATION.ordinal());
         Bundle b = new Bundle();
         b.putFloat("lat", latitude);
         b.putFloat("lon", longitude);
         b.putString("q", address);
+        Message msg = Message.obtain(mNavitGraphics.mCallbackHandler,
+                NavitGraphics.MsgType.CLB_SET_DESTINATION.ordinal());
         msg.setData(b);
         msg.sendToTarget();
     }

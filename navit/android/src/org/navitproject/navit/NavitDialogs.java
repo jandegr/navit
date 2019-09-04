@@ -41,13 +41,13 @@ public class NavitDialogs extends Handler {
 
     static void sendDialogMessage(int what, String title, String text, int dialogNum,
             int value1, int value2) {
-        Message msg = mHandler.obtainMessage(what);
         Bundle data = new Bundle();
         data.putString("title", title);
         data.putString("text", text);
         data.putInt("value1", value1);
         data.putInt("value2", value2);
         data.putInt("dialog_num", dialogNum);
+        Message msg = mHandler.obtainMessage(what);
         msg.setData(data);
 
         mHandler.sendMessage(msg);

@@ -828,12 +828,12 @@ public class NavitMapDownloader extends Thread {
         try {
             ObjectInputStream infoStream = new ObjectInputStream(
                     new FileInputStream(getMapInfoFile()));
-            String resumeProto = infoStream.readUTF();
             infoStream.readUTF(); // read the host name (unused for now)
             String resumeFile = infoStream.readUTF();
             infoStream.close();
             // looks like the same file, try to resume
             Log.v(TAG, "Try to resume download");
+            String resumeProto = infoStream.readUTF();
             url = new URL(resumeProto + "://" + "maps.navit-project.org" + resumeFile);
         } catch (Exception e) {
             getMapInfoFile().delete();
