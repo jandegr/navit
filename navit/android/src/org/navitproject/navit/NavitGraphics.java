@@ -329,8 +329,9 @@ class NavitGraphics {
                             buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                         }
                         buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-
                         break;
+                    default:
+                        Log.e(TAG, "Unexpected touchmode: " + mTouchMode);
                 }
                 mTouchMode = NONE;
             } else if (switchValue == MotionEvent.ACTION_MOVE) {
@@ -359,6 +360,8 @@ class NavitGraphics {
                             mTouchMode = DRAG;
                         }
                         break;
+                    default:
+                        Log.e(TAG, "Unexpected touchmode: " + mTouchMode);
                 }
             } else if (switchValue == actionPointerDown) {
                 mOldDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
@@ -468,6 +471,8 @@ class NavitGraphics {
                     case KeyEvent.KEYCODE_DPAD_UP:
                         keyStr = String.valueOf((char) 16);
                         break;
+                    default:
+                        Log.e(TAG, "Unexpected keycode: " + keyCode);
                 }
             } else if (i == 10) {
                 keyStr = java.lang.String.valueOf((char) 13);
@@ -519,6 +524,8 @@ class NavitGraphics {
                             return false;
                         }
                         break;
+                    default:
+                        Log.e(TAG, "Unexpected keycode: " + keyCode);
                 }
             } else if (i != 10) {
                 s = java.lang.String.valueOf((char) i);
