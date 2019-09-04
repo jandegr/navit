@@ -186,12 +186,10 @@ public class FileBrowserActivity extends Activity {
             i++;
         }
         if (mPathDirsList.size() == 0) {
-            this.findViewById(R.id.upDirectoryButton)
-            .setEnabled(false);
+            this.findViewById(R.id.upDirectoryButton).setEnabled(false);
             curDirString = "/";
         } else {
-            this.findViewById(R.id.upDirectoryButton)
-            .setEnabled(true);
+            this.findViewById(R.id.upDirectoryButton).setEnabled(true);
         }
         long freeSpace = getFreeSpace(curDirString);
         String formattedSpaceString = formatBytes(freeSpace);
@@ -269,7 +267,7 @@ public class FileBrowserActivity extends Activity {
         try {
             mPath.mkdirs();
         } catch (SecurityException e) {
-            Log.e(TAG, "unable to write on the sd card ");
+            Log.i(TAG, "unable to write on the sd card ");
         }
         mFileList.clear();
 
@@ -398,9 +396,7 @@ public class FileBrowserActivity extends Activity {
 
     private static long getFreeSpace(String path) {
         StatFs stat = new StatFs(path);
-        long availSize = (long) stat.getAvailableBlocks()
-                         * (long) stat.getBlockSize();
-        return availSize;
+        return (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
     } // END public static long getFreeSpace(String path) {
 
     private static String formatBytes(long bytes) {

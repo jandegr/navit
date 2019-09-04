@@ -912,8 +912,9 @@ public class Navit extends Activity {
         Log.d(TAG, "OnDestroy");
     }
 
-    public void fullscreen(int fullscreen) {
-        int w, h;
+    void fullscreen(int fullscreen) {
+        int width;
+        int height;
 
         mIsFullscreen = (fullscreen != 0);
         if (mIsFullscreen) {
@@ -926,16 +927,16 @@ public class Navit extends Activity {
 
         Display display = getWindowManager().getDefaultDisplay();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            w = display.getWidth();
-            h = display.getHeight();
+            width = display.getWidth();
+            height = display.getHeight();
         } else {
             Point size = new Point();
             display.getRealSize(size);
-            w = size.x;
-            h = size.y;
+            width = size.x;
+            height = size.y;
         }
-        Log.d(TAG, String.format("Toggle fullscreen, w=%d, h=%d", w, h));
-        mNavitGraphics.handleResize(w, h);
+        Log.d(TAG, String.format("Toggle fullscreen, w=%d, h=%d", width, height));
+        mNavitGraphics.handleResize(width, height);
     }
 
     public void disableSuspend() {
@@ -949,7 +950,7 @@ public class Navit extends Activity {
         navitDestroy();
     }
 
-    public native void navitMain(Navit x, Application application, String lang, int version,
+    private native void navitMain(Navit x, Application application, String lang, int version,
             String displayDensityString, String path, String path2, boolean isLaunch);
 
     public native void navitDestroy();

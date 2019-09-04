@@ -47,7 +47,7 @@ public class NavitMapDownloader extends Thread {
     // define the maps here
     // size estimations updated 2017-06-22
     //
-    public static final OsmMapValues[] osm_maps = {
+    static final OsmMapValues[] osm_maps = {
         new OsmMapValues(Navit.getInstance().getTstring(R.string.whole_planet), "-180", "-90", "180", "90",
                 23992258630L, 0),
         new OsmMapValues(Navit.getInstance().getTstring(R.string.africa), "-30.89", "-36.17", "61.68",
@@ -503,7 +503,7 @@ public class NavitMapDownloader extends Thread {
         this.mMapFilenamePath = Navit.mapFilenamePath;
     }
 
-    public static NavitMap[] getAvailableMaps() {
+    static NavitMap[] getAvailableMaps() {
         class FilterMaps implements FilenameFilter {
 
             public boolean accept(File dir, String filename) {
@@ -558,7 +558,7 @@ public class NavitMapDownloader extends Thread {
         }
     }
 
-    public void stop_thread() {
+    void stop_thread() {
         mStopMe = true;
         Log.d(TAG, "mStopMe -> true");
     }
@@ -903,7 +903,7 @@ public class NavitMapDownloader extends Thread {
         mRetryCounter++;
     }
 
-    public static class OsmMapValues {
+    static class OsmMapValues {
 
         final String mLon1;
         final String mLat1;
@@ -914,10 +914,10 @@ public class NavitMapDownloader extends Thread {
         final int mLevel;
 
 
-        private OsmMapValues(String mapname, String lon1, String lat1, String lon2,
+        private OsmMapValues(String mapName, String lon1, String lat1, String lon2,
                              String lat2,
                              long bytesEst, int level) {
-            this.mMapName = mapname;
+            this.mMapName = mapName;
             this.mLon1 = lon1;
             this.mLat1 = lat1;
             this.mLon2 = lon2;
@@ -926,26 +926,18 @@ public class NavitMapDownloader extends Thread {
             this.mLevel = level;
         }
 
-        public boolean isInMap(Location location) {
-            double longitude1 = Double.valueOf(this.mLon1);
-            double latitude1 = Double.valueOf(this.mLat1);
-            double longitude2 = Double.valueOf(this.mLon2);
-            double latitude2 = Double.valueOf(this.mLat2);
+        boolean isInMap(Location location) {
 
-            if (location.getLongitude() < longitude1) {
+            if (location.getLongitude() < Double.valueOf(this.mLon1)) {
                 return false;
             }
-            if (location.getLongitude() > longitude2) {
+            if (location.getLongitude() > Double.valueOf(this.mLon2)) {
                 return false;
             }
-            if (location.getLatitude() < latitude1) {
+            if (location.getLatitude() < Double.valueOf(this.mLat1)) {
                 return false;
             }
-            if (location.getLatitude() > latitude2) {
-                return false;
-            }
-
-            return true;
+            return !(location.getLatitude() > Double.valueOf(this.mLat2) );
         }
     }
 }

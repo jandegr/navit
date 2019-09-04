@@ -1,4 +1,4 @@
-/**
+/*
  * Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
@@ -124,7 +124,8 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                         currentMapIndex++) {
                     if (NavitMapDownloader.osm_maps[currentMapIndex].isInMap(currentLocation)) {
                         HashMap<String, String> currentPositionMapChild = new HashMap<>();
-                        currentPositionMapChild.put("map_name", NavitMapDownloader.osm_maps[currentMapIndex].mMapName + " "
+                        currentPositionMapChild.put("map_name", NavitMapDownloader.osm_maps[currentMapIndex].mMapName
+                                    + " "
                                     + (NavitMapDownloader.osm_maps[currentMapIndex].mEstSizeBytes / 1024 / 1024)
                                     + "MB");
                         currentPositionMapChild.put("map_index", String.valueOf(currentMapIndex));
@@ -137,8 +138,6 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
     }
 
     private SimpleExpandableListAdapter createAdapter() {
-
-        NavitMapDownloader.OsmMapValues[] osmMaps = NavitMapDownloader.osm_maps;
 
         ArrayList<HashMap<String, String>> resultGroups = new ArrayList<>();
 
@@ -158,7 +157,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                 Navit.getInstance().getTstring(R.string.maps_for_current_location));
         resultGroups.add(matchingMaps);
         resultChilds.add(maps_current_position_childs);
-
+        NavitMapDownloader.OsmMapValues[] osmMaps = NavitMapDownloader.osm_maps;
         // add all maps
         for (int currentMapIndex = 0; currentMapIndex < osmMaps.length; currentMapIndex++) {
             if (osmMaps[currentMapIndex].mLevel == 0) {
