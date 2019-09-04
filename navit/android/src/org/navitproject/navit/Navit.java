@@ -1,4 +1,4 @@
-/**
+/*
  * Navit, a modular navigation system.
  * Copyright (C) 2005-2008 Navit Team
  *
@@ -218,11 +218,8 @@ public class Navit extends Activity {
                 Log.e(TAG, "Could not read package infos");
                 e.printStackTrace();
             }
-            if (apkUpdateTime > resultfile.lastModified()) {
-                return true;
-            }
+            return apkUpdateTime > resultfile.lastModified();
         }
-        return false;
     }
 
     /**
@@ -552,31 +549,29 @@ public class Navit extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQ_FINE_LOC: {
-                if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                AlertDialog.Builder infobox = new AlertDialog.Builder(this);
-                infobox.setTitle(getTstring(R.string.permissions_info_box_title)); // TRANS
-                infobox.setCancelable(false);
-                infobox.setMessage(getTstring(R.string.permissions_not_granted));
-                // TRANS
-                infobox.setPositiveButton(getTstring(R.string.initial_info_box_OK),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                exit();
-                            }
-                        });
-                infobox.show();
+        if (requestCode == MY_PERMISSIONS_REQ_FINE_LOC) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                return;
             }
+            AlertDialog.Builder infobox = new AlertDialog.Builder(this);
+            infobox.setTitle(getTstring(R.string.permissions_info_box_title)); // TRANS
+            infobox.setCancelable(false);
+            infobox.setMessage(getTstring(R.string.permissions_not_granted));
+            // TRANS
+            infobox.setPositiveButton(getTstring(R.string.initial_info_box_OK),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            exit();
+                        }
+                    });
+            infobox.show();
         }
     }
 
     private void parseNavigationURI(String schemeSpecificPart) {
         String[] naviData = schemeSpecificPart.split("&");
         Pattern p = Pattern.compile("(.*)=(.*)");
-        Map<String,String> params = new HashMap<String,String>();
+        Map<String,String> params = new HashMap<>();
         for (String naviDatum : naviData) {
             Matcher m = p.matcher(naviDatum);
             if (m.matches()) {
@@ -750,6 +745,8 @@ public class Navit extends Activity {
                 this.onStop();
                 this.exit();
                 break;
+            default:
+                Log.e(TAG,"unhandled OptionsItem id = " + id);
         }
     }
 

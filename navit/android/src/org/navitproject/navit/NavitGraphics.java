@@ -395,13 +395,13 @@ class NavitGraphics {
         @Override
         public boolean onKeyDown(int keyCode, KeyEvent event) {
             int i;
-            String s = null;
+            String keyStr = null;
             long intervalForLongPress = 200L;
             i = event.getUnicodeChar();
             if (i == 0) {
                 switch (keyCode) {
                     case KeyEvent.KEYCODE_DEL:
-                        s = String.valueOf((char) 8);
+                        keyStr = String.valueOf((char) 8);
                         break;
                     case KeyEvent.KEYCODE_MENU:
                         if (!mInMap) {
@@ -423,75 +423,61 @@ class NavitGraphics {
                             // if in menu view:
                             // use as OK (Enter) key
                             // dont use menu key here (use it in onKeyUp)
-                            return true;
-                        } else {
-                            // if on map view:
-                            // volume UP
-                            //s = java.lang.String.valueOf((char) 1);
-                            return true;
                         }
+                        // else if on map view:
+                        // volume UP
+                        //s = java.lang.String.valueOf((char) 1);
+                        return true;
                     case KeyEvent.KEYCODE_SEARCH:
                         /* Handle event in Main Activity if map is shown */
-                        if (mInMap) {
-                            return false;
+                        if (!mInMap) {
+                            keyStr = String.valueOf((char) 19);
                         }
-
-                        s = String.valueOf((char) 19);
                         break;
                     case KeyEvent.KEYCODE_BACK:
-                        s = String.valueOf((char) 27);
+                        keyStr = String.valueOf((char) 27);
                         break;
                     case KeyEvent.KEYCODE_CALL:
-                        s = String.valueOf((char) 3);
+                        keyStr = String.valueOf((char) 3);
                         break;
                     case KeyEvent.KEYCODE_VOLUME_UP:
                         if (!mInMap) {
                             // if in menu view:
                             // use as UP key
-                            s = String.valueOf((char) 16);
-                        } else {
-                            // if on map view:
-                            // volume UP
-                            //s = java.lang.String.valueOf((char) 21);
-                            return false;
+                            keyStr = String.valueOf((char) 16);
                         }
                         break;
                     case KeyEvent.KEYCODE_VOLUME_DOWN:
                         if (!mInMap) {
                             // if in menu view:
                             // use as DOWN key
-                            s = String.valueOf((char) 14);
-                        } else {
-                            // if on map view:
-                            // volume DOWN
-                            //s = java.lang.String.valueOf((char) 4);
-                            return false;
+                            keyStr = String.valueOf((char) 14);
                         }
                         break;
                     case KeyEvent.KEYCODE_DPAD_CENTER:
-                        s = String.valueOf((char) 13);
+                        keyStr = String.valueOf((char) 13);
                         break;
                     case KeyEvent.KEYCODE_DPAD_DOWN:
-                        s = String.valueOf((char) 14);
+                        keyStr = String.valueOf((char) 14);
                         break;
                     case KeyEvent.KEYCODE_DPAD_LEFT:
-                        s = String.valueOf((char) 2);
+                        keyStr = String.valueOf((char) 2);
                         break;
                     case KeyEvent.KEYCODE_DPAD_RIGHT:
-                        s = String.valueOf((char) 6);
+                        keyStr = String.valueOf((char) 6);
                         break;
                     case KeyEvent.KEYCODE_DPAD_UP:
-                        s = String.valueOf((char) 16);
+                        keyStr = String.valueOf((char) 16);
                         break;
                 }
             } else if (i == 10) {
-                s = java.lang.String.valueOf((char) 13);
+                keyStr = java.lang.String.valueOf((char) 13);
             }
-
-            if (s != null) {
-                keypressCallback(mKeypressCallbackID, s);
+            if (keyStr != null) {
+                keypressCallback(mKeypressCallbackID, keyStr);
+                return true;
             }
-            return true;
+           return false;
         }
 
         @Override

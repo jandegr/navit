@@ -111,6 +111,8 @@ public class NavitDialogs extends Handler {
                 mActivity.dismissDialog(msg.getData().getInt("dialog_num"));
                 mActivity.removeDialog(msg.getData().getInt("dialog_num"));
                 break;
+            default:
+                Log.e(TAG,"Unexpected value: " + msg.what);
         }
     }
 
@@ -146,7 +148,7 @@ public class NavitDialogs extends Handler {
                 builder.setTitle(mActivity.getTstring(R.string.choose_an_action))
                         .setCancelable(true)
                         .setItems(R.array.dialog_backup_restore_items,
-                            new DialogInterface.OnClickListener() {
+                            new OnClickListener() {
 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -156,16 +158,10 @@ public class NavitDialogs extends Handler {
                                                 .getTstring(R.string.please_insert_an_sd_card),
                                                 Toast.LENGTH_LONG).show();
                                     }
-
-                                    switch (which) {
-                                        case 0:
-                                            /* Backup */
-                                            new NavitBackupTask(mActivity).execute();
-                                            break;
-                                        case 1:
-                                            /* Restore */
-                                            mActivity.showDialog(DIALOG_SELECT_BACKUP);
-                                            break;
+                                    if (which == 0) {/* Backup */
+                                        new NavitBackupTask(mActivity).execute();
+                                    } else if (which == 1) {/* Restore */
+                                        mActivity.showDialog(DIALOG_SELECT_BACKUP);
                                     }
                                 }
                             });
@@ -201,6 +197,8 @@ public class NavitDialogs extends Handler {
                 builder.setNegativeButton(mActivity.getTstring(android.R.string.cancel), null);
 
                 return builder.create();
+            default:
+                Log.e(TAG,"Unexpected value: " + id);
         }
         // should never get here!!
         return null;

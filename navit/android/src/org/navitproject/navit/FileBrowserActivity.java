@@ -381,6 +381,7 @@ public class FileBrowserActivity extends Activity {
         }
     }
 
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
