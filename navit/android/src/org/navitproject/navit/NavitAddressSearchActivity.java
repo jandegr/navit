@@ -105,7 +105,8 @@ public class NavitAddressSearchActivity extends Activity {
         // without interference with android builtin choosing and scaling system. But that makes us to
         // reinvent the wheel here to show an image in android native interface.
         int[] flagIconSizes = {24,32,48,64,96};
-        int exactSize, nearestSize;
+        int exactSize;
+        int nearestSize;
         exactSize = (int)(Navit.metrics.density * 24.0 - .5);
         nearestSize = flagIconSizes[0];
         for (int size: flagIconSizes) {
@@ -275,9 +276,7 @@ public class NavitAddressSearchActivity extends Activity {
         d.show();
     }
 
-    /**
-     * start a search on the map
-     */
+    //start a search on the map
     void receiveAddress(int type, float latitude, float longitude, String address) {
         Log.e(TAG, "(" + latitude + ", " + longitude + ") " + address);
 

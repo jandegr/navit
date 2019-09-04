@@ -54,10 +54,10 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
             adapter = createAdapter();
         }
         updateDownloadedMaps();
-        updateMapsForLocation(NavitMapDownloader.osm_maps);
+        updateMapsForLocation();
         setListAdapter(adapter);
         try {
-            setTitle(String.valueOf(getFreeSpace() / 1024 / 1024) + "MB available");
+            setTitle(getFreeSpace() / 1024 / 1024 + "MB available");
         } catch (Exception e) {
             Log.e(TAG, "Exception " + e.getClass().getName()
                     + " during getFreeSpace, reporting 'no sdcard present'");
@@ -78,14 +78,14 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
     private void updateDownloadedMaps() {
         downloaded_maps_childs.clear();
         for (NavitMap map : NavitMapDownloader.getAvailableMaps()) {
-            HashMap<String, String> child = new HashMap<String, String>();
+            HashMap<String, String> child = new HashMap<>();
             child.put("map_name", map.mMapName + " " + (map.size() / 1024 / 1024) + "MB");
             child.put("map_location", map.getLocation());
             downloaded_maps_childs.add(child);
         }
     }
 
-    private void updateMapsForLocation(NavitMapDownloader.OsmMapValues[] osmMaps) {
+    private void updateMapsForLocation() {
         Location currentLocation = NavitVehicle.lastLocation;
         if (maps_current_position_childs.size() == 0 || (currentLocation != null
                     && !currentLocationKnown)) {
@@ -120,12 +120,12 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
             if (currentLocation != null) {
                 // if this map contains data to our current position, add it to
                 // the MapsOfCurrentLocation-list
-                for (int currentMapIndex = 0; currentMapIndex < osmMaps.length;
+                for (int currentMapIndex = 0; currentMapIndex < NavitMapDownloader.osm_maps.length;
                         currentMapIndex++) {
-                    if (osmMaps[currentMapIndex].isInMap(currentLocation)) {
-                        HashMap<String, String> currentPositionMapChild = new HashMap<String, String>();
-                        currentPositionMapChild.put("map_name", osmMaps[currentMapIndex].mMapName + " "
-                                    + (osmMaps[currentMapIndex].mEstSizeBytes / 1024 / 1024)
+                    if (NavitMapDownloader.osm_maps[currentMapIndex].isInMap(currentLocation)) {
+                        HashMap<String, String> currentPositionMapChild = new HashMap<>();
+                        currentPositionMapChild.put("map_name", NavitMapDownloader.osm_maps[currentMapIndex].mMapName + " "
+                                    + (NavitMapDownloader.osm_maps[currentMapIndex].mEstSizeBytes / 1024 / 1024)
                                     + "MB");
                         currentPositionMapChild.put("map_index", String.valueOf(currentMapIndex));
 
@@ -140,22 +140,20 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
         NavitMapDownloader.OsmMapValues[] osmMaps = NavitMapDownloader.osm_maps;
 
-        ArrayList<HashMap<String, String>> resultGroups = new ArrayList<HashMap<String, String>>();
-        ArrayList<ArrayList<HashMap<String, String>>> resultChilds =
-                new ArrayList<ArrayList<HashMap<String, String>>>();
+        ArrayList<HashMap<String, String>> resultGroups = new ArrayList<>();
 
         // add already downloaded maps (group and empty child list
-        HashMap<String, String> downloadedMapsHash = new HashMap<String, String>();
-        downloadedMapsHash
-            .put("category_name", Navit.getInstance().getTstring(R.string.maps_installed));
+        HashMap<String, String> downloadedMapsHash = new HashMap<>();
+        downloadedMapsHash.put("category_name", Navit.getInstance().getTstring(R.string.maps_installed));
         resultGroups.add(downloadedMapsHash);
-        downloaded_maps_childs = new ArrayList<HashMap<String, String>>();
+        downloaded_maps_childs = new ArrayList<>();
+        ArrayList<ArrayList<HashMap<String, String>>> resultChilds = new ArrayList<>();
         resultChilds.add(downloaded_maps_childs);
 
-        ArrayList<HashMap<String, String>> secList = new ArrayList<HashMap<String, String>>();
-        maps_current_position_childs = new ArrayList<HashMap<String, String>>();
+        ArrayList<HashMap<String, String>> secList = new ArrayList<>();
+        maps_current_position_childs = new ArrayList<>();
         // maps containing the current location
-        HashMap<String, String> matchingMaps = new HashMap<String, String>();
+        HashMap<String, String> matchingMaps = new HashMap<>();
         matchingMaps.put("category_name",
                 Navit.getInstance().getTstring(R.string.maps_for_current_location));
         resultGroups.add(matchingMaps);
@@ -167,13 +165,13 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                 if (secList.size() > 0) {
                     resultChilds.add(secList);
                 }
-                secList = new ArrayList<HashMap<String, String>>();
-                HashMap<String, String> mapInfoHash = new HashMap<String, String>();
+                secList = new ArrayList<>();
+                HashMap<String, String> mapInfoHash = new HashMap<>();
                 mapInfoHash.put("category_name", osmMaps[currentMapIndex].mMapName);
                 resultGroups.add(mapInfoHash);
             }
 
-            HashMap<String, String> child = new HashMap<String, String>();
+            HashMap<String, String> child = new HashMap<>();
             child.put("map_name", (osmMaps[currentMapIndex].mLevel > 1 ? MAP_BULLETPOINT : "")
                     + osmMaps[currentMapIndex].mMapName + " "
                     + (osmMaps[currentMapIndex].mEstSizeBytes / 1024 / 1024) + "MB");
@@ -226,7 +224,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
         NavitMap maptoDelete = new NavitMap(mapLocation);
         deleteMapBox.setMessage(
-                maptoDelete.mMapName + " " + String.valueOf(maptoDelete.size() / 1024 / 1024)
+                maptoDelete.mMapName + " " + maptoDelete.size() / 1024 / 1024
                 + "MB");
 
         // TRANS
