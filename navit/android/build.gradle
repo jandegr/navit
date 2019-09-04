@@ -57,7 +57,6 @@ android {
         classpath = files()
         reports {
             include ('**/*.java')
-            exclude ('**/FileBrowserActivity.java')
             xml.enabled = true
             html.enabled = true
             xml {
