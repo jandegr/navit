@@ -282,8 +282,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
                 navit_draw(attr.u.navit);
             }
             (*env)->ReleaseStringUTFChars(env, str, map_location);
-        }
             break;
+        }
         case 7: { // remove a map from the current mapset, return 1 on success
             struct mapset *ms = navit_get_mapset(attr.u.navit);
             struct attr map_r;
@@ -298,8 +298,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
                 navit_draw(attr.u.navit);
             }
             (*env)->ReleaseStringUTFChars(env, str, map_location);
-        }
             break;
+        }
         case 5:
             // call a command (like in gui)
             s = (*env)->GetStringUTFChars(env, str, NULL);
@@ -312,7 +312,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
             struct point p;
             struct coord c;
             struct pcoord pc;
-
             struct transformation *transform = navit_get_trans(attr.u.navit);
 
             s = (*env)->GetStringUTFChars(env, str, NULL);
@@ -333,8 +332,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
             dbg(lvl_debug, "11y=%d", p.y);
 
             transform_reverse(transform, &p, &c);
-
-
+            
             pc.x = c.x;
             pc.y = c.y;
             pc.pro = transform_get_projection(transform);
@@ -344,8 +342,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
 
             // start navigation asynchronous
             navit_set_destination(attr.u.navit, &pc, parse_str, 1);
-        }
             break;
+        }
         case 3: {
             // navigate to geo position
             char *name;
@@ -383,8 +381,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
 
             // start navigation asynchronous
             navit_set_destination(attr.u.navit, &pc, name, 1);
-        }
             break;
+        }
         default: dbg(lvl_error, "Unknown command: %d", channel);
     }
     return ret;
@@ -468,8 +466,8 @@ JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllC
     }
 
     search_list_destroy(search_list);
-    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count, (*env)->GetObjectClass(env, current_country),
-                    NULL);
+    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count, (*env)->GetObjectClass(env,
+            current_country), NULL);
 
     while(countries) {
         (*env)->SetObjectArrayElement(env, all_countries, --country_count, countries->data);
@@ -530,8 +528,8 @@ static char *town_str(struct search_list_result *res, int level) {
     if (!county)
         county_sep=county="";
 
-    return g_strdup_printf("%s%s%s%s%s%s%s%s", postal, postal_sep, town, district_begin, district, district_end, county_sep,
-                           county);
+    return g_strdup_printf("%s%s%s%s%s%s%s%s", postal, postal_sep, town, district_begin, district,
+            district_end, county_sep, county);
 }
 
 static void android_search_end(struct android_search_priv *search_priv) {
@@ -585,8 +583,8 @@ static void android_search_idle_result(struct android_search_priv *search_priv, 
         }
         case attr_house_number: {
             gchar *town = town_str(res, 3);
-            gchar *address = g_strdup_printf("%.101s, %.101s, %.101s %.15s", res->country->name, town, res->street->name,
-                                             res->house_number->house_number);
+            gchar *address = g_strdup_printf("%.101s, %.101s, %.101s %.15s", res->country->name, town,
+                    res->street->name, res->house_number->house_number);
             android_return_search_result(&search_priv->search_result_obj, 2, res->house_number->common.c, address);
             g_free(address);
             g_free(town);
