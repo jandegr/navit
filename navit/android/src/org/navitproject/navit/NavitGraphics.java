@@ -394,6 +394,7 @@ class NavitGraphics {
 
         @Override
         public boolean onKeyDown(int keyCode, KeyEvent event) {
+            Log.d(TAG,"onkeydown = " + keyCode);
             int i;
             String keyStr = null;
             long intervalForLongPress = 200L;
@@ -423,11 +424,9 @@ class NavitGraphics {
                             // if in menu view:
                             // use as OK (Enter) key
                             // dont use menu key here (use it in onKeyUp)
+                            return true;
                         }
-                        // else if on map view:
-                        // volume UP
-                        //s = java.lang.String.valueOf((char) 1);
-                        return true;
+                        return false;
                     case KeyEvent.KEYCODE_SEARCH:
                         /* Handle event in Main Activity if map is shown */
                         if (!mInMap) {
@@ -484,6 +483,7 @@ class NavitGraphics {
 
         @Override
         public boolean onKeyUp(int keyCode, KeyEvent event) {
+            Log.d(TAG,"onkeyUp = " + keyCode);
             int i;
             String s = null;
             i = event.getUnicodeChar();
@@ -516,9 +516,6 @@ class NavitGraphics {
                                 s = String.valueOf((char) 13);
                             }
                         } else {
-                            // if on map view:
-                            // volume UP
-                            //s = java.lang.String.valueOf((char) 1);
                             return false;
                         }
                         break;
@@ -584,7 +581,6 @@ class NavitGraphics {
                 mTouchMode = NONE;
             }
         }
-
     }
 
     private class SystemBarTintView extends View {
@@ -715,21 +711,22 @@ class NavitGraphics {
         }
     };
 
-    native void sizeChangedCallback(long id, int x, int y);
 
-    native void paddingChangedCallback(long id, int left, int right, int top, int bottom);
+    private native void sizeChangedCallback(long id, int x, int y);
 
-    native void keypressCallback(long id, String s);
+    private native void paddingChangedCallback(long id, int left, int right, int top, int bottom);
 
-    native int callbackMessageChannel(int i, String s);
+    private native void keypressCallback(long id, String s);
 
-    native void buttonCallback(long id, int pressed, int button, int x, int y);
+    private native int callbackMessageChannel(int i, String s);
 
-    native void motionCallback(long id, int x, int y);
+    private native void buttonCallback(long id, int pressed, int button, int x, int y);
 
-    native String getDefaultCountry(int id, String s);
+    private native void motionCallback(long id, int x, int y);
 
-    static native String[][] getAllCountries();
+ //   native String getDefaultCountry(int id, String s);
+
+    static native String[][] getAllCountries(); // kan verplaatst worden naar zoekact. ????????
 
     private Canvas mDrawCanvas;
     private Bitmap mDrawBitmap;
@@ -946,7 +943,7 @@ class NavitGraphics {
     }
 
     /**
-     * @brief Returns whether the device has a hardware menu button.
+     * Returns whether the device has a hardware menu button.
      *
      * Only Android versions starting with ICS (API version 14) support the API call to detect the presence of a
      * Menu button. On earlier Android versions, the following assumptions will be made: On API levels up to 10,
@@ -958,7 +955,7 @@ class NavitGraphics {
      * example, CyanogenMod has an option to add a menu button to the navigation bar. Even with that option,
      * this method will still return `false`.
      */
-    public boolean hasMenuButton() {
+    boolean hasMenuButton() {
         if (Build.VERSION.SDK_INT <= 10) {
             return true;
         } else {
