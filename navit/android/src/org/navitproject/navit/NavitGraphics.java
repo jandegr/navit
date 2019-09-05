@@ -945,15 +945,15 @@ class NavitGraphics {
     /**
      * Returns whether the device has a hardware menu button.
      *
-     * Only Android versions starting with ICS (API version 14) support the API call to detect the presence of a
+     * <p>Only Android versions starting with ICS (API version 14) support the API call to detect the presence of a
      * Menu button. On earlier Android versions, the following assumptions will be made: On API levels up to 10,
      * this method will always return {@code true}, as these Android versions relied on devices having a physical
      * Menu button. On API levels 11 through 13 (Honeycomb releases), this method will always return
-     * {@code false}, as Honeycomb was a tablet-only release and did not require devices to have a Menu button.
+     * {@code false}, as Honeycomb was a tablet-only release and did not require devices to have a Menu button.</p>
      *
-     * Note that this method is not aware of non-standard mechanisms on some customized builds of Android. For
+     * <p>Note that this method is not aware of non-standard mechanisms on some customized builds of Android. For
      * example, CyanogenMod has an option to add a menu button to the navigation bar. Even with that option,
-     * this method will still return `false`.
+     * this method will still return `false`.</p>
      */
     boolean hasMenuButton() {
         if (Build.VERSION.SDK_INT <= 10) {
