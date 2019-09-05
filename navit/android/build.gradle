@@ -74,7 +74,6 @@ android {
     applicationVariants.all { variant ->
         // create tasks to generate Javadocs
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
-            source = sourceSets.main.allJava
             classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
             destinationDir = file("build/outputs/docs/javadoc/")
             title = rootProject.name
