@@ -136,7 +136,7 @@ public class Navit extends Activity {
         }
     }
 
-    public void removeFileIfExists(String source) {
+    private void removeFileIfExists(String source) {
         File file = new File(source);
 
         if (!file.exists()) {
@@ -146,7 +146,7 @@ public class Navit extends Activity {
         file.delete();
     }
 
-    public void copyFileIfExists(String source, String destination) throws IOException {
+    private void copyFileIfExists(String source, String destination) throws IOException {
         File file = new File(source);
 
         if (!file.exists()) {

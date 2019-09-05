@@ -523,7 +523,10 @@ public class NavitMapDownloader extends Thread {
         }
         return maps;
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
     public void run() {
         mStopMe = false;
         mRetryCounter = 0;
