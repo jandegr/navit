@@ -111,19 +111,19 @@ class NavitGraphics {
     }
 
     /**
-     * @brief Adds a camera.
+     * Adds a camera.
      *
-     * This method does not create the view for the camera. This must be done separately by calling
-     * {@link #addCameraView()}.
+     * <p>This method does not create the view for the camera. This must be done separately by calling
+     * {@link #addCameraView()}.</p>
      */
     private void addCamera() {
         mCamera = new NavitCamera(mActivity);
     }
 
     /**
-     * @brief Adds a view for the camera.
+     * Adds a view for the camera.
      *
-     * If {@link #mCamera} is null, this method is a no-op.
+     * <p>If {@link #mCamera} is null, this method is a no-op.</p>
      */
     private void addCameraView() {
         if (mCamera != null) {
@@ -613,8 +613,8 @@ class NavitGraphics {
     }
 
     /**
-     * @brief Sets up the main view.
-     *@param activity The main activity.
+     * Sets up the main view.
+     * @param activity The main activity.
      */
     void setmActivity(final Activity activity) {
         if (Navit.graphics == null) {
@@ -737,12 +737,12 @@ class NavitGraphics {
     private long mKeypressCallbackID;
 
     /**
-     * @brief Adjust views used to tint navigation and status bars.
+     * Adjust views used to tint navigation and status bars.
      *
-     * This method is called from handleResize.
+     * <p>This method is called from handleResize.
      *
      * It (re-)evaluates if and where the navigation bar is going to be shown, and calculates the
-     * padding for objects which should not be obstructed.
+     * padding for objects which should not be obstructed.</p>
      *
      */
     private void adjustSystemBarsTintingViews() {
@@ -792,10 +792,10 @@ class NavitGraphics {
     }
 
     /**
-     * @brief Handles resize events.
+     * Handles resize events.
      *
-     * This method is called whenever the main View is resized in any way. This is the case when its
-     * {@code onSizeChanged()} event handler fires or when toggling Fullscreen mode.
+     * <p>This method is called whenever the main View is resized in any way. This is the case when its
+     * {@code onSizeChanged()} event handler fires or when toggling Fullscreen mode.</p>
      *
      */
     @TargetApi(23)
@@ -1088,7 +1088,7 @@ class NavitGraphics {
         mDrawCanvas.drawBitmap(bitmap, x, y, null);
     }
 
-    /* takes an image and draws it on the screen as a prerendered maptile
+    /* takes an image and draws it on the screen as a prerendered maptile.
      *
      *
      *
