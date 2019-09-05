@@ -34,8 +34,8 @@ import java.util.List;
 /**
  * The TraFF receiver implementation.
  *
- * <p>This class registers the broadcast receiver for TraFF feeds, polls all registered sources once on creation, receives
- * TraFF feeds and forwards them to the traffic module for processing.</p>
+ * <p>This class registers the broadcast receiver for TraFF feeds, polls all registered sources once on creation,
+ * receives TraFF feeds and forwards them to the traffic module for processing.</p>
  */
 public class NavitTraff extends BroadcastReceiver {
 
