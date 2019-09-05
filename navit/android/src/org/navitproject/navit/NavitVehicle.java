@@ -122,7 +122,7 @@ public class NavitVehicle {
     }
 
     /**
-     * @brief Creates a new {@code NavitVehicle}
+     * Creates a new {@code NavitVehicle}.
      *
      * @param context the context
      * @param pcbid The address of the position callback function called when a location update is received
