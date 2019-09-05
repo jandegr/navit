@@ -724,7 +724,7 @@ class NavitGraphics {
 
     private native void motionCallback(long id, int x, int y);
 
- //   native String getDefaultCountry(int id, String s);
+    //native String getDefaultCountry(int id, String s);
 
     static native String[][] getAllCountries(); // kan verplaatst worden naar zoekact. ????????
 
