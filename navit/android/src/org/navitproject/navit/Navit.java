@@ -105,10 +105,10 @@ public class Navit extends Activity {
 
 
     /**
-     * @brief A Runnable to restore soft input when the user returns to the activity.
+     * A Runnable to restore soft input when the user returns to the activity.
      *
-     * An instance of this class can be passed to the main message queue in the Activity's
-     * {@code onRestore()} method.
+     * <p>An instance of this class can be passed to the main message queue in the Activity's
+     * {@code onRestore()} method.</p>
      */
     private class SoftInputRestorer implements Runnable {
         public void run() {
@@ -754,8 +754,8 @@ public class Navit extends Activity {
     /**
      * Shows the Options menu.
      *
-     * Calling this method has the same effect as pressing the hardware Menu button, where present, or touching
-     * the overflow button in the Action bar.
+     * <p>Calling this method has the same effect as pressing the hardware Menu button, where present, or touching
+     * the overflow button in the Action bar.</p>
      */
     public void showMenu() {
         openOptionsMenu();
