@@ -383,7 +383,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         navit_set_destination(attr.u.navit, &pc, name, 1);
         break;
     }
-        default: dbg(lvl_error, "Unknown command: %d", channel);
+    default:
+        dbg(lvl_error, "Unknown command: %d", channel);
     }
     return ret;
 }
@@ -466,8 +467,8 @@ JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllC
     }
 
     search_list_destroy(search_list);
-    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count, (*env)->GetObjectClass(env,
-            current_country), NULL);
+    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count, (*env)->GetObjectClass(env,current_country),
+                    NULL);
 
     while(countries) {
         (*env)->SetObjectArrayElement(env, all_countries, --country_count, countries->data);
@@ -529,7 +530,7 @@ static char *town_str(struct search_list_result *res, int level) {
         county_sep=county="";
 
     return g_strdup_printf("%s%s%s%s%s%s%s%s", postal, postal_sep, town, district_begin, district,
-            district_end, county_sep, county);
+                           district_end, county_sep, county);
 }
 
 static void android_search_end(struct android_search_priv *search_priv) {
@@ -574,24 +575,24 @@ static void android_search_idle_result(struct android_search_priv *search_priv, 
         break;
     }
     case attr_street_name: {
-         gchar *town = town_str(res, 2);
-         gchar *address = g_strdup_printf("%.101s,%.101s, %.101s", res->country->name, town, res->street->name);
-         android_return_search_result(&search_priv->search_result_obj, 1, res->street->common.c, address);
-         g_free(address);
-         g_free(town);
-         break;
+        gchar *town = town_str(res, 2);
+        gchar *address = g_strdup_printf("%.101s,%.101s, %.101s", res->country->name, town, res->street->name);
+        android_return_search_result(&search_priv->search_result_obj, 1, res->street->common.c, address);
+        g_free(address);
+        g_free(town);
+        break;
     }
     case attr_house_number: {
-         gchar *town = town_str(res, 3);
-         gchar *address = g_strdup_printf("%.101s, %.101s, %.101s %.15s", res->country->name, town,
-                res->street->name, res->house_number->house_number);
-         android_return_search_result(&search_priv->search_result_obj, 2, res->house_number->common.c, address);
-         g_free(address);
-         g_free(town);
-         break;
+        gchar *town = town_str(res, 3);
+        gchar *address = g_strdup_printf("%.101s, %.101s, %.101s %.15s", res->country->name, town,
+               res->street->name, res->house_number->house_number);
+        android_return_search_result(&search_priv->search_result_obj, 2, res->house_number->common.c, address);
+        g_free(address);
+        g_free(town);
+        break;
     }
     default:
-    dbg(lvl_error, "Unhandled search type %d", search_priv->search_attr.type);
+        dbg(lvl_error, "Unhandled search type %d", search_priv->search_attr.type);
     }
 }
 
