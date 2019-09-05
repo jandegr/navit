@@ -563,7 +563,7 @@ static enum attr_type android_search_level[] = {
     attr_house_number
 };
 
-static __attribute__ ((noinline)) void android_search_idle_result(struct android_search_priv *search_priv, struct search_list_result *res) {
+static void android_search_idle_result(struct android_search_priv *search_priv, struct search_list_result *res) {
     dbg(lvl_debug, "Town: %s, Street: %s",res->town ? res->town->common.town_name : "no town",
         res->street ? res->street->name : "no street");
     search_priv->found = 1;
