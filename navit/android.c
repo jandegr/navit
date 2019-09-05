@@ -572,25 +572,25 @@ static void android_search_idle_result(struct android_search_priv *search_priv, 
         gchar *town = town_str(res, 1);
         android_return_search_result(&search_priv->search_result_obj, 0, res->town->common.c, town);
         g_free(town);
-        break;
     }
+    break;
     case attr_street_name: {
         gchar *town = town_str(res, 2);
         gchar *address = g_strdup_printf("%.101s,%.101s, %.101s", res->country->name, town, res->street->name);
         android_return_search_result(&search_priv->search_result_obj, 1, res->street->common.c, address);
         g_free(address);
         g_free(town);
-        break;
     }
+    break;
     case attr_house_number: {
         gchar *town = town_str(res, 3);
         gchar *address = g_strdup_printf("%.101s, %.101s, %.101s %.15s", res->country->name, town,
-               res->street->name, res->house_number->house_number);
+                                         res->street->name, res->house_number->house_number);
         android_return_search_result(&search_priv->search_result_obj, 2, res->house_number->common.c, address);
         g_free(address);
         g_free(town);
-        break;
     }
+    break;
     default:
         dbg(lvl_error, "Unhandled search type %d", search_priv->search_attr.type);
     }
