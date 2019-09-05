@@ -288,7 +288,7 @@ class NavitGraphics {
             if (actionMask != -999) {
                 switchValue = (event.getAction() & actionMask);
             }
-
+            final boolean upAction = (switchValue == MotionEvent.ACTION_UP) || (switchValue == actionPointerUp);
             if (switchValue == MotionEvent.ACTION_DOWN) {
                 mTouchMode = PRESSED;
                 if (!mInMap) {
@@ -296,7 +296,7 @@ class NavitGraphics {
                 }
                 mPressedPosition = new PointF(x, y);
                 postDelayed(this, mTimeForLongPress);
-            } else if ((switchValue == MotionEvent.ACTION_UP) || (switchValue == actionPointerUp)) {
+            } else if (upAction) {
                 Log.d(TAG, "ACTION_UP");
 
                 switch (mTouchMode) {
@@ -305,7 +305,6 @@ class NavitGraphics {
 
                         motionCallback(mMotionCallbackID, x, y);
                         buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-
                         break;
                     case ZOOM:
                         float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
@@ -796,7 +795,6 @@ class NavitGraphics {
      *
      * <p>This method is called whenever the main View is resized in any way. This is the case when its
      * {@code onSizeChanged()} event handler fires or when toggling Fullscreen mode.</p>
-     *
      */
     @TargetApi(23)
     void handleResize(int w, int h) {
