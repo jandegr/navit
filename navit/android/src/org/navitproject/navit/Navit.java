@@ -98,7 +98,6 @@ public class Navit extends Activity {
     private static final int           MY_PERMISSIONS_REQ_FINE_LOC     = 103;
     private static NotificationManager nm;
     private static Navit               navit                           = null;
-    //boolean customLayout = false;
 
     public static Navit getInstance() {
         return navit;
@@ -344,15 +343,8 @@ public class Navit extends Activity {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        }
-        else {
-            if(this.getActionBar() != null){
-                this.getActionBar().hide();
-            }
-        }
 
+        windowSetup();
         mDialogs = new NavitDialogs(this);
 
         NavitResources = getResources();
@@ -409,8 +401,6 @@ public class Navit extends Activity {
         navitDataShareDir.mkdirs();
 
         Display display = getWindowManager().getDefaultDisplay();
-        //int width = display.getWidth();
-        //int height = display.getHeight();
         metrics = new DisplayMetrics();
         display.getMetrics(Navit.metrics);
         int densityDpi = (int)((Navit.metrics.density * 160) - .5f);
@@ -468,6 +458,16 @@ public class Navit extends Activity {
         }
 
         showInfos();
+    }
+
+    private void windowSetup() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        } else {
+            if (this.getActionBar() != null) {
+                this.getActionBar().hide();
+            }
+        }
     }
 
     private void buildNotification() {
