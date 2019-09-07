@@ -136,47 +136,6 @@ public class Navit extends Activity {
         }
     }
 
-    void removeFileIfExists(String source) {
-        File file = new File(source);
-
-        if (!file.exists()) {
-            return;
-        }
-
-        file.delete();
-    }
-
-    void copyFileIfExists(String source, String destination) throws IOException {
-        File file = new File(source);
-
-        if (!file.exists()) {
-            return;
-        }
-
-        FileInputStream is = null;
-        FileOutputStream os = null;
-
-        try {
-            is = new FileInputStream(source);
-            os = new FileOutputStream(destination);
-
-            int len;
-            byte[] buffer = new byte[1024];
-
-            while ((len = is.read(buffer)) != -1) {
-                os.write(buffer, 0, len);
-            }
-        } finally {
-            /* Close the FileStreams to prevent Resource leaks */
-            if (is != null) {
-                is.close();
-            }
-
-            if (os != null) {
-                os.close();
-            }
-        }
-    }
 
     /**
      * Translates a string from its id
@@ -456,8 +415,8 @@ public class Navit extends Activity {
         if (graphics != null) {
             graphics.setmActivity(this);
         }
-
         showInfos();
+        Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     private void windowSetup() {
@@ -633,14 +592,7 @@ public class Navit extends Activity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        //Log.e("Navit","onPrepareOptionsMenu");
-        // this gets called every time the menu is opened!!
-        // change menu items here!
         menu.clear();
-
-        // group-id,item-id,sort order number
-        //menu.add(1, 1, 100, getString(R.string.optionsmenu_zoom_in)); //TRANS
-        //menu.add(1, 2, 200, getString(R.string.optionsmenu_zoom_out)); //TRANS
 
         menu.add(1, 3, 300, getTstring(R.string.optionsmenu_download_maps)); //TRANS
         menu.add(1, 5, 400, getTstring(R.string.optionsmenu_toggle_poi)); //TRANS

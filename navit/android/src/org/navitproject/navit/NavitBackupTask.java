@@ -77,11 +77,11 @@ public class NavitBackupTask extends AsyncTask<Void, Void, String> {
         ObjectOutputStream preferencesOOs = null;
         try {
             /* Backup Files in home */
-            mActivity.copyFileIfExists(Navit.NAVIT_DATA_DIR + "/home/bookmark.txt",
+            NavitUtils.copyFileIfExists(Navit.NAVIT_DATA_DIR + "/home/bookmark.txt",
                     backupDir.getPath() + "/bookmark.txt");
-            mActivity.copyFileIfExists(Navit.NAVIT_DATA_DIR + "/home/destination.txt",
+            NavitUtils.copyFileIfExists(Navit.NAVIT_DATA_DIR + "/home/destination.txt",
                     backupDir.getPath() + "/destination.txt");
-            mActivity.copyFileIfExists(Navit.NAVIT_DATA_DIR + "/home/gui_internal.txt",
+            NavitUtils.copyFileIfExists(Navit.NAVIT_DATA_DIR + "/home/gui_internal.txt",
                     backupDir.getPath() + "/gui_internal.txt");
 
             /* Backup Shared Preferences */

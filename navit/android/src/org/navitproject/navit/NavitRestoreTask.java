@@ -53,17 +53,17 @@ public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
         ObjectInputStream preferenceOis = null;
         try {
             /* Delete all old Files in Home */
-            mActivity.removeFileIfExists(Navit.NAVIT_DATA_DIR + "/home/bookmark.txt");
-            mActivity.removeFileIfExists(Navit.NAVIT_DATA_DIR + "/home/destination.txt");
-            mActivity.removeFileIfExists(Navit.NAVIT_DATA_DIR + "/home/gui_internal.txt");
+            NavitUtils.removeFileIfExists(Navit.NAVIT_DATA_DIR + "/home/bookmark.txt");
+            NavitUtils.removeFileIfExists(Navit.NAVIT_DATA_DIR + "/home/destination.txt");
+            NavitUtils.removeFileIfExists(Navit.NAVIT_DATA_DIR + "/home/gui_internal.txt");
 
 
             /* Restore Files in home */
-            mActivity.copyFileIfExists(backupDir.getPath() + "/bookmark.txt",
+            NavitUtils.copyFileIfExists(backupDir.getPath() + "/bookmark.txt",
                     Navit.NAVIT_DATA_DIR + "/home/bookmark.txt");
-            mActivity.copyFileIfExists(backupDir.getPath() + "/destination.txt",
+            NavitUtils.copyFileIfExists(backupDir.getPath() + "/destination.txt",
                     Navit.NAVIT_DATA_DIR + "/home/destination.txt");
-            mActivity.copyFileIfExists(backupDir.getPath() + "/gui_internal.txt",
+            NavitUtils.copyFileIfExists(backupDir.getPath() + "/gui_internal.txt",
                     Navit.NAVIT_DATA_DIR + "/home/gui_internal.txt");
 
             /* Restore Shared Preferences */
