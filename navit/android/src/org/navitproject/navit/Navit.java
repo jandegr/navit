@@ -98,6 +98,7 @@ public class Navit extends Activity {
     private static final int           MY_PERMISSIONS_REQ_FINE_LOC     = 103;
     private static NotificationManager nm;
     private static Navit               navit                           = null;
+    //boolean customLayout = false;
 
     public static Navit getInstance() {
         return navit;
@@ -343,10 +344,13 @@ public class Navit extends Activity {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        } else {
-            this.getActionBar().hide();
+        }
+        else {
+            if(this.getActionBar() != null){
+                this.getActionBar().hide();
+            }
         }
 
         mDialogs = new NavitDialogs(this);
@@ -373,7 +377,7 @@ public class Navit extends Activity {
         buildNotification();
         verifyPermissions();
         // get the local language -------------
-        Locale locale = java.util.Locale.getDefault();
+        Locale locale = Locale.getDefault();
         String lang = locale.getLanguage();
         String langc = lang;
         Log.d(TAG, "lang=" + lang);
@@ -405,15 +409,15 @@ public class Navit extends Activity {
         navitDataShareDir.mkdirs();
 
         Display display = getWindowManager().getDefaultDisplay();
-        int width = display.getWidth();
-        int height = display.getHeight();
+        //int width = display.getWidth();
+        //int height = display.getHeight();
         metrics = new DisplayMetrics();
         display.getMetrics(Navit.metrics);
         int densityDpi = (int)((Navit.metrics.density * 160) - .5f);
-        Log.d(TAG, "Navit -> pixels x=" + width + " pixels y=" + height);
-        Log.d(TAG, "Navit -> dpi=" + densityDpi);
-        Log.d(TAG, "Navit -> density=" + Navit.metrics.density);
-        Log.d(TAG, "Navit -> scaledDensity=" + Navit.metrics.scaledDensity);
+        Log.d(TAG, "-> pixels x=" + display.getWidth() + " pixels y=" + display.getHeight());
+        Log.d(TAG, "-> dpi=" + densityDpi);
+        Log.d(TAG, "-> density=" + Navit.metrics.density);
+        Log.d(TAG, "-> scaledDensity=" + Navit.metrics.scaledDensity);
 
         mActivityResults = new NavitActivityResult[16];
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -456,16 +460,14 @@ public class Navit extends Activity {
         } catch (IOException e) {
             Log.e(TAG, "Failed to access assets using AssetManager");
         }
-        Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + Integer.valueOf(android.os.Build.VERSION.SDK));
-        navitMain(this, getApplication(), navitLanguage, Integer.valueOf(android.os.Build.VERSION.SDK),
+        Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + Integer.valueOf(Build.VERSION.SDK));
+        navitMain(this, getApplication(), navitLanguage, Integer.valueOf(Build.VERSION.SDK),
                       myDisplayDensity, NAVIT_DATA_DIR + "/bin/navit", mapFilenamePath, isLaunch);
         if (graphics != null) {
             graphics.setmActivity(this);
         }
 
         showInfos();
-
-        Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     private void buildNotification() {
@@ -912,14 +914,25 @@ public class Navit extends Activity {
     void fullscreen(int fullscreen) {
         int width;
         int height;
+        View decorView = getWindow().getDecorView();
 
         mIsFullscreen = (fullscreen != 0);
         if (mIsFullscreen) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+
+                int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+
+                decorView.setSystemUiVisibility(uiOptions);
+            }
+
         } else {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                decorView.setSystemUiVisibility(0);
+            }
         }
 
         Display display = getWindowManager().getDefaultDisplay();

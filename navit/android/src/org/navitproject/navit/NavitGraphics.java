@@ -164,7 +164,6 @@ class NavitGraphics {
         static final int  DRAG       = 1;
         static final int  ZOOM       = 2;
         static final int  PRESSED    = 3;
-
         Method mEventGetX = null;
         Method mEventGetY = null;
 
@@ -188,9 +187,7 @@ class NavitGraphics {
              * causing it to report between 24 and 64 dip more than what is actually occupied by the system UI.
              * The top inset is retrieved in handleResize(), with logic depending on the platform version.
              */
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT_WATCH
-            //        && android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.O
-            ) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT_WATCH) {
                 mPaddingLeft = insets.getSystemWindowInsetLeft();
                 mPaddingRight = insets.getSystemWindowInsetRight();
                 mPaddingBottom = insets.getSystemWindowInsetBottom();
@@ -288,7 +285,6 @@ class NavitGraphics {
             if (actionMask != -999) {
                 switchValue = (event.getAction() & actionMask);
             }
-            final boolean upAction = (switchValue == MotionEvent.ACTION_UP) || (switchValue == actionPointerUp);
             if (switchValue == MotionEvent.ACTION_DOWN) {
                 mTouchMode = PRESSED;
                 if (!mInMap) {
@@ -296,7 +292,7 @@ class NavitGraphics {
                 }
                 mPressedPosition = new PointF(x, y);
                 postDelayed(this, mTimeForLongPress);
-            } else if (upAction) {
+            } else if ((switchValue == MotionEvent.ACTION_UP) || (switchValue == actionPointerUp)) {
                 Log.d(TAG, "ACTION_UP");
 
                 switch (mTouchMode) {
@@ -629,8 +625,10 @@ class NavitGraphics {
         addCameraView();
         mRelativeLayout.addView(mView);
 
+
+
         /* The navigational and status bar tinting code is meaningful only on API19+ */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)) {
             mFrameLayout = new FrameLayout(mActivity);
             mFrameLayout.addView(mRelativeLayout);
             mLeftTintView = new SystemBarTintView(mActivity);
@@ -746,6 +744,7 @@ class NavitGraphics {
      */
     private void adjustSystemBarsTintingViews() {
 
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             return;
         }
@@ -796,7 +795,6 @@ class NavitGraphics {
      * <p>This method is called whenever the main View is resized in any way. This is the case when its
      * {@code onSizeChanged()} event handler fires or when toggling Fullscreen mode.</p>
      */
-    @TargetApi(23)
     void handleResize(int w, int h) {
         if (this.mNavitGraphics != null) {
             this.mNavitGraphics.handleResize(w, h);
@@ -819,6 +817,7 @@ class NavitGraphics {
     }
 
     private void resizePadding() {
+
         /* API 18 and below does not support drawing under the system bars, padding is 0 all around */
         mPaddingLeft = 0;
         mPaddingRight = 0;
@@ -936,6 +935,9 @@ class NavitGraphics {
                         mView.getRootWindowInsets().getSystemWindowInsetTop(),
                         mView.getRootWindowInsets().getSystemWindowInsetBottom()));
                 mPaddingTop = mView.getRootWindowInsets().getSystemWindowInsetTop();
+                mPaddingBottom = mView.getRootWindowInsets().getSystemWindowInsetBottom();
+                mPaddingLeft = mView.getRootWindowInsets().getSystemWindowInsetLeft();
+                mPaddingRight = mView.getRootWindowInsets().getSystemWindowInsetRight();
             }
         }
     }
