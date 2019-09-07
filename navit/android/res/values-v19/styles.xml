@@ -5,7 +5,7 @@
         NavitBaseTheme from BOTH res/values/styles.xml and
         res/values-v19/styles.xml on API 19+ devices.
     -->
-    <style name="NavitBaseTheme" parent="android:Theme.Holo"/>
+    <style name="NavitBaseTheme" parent="android:Theme.DeviceDefault.NoActionBar"/>
 
     <!--
         Main Activity theme for API 19+. This theme completely replaces
