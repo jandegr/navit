@@ -6,7 +6,6 @@
         res/values-v.../styles.xml on API 21+ devices.
     -->
    <style name="NavitBaseTheme" parent="android:Theme.DeviceDefault.NoActionBar">
-   <!--     <style name="NavitBaseTheme" parent="android:Theme.Material"> -->
         <!-- Main theme colors -->
         <!-- your app branding color for the app bar -->
         <item name="android:colorPrimary">@color/navitYellow500</item>
