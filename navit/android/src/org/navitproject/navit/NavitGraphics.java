@@ -378,7 +378,6 @@ class NavitGraphics {
         public boolean onKeyDown(int keyCode, KeyEvent event) {
             Log.d(TAG,"onkeydown = " + keyCode);
             String keyStr = null;
-            //long intervalForLongPress = 200L;
                 switch (keyCode) {
                     case KeyEvent.KEYCODE_ENTER:
                         keyStr = String.valueOf((char) 13);
@@ -433,7 +432,7 @@ class NavitGraphics {
                     case KeyEvent.KEYCODE_DPAD_UP:
                         keyStr = String.valueOf((char) 16);
                         break;
-                    default:
+                        default:
                         Log.e(TAG, "Unexpected keycode: " + keyCode);
                 }
             if (keyStr != null) {
@@ -469,13 +468,11 @@ class NavitGraphics {
                         return true;
                     case KeyEvent.KEYCODE_MENU:
                         if (!mInMap) {
-                            if (Navit.show_soft_keyboard_now_showing) {
-                                // if soft keyboard showing on screen, dont use menu button as select key
-                            } else {
+                            if (!Navit.show_soft_keyboard_now_showing) {
                                 // if in menu view:
                                 // use as OK (Enter) key
                                 s = String.valueOf((char) 13);
-                            }
+                            } // if soft keyboard showing on screen, dont use menu button as select key
                         } else {
                             return false;
                         }
