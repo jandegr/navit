@@ -378,7 +378,7 @@ class NavitGraphics {
         public boolean onKeyDown(int keyCode, KeyEvent event) {
             Log.d(TAG,"onkeydown = " + keyCode);
             String keyStr = null;
-            long intervalForLongPress = 200L;
+            //long intervalForLongPress = 200L;
                 switch (keyCode) {
                     case KeyEvent.KEYCODE_ENTER:
                         keyStr = String.valueOf((char) 13);
@@ -388,27 +388,10 @@ class NavitGraphics {
                         break;
                     case KeyEvent.KEYCODE_MENU:
                         if (!mInMap) {
-                            // if last menukeypress is less than 0.2 seconds away then count longpress
-                            if ((System.currentTimeMillis() - Navit.last_pressed_menu_key) < intervalForLongPress) {
-                                Navit.time_pressed_menu_key = Navit.time_pressed_menu_key
-                                    + (System.currentTimeMillis() - Navit.last_pressed_menu_key);
-                                // on long press let softkeyboard popup
-                                if (Navit.time_pressed_menu_key > mTimeForLongPress) {
-                                    Navit.show_soft_keyboard = true;
-                                    Navit.time_pressed_menu_key = 0L;
-                                    // need to draw to get the keyboard showing
-                                    this.postInvalidate();
-                                }
-                            } else {
-                                Navit.time_pressed_menu_key = 0L;
-                            }
-                            Navit.last_pressed_menu_key = System.currentTimeMillis();
-                            // if in menu view:
-                            // use as OK (Enter) key
-                            // dont use menu key here (use it in onKeyUp)
+                            this.postInvalidate();
                             return true;
                         }
-                        return false;
+                        break;
                     case KeyEvent.KEYCODE_SEARCH:
                         /* Handle event in Main Activity if map is shown */
                         if (!mInMap) {
