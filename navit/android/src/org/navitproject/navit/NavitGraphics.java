@@ -258,21 +258,6 @@ class NavitGraphics {
             mActivity.openContextMenu(this);
         }
 
-        private int getActionField(String fieldname, Object obj) {
-            int retValue = -999;
-            try {
-                java.lang.reflect.Field field = android.view.MotionEvent.class.getField(fieldname);
-                try {
-                    retValue = field.getInt(obj);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } catch (NoSuchFieldException ex) {
-                Log.e(TAG,"No getField method");
-                ex.printStackTrace();
-            }
-            return retValue;
-        }
 
         @SuppressLint("ClickableViewAccessibility")
         @Override
@@ -281,17 +266,31 @@ class NavitGraphics {
             int x = (int) event.getX();
             int y = (int) event.getY();
 
-//            final int actionPointerUp = getActionField("ACTION_POINTER_UP", event);
-//            final int actionPointerDown = getActionField("ACTION_POINTER_DOWN", event);
+            // ACTION_DOWN = 0
+            // ACTION_UP =
+            // ACTION_POINTER_1_DOWN = 5 -- deprecated
+            // ACTION_POINTER_2_DOWN = 6 -- deprecated
+            // ACTION_POINTER_DOWN = 5 ------- nonprimary pointer !!!
+
 
             int switchValue = (event.getActionMasked());
+            Log.d(TAG, "ACTION_ value =  " + switchValue);
             if (switchValue == MotionEvent.ACTION_DOWN) {
                 mTouchMode = PRESSED;
+                Log.d(TAG, "ACTION_DOWN mode PRESSED");
                 if (!mInMap) {
                     buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                 }
-                mPressedPosition = new PointF(x, y);
-                postDelayed(this, mTimeForLongPress);
+                    mPressedPosition = new PointF(x, y);
+                    postDelayed(this, mTimeForLongPress);
+
+            } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
+                mOldDist = newSpacing(event);
+                if (mOldDist > 2f) {
+                    mTouchMode = ZOOM;
+                    Log.d(TAG, "ACTION_DOWN mode ZOOM");
+                }
+                Log.d(TAG, "ACTION_DOWN mode niets");
             } else if (switchValue == MotionEvent.ACTION_UP) {
                 Log.d(TAG, "ACTION_UP");
 
@@ -303,12 +302,11 @@ class NavitGraphics {
                         buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
                         break;
                     case ZOOM:
-                        float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
+                        float newDist = newSpacing(event);
                         float scale = 0;
                         if (newDist > 10f) {
                             scale = newDist / mOldDist;
                         }
-
                         if (scale > 1.3) {
                             // zoom in
                             callbackMessageChannel(1, null);
@@ -333,7 +331,7 @@ class NavitGraphics {
                         motionCallback(mMotionCallbackID, x, y);
                         break;
                     case ZOOM:
-                        float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
+                        float newDist = newSpacing(event);
                         float scale = newDist / mOldDist;
                         Log.d(TAG, "New scale = " + scale);
                         if (scale > 1.2) {
@@ -356,13 +354,14 @@ class NavitGraphics {
                     default:
                         Log.e(TAG, "Unexpected touchmode: " + mTouchMode);
                 }
-            } else if (switchValue == MotionEvent.ACTION_DOWN) {
-                mOldDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
-                if (mOldDist > 2f) {
-                    mTouchMode = ZOOM;
-                }
             }
             return true;
+        }
+
+        private float newSpacing(MotionEvent event) {
+            float x = event.getX(0) - event.getX(1);
+            float y = event.getY(0) - event.getY(1);
+            return (float) Math.sqrt(x * x + y * y);
         }
 
         private float spacing(PointF a, PointF b) {
