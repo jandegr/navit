@@ -11,6 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
+import static org.navitproject.navit.NavitUtils.getTstring;
+
 public class NavitBackupTask extends AsyncTask<Void, Void, String> {
 
     private Navit mActivity;
@@ -28,7 +30,7 @@ public class NavitBackupTask extends AsyncTask<Void, Void, String> {
         /* Create a Wait Progress Dialog to inform the User that we are working */
         mDialog = new ProgressDialog(mActivity);
         mDialog.setIndeterminate(true);
-        mDialog.setMessage(mActivity.getTstring(R.string.backing_up));
+        mDialog.setMessage(getTstring(mActivity, R.string.backing_up));
         mDialog.show();
     }
 
@@ -44,7 +46,7 @@ public class NavitBackupTask extends AsyncTask<Void, Void, String> {
         /* Create the Main Backup Directory if it doesn't exist */
         if (!mainBackupDir.isDirectory()) {
             if (!mainBackupDir.mkdirs()) {
-                return mActivity.getTstring(R.string.failed_to_create_backup_directory);
+                return getTstring(mActivity, R.string.failed_to_create_backup_directory);
             }
         }
 
@@ -70,7 +72,7 @@ public class NavitBackupTask extends AsyncTask<Void, Void, String> {
         /* Create the Backup Directory if it doesn't exist */
         if (!backupDir.isDirectory()) {
             if (!backupDir.mkdirs()) {
-                return mActivity.getTstring(R.string.failed_to_create_backup_directory);
+                return getTstring(mActivity, R.string.failed_to_create_backup_directory);
             }
         }
 
@@ -92,7 +94,7 @@ public class NavitBackupTask extends AsyncTask<Void, Void, String> {
                     .getAll());
         } catch (IOException e) {
             e.printStackTrace();
-            return mActivity.getTstring(R.string.backup_failed);
+            return getTstring(mActivity, R.string.backup_failed);
         } finally {
             /* Close Stream to prevent Resource Leaks */
             try {
@@ -101,7 +103,7 @@ public class NavitBackupTask extends AsyncTask<Void, Void, String> {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                return mActivity.getTstring(R.string.backup_failed);
+                return getTstring(mActivity, R.string.backup_failed);
             }
         }
 
@@ -121,14 +123,14 @@ public class NavitBackupTask extends AsyncTask<Void, Void, String> {
             return;
         }
 
-        Toast.makeText(mActivity, mActivity.getTstring(R.string.backup_successful),
+        Toast.makeText(mActivity, getTstring(mActivity, R.string.backup_successful),
                 Toast.LENGTH_LONG).show();
     }
 
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        Toast.makeText(mActivity, mActivity.getTstring(R.string.backup_failed), Toast.LENGTH_LONG)
+        Toast.makeText(mActivity, getTstring(mActivity, R.string.backup_failed), Toast.LENGTH_LONG)
             .show();
         mDialog.dismiss();
     }

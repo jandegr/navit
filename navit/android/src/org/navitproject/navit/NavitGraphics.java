@@ -54,6 +54,8 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import static org.navitproject.navit.NavitUtils.getTstring;
+
 
 class NavitGraphics {
     private static final String            TAG = "NavitGraphics";
@@ -199,10 +201,10 @@ class NavitGraphics {
         protected void onCreateContextMenu(ContextMenu menu) {
             super.onCreateContextMenu(menu);
 
-            menu.setHeaderTitle(mActivity.getTstring(R.string.position_popup_title) + "..");
-            menu.add(1, 1, NONE, mActivity.getTstring(R.string.position_popup_drive_here))
+            menu.setHeaderTitle(getTstring(mActivity, R.string.position_popup_title) + "..");
+            menu.add(1, 1, NONE, getTstring(mActivity, R.string.position_popup_drive_here))
                     .setOnMenuItemClickListener(this);
-            menu.add(1, 2, NONE, mActivity.getTstring(R.string.cancel)).setOnMenuItemClickListener(this);
+            menu.add(1, 2, NONE, getTstring(mActivity, R.string.cancel)).setOnMenuItemClickListener(this);
         }
 
         @Override
@@ -1176,5 +1178,4 @@ class NavitGraphics {
         mDrawCanvas.setBitmap(mDrawBitmap);
     }
 
-    static native String callbackLocalizedString(String s);
 }
