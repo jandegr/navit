@@ -1,5 +1,7 @@
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -7,6 +9,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,7 +17,7 @@ import java.io.ObjectInputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 
 public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
 

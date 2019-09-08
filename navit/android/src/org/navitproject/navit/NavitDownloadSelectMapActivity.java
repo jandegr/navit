@@ -15,6 +15,8 @@
 
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -38,7 +40,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.navitproject.navit.NavitAppConfig.getTstring;
 
 public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 

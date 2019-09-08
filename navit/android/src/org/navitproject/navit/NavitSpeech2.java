@@ -15,6 +15,8 @@
 
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,7 +24,7 @@ import android.content.pm.PackageManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
-import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 
 
 @SuppressWarnings("unused")
