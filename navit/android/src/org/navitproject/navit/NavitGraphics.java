@@ -281,8 +281,8 @@ class NavitGraphics {
                 if (!mInMap) {
                     buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                 }
-                    mPressedPosition = new PointF(x, y);
-                    postDelayed(this, mTimeForLongPress);
+                mPressedPosition = new PointF(x, y);
+                postDelayed(this, mTimeForLongPress);
 
             } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
                 mOldDist = newSpacing(event);
@@ -302,18 +302,7 @@ class NavitGraphics {
                         buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
                         break;
                     case ZOOM:
-                        float newDist = newSpacing(event);
-                        float scale = 0;
-                        if (newDist > 10f) {
-                            scale = newDist / mOldDist;
-                        }
-                        if (scale > 1.3) {
-                            // zoom in
-                            callbackMessageChannel(1, null);
-                        } else if (scale < 0.8) {
-                            // zoom out
-                            callbackMessageChannel(2, null);
-                        }
+                        doZoom(event);
                         break;
                     case PRESSED:
                         if (mInMap) {
@@ -356,6 +345,21 @@ class NavitGraphics {
                 }
             }
             return true;
+        }
+
+        private void doZoom(MotionEvent event) {
+            float newDist = newSpacing(event);
+            float scale = 0;
+            if (newDist > 10f) {
+                scale = newDist / mOldDist;
+            }
+            if (scale > 1.3) {
+                // zoom in
+                callbackMessageChannel(1, null);
+            } else if (scale < 0.8) {
+                // zoom out
+                callbackMessageChannel(2, null);
+            }
         }
 
         private float newSpacing(MotionEvent event) {
