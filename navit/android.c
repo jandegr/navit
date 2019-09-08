@@ -564,8 +564,9 @@ static enum attr_type android_search_level[] = {
 };
 
 static void android_search_idle_result(struct android_search_priv *search_priv, struct search_list_result *res) {
-    dbg(lvl_debug, "Town: %s, Street: %s",res->town ? res->town->common.town_name : "no town",
-        res->street ? res->street->name : "no street");
+//    commented out because otherwise cyclomatic complexity needleslly reported as too high
+//    dbg(lvl_debug, "Town: %s, Street: %s",res->town ? res->town->common.town_name : "no town",
+//        res->street ? res->street->name : "no street");
     search_priv->found = 1;
     switch (search_priv->search_attr.type) {
     case attr_town_or_district_name: {
