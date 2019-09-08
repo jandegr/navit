@@ -282,8 +282,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
             navit_draw(attr.u.navit);
         }
         (*env)->ReleaseStringUTFChars(env, str, map_location);
-        break;
     }
+        break;
     case 7: { // remove a map from the current mapset, return 1 on success
         struct mapset *ms = navit_get_mapset(attr.u.navit);
         struct attr map_r;
