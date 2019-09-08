@@ -268,6 +268,7 @@ class NavitGraphics {
                     e.printStackTrace();
                 }
             } catch (NoSuchFieldException ex) {
+                Log.e(TAG,"No getField method");
                 ex.printStackTrace();
             }
             return retValue;
@@ -280,14 +281,10 @@ class NavitGraphics {
             int x = (int) event.getX();
             int y = (int) event.getY();
 
-            final int actionPointerUp = getActionField("ACTION_POINTER_UP", event);
-            final int actionPointerDown = getActionField("ACTION_POINTER_DOWN", event);
-            final int actionMask = getActionField("ACTION_MASK", event);
+//            final int actionPointerUp = getActionField("ACTION_POINTER_UP", event);
+//            final int actionPointerDown = getActionField("ACTION_POINTER_DOWN", event);
 
-            int switchValue = event.getAction();
-            if (actionMask != -999) {
-                switchValue = (event.getAction() & actionMask);
-            }
+            int switchValue = (event.getActionMasked());
             if (switchValue == MotionEvent.ACTION_DOWN) {
                 mTouchMode = PRESSED;
                 if (!mInMap) {
@@ -295,7 +292,7 @@ class NavitGraphics {
                 }
                 mPressedPosition = new PointF(x, y);
                 postDelayed(this, mTimeForLongPress);
-            } else if ((switchValue == MotionEvent.ACTION_UP) || (switchValue == actionPointerUp)) {
+            } else if (switchValue == MotionEvent.ACTION_UP) {
                 Log.d(TAG, "ACTION_UP");
 
                 switch (mTouchMode) {
@@ -359,7 +356,7 @@ class NavitGraphics {
                     default:
                         Log.e(TAG, "Unexpected touchmode: " + mTouchMode);
                 }
-            } else if (switchValue == actionPointerDown) {
+            } else if (switchValue == MotionEvent.ACTION_DOWN) {
                 mOldDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
                 if (mOldDist > 2f) {
                     mTouchMode = ZOOM;
@@ -374,13 +371,13 @@ class NavitGraphics {
             return (float)Math.sqrt(x * x + y * y);
         }
 
-        private PointF getFloatValue(Object instance, Object argument) {
+        private PointF getFloatValue(MotionEvent motionEvent, int pointerIndex) {
             PointF pos = new PointF(0,0);
 
             if (mEventGetX != null && mEventGetY != null) {
                 try {
-                    Float x = (java.lang.Float) mEventGetX.invoke(instance, argument);
-                    Float y = (java.lang.Float) mEventGetY.invoke(instance, argument);
+                    Float x = (java.lang.Float) mEventGetX.invoke(motionEvent, pointerIndex);
+                    Float y = (java.lang.Float) mEventGetY.invoke(motionEvent, pointerIndex);
                     pos.set(x, y);
 
                 } catch (Exception e) {
@@ -393,12 +390,12 @@ class NavitGraphics {
         @Override
         public boolean onKeyDown(int keyCode, KeyEvent event) {
             Log.d(TAG,"onkeydown = " + keyCode);
-            int i;
             String keyStr = null;
             long intervalForLongPress = 200L;
-            i = event.getUnicodeChar();
-            if (i == 0) {
                 switch (keyCode) {
+                    case KeyEvent.KEYCODE_ENTER:
+                        keyStr = String.valueOf((char) 13);
+                        break;
                     case KeyEvent.KEYCODE_DEL:
                         keyStr = String.valueOf((char) 8);
                         break;
@@ -469,9 +466,6 @@ class NavitGraphics {
                     default:
                         Log.e(TAG, "Unexpected keycode: " + keyCode);
                 }
-            } else if (i == 10) {
-                keyStr = java.lang.String.valueOf((char) 13);
-            }
             if (keyStr != null) {
                 keypressCallback(mKeypressCallbackID, keyStr);
                 return true;
@@ -489,7 +483,6 @@ class NavitGraphics {
             if (i == 0) {
                 switch (keyCode) {
                     case KeyEvent.KEYCODE_VOLUME_UP:
-                        return (!mInMap);
                     case KeyEvent.KEYCODE_VOLUME_DOWN:
                         return (!mInMap);
                     case KeyEvent.KEYCODE_SEARCH:
