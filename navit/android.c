@@ -216,7 +216,7 @@ void android_return_search_result(struct jni_object *jni_o, int type, struct pco
     (*env)->DeleteLocalRef(jni_o->env, jaddress);
 }
 
-JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_callbackLocalizedString( JNIEnv* env, jclass thiz,
+JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitAppConfig_callbackLocalizedString( JNIEnv* env, jclass thiz,
         jstring str) {
     const char *s;
     const char *localized_str;
