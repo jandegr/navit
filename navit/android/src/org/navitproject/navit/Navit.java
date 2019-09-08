@@ -19,6 +19,8 @@
 
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -58,6 +60,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -68,7 +71,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.navitproject.navit.NavitUtils.getTstring;
+
 
 public class Navit extends Activity {
 
@@ -249,18 +252,18 @@ public class Navit extends Activity {
 
         if (firstStart) {
             AlertDialog.Builder infobox = new AlertDialog.Builder(this);
-            infobox.setTitle(getTstring(this, R.string.initial_info_box_title)); // TRANS
+            infobox.setTitle(getTstring(R.string.initial_info_box_title)); // TRANS
             infobox.setCancelable(false);
 
-            infobox.setMessage(getTstring(this, R.string.initial_info_box_message));
+            infobox.setMessage(getTstring(R.string.initial_info_box_message));
 
-            infobox.setPositiveButton(getTstring(this, R.string.initial_info_box_OK), new DialogInterface.OnClickListener() {
+            infobox.setPositiveButton(getTstring(R.string.initial_info_box_OK), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface arg0, int arg1) {
                     Log.d(TAG, "Ok, user saw the infobox");
                 }
             });
 
-            infobox.setNeutralButton(getTstring(this, R.string.initial_info_box_more_info),
+            infobox.setNeutralButton(getTstring(R.string.initial_info_box_more_info),
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface arg0, int arg1) {
                             Log.d(TAG, "user wants more info, show the website");
@@ -428,8 +431,8 @@ public class Navit extends Activity {
             builder = new Notification.Builder(getApplicationContext(), CHANNEL_ID);
             builder.setContentIntent(appIntent);
             builder.setAutoCancel(false).setOngoing(true);
-            builder.setContentTitle(getTstring(this, R.string.app_name));
-            builder.setContentText(getTstring(this, R.string.notification_event_default));
+            builder.setContentTitle(getTstring(R.string.app_name));
+            builder.setContentText(getTstring(R.string.notification_event_default));
             builder.setSmallIcon(R.drawable.ic_notify);
             navitNotification = builder.build();
         } else {
@@ -437,8 +440,8 @@ public class Navit extends Activity {
             builder = new NotificationCompat.Builder(getApplicationContext());
             builder.setContentIntent(appIntent);
             builder.setAutoCancel(false).setOngoing(true);
-            builder.setContentTitle(getTstring(this, R.string.app_name));
-            builder.setContentText(getTstring(this, R.string.notification_event_default));
+            builder.setContentTitle(getTstring(R.string.app_name));
+            builder.setContentText(getTstring(R.string.notification_event_default));
             builder.setSmallIcon(R.drawable.ic_notify);
             navitNotification = builder.build();
         }
@@ -504,11 +507,11 @@ public class Navit extends Activity {
                 return;
             }
             AlertDialog.Builder infobox = new AlertDialog.Builder(this);
-            infobox.setTitle(getTstring(this, R.string.permissions_info_box_title)); // TRANS
+            infobox.setTitle(getTstring(R.string.permissions_info_box_title)); // TRANS
             infobox.setCancelable(false);
-            infobox.setMessage(getTstring(this, R.string.permissions_not_granted));
+            infobox.setMessage(getTstring(R.string.permissions_not_granted));
             // TRANS
-            infobox.setPositiveButton(getTstring(this, R.string.initial_info_box_OK),
+            infobox.setPositiveButton(getTstring(R.string.initial_info_box_OK),
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface arg0, int arg1) {
                             exit();
@@ -583,17 +586,17 @@ public class Navit extends Activity {
         super.onPrepareOptionsMenu(menu);
         menu.clear();
 
-        menu.add(1, 3, 300, getTstring(this, R.string.optionsmenu_download_maps)); //TRANS
-        menu.add(1, 5, 400, getTstring(this, R.string.optionsmenu_toggle_poi)); //TRANS
+        menu.add(1, 3, 300, getTstring(R.string.optionsmenu_download_maps)); //TRANS
+        menu.add(1, 5, 400, getTstring(R.string.optionsmenu_toggle_poi)); //TRANS
 
-        menu.add(1, 6, 500, getTstring(this, R.string.optionsmenu_address_search)); //TRANS
-        menu.add(1, 10, 600, getTstring(this, R.string.optionsmenu_set_map_location));
+        menu.add(1, 6, 500, getTstring(R.string.optionsmenu_address_search)); //TRANS
+        menu.add(1, 10, 600, getTstring(R.string.optionsmenu_set_map_location));
 
-        menu.add(1, 99, 900, getTstring(this, R.string.optionsmenu_exit_navit)); //TRANS
+        menu.add(1, 99, 900, getTstring(R.string.optionsmenu_exit_navit)); //TRANS
 
         /* Only show the Backup to SD-Card Option if we really have one */
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            menu.add(1, 7, 700, getTstring(this, R.string.optionsmenu_backup_restore)); //TRANS
+            menu.add(1, 7, 700, getTstring(R.string.optionsmenu_backup_restore)); //TRANS
         }
 
         return true;
@@ -612,7 +615,7 @@ public class Navit extends Activity {
     private void start_targetsearch_from_intent(String targetAddress) {
         if (targetAddress == null || targetAddress.equals("")) {
             // empty search string entered
-            Toast.makeText(getApplicationContext(), getTstring(this, R.string.address_search_not_found),
+            Toast.makeText(getApplicationContext(), getTstring(R.string.address_search_not_found),
                     Toast.LENGTH_LONG).show(); //TRANS
         } else {
             Intent searchIntent = new Intent(this, NavitAddressSearchActivity.class);
@@ -756,7 +759,7 @@ public class Navit extends Activity {
 
 
     void setDestination(float latitude, float longitude, String address) {
-        Toast.makeText(getApplicationContext(), getTstring(this, R.string.address_search_set_destination) + "\n"
+        Toast.makeText(getApplicationContext(), getTstring(R.string.address_search_set_destination) + "\n"
                 + address, Toast.LENGTH_LONG).show(); //TRANS
 
         Bundle b = new Bundle();
@@ -782,7 +785,7 @@ public class Navit extends Activity {
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle destination = data.getExtras();
                     Toast.makeText(getApplicationContext(),
-                            getTstring(this, R.string.address_search_set_destination) + "\n" + destination.getString(("q")),
+                            getTstring(R.string.address_search_set_destination) + "\n" + destination.getString(("q")),
                             Toast.LENGTH_LONG).show(); //TRANS
 
                     Message msg = Message.obtain(mNavitGraphics.mCallbackHandler,
@@ -805,7 +808,7 @@ public class Navit extends Activity {
                     prefsEditor.putString("filenamePath", newDir);
                     prefsEditor.apply();
 
-                    Toast.makeText(this, String.format(getTstring(this, R.string.map_location_changed),newDir),
+                    Toast.makeText(this, String.format(getTstring(R.string.map_location_changed),newDir),
                             Toast.LENGTH_LONG).show();
                 } else {
                     Log.w(TAG, "select path failed");

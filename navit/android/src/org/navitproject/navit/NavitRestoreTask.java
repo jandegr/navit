@@ -14,7 +14,7 @@ import java.io.ObjectInputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static org.navitproject.navit.NavitUtils.getTstring;
+import static org.navitproject.navit.NavitAppConfig.getTstring;
 
 public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
 
@@ -34,7 +34,7 @@ public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
         /* Create a Wait Progress Dialog to inform the User that we are working */
         mDialog = new ProgressDialog(mActivity);
         mDialog.setIndeterminate(true);
-        mDialog.setMessage(getTstring(mActivity, R.string.restoring));
+        mDialog.setMessage(getTstring(R.string.restoring));
         mDialog.show();
     }
 
@@ -49,7 +49,7 @@ public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
 
         /* Check if there is a Backup Directory */
         if (!backupDir.isDirectory()) {
-            return getTstring(mActivity, R.string.backup_not_found);
+            return getTstring(R.string.backup_not_found);
         }
 
         ObjectInputStream preferenceOis = null;
@@ -97,12 +97,12 @@ public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
             }
 
             if (!prefEditor.commit()) {
-                return getTstring(mActivity, R.string.failed_to_restore);
+                return getTstring(R.string.failed_to_restore);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            return getTstring(mActivity, R.string.failed_to_restore);
+            return getTstring(R.string.failed_to_restore);
         } finally {
             try {
                 /* Close Stream to prevent Resource leak */
@@ -132,7 +132,7 @@ public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
 
         /* Navit needs to be restarted. Currently the User has to restart it by himself */
         Toast.makeText(mActivity,
-                getTstring(mActivity, R.string.restore_successful_please_restart_navit),
+                getTstring(R.string.restore_successful_please_restart_navit),
                 Toast.LENGTH_LONG).show();
         NotificationManager nm = (NotificationManager) mActivity.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(R.string.app_name);
@@ -142,7 +142,7 @@ public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        Toast.makeText(mActivity, getTstring(mActivity, R.string.restore_failed), Toast.LENGTH_LONG)
+        Toast.makeText(mActivity, getTstring(R.string.restore_failed), Toast.LENGTH_LONG)
             .show();
         mDialog.dismiss();
     }

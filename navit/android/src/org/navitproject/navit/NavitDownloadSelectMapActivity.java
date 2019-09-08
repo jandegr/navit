@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.navitproject.navit.NavitUtils.getTstring;
+import static org.navitproject.navit.NavitAppConfig.getTstring;
 
 public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
@@ -66,7 +66,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                     + " during getFreeSpace, reporting 'no sdcard present'");
             NavitDialogs.sendDialogMessage(NavitDialogs.MSG_TOAST_LONG, null,
                     String.format(
-                        (getTstring(Navit.getInstance(), R.string.map_location_unavailable)),
+                        (getTstring(R.string.map_location_unavailable)),
                         Navit.mapFilenamePath),
                     -1, 0, 0);
             finish();
@@ -146,7 +146,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
         // add already downloaded maps (group and empty child list
         HashMap<String, String> downloadedMapsHash = new HashMap<>();
-        downloadedMapsHash.put("category_name", getTstring(Navit.getInstance(), R.string.maps_installed));
+        downloadedMapsHash.put("category_name", getTstring(R.string.maps_installed));
         resultGroups.add(downloadedMapsHash);
         downloaded_maps_childs = new ArrayList<>();
         ArrayList<ArrayList<HashMap<String, String>>> resultChilds = new ArrayList<>();
@@ -157,7 +157,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
         // maps containing the current location
         HashMap<String, String> matchingMaps = new HashMap<>();
         matchingMaps.put("category_name",
-                getTstring(Navit.getInstance(), R.string.maps_for_current_location));
+                getTstring(R.string.maps_for_current_location));
         resultGroups.add(matchingMaps);
         resultChilds.add(maps_current_position_childs);
         NavitMapDownloader.OsmMapValues[] osmMaps = NavitMapDownloader.osm_maps;
@@ -206,7 +206,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                     && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)) {
                 // test large downloads on android 7 and up
                 NavitDialogs.sendDialogMessage(NavitDialogs.MSG_TOAST_LONG, null,
-                        getTstring(Navit.getInstance(), R.string.map_download_oversize),
+                        getTstring(R.string.map_download_oversize),
                         -1, 0, 0);
                 return true;
             }
@@ -223,7 +223,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
     private void askForMapDeletion(final String mapLocation) {
         AlertDialog.Builder deleteMapBox = new AlertDialog.Builder(this);
-        deleteMapBox.setTitle(getTstring(Navit.getInstance(), R.string.map_delete));
+        deleteMapBox.setTitle(getTstring(R.string.map_delete));
         deleteMapBox.setCancelable(true);
 
         NavitMap maptoDelete = new NavitMap(mapLocation);
@@ -232,7 +232,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                 + "MB");
 
         // TRANS
-        deleteMapBox.setPositiveButton(getTstring(Navit.getInstance(), R.string.yes),
+        deleteMapBox.setPositiveButton(getTstring(R.string.yes),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         Log.d(TAG, "Delete Map");
@@ -247,7 +247,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                 });
 
         // TRANS
-        deleteMapBox.setNegativeButton((getTstring(Navit.getInstance(), R.string.no)),
+        deleteMapBox.setNegativeButton((getTstring(R.string.no)),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         Log.d(TAG, "don't delete map");

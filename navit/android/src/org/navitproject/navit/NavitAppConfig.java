@@ -2,6 +2,7 @@ package org.navitproject.navit;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +12,18 @@ import org.navitproject.navit.NavitAddressSearchActivity.NavitAddress;
 public class NavitAppConfig extends Application {
 
     private static final int         MAX_LAST_ADDRESSES = 10;
-
-    private List<NavitAddress> mLastAddresses     = null;
+    private List<NavitAddress>       mLastAddresses     = null;
     private int                      mLastAddressField;
     private SharedPreferences        mSettings;
+    private static Resources         resources;
+
+
 
     @Override
     public void onCreate() {
-        mSettings = getSharedPreferences(Navit.NAVIT_PREFS, MODE_PRIVATE);
         super.onCreate();
+        mSettings = getSharedPreferences(Navit.NAVIT_PREFS, MODE_PRIVATE);
+        resources = getResources();
     }
 
     List<NavitAddress> getLastAddresses() {
@@ -71,4 +75,19 @@ public class NavitAppConfig extends Application {
 
         editSettings.apply();
     }
+
+    /**
+     * Translates a string from its id
+     * in R.strings
+     *
+     * @param riD resource identifier
+     * @return translated string
+     */
+    static String getTstring(int riD) {
+
+        return callbackLocalizedString(resources.getString(riD));
+    }
+
+    static native String callbackLocalizedString(String s);
+
 }

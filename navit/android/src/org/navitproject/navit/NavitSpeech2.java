@@ -22,7 +22,7 @@ import android.content.pm.PackageManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
-import static org.navitproject.navit.NavitUtils.getTstring;
+import static org.navitproject.navit.NavitAppConfig.getTstring;
 
 
 @SuppressWarnings("unused")
@@ -64,9 +64,9 @@ class NavitSpeech2 implements TextToSpeech.OnInitListener, NavitActivityResult {
                 // missing data, ask to install it
                 AlertDialog.Builder builder = new AlertDialog.Builder(mNavit);
                 builder
-                    .setTitle(getTstring(mNavit, R.string.TTS_title_data_missing))
-                    .setMessage(getTstring(mNavit, R.string.TTS_qery_install_data))
-                    .setPositiveButton(getTstring(mNavit, R.string.yes),
+                    .setTitle(getTstring(R.string.TTS_title_data_missing))
+                    .setMessage(getTstring(R.string.TTS_qery_install_data))
+                    .setPositiveButton(getTstring(R.string.yes),
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     Intent installIntent = new Intent();
@@ -75,7 +75,7 @@ class NavitSpeech2 implements TextToSpeech.OnInitListener, NavitActivityResult {
                                     mNavit.startActivity(installIntent);
                                 }
                             })
-                .setNegativeButton(getTstring(mNavit, R.string.no), null)
+                .setNegativeButton(getTstring(R.string.no), null)
                     .show();
             }
         }

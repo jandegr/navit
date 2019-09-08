@@ -19,6 +19,8 @@
 
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -50,11 +52,10 @@ import android.view.WindowInsets;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-
-import static org.navitproject.navit.NavitUtils.getTstring;
 
 
 class NavitGraphics {
@@ -201,10 +202,10 @@ class NavitGraphics {
         protected void onCreateContextMenu(ContextMenu menu) {
             super.onCreateContextMenu(menu);
 
-            menu.setHeaderTitle(getTstring(mActivity, R.string.position_popup_title) + "..");
-            menu.add(1, 1, NONE, getTstring(mActivity, R.string.position_popup_drive_here))
+            menu.setHeaderTitle(getTstring(R.string.position_popup_title) + "..");
+            menu.add(1, 1, NONE, getTstring(R.string.position_popup_drive_here))
                     .setOnMenuItemClickListener(this);
-            menu.add(1, 2, NONE, getTstring(mActivity, R.string.cancel)).setOnMenuItemClickListener(this);
+            menu.add(1, 2, NONE, getTstring(R.string.cancel)).setOnMenuItemClickListener(this);
         }
 
         @Override

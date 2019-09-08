@@ -8,8 +8,6 @@ import java.io.IOException;
 class NavitUtils {
 
 
-
-
     static void removeFileIfExists(String source) {
         File file = new File(source);
 
@@ -52,21 +50,4 @@ class NavitUtils {
         }
     }
 
-    static native String callbackLocalizedString(String s);
-
-    /**
-     * Translates a string from its id
-     * in R.strings
-     *
-     * @param navit
-     * @param riD resource identifier
-     * @return translated string
-     */
-    static String getTstring(Navit navit, int riD) {
-        return getLocalizedString(navit.getString(riD));
-    }
-
-    private static String getLocalizedString(String text) {
-        return NavitUtils.callbackLocalizedString(text);
-    }
 }

@@ -19,6 +19,8 @@
 
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -45,6 +47,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,7 +55,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import static org.navitproject.navit.NavitUtils.getTstring;
 
 public class NavitAddressSearchActivity extends Activity {
     static final class NavitAddress {
@@ -167,14 +169,14 @@ public class NavitAddressSearchActivity extends Activity {
 
         // address: label and text field
         TextView addrView = new TextView(this);
-        addrView.setText(getTstring(Navit.getInstance(), R.string.address_enter_destination)); // TRANS
+        addrView.setText(getTstring(R.string.address_enter_destination)); // TRANS
         addrView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         addrView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         addrView.setPadding(4, 4, 4, 4);
 
         // partial match checkbox
         final CheckBox checkboxPartialMatch = new CheckBox(this);
-        checkboxPartialMatch.setText(getTstring(Navit.getInstance(), R.string.address_partial_match)); // TRANS
+        checkboxPartialMatch.setText(getTstring(R.string.address_partial_match)); // TRANS
         checkboxPartialMatch.setChecked(last_address_partial_match);
         checkboxPartialMatch.setGravity(Gravity.CENTER);
 
@@ -184,7 +186,7 @@ public class NavitAddressSearchActivity extends Activity {
 
         // search button
         final Button btnSearch = new Button(this);
-        btnSearch.setText(getTstring(Navit.getInstance(), R.string.address_search_button)); // TRANS
+        btnSearch.setText(getTstring(R.string.address_search_button)); // TRANS
         btnSearch.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
         btnSearch.setGravity(Gravity.CENTER);
         btnSearch.setOnClickListener(new OnClickListener() {
@@ -294,9 +296,9 @@ public class NavitAddressSearchActivity extends Activity {
             default:
                 Log.e(TAG,"Unexpected value: " + type);
         }
-        mSearchResultsWait.setMessage(getTstring(Navit.getInstance(), R.string.address_search_towns) + ":"
+        mSearchResultsWait.setMessage(getTstring(R.string.address_search_towns) + ":"
                 + mSearchResultsTowns + " "
-                + getTstring(Navit.getInstance(), R.string.address_search_streets) + ":" + mSearchResultsStreets + "/"
+                + getTstring(R.string.address_search_streets) + ":" + mSearchResultsStreets + "/"
                 + mSearchResultsStreetsHn);
 
         mSearchResultsWait.setProgress(mAddressesFound.size() % (ADDRESS_RESULT_PROGRESS_MAX + 1));
