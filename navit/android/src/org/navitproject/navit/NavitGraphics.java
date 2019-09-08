@@ -163,6 +163,7 @@ class NavitGraphics {
     private class NavitView extends View implements Runnable, MenuItem.OnMenuItemClickListener {
         int               mTouchMode = NONE;
         float             mOldDist = 0;
+        int               mSecondaryPointer;
         static final int  NONE       = 0;
         static final int  DRAG       = 1;
         static final int  ZOOM       = 2;
@@ -265,19 +266,12 @@ class NavitGraphics {
             super.onTouchEvent(event);
             int x = (int) event.getX();
             int y = (int) event.getY();
-
-            // ACTION_DOWN = 0
-            // ACTION_UP =
-            // ACTION_POINTER_1_DOWN = 5 -- deprecated
-            // ACTION_POINTER_2_DOWN = 6 -- deprecated
-            // ACTION_POINTER_DOWN = 5 ------- nonprimary pointer !!!
-
-
             int switchValue = (event.getActionMasked());
             Log.d(TAG, "ACTION_ value =  " + switchValue);
+
             if (switchValue == MotionEvent.ACTION_DOWN) {
                 mTouchMode = PRESSED;
-                Log.d(TAG, "ACTION_DOWN mode PRESSED");
+                Log.v(TAG, "ACTION_DOWN mode PRESSED");
                 if (!mInMap) {
                     buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                 }
@@ -288,21 +282,16 @@ class NavitGraphics {
                 mOldDist = newSpacing(event);
                 if (mOldDist > 2f) {
                     mTouchMode = ZOOM;
-                    Log.d(TAG, "ACTION_DOWN mode ZOOM");
+                    Log.v(TAG, "ACTION_DOWN mode ZOOM started");
                 }
-                Log.d(TAG, "ACTION_DOWN mode niets");
             } else if (switchValue == MotionEvent.ACTION_UP) {
                 Log.d(TAG, "ACTION_UP");
-
                 switch (mTouchMode) {
                     case DRAG:
                         Log.d(TAG, "onTouch move");
 
                         motionCallback(mMotionCallbackID, x, y);
                         buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-                        break;
-                    case ZOOM:
-                        doZoom(event);
                         break;
                     case PRESSED:
                         if (mInMap) {
@@ -320,17 +309,24 @@ class NavitGraphics {
                         motionCallback(mMotionCallbackID, x, y);
                         break;
                     case ZOOM:
+                        if (event.findPointerIndex(0) == -1 || event.findPointerIndex(1) == -1) {
+                            Log.e(TAG,"missing pointer");
+                            break;
+                        }
                         float newDist = newSpacing(event);
-                        float scale = newDist / mOldDist;
-                        Log.d(TAG, "New scale = " + scale);
-                        if (scale > 1.2) {
-                            // zoom in
-                            callbackMessageChannel(1, "");
-                            mOldDist = newDist;
-                        } else if (scale < 0.8) {
-                            mOldDist = newDist;
-                            // zoom out
-                            callbackMessageChannel(2, "");
+                        float scale;
+                        if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+                            scale = newDist / mOldDist;
+                            Log.d(TAG, "New scale = " + scale);
+                            if (scale > 1.2) {
+                                // zoom in
+                                callbackMessageChannel(1, "");
+                                mOldDist = newDist;
+                            } else if (scale < 0.8) {
+                                mOldDist = newDist;
+                                // zoom out
+                                callbackMessageChannel(2, "");
+                            }
                         }
                         break;
                     case PRESSED:
@@ -348,18 +344,9 @@ class NavitGraphics {
         }
 
         private void doZoom(MotionEvent event) {
-            float newDist = newSpacing(event);
-            float scale = 0;
-            if (newDist > 10f) {
-                scale = newDist / mOldDist;
-            }
-            if (scale > 1.3) {
-                // zoom in
-                callbackMessageChannel(1, null);
-            } else if (scale < 0.8) {
-                // zoom out
-                callbackMessageChannel(2, null);
-            }
+
+
+
         }
 
         private float newSpacing(MotionEvent event) {
