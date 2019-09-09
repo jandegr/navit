@@ -296,13 +296,12 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     }
     case 5:
         // call a command (like in gui)
-        s = (*env)->GetStringUTFChars(env, str, NULL);
-        command_evaluate(&attr, s);
-        (*env)->ReleaseStringUTFChars(env, str, s);
+        
         break;
     case 4: { // navigate to display position
         char *pstr;
         
+        break;
     }
     case 3: {
         // navigate to geo position
