@@ -379,63 +379,61 @@ class NavitGraphics {
         public boolean onKeyDown(int keyCode, KeyEvent event) {
             Log.d(TAG,"onkeydown = " + keyCode);
             String keyStr = null;
-                switch (keyCode) {
-                    case KeyEvent.KEYCODE_ENTER:
-                        keyStr = String.valueOf((char) 13);
-                        break;
-                    case KeyEvent.KEYCODE_DEL:
-                        keyStr = String.valueOf((char) 8);
-                        break;
-                    case KeyEvent.KEYCODE_MENU:
-                        if (!mInMap) {
-                            this.postInvalidate();
-                            return true;
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_SEARCH:
-                        /* Handle event in Main Activity if map is shown */
-                        if (!mInMap) {
-                            keyStr = String.valueOf((char) 19);
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_BACK:
-                        keyStr = String.valueOf((char) 27);
-                        break;
-                    case KeyEvent.KEYCODE_CALL:
-                        keyStr = String.valueOf((char) 3);
-                        break;
-                    case KeyEvent.KEYCODE_VOLUME_UP:
-                        if (!mInMap) {
-                            // if in menu view:
-                            // use as UP key
-                            keyStr = String.valueOf((char) 16);
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_VOLUME_DOWN:
-                        if (!mInMap) {
-                            // if in menu view:
-                            // use as DOWN key
-                            keyStr = String.valueOf((char) 14);
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_CENTER:
-                        keyStr = String.valueOf((char) 13);
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_DOWN:
-                        keyStr = String.valueOf((char) 14);
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_LEFT:
-                        keyStr = String.valueOf((char) 2);
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_RIGHT:
-                        keyStr = String.valueOf((char) 6);
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_UP:
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_ENTER:
+                    keyStr = String.valueOf((char) 13);
+                    break;
+                case KeyEvent.KEYCODE_DEL:
+                    keyStr = String.valueOf((char) 8);
+                    break;
+                case KeyEvent.KEYCODE_MENU:
+                    if (!mInMap) {
+                        this.postInvalidate();
+                        return true;
+                    }
+                    break;
+                case KeyEvent.KEYCODE_SEARCH:
+                    /* Handle event in Main Activity if map is shown */
+                    if (!mInMap) {
+                        keyStr = String.valueOf((char) 19);
+                    }
+                    break;
+                case KeyEvent.KEYCODE_BACK:
+                    keyStr = String.valueOf((char) 27);
+                    break;
+                case KeyEvent.KEYCODE_CALL:
+                    keyStr = String.valueOf((char) 3);
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    if (!mInMap) {
+                        // use as UP key
                         keyStr = String.valueOf((char) 16);
-                        break;
-                        default:
-                        Log.e(TAG, "Unexpected keycode: " + keyCode);
-                }
+                    }
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    if (!mInMap) {
+                        // use as DOWN key
+                        keyStr = String.valueOf((char) 14);
+                    }
+                    break;
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                    keyStr = String.valueOf((char) 13);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    keyStr = String.valueOf((char) 14);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    keyStr = String.valueOf((char) 2);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    keyStr = String.valueOf((char) 6);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    keyStr = String.valueOf((char) 16);
+                    break;
+                default:
+                    Log.e(TAG, "Unexpected keycode: " + keyCode);
+            }
             if (keyStr != null) {
                 keypressCallback(mKeypressCallbackID, keyStr);
                 return true;
@@ -656,9 +654,11 @@ class NavitGraphics {
                     callbackMessageChannel(6, msg.getData().getString(("title")));
                     break;
                 case CLB_DELETE_MAP:
+                    //unload map before deleting it !!!
+                    callbackMessageChannel(7, msg.getData().getString(("title")));
                     File toDelete = new File(msg.getData().getString(("title")));
                     toDelete.delete();
-                    //fallthrough
+                    break;
                 case CLB_UNLOAD_MAP:
                     callbackMessageChannel(7, msg.getData().getString(("title")));
                     break;
@@ -672,7 +672,7 @@ class NavitGraphics {
 
     private native void sizeChangedCallback(long id, int x, int y);
 
-    private native void paddingChangedCallback(long id, int left, int right, int top, int bottom);
+    private native void paddingChangedCallback(long id, int left, int top, int right, int bottom);
 
     private native void keypressCallback(long id, String s);
 
