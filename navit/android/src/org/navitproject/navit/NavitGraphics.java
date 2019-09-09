@@ -627,7 +627,7 @@ class NavitGraphics {
                     callbackMessageChannel(2, "");
                     break;
                 case CLB_MOVE:
-                //    motionCallback(mMotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                    //motionCallback(mMotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
                     break;
                 case CLB_SET_DESTINATION:
                     String lat = Float.toString(msg.getData().getFloat("lat"));
@@ -645,10 +645,10 @@ class NavitGraphics {
                     callbackMessageChannel(5, cmd);
                     break;
                 case CLB_BUTTON_UP:
-                //    buttonCallback(mButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // up
+                    //buttonCallback(mButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
                     break;
                 case CLB_BUTTON_DOWN:
-                 //   buttonCallback(mButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                    //buttonCallback(mButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
                     break;
                 case CLB_COUNTRY_CHOOSER:
                     break;
