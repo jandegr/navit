@@ -284,22 +284,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         (*env)->ReleaseStringUTFChars(env, str, map_location);
         break;
     }
-    case 7: { // remove a map from the current mapset, return 1 on success
-        struct mapset *ms = navit_get_mapset(attr.u.navit);
-        struct attr map_r;
-        const char *map_location = (*env)->GetStringUTFChars(env, str, NULL);
-        struct map *delete_map = mapset_get_map_by_name(ms, map_location);
-
-        if (delete_map) {
-            //dbg(lvl_debug, "delete map %s (%p)", map_location, delete_map);
-            map_r.type = attr_map;
-            map_r.u.map = delete_map;
-            ret = mapset_remove_attr(ms, &map_r);
-            navit_draw(attr.u.navit);
-        }
-        (*env)->ReleaseStringUTFChars(env, str, map_location);
-        break;
-    }
     default:
         dbg(lvl_error, "Unknown command: %d", channel);
     }
