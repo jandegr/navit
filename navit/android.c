@@ -269,8 +269,9 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
             navit_draw(attr.u.navit);
         }
         (*env)->ReleaseStringUTFChars(env, str, map_location);
-        break;
+       
     }
+    break;
     case 5:
         // call a command (like in gui)
         s = (*env)->GetStringUTFChars(env, str, NULL);
