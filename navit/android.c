@@ -254,7 +254,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         navit_zoom_out_cursor(attr.u.navit, 2);
         navit_draw(attr.u.navit);
         break;
-#if 0
     case 6: {// add a map to the current mapset, return 1 on success
         struct mapset *ms = navit_get_mapset(attr.u.navit);
         struct attr type, name, data, *attrs[4];
@@ -301,14 +300,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         (*env)->ReleaseStringUTFChars(env, str, map_location);
         break;
     }
-    case 5:
-        // call a command (like in gui)
-        s = (*env)->GetStringUTFChars(env, str, NULL);
-        //dbg(lvl_debug, "*****string=%s", s);
-        command_evaluate(&attr, s);
-        (*env)->ReleaseStringUTFChars(env, str, s);
-        break;
- #endif
     default:
         dbg(lvl_error, "Unknown command: %d", channel);
     }
