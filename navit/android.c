@@ -235,24 +235,8 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitAppConfig_callbackLoc
     return js;
 }
 
-/**
- * @brief Returns the cost of the segment in the given direction.
- *
- * The cost is calculated based on the length of the segment and a penalty which depends on the score.
- * A segment with the maximum score of 100 is not penalized, i.e. its cost is equal to its length. A
- * segment with a zero score is penalized with a factor of `PENALTY_SEGMENT_MATCH`. For scores in between, a
- * penalty factor between 1 and `PENALTY_SEGMENT_MATCH` is applied.
- *
- * If the segment is impassable in the given direction, the cost is always `INT_MAX`.
- *
- * @param over The segment
- * @param data Data for the segments added to the map
- * @param dir The direction (positive numbers indicate positive direction)
- *
- * @return The cost of the segment
- */
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCountry( JNIEnv* env, jobject thiz,
-        jint channel, jstring str) {
+                                                                                       jint channel, jstring str) {
     struct attr search_attr, country_name, country_iso2, *country_attr;
     struct tracking *tracking;
     struct search_list_result *res;
@@ -289,22 +273,7 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCo
     return return_string;
 }
 
-/**
- * @brief Returns the cost of the segment in the given direction.
- *
- * The cost is calculated based on the length of the segment and a penalty which depends on the score.
- * A segment with the maximum score of 100 is not penalized, i.e. its cost is equal to its length. A
- * segment with a zero score is penalized with a factor of `PENALTY_SEGMENT_MATCH`. For scores in between, a
- * penalty factor between 1 and `PENALTY_SEGMENT_MATCH` is applied.
- *
- * If the segment is impassable in the given direction, the cost is always `INT_MAX`.
- *
- * @param over The segment
- * @param data Data for the segments added to the map
- * @param dir The direction (positive numbers indicate positive direction)
- *
- * @return The cost of the segment
- */
+
 JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessageChannel( JNIEnv* env, jclass thiz,
         jint channel, jstring str) {
     struct attr attr;
@@ -328,7 +297,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         struct mapset *ms = navit_get_mapset(attr.u.navit);
         struct attr type, name, data, *attrs[4];
         const char *map_location = (*env)->GetStringUTFChars(env, str, NULL);
-        //dbg(lvl_debug, "*****string=%s", map_location);
+        dbg(lvl_debug, "*****string=%s", map_location);
         type.type = attr_type;
         type.u.str = "binfile";
 
@@ -361,7 +330,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         struct map *delete_map = mapset_get_map_by_name(ms, map_location);
 
         if (delete_map) {
-            //dbg(lvl_debug, "delete map %s (%p)", map_location, delete_map);
+            dbg(lvl_debug, "delete map %s (%p)", map_location, delete_map);
             map_r.type = attr_map;
             map_r.u.map = delete_map;
             ret = mapset_remove_attr(ms, &map_r);
@@ -373,7 +342,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     case 5:
         // call a command (like in gui)
         s = (*env)->GetStringUTFChars(env, str, NULL);
-        //dbg(lvl_debug, "*****string=%s", s);
+        dbg(lvl_debug, "*****string=%s", s);
         command_evaluate(&attr, s);
         (*env)->ReleaseStringUTFChars(env, str, s);
         break;
@@ -388,7 +357,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         char parse_str[strlen(s) + 1];
         strcpy(parse_str, s);
         (*env)->ReleaseStringUTFChars(env, str, s);
-        //dbg(lvl_debug, "*****string=%s", parse_str);
+        dbg(lvl_debug, "*****string=%s", parse_str);
 
         // set destination to (pixel-x#pixel-y)
         // pixel-x
@@ -421,7 +390,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         char parse_str[strlen(s) + 1];
         strcpy(parse_str, s);
         (*env)->ReleaseStringUTFChars(env, str, s);
-        //dbg(lvl_debug, "*****string=%s", s);
+        dbg(lvl_debug, "*****string=%s", s);
 
         // set destination to (lat#lon#title)
         struct coord_geo g;
@@ -437,9 +406,9 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         // description
         name = strtok(NULL, "#");
 
-        //dbg(lvl_debug, "lat=%f", g.lat);
-        //dbg(lvl_debug, "lng=%f", g.lng);
-        //dbg(lvl_debug, "str1=%s", name);
+        dbg(lvl_debug, "lat=%f", g.lat);
+        dbg(lvl_debug, "lng=%f", g.lng);
+        dbg(lvl_debug, "str1=%s", name);
 
         struct coord c;
         transform_from_geo(projection_mg, &g, &c);
@@ -458,6 +427,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     }
     return ret;
 }
+
 
 JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllCountries( JNIEnv* env, jclass thiz) {
     struct attr search_attr;
