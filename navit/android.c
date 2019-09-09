@@ -284,6 +284,105 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         (*env)->ReleaseStringUTFChars(env, str, map_location);
         break;
     }
+    case 7: { // remove a map from the current mapset, return 1 on success
+        struct mapset *ms = navit_get_mapset(attr.u.navit);
+        struct attr map_r;
+        const char *map_location = (*env)->GetStringUTFChars(env, str, NULL);
+        struct map *delete_map = mapset_get_map_by_name(ms, map_location);
+
+        if (delete_map) {
+            //dbg(lvl_debug, "delete map %s (%p)", map_location, delete_map);
+            map_r.type = attr_map;
+            map_r.u.map = delete_map;
+            ret = mapset_remove_attr(ms, &map_r);
+            navit_draw(attr.u.navit);
+        }
+        (*env)->ReleaseStringUTFChars(env, str, map_location);
+        break;
+    }
+    case 5:
+        // call a command (like in gui)
+        s = (*env)->GetStringUTFChars(env, str, NULL);
+        //dbg(lvl_debug, "*****string=%s", s);
+        command_evaluate(&attr, s);
+        (*env)->ReleaseStringUTFChars(env, str, s);
+        break;
+    case 4: { // navigate to display position
+        char *pstr;
+        struct point p;
+        struct coord c;
+        struct pcoord pc;
+        struct transformation *transform = navit_get_trans(attr.u.navit);
+
+        s = (*env)->GetStringUTFChars(env, str, NULL);
+        char parse_str[strlen(s) + 1];
+        strcpy(parse_str, s);
+        (*env)->ReleaseStringUTFChars(env, str, s);
+        //dbg(lvl_debug, "*****string=%s", parse_str);
+
+        // set destination to (pixel-x#pixel-y)
+        // pixel-x
+        pstr = strtok(parse_str, "#");
+        p.x = atoi(pstr);
+        // pixel-y
+        pstr = strtok(NULL, "#");
+        p.y = atoi(pstr);
+
+        //dbg(lvl_debug, "11x=%d", p.x);
+        //dbg(lvl_debug, "11y=%d", p.y);
+
+        transform_reverse(transform, &p, &c);
+
+        pc.x = c.x;
+        pc.y = c.y;
+        pc.pro = transform_get_projection(transform);
+
+        //dbg(lvl_debug, "22x=%d", pc.x);
+        //dbg(lvl_debug, "22y=%d", pc.y);
+
+        // start navigation asynchronous
+        navit_set_destination(attr.u.navit, &pc, parse_str, 1);
+        break;
+    }
+    case 3: {
+        // navigate to geo position
+        char *name;
+        s = (*env)->GetStringUTFChars(env, str, NULL);
+        char parse_str[strlen(s) + 1];
+        strcpy(parse_str, s);
+        (*env)->ReleaseStringUTFChars(env, str, s);
+        //dbg(lvl_debug, "*****string=%s", s);
+
+        // set destination to (lat#lon#title)
+        struct coord_geo g;
+        char *p;
+        char *stopstring;
+
+        // lat
+        p = strtok(parse_str, "#");
+        g.lat = strtof(p, &stopstring);
+        // lon
+        p = strtok(NULL, "#");
+        g.lng = strtof(p, &stopstring);
+        // description
+        name = strtok(NULL, "#");
+
+        //dbg(lvl_debug, "lat=%f", g.lat);
+        //dbg(lvl_debug, "lng=%f", g.lng);
+        //dbg(lvl_debug, "str1=%s", name);
+
+        struct coord c;
+        transform_from_geo(projection_mg, &g, &c);
+
+        struct pcoord pc;
+        pc.x = c.x;
+        pc.y = c.y;
+        pc.pro = projection_mg;
+
+        // start navigation asynchronous
+        navit_set_destination(attr.u.navit, &pc, name, 1);
+        break;
+    }        
     default:
         dbg(lvl_error, "Unknown command: %d", channel);
     }
