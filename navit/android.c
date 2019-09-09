@@ -269,13 +269,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         attrs[3] = NULL;
 
         struct map *new_map = map_new(NULL, attrs);
-        if (new_map) {
-            struct attr map_a;
-            map_a.type = attr_map;
-            map_a.u.map = new_map;
-            ret = mapset_add_attr(ms, &map_a);
-            navit_draw(attr.u.navit);
-        }
+        
         (*env)->ReleaseStringUTFChars(env, str, map_location);
         break;
     }
