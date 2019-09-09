@@ -281,7 +281,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         break;
     }
     default:
-        dbg(lvl_error, "Unknown command: %d", channel);
+        dbg(lvl_error, "Unknown command");
     }
     return ret;
 }
