@@ -381,6 +381,7 @@ class NavitGraphics {
             String keyStr = null;
             switch (keyCode) {
                 case KeyEvent.KEYCODE_ENTER:
+                case KeyEvent.KEYCODE_DPAD_CENTER:
                     keyStr = String.valueOf((char) 13);
                     break;
                 case KeyEvent.KEYCODE_DEL:
@@ -403,21 +404,6 @@ class NavitGraphics {
                     break;
                 case KeyEvent.KEYCODE_CALL:
                     keyStr = String.valueOf((char) 3);
-                    break;
-                case KeyEvent.KEYCODE_VOLUME_UP:
-                    if (!mInMap) {
-                        // use as UP key
-                        keyStr = String.valueOf((char) 16);
-                    }
-                    break;
-                case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    if (!mInMap) {
-                        // use as DOWN key
-                        keyStr = String.valueOf((char) 14);
-                    }
-                    break;
-                case KeyEvent.KEYCODE_DPAD_CENTER:
-                    keyStr = String.valueOf((char) 13);
                     break;
                 case KeyEvent.KEYCODE_DPAD_DOWN:
                     keyStr = String.valueOf((char) 14);
