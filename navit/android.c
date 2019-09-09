@@ -235,7 +235,7 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitAppConfig_callbackLoc
     return js;
 }
 
-JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessageChannel( JNIEnv* env, jobject thiz,
+JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessageChannel( JNIEnv* env, jclass thiz,
         jint channel, jstring str) {
     struct attr attr;
     const char *s;
@@ -328,8 +328,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         pstr = strtok(NULL, "#");
         p.y = atoi(pstr);
 
-        dbg(lvl_debug, "11x=%d", p.x);
-        dbg(lvl_debug, "11y=%d", p.y);
+        //dbg(lvl_debug, "11x=%d", p.x);
+        //dbg(lvl_debug, "11y=%d", p.y);
 
         transform_reverse(transform, &p, &c);
 
