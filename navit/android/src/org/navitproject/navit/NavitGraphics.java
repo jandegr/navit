@@ -386,12 +386,12 @@ class NavitGraphics {
                 case KeyEvent.KEYCODE_DEL:
                     keyStr = String.valueOf((char) 8);
                     break;
-                case KeyEvent.KEYCODE_MENU:
-                    if (!mInMap) {
-                        this.postInvalidate();
-                        return true;
-                    }
-                    break;
+                //case KeyEvent.KEYCODE_MENU:
+                //    if (!mInMap) {
+                //        this.postInvalidate();
+                //        return true;
+                //    }
+                //    break;
                 case KeyEvent.KEYCODE_SEARCH:
                     /* Handle event in Main Activity if map is shown */
                     if (!mInMap) {
