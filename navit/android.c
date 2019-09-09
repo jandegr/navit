@@ -390,12 +390,14 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
 }
 
 /**
- * @brief
- * @param env
- * @param thiz
- * @param channel
- * @param str
- * @return
+ * @brief somebrief.
+ *
+ *
+ * @param env environmental issues
+ * @param thiz or that
+ * @param channel not a tv channel
+ * @param str sst
+ * @return for sure
  */
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCountry( JNIEnv* env, jobject thiz,
         jint channel, jstring str) {
