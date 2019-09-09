@@ -285,6 +285,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     }
     return ret;
 }
+
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCountry( JNIEnv* env, jobject thiz,
         jint channel, jstring str) {
     struct attr search_attr, country_name, country_iso2, *country_attr;
