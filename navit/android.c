@@ -254,6 +254,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         navit_zoom_out_cursor(attr.u.navit, 2);
         navit_draw(attr.u.navit);
         break;
+#if 0
     case 6: {// add a map to the current mapset, return 1 on success
         struct mapset *ms = navit_get_mapset(attr.u.navit);
         struct attr type, name, data, *attrs[4];
@@ -383,6 +384,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         navit_set_destination(attr.u.navit, &pc, name, 1);
         break;
     }
+ #endif
     default:
         dbg(lvl_error, "Unknown command: %d", channel);
     }
