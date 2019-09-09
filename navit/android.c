@@ -308,43 +308,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         command_evaluate(&attr, s);
         (*env)->ReleaseStringUTFChars(env, str, s);
         break;
-    case 4: { // navigate to display position
-        char *pstr;
-        struct point p;
-        struct coord c;
-        struct pcoord pc;
-        struct transformation *transform = navit_get_trans(attr.u.navit);
-
-        s = (*env)->GetStringUTFChars(env, str, NULL);
-        char parse_str[strlen(s) + 1];
-        strcpy(parse_str, s);
-        (*env)->ReleaseStringUTFChars(env, str, s);
-        //dbg(lvl_debug, "*****string=%s", parse_str);
-
-        // set destination to (pixel-x#pixel-y)
-        // pixel-x
-        pstr = strtok(parse_str, "#");
-        p.x = atoi(pstr);
-        // pixel-y
-        pstr = strtok(NULL, "#");
-        p.y = atoi(pstr);
-
-        //dbg(lvl_debug, "11x=%d", p.x);
-        //dbg(lvl_debug, "11y=%d", p.y);
-
-        transform_reverse(transform, &p, &c);
-
-        pc.x = c.x;
-        pc.y = c.y;
-        pc.pro = transform_get_projection(transform);
-
-        //dbg(lvl_debug, "22x=%d", pc.x);
-        //dbg(lvl_debug, "22y=%d", pc.y);
-
-        // start navigation asynchronous
-        navit_set_destination(attr.u.navit, &pc, parse_str, 1);
-        break;
-    }
  #endif
     default:
         dbg(lvl_error, "Unknown command: %d", channel);
