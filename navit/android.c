@@ -237,10 +237,7 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitAppConfig_callbackLoc
 
 JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessageChannel( JNIEnv* env, jclass thiz,
         jint channel, jstring str) {
-    struct attr attr;
-    const char *s;
-    jint ret = 0;
-    config_get_attr(config_get(), attr_navit, &attr, NULL);
+   
 
     switch(channel) {
     case 1:
