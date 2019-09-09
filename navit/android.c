@@ -235,6 +235,22 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitAppConfig_callbackLoc
     return js;
 }
 
+/**
+ * @brief Returns the cost of the segment in the given direction.
+ *
+ * The cost is calculated based on the length of the segment and a penalty which depends on the score.
+ * A segment with the maximum score of 100 is not penalized, i.e. its cost is equal to its length. A
+ * segment with a zero score is penalized with a factor of `PENALTY_SEGMENT_MATCH`. For scores in between, a
+ * penalty factor between 1 and `PENALTY_SEGMENT_MATCH` is applied.
+ *
+ * If the segment is impassable in the given direction, the cost is always `INT_MAX`.
+ *
+ * @param over The segment
+ * @param data Data for the segments added to the map
+ * @param dir The direction (positive numbers indicate positive direction)
+ *
+ * @return The cost of the segment
+ */
 JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessageChannel( JNIEnv* env, jclass thiz,
         jint channel, jstring str) {
     struct attr attr;
@@ -405,7 +421,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
  *
  * @return The cost of the segment
  */
-
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCountry( JNIEnv* env, jobject thiz,
         jint channel, jstring str) {
     struct attr search_attr, country_name, country_iso2, *country_attr;
