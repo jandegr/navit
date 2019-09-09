@@ -307,35 +307,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     case 3: {
         // navigate to geo position
         char *name;
-        s = (*env)->GetStringUTFChars(env, str, NULL);
-        char parse_str[strlen(s) + 1];
-        strcpy(parse_str, s);
-        (*env)->ReleaseStringUTFChars(env, str, s);
-
-        // set destination to (lat#lon#title)
-        struct coord_geo g;
-        char *p;
-        char *stopstring;
-
-        // lat
-        p = strtok(parse_str, "#");
-        g.lat = strtof(p, &stopstring);
-        // lon
-        p = strtok(NULL, "#");
-        g.lng = strtof(p, &stopstring);
-        // description
-        name = strtok(NULL, "#");
-
-        struct coord c;
-        transform_from_geo(projection_mg, &g, &c);
-
-        struct pcoord pc;
-        pc.x = c.x;
-        pc.y = c.y;
-        pc.pro = projection_mg;
-
-        // start navigation asynchronous
-        navit_set_destination(attr.u.navit, &pc, name, 1);
+        
         break;
     }
     default:
