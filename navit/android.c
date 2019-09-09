@@ -240,7 +240,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     struct attr attr;
     const char *s;
     jint ret = 0;
-    //dbg(lvl_debug,"enter %d %p",channel,str);
     config_get_attr(config_get(), attr_navit, &attr, NULL);
 
     switch(channel) {
@@ -258,7 +257,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         struct mapset *ms = navit_get_mapset(attr.u.navit);
         struct attr type, name, data, *attrs[4];
         const char *map_location = (*env)->GetStringUTFChars(env, str, NULL);
-        //dbg(lvl_debug, "*****string=%s", map_location);
         type.type = attr_type;
         type.u.str = "binfile";
 
@@ -291,7 +289,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         struct map *delete_map = mapset_get_map_by_name(ms, map_location);
 
         if (delete_map) {
-            //dbg(lvl_debug, "delete map %s (%p)", map_location, delete_map);
             map_r.type = attr_map;
             map_r.u.map = delete_map;
             ret = mapset_remove_attr(ms, &map_r);
@@ -303,7 +300,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     case 5:
         // call a command (like in gui)
         s = (*env)->GetStringUTFChars(env, str, NULL);
-        //dbg(lvl_debug, "*****string=%s", s);
         command_evaluate(&attr, s);
         (*env)->ReleaseStringUTFChars(env, str, s);
         break;
@@ -318,7 +314,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         char parse_str[strlen(s) + 1];
         strcpy(parse_str, s);
         (*env)->ReleaseStringUTFChars(env, str, s);
-        //dbg(lvl_debug, "*****string=%s", parse_str);
 
         // set destination to (pixel-x#pixel-y)
         // pixel-x
@@ -328,17 +323,11 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         pstr = strtok(NULL, "#");
         p.y = atoi(pstr);
 
-        //dbg(lvl_debug, "11x=%d", p.x);
-        //dbg(lvl_debug, "11y=%d", p.y);
-
         transform_reverse(transform, &p, &c);
 
         pc.x = c.x;
         pc.y = c.y;
         pc.pro = transform_get_projection(transform);
-
-        //dbg(lvl_debug, "22x=%d", pc.x);
-        //dbg(lvl_debug, "22y=%d", pc.y);
 
         // start navigation asynchronous
         navit_set_destination(attr.u.navit, &pc, parse_str, 1);
@@ -351,7 +340,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         char parse_str[strlen(s) + 1];
         strcpy(parse_str, s);
         (*env)->ReleaseStringUTFChars(env, str, s);
-        //dbg(lvl_debug, "*****string=%s", s);
 
         // set destination to (lat#lon#title)
         struct coord_geo g;
@@ -366,10 +354,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         g.lng = strtof(p, &stopstring);
         // description
         name = strtok(NULL, "#");
-
-        //dbg(lvl_debug, "lat=%f", g.lat);
-        //dbg(lvl_debug, "lng=%f", g.lng);
-        //dbg(lvl_debug, "str1=%s", name);
 
         struct coord c;
         transform_from_geo(projection_mg, &g, &c);
