@@ -322,7 +322,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
             navit_draw(attr.u.navit);
         }
         (*env)->ReleaseStringUTFChars(env, str, map_location);
-        break;
+    break;
     }
     case 7: { // remove a map from the current mapset, return 1 on success
         struct mapset *ms = navit_get_mapset(attr.u.navit);
@@ -338,7 +338,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
             navit_draw(attr.u.navit);
         }
         (*env)->ReleaseStringUTFChars(env, str, map_location);
-        break;
+    break;
     }
     case 5:
         // call a command (like in gui)
@@ -382,7 +382,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
 
         // start navigation asynchronous
         navit_set_destination(attr.u.navit, &pc, parse_str, 1);
-        break;
+    break;
     }
     case 3: {
         // navigate to geo position
@@ -421,7 +421,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
 
         // start navigation asynchronous
         navit_set_destination(attr.u.navit, &pc, name, 1);
-        break;
+    break;
     }
     default:
         dbg(lvl_error, "Unknown command: %d", channel);
