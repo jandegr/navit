@@ -236,7 +236,8 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitAppConfig_callbackLoc
 }
 
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCountry( JNIEnv* env, jobject thiz,
-                                                                                       jint channel, jstring str) {
+        jint channel, jstring str) {
+    
     struct attr search_attr, country_name, country_iso2, *country_attr;
     struct tracking *tracking;
     struct search_list_result *res;
