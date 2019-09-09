@@ -76,6 +76,7 @@ class NavitGraphics {
     private int                            mPaddingTop = 0;
     private int                            mPaddingBottom = 0;
     private View                           mView;
+    static final Handler mCallbackHandler = new CallBackHandler(); // naam waarschijnlijk fout
     private SystemBarTintView              mLeftTintView;
     private SystemBarTintView              mRightTintView;
     private SystemBarTintView              mTopTintView;
@@ -483,7 +484,6 @@ class NavitGraphics {
             } else if (i != 10) {
                 s = java.lang.String.valueOf((char) i);
             }
-
             if (s != null) {
                 keypressCallback(mKeypressCallbackID, s);
             }
@@ -617,8 +617,7 @@ class NavitGraphics {
 
     private static final MsgType[] msg_values = MsgType.values();
 
-
-    final Handler mCallbackHandler = new Handler() {
+    private static class CallBackHandler extends Handler {
         public void handleMessage(Message msg) {
             switch (msg_values[msg.what]) {
                 case CLB_ZOOM_IN:
@@ -628,7 +627,7 @@ class NavitGraphics {
                     callbackMessageChannel(2, "");
                     break;
                 case CLB_MOVE:
-                    motionCallback(mMotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                //    motionCallback(mMotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
                     break;
                 case CLB_SET_DESTINATION:
                     String lat = Float.toString(msg.getData().getFloat("lat"));
@@ -646,11 +645,10 @@ class NavitGraphics {
                     callbackMessageChannel(5, cmd);
                     break;
                 case CLB_BUTTON_UP:
-                    buttonCallback(mButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // up
+                //    buttonCallback(mButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y")); // up
                     break;
                 case CLB_BUTTON_DOWN:
-                    // down
-                    buttonCallback(mButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
+                 //   buttonCallback(mButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
                     break;
                 case CLB_COUNTRY_CHOOSER:
                     break;
@@ -669,7 +667,7 @@ class NavitGraphics {
                     Log.e(TAG, "Unhandled callback : " + msg_values[msg.what]);
             }
         }
-    };
+    }
 
 
     private native void sizeChangedCallback(long id, int x, int y);
@@ -678,7 +676,7 @@ class NavitGraphics {
 
     private native void keypressCallback(long id, String s);
 
-    private native int callbackMessageChannel(int i, String s);
+    private static native int callbackMessageChannel(int i, String s);
 
     private native void buttonCallback(long id, int pressed, int button, int x, int y);
 
@@ -686,7 +684,7 @@ class NavitGraphics {
 
     //native String getDefaultCountry(int id, String s);
 
-    static native String[][] getAllCountries(); // kan verplaatst worden naar zoekact. ????????
+    static native String[][] getAllCountries();
 
     private Canvas mDrawCanvas;
     private Bitmap mDrawBitmap;
@@ -939,17 +937,20 @@ class NavitGraphics {
     }
 
     void setButtonCallback(long id) {
+        Log.e(TAG,"set Buttononcallback");
         mButtonCallbackID = id;
     }
 
     void setMotionCallback(long id) {
         mMotionCallbackID = id;
+        Log.e(TAG,"set Motioncallback");
         if (mActivity != null) {
             mActivity.setGraphics(this);
         }
     }
 
     void setKeypressCallback(long id) {
+        Log.e(TAG,"set Keypresscallback");
         mKeypressCallbackID = id;
     }
 
