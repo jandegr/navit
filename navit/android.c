@@ -237,8 +237,6 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitAppConfig_callbackLoc
 
 JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessageChannel( JNIEnv* env, jclass thiz,
         jint channel, jstring str) {
-   
-
     switch(channel) {
     case 1:
         // zoom in
