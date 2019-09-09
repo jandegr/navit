@@ -302,33 +302,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         break;
     case 4: { // navigate to display position
         char *pstr;
-        struct point p;
-        struct coord c;
-        struct pcoord pc;
-        struct transformation *transform = navit_get_trans(attr.u.navit);
-
-        s = (*env)->GetStringUTFChars(env, str, NULL);
-        char parse_str[strlen(s) + 1];
-        strcpy(parse_str, s);
-        (*env)->ReleaseStringUTFChars(env, str, s);
-
-        // set destination to (pixel-x#pixel-y)
-        // pixel-x
-        pstr = strtok(parse_str, "#");
-        p.x = atoi(pstr);
-        // pixel-y
-        pstr = strtok(NULL, "#");
-        p.y = atoi(pstr);
-
-        transform_reverse(transform, &p, &c);
-
-        pc.x = c.x;
-        pc.y = c.y;
-        pc.pro = transform_get_projection(transform);
-
-        // start navigation asynchronous
-        navit_set_destination(attr.u.navit, &pc, parse_str, 1);
-        break;
+        
     }
     case 3: {
         // navigate to geo position
