@@ -240,7 +240,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     struct attr attr;
     const char *s;
     jint ret = 0;
-    dbg(lvl_debug,"enter %d %p",channel,str);
+    //dbg(lvl_debug,"enter %d %p",channel,str);
     config_get_attr(config_get(), attr_navit, &attr, NULL);
 
     switch(channel) {
@@ -254,7 +254,36 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         navit_zoom_out_cursor(attr.u.navit, 2);
         navit_draw(attr.u.navit);
         break;
-    
+    case 6: {// add a map to the current mapset, return 1 on success
+        struct mapset *ms = navit_get_mapset(attr.u.navit);
+        struct attr type, name, data, *attrs[4];
+        const char *map_location = (*env)->GetStringUTFChars(env, str, NULL);
+        //dbg(lvl_debug, "*****string=%s", map_location);
+        type.type = attr_type;
+        type.u.str = "binfile";
+
+        data.type = attr_data;
+        data.u.str = g_strdup(map_location);
+
+        name.type = attr_name;
+        name.u.str = g_strdup(map_location);
+
+        attrs[0] = &type;
+        attrs[1] = &data;
+        attrs[2] = &name;
+        attrs[3] = NULL;
+
+        struct map *new_map = map_new(NULL, attrs);
+        if (new_map) {
+            struct attr map_a;
+            map_a.type = attr_map;
+            map_a.u.map = new_map;
+            ret = mapset_add_attr(ms, &map_a);
+            navit_draw(attr.u.navit);
+        }
+        (*env)->ReleaseStringUTFChars(env, str, map_location);
+        break;
+    }
     case 7: { // remove a map from the current mapset, return 1 on success
         struct mapset *ms = navit_get_mapset(attr.u.navit);
         struct attr map_r;
@@ -269,9 +298,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
             navit_draw(attr.u.navit);
         }
         (*env)->ReleaseStringUTFChars(env, str, map_location);
-       
+        break;
     }
-    break;
     case 5:
         // call a command (like in gui)
         s = (*env)->GetStringUTFChars(env, str, NULL);
@@ -354,13 +382,12 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         // start navigation asynchronous
         navit_set_destination(attr.u.navit, &pc, name, 1);
         break;
-    }        
+    }
     default:
         dbg(lvl_error, "Unknown command: %d", channel);
     }
     return ret;
 }
-
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCountry( JNIEnv* env, jobject thiz,
         jint channel, jstring str) {
     struct attr search_attr, country_name, country_iso2, *country_attr;
