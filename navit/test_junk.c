@@ -38,7 +38,7 @@ void navit_foo_bar(struct point_rect * r, struct point * in, int count_in, struc
         *count_out=0;
 
         /* iterate all points in current buffer */
-        for (i = 0 ; i < count ; i++) {
+        if (foo) {
             if (is_inside(p, r, edge)) {
                 if (! is_inside(s, r, edge)) {
                     struct point pi;
