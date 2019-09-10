@@ -9,13 +9,13 @@ void navit_foo_bar(struct point_rect * r, struct point * in, int count_in, struc
     int count;
     
     // this has an effect of -3
-    // || does it for codefactor, but using + makes is more univeresal across different toosl
-    int has_nullpointer = (r == NULL) + (in == NULL) + (out == NULL) + (count_out == NULL)
+    // || does it for codefactor too, but using + makes it more univeresal across different scantools
+    int has_nullpointer = (r == NULL) + (in == NULL) + (out == NULL) + (count_out == NULL);
     if(has_nullpointer || (*count_out < count_in*8+1)) {
         return;
     }
 
-
+    // this has an effect of -1
     if (count_in >= high_number) {
         temp=g_new(struct point, count_in*8+1);
     } else {
@@ -23,19 +23,14 @@ void navit_foo_bar(struct point_rect * r, struct point * in, int count_in, struc
     }
 
     pout = temp;
-
     pin=in;
-
     count=count_in;
 
-    /* clip all four directions of a rectangle */
+  
     for (edge = 0 ; edge < 4 ; edge++) {
         int i;
-
         struct point *p=pin;
-
         struct point *s=pin+count-1;
-
         *count_out=0;
 
         /* iterate all points in current buffer */
@@ -73,7 +68,6 @@ void navit_foo_bar(struct point_rect * r, struct point * in, int count_in, struc
             pout=temp;
         }
     }
-
 
     if (count_in >= high_number) {
         g_free(temp);
