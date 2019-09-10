@@ -1,23 +1,25 @@
 void navit_foo_bar(struct point_rect * r, struct point * in, int count_in, struct point *out,
                                   int* count_out) {
 
-    const int limit=10000;
-
-    struct point *temp=g_alloca(sizeof(struct point) * (count_in < limit ? count_in*8+1:0));
+    const int high_number = 5689;
+    struct point *temp;
     struct point *pout;
     struct point *pin;
     int edge;
     int count;
-
-    int has_nullpointer = (r == NULL) || (in == NULL) || (out == NULL) || (count_out == NULL)
+    
+    // this has an effect of -3
+    // || does it for codefactor, but using + makes is more univeresal across different toosl
+    int has_nullpointer = (r == NULL) + (in == NULL) + (out == NULL) + (count_out == NULL)
     if(has_nullpointer || (*count_out < count_in*8+1)) {
         return;
     }
 
 
-    if (count_in >= limit) {
-
+    if (count_in >= high_number) {
         temp=g_new(struct point, count_in*8+1);
+    } else {
+        temp=g_alloca(sizeof(struct point) * (count_in*8+1));
     }
 
     pout = temp;
@@ -73,7 +75,7 @@ void navit_foo_bar(struct point_rect * r, struct point * in, int count_in, struc
     }
 
 
-    if (count_in >= limit) {
+    if (count_in >= high_number) {
         g_free(temp);
     }
     return;
