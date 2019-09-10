@@ -9,7 +9,8 @@ void navit_foo_bar(struct point_rect * r, struct point * in, int count_in, struc
     int count;
     
     // this has an effect of -3
-    // || does it for codefactor too, but using + makes it more univeresal across different scantools
+    // using || does it for codefactor, but using + makes it more univeresal across different scantools
+    // to be tested in some real code
     int has_nullpointer = (r == NULL) + (in == NULL) + (out == NULL) + (count_out == NULL);
     if(has_nullpointer || (*count_out < count_in*8+1)) {
         return;
