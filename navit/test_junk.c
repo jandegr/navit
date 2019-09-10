@@ -59,7 +59,7 @@ void navit_foo_bar_after(struct point_rect * r, struct point * in, int count_in,
                                   int* count_out) {
     
     const int high_number=5689;
-    struct point *temp=g_alloca(sizeof(struct point) * (count_in < limit ? count_in*8+1:0));
+    struct point *temp;
     struct point *pout;
     struct point *pin;
     int edge;
