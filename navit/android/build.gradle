@@ -3,7 +3,7 @@ apply plugin: 'checkstyle'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "29.0.1"
+    buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "org.navitproject.navit"
         minSdkVersion 14
@@ -11,12 +11,12 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        ndk {// 'x86_64' ?? 
-            abiFilters 'x86', 'armeabi-v7a', 'arm64-v8a'
+        ndk {// 'x86_64' ?? , 'x86'
+            abiFilters 'x86_64', 'arm64-v8a', 'armeabi-v7a'
         }
         externalNativeBuild {
             cmake {
-                arguments '-DUSE_PLUGINS=n', '-DBUILD_MAPTOOL=n', '-DXSL_PROCESSING=n', '-DSAMPLE_MAP=n'
+                arguments '-DUSE_PLUGINS=n', '-DBUILD_MAPTOOL=n', '-DXSL_PROCESSING=n', '-DSAMPLE_MAP=n', '-DENABLE_ROLL=y'
             }
         }
     }
