@@ -844,7 +844,7 @@ static struct event_watch *
 event_android_add_watch(int h, enum event_watch_cond cond, struct callback *cb)
 {
 	jobject ret;
-	ret=(*jnienv)->NewObject(jnienv, NavitWatchClass, NavitWatch_init, (long)do_poll, h, (int) cond, (long)cb);
+	ret=(*jnienv)->NewObject(jnienv, NavitWatchClass, NavitWatch_init, (int)do_poll, h, (int) cond, (int)cb);
 	dbg(lvl_debug,"result for %d,%d,%p=%p\n",h,cond,cb,ret);
 	if (ret)
 		ret = (*jnienv)->NewGlobalRef(jnienv, ret);
