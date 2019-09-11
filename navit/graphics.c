@@ -806,9 +806,6 @@ struct graphics_image * graphics_image_new_scaled_rotated(struct graphics *gra, 
             newheight=h;
             
         name=g_strndup(pathi,s-pathi);
-#if 0
-        if (!strstr(name,"test.zip"))
-#endif
         image_new_helper(gra, this_, pathi, name, newwidth, newheight, rotate, 0);
         if (!this_->priv && strstr(pathi, ".zip/"))
             image_new_helper(gra, this_, pathi, name, newwidth, newheight, rotate, 1);
@@ -1877,8 +1874,6 @@ graphics_draw_polygon_clipped(struct graphics *gra, struct graphics_gc *gc, stru
     struct point_rect r=gra->r;
     struct point *pout,*p,*s,pi,*p1,*p2;
     int limit=10000;
-    struct point *pa1=g_alloca(sizeof(struct point) * (count_in < limit ? count_in*8+1:0));
-    struct point *pa2=g_alloca(sizeof(struct point) * (count_in < limit ? count_in*8+1:0));
     int count_out,edge=3;
     int i;
 #if 0
@@ -1888,8 +1883,8 @@ graphics_draw_polygon_clipped(struct graphics *gra, struct graphics_gc *gc, stru
     r.rl.y-=20;
 #endif
     if (count_in < limit) {
-        p1=pa1;
-        p2=pa2;
+        p1=g_alloca(sizeof(struct point) * (count_in*8+1));
+        p2=g_alloca(sizeof(struct point) * (count_in*8+1));
     } else {
         p1=g_new(struct point, count_in*8+1);
         p2=g_new(struct point, count_in*8+1);
@@ -2186,6 +2181,7 @@ displayitem_draw(struct displayitem *di, void *dummy, struct display_context *dc
     di=di->next;
     }
 }
+
 /**
  * FIXME
  * @param <>
@@ -2500,7 +2496,6 @@ do_draw(struct displaylist *displaylist, int cancel, int flags)
         displaylist->sel=NULL;
         displaylist->m=NULL;
     }
-    profile(1,"process_selection\n");
     if (displaylist->idle_ev)
         event_remove_idle(displaylist->idle_ev);
     displaylist->idle_ev=NULL;
@@ -2508,7 +2503,6 @@ do_draw(struct displaylist *displaylist, int cancel, int flags)
     displaylist->idle_cb=NULL;
     displaylist->busy=0;
     graphics_process_selection(displaylist->dc.gra, displaylist);
-    profile(1,"draw\n");
     if (! cancel)
         graphics_displaylist_draw(displaylist->dc.gra, displaylist, displaylist->dc.trans, displaylist->layout, flags);
     map_rect_destroy(displaylist->mr);
@@ -2519,9 +2513,7 @@ do_draw(struct displaylist *displaylist, int cancel, int flags)
     displaylist->sel=NULL;
     displaylist->m=NULL;
     displaylist->msh=NULL;
-    profile(1,"callback\n");
     callback_call_1(displaylist->cb, cancel);
-    profile(0,"end\n");
 }
 
 /**
@@ -2596,6 +2588,7 @@ static void graphics_load_mapset(struct graphics *gra, struct displaylist *displ
     } else
         do_draw(displaylist, 0, flags);
 }
+
 /**
  * FIXME
  * @param <>
