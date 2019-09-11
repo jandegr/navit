@@ -22,7 +22,6 @@ speech_winTTS_destroy(struct speech_priv *spch) {
 
 static int 
 speech_winTTS_say(struct speech_priv *spch, const char *text) {
-	
     const size_t cSize = strlen(text)+1;
     wchar_t* wc = new wchar_t[cSize];
     size_t tmp = 0;
@@ -34,7 +33,6 @@ speech_winTTS_say(struct speech_priv *spch, const char *text) {
 	
 static int
 speech_winTTS_init(struct speech_priv *spch) {
-	
 	if (FAILED(::CoInitialize(NULL))){
 		dbg(lvl_error,"Window Com init failed\n");
 		return 0;
@@ -55,7 +53,6 @@ static struct speech_methods speech_winTTS_meth = {
 	
 static struct speech_priv *
 speech_winTTS_new(struct speech_methods *meth, struct attr **attrs, struct attr *parent) {
-	
 	speech_priv *ret = new speech_priv;
 	struct attr *flags;
 	*meth=speech_winTTS_meth;
@@ -72,7 +69,6 @@ speech_winTTS_new(struct speech_methods *meth, struct attr **attrs, struct attr 
 }
 
 void
-plugin_init(void)
-{
+plugin_init(void) {
 	plugin_register_speech_type("winTTS", speech_winTTS_new);
 }
