@@ -844,7 +844,7 @@ static struct event_watch *
 event_android_add_watch(int h, enum event_watch_cond cond, struct callback *cb)
 {
 	jobject ret;
-	ret=(*jnienv)->NewObject(jnienv, NavitWatchClass, NavitWatch_init, (int)do_poll, h, (int) cond, (int)cb);
+	ret=(*jnienv)->NewObject(jnienv, NavitWatchClass, NavitWatch_init, (long)do_poll, h, (int) cond, (long)cb);
 	dbg(lvl_debug,"result for %d,%d,%p=%p\n",h,cond,cb,ret);
 	if (ret)
 		ret = (*jnienv)->NewGlobalRef(jnienv, ret);
@@ -973,7 +973,7 @@ event_android_new(struct event_methods *meth)
 
 	if (!find_class_global("org/navitproject/navit/NavitWatch", &NavitWatchClass))
 		return NULL;
-	NavitWatch_init = (*jnienv)->GetMethodID(jnienv, NavitWatchClass, "<init>", "(IIII)V");
+	NavitWatch_init = (*jnienv)->GetMethodID(jnienv, NavitWatchClass, "<init>", "(JIIJ)V");
 	if (NavitWatch_init == NULL) 
 		return NULL;
 	NavitWatch_remove = (*jnienv)->GetMethodID(jnienv, NavitWatchClass, "remove", "()V");
