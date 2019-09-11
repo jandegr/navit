@@ -2366,6 +2366,9 @@ navit_set_center_cursor(struct navit *this_, int autozoom, int keep_orientation)
     struct point pn;
     struct navit_vehicle *nv=this_->vehicle;
     struct attr attr;
+    if (!nv || !nv->vehicle) {
+        return;
+    }
     if (vehicle_get_attr(nv->vehicle, attr_position_valid, &attr, NULL) && (attr.u.num == attr_position_valid_invalid))
         return;
     navit_get_cursor_pnt(this_, &pn, keep_orientation, &dir);
