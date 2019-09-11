@@ -1,7 +1,7 @@
 circleci
 ========
 
-[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/settings.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/settings)
+[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/arm64_2.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/arm64_2)
 
 
 - windows 64 build includes maptool
