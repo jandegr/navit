@@ -1234,7 +1234,6 @@ static void bind_late(struct graphics_priv* gra_priv)
 static struct graphics_priv*
             graphics_win32_new( struct navit *nav, struct graphics_methods *meth, struct attr **attrs, struct callback_list *cbl)
 {
-
     dbg(lvl_error,"enter\n");
     struct attr *attr;
 
