@@ -534,10 +534,10 @@ transform(struct transformation *t, enum projection required_projection, struct 
 	for (i=0; i < count; i++) {
 		dbg(lvl_debug, "input coord %d: (%d, %d)\n", i, input[i].x, input[i].y);
 #if 0 /* doesn't work as wanted */
-		if (i && input[i].x == input[0].x && input[i].y == input[0].y && result_idx && !width_result) {
-			result[result_idx++]=result[0];
-			continue;
-		}
+//		if (i && input[i].x == input[0].x && input[i].y == input[0].y && result_idx && !width_result) {
+//			result[result_idx++]=result[0];
+//			continue;
+//		}
 #endif
 		projected_coord = transform_correct_projection(t, required_projection, input[i]);
 		shifted_coord = transform_shift_by_center_and_scale(t, projected_coord);
