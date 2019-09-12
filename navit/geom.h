@@ -41,7 +41,6 @@ enum geom_poly_segment_type {
 	geom_poly_segment_type_way_left_side,
 	geom_poly_segment_type_way_right_side,
 	geom_poly_segment_type_way_unknown,
-
 };
 
 struct geom_poly_segment {

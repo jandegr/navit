@@ -86,7 +86,6 @@ struct map_methods {
 	struct item *		(*map_rect_create_item)(struct map_rect_priv *mr, enum item_type type); /**< Function to create a new item in the map */
 	int			(*map_get_attr)(struct map_priv *priv, enum attr_type type, struct attr *attr);
         int			(*map_set_attr)(struct map_priv *priv, struct attr *attr);
-
 };
 
 /**
