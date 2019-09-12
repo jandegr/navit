@@ -51,7 +51,7 @@ jobs:
       - run:
           name: Process translations
           command: |
-            cd po  
+            cd po
             make
             sudo ls -la
             mkdir ../navit/android/res/raw
@@ -126,11 +126,11 @@ jobs:
       - store_artifacts:
           name: Store Javadoc
           path: navit/android/build/outputs/docs/javadoc
-          destination: doc  
+          destination: doc
       - store_artifacts:
           name: Store Lint reports
           path: navit/android/build/reports
-          destination: reports     
+          destination: reports
       - store_artifacts:
           name: Store translations
           path: po
@@ -177,11 +177,11 @@ jobs:
             bash ci/build_win64_glib_dll.sh
       - store_artifacts:
           path: win64/navit64install.exe
-      - store_artifacts:    
+      - store_artifacts:
           path: /usr/x86_64-w64-mingw32/bin/libintl-8.dll
       - store_artifacts:
           path: /usr/x86_64-w64-mingw32/bin/libglib-2.0-0.dll
-      - store_artifacts:    
+      - store_artifacts:
           path: /usr/x86_64-w64-mingw32/bin/libiconv-2.dll
       - store_artifacts:
           path: /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
@@ -194,4 +194,3 @@ workflows:
       - build_win_32
       - build_win_64
       - build_win_64_glib_dll
-      
