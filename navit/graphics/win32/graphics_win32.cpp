@@ -440,14 +440,12 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM l
                                 gra_priv->pPixelData[destPixel] = RGB ( ((65535 - overlay->transparent_color.a) * GetRValue(gra_priv->pPixelData[destPixel]) + overlay->transparent_color.a * GetRValue(overlay->pPixelData[srcPixel])) / 65535,
                                                                 ((65535 - overlay->transparent_color.a) * GetGValue(gra_priv->pPixelData[destPixel]) + overlay->transparent_color.a * GetGValue(overlay->pPixelData[srcPixel])) / 65535,
                                                                 ((65535 - overlay->transparent_color.a) * GetBValue(gra_priv->pPixelData[destPixel]) + overlay->transparent_color.a * GetBValue(overlay->pPixelData[srcPixel])) / 65535);
-
                             }
                             else
                             {
                                 gra_priv->pPixelData[destPixel] = overlay->pPixelData[srcPixel];
                             }
                         }
-
                     }
                 }
                 overlay = overlay->next;
@@ -739,7 +737,6 @@ static void draw_rectangle(struct graphics_priv *gr, struct graphics_gc_priv *gc
 
 static void draw_circle(struct graphics_priv *gr, struct graphics_gc_priv *gc, struct point *p, int r)
 {
-
     HPEN holdpen = (HPEN)SelectObject( gr->hMemDC, gc->hpen );
     HBRUSH holdbrush = (HBRUSH)SelectObject( gr->hMemDC, GetStockObject(NULL_BRUSH));
 
@@ -857,7 +854,6 @@ static struct graphics_image_priv *image_new(struct graphics_priv *gr, struct gr
 
 static void draw_image(struct graphics_priv *gr, struct graphics_gc_priv *fg, struct point *p, struct graphics_image_priv *img)
 {
-
     if (img->pxpm){
         Xpm2bmp_paint( img->pxpm , gr->hMemDC, p->x, p->y );
         return;
@@ -1089,7 +1085,6 @@ static void overlay_resize(struct graphics_priv *gr, struct point *p, int w, int
     }
     gr->p.x    = p->x;
     gr->p.y    = p->y;
-
 }
 
 
