@@ -650,7 +650,7 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 		return 0; /* exception thrown */
 	}
 	cb=callback_new_1(callback_cast(resize_callback), ret);
-	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (long)cb);
+	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (jlong)cb);
 
 	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setButtonCallback", "(J)V");
 	if (cid == NULL) {
@@ -658,7 +658,7 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 		return 0; /* exception thrown */
 	}
 	cb=callback_new_1(callback_cast(button_callback), ret);
-	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (long)cb);
+	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (jlong)cb);
 
 	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setMotionCallback", "(J)V");
 	if (cid == NULL) {
@@ -666,7 +666,7 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 		return 0; /* exception thrown */
 	}
 	cb=callback_new_1(callback_cast(motion_callback), ret);
-	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (long)cb);
+	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (jlong)cb);
 
 	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setKeypressCallback", "(J)V");
 	if (cid == NULL) {
@@ -674,7 +674,7 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 		return 0; /* exception thrown */
 	}
 	cb=callback_new_1(callback_cast(keypress_callback), ret);
-	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (long)cb);
+	(*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (jlong)cb);
 
 	if (!find_method(ret->NavitGraphicsClass, "draw_polyline", "(Landroid/graphics/Paint;[I)V", &ret->NavitGraphics_draw_polyline))
 		return 0;
@@ -894,7 +894,7 @@ event_android_add_timeout(int timeout, int multi, struct callback *cb)
 	ret->cb = cb;
 	ret->multi = multi;
 	ret->handle_timeout = event_android_handle_timeout;
-	ret->jni_timeout = (*jnienv)->NewObject(jnienv, NavitTimeoutClass, NavitTimeout_init, timeout, multi, (long)ret);
+	ret->jni_timeout = (*jnienv)->NewObject(jnienv, NavitTimeoutClass, NavitTimeout_init, timeout, multi, (jlong)ret);
 	if (ret->jni_timeout)
 		ret->jni_timeout = (*jnienv)->NewGlobalRef(jnienv, ret->jni_timeout);
 	return ret;
