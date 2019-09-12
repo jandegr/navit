@@ -351,7 +351,7 @@ public class FileBrowserActivity extends Activity {
                 // int dp5 = (int) (5 *
                 // getResources().getDisplayMetrics().density + 0.5f);
                 int dp3 = (int) (3 * getResources().getDisplayMetrics().density + 0.5f);
-                // TODO: change next line for empty directory, so text will be
+                // notdoneyet change next line for empty directory, so text will be
                 // centered
                 textView.setCompoundDrawablePadding(dp3);
                 return view;
@@ -391,7 +391,7 @@ public class FileBrowserActivity extends Activity {
         }
         // Layout apparently changes itself, only have to provide good onMeasure
         // in custom components
-        // TODO: check with keyboard
+        // notdone check with keyboard
         // if(newConfig.keyboard == Configuration.KEYBOARDHIDDEN_YES)
     } // END public void onConfigurationChanged(Configuration newConfig) {
 
@@ -401,7 +401,7 @@ public class FileBrowserActivity extends Activity {
     } // END public static long getFreeSpace(String path) {
 
     private static String formatBytes(long bytes) {
-        // TODO: add flag to which part is needed (e.g. GB, MB, KB or bytes)
+        // notdone add flag to which part is needed (e.g. GB, MB, KB or bytes)
         String retStr = "";
         // One binary gigabyte equals 1,073,741,824 bytes.
         if (bytes > 1073741824) { // Add GB
