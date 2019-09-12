@@ -43,6 +43,26 @@ public class NavitAppConfig extends Application {
         super.onCreate();
     }
 
+
+    // Called when the operating system has determined that it is a good time
+    // for a process to trim unneeded memory from its process.
+    // If you override this method you must call through to the superclass implementation.
+    public void onTrimMemory(int level){
+        super.onTrimMemory(level);
+    }
+
+    // This is called when the overall system is running low on memory,
+    // and actively running processes should trim their memory usage.
+    // If you override this method you must call through to the superclass implementation.
+    public void onLowMemory(){
+        super.onLowMemory();
+    }
+
+    // This method is for use in emulated process environments.
+    public void onTerminate(){
+        super.onTerminate();
+    }
+
     List<NavitSearchAddress> getLastAddresses() {
         if (mLastAddresses == null) {
             mLastAddresses = new ArrayList<>();
