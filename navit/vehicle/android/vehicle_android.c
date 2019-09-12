@@ -207,11 +207,7 @@ vehicle_android_fix_callback(struct vehicle_priv *v, int fix_type) {
 	}
 }
 
-/**
- * @brief Initializes an Android vehicle
- *
- * @return True on success, false on failure
- */
+
 static int
 vehicle_android_init(struct vehicle_priv *ret)
 {
@@ -243,7 +239,7 @@ vehicle_android_init(struct vehicle_priv *ret)
         }
         dbg(lvl_debug, "at 4 android_activity=%p\n", android_activity);
         ret->NavitVehicle=(*jnienv)->NewObject(jnienv, ret->NavitVehicleClass, cid, android_activity,
-                                                  (long) ret->pcb, (long) ret->scb, (long) ret->fcb);
+                                                  (jlong) ret->pcb, (jlong) ret->scb, (jlong) ret->fcb);
         dbg(lvl_debug,"result=%p\n",ret->NavitVehicle);
 	if (!ret->NavitVehicle)
 		return 0;
@@ -253,14 +249,7 @@ vehicle_android_init(struct vehicle_priv *ret)
 	return 1;
 }
 
-/**
- * @brief Create android_vehicle
- * 
- * @param meth
- * @param cbl
- * @param attrs
- * @returns vehicle_priv
- */
+
 static struct vehicle_priv *
 vehicle_android_new_android(struct vehicle_methods *meth,
 	       		struct callback_list *cbl,
