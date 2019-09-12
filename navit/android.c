@@ -146,27 +146,27 @@ Java_org_navitproject_navit_Navit_navitDestroy(JNIEnv *env, jobject instance)
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitGraphics_sizeChangedCallback( JNIEnv* env, jobject thiz, jlong id, jint w, jint h)
 {
-    dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)id,w,h);
+    dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)(intptr_t)id,w,h);
     if (id) {
-        callback_call_2((struct callback *) id, w, h);
+        callback_call_2((struct callback *) (intptr_t)id, w, h);
     }
 }
 
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitGraphics_buttonCallback( JNIEnv* env, jobject thiz, jlong id, jint pressed, jint button, jint x, jint y)
 {
-    dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)id,pressed,button);
+    dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)(intptr_t)id,pressed,button);
     if (id) {
-        callback_call_4((struct callback *) id, pressed, button, x, y);
+        callback_call_4((struct callback *)(intptr_t) id, pressed, button, x, y);
     }
 }
 
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitGraphics_motionCallback( JNIEnv* env, jobject thiz, jlong id, jint x, jint y)
 {
-    dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)id,x,y);
+    dbg(lvl_debug,"enter %p %d %d\n",(struct callback *)(intptr_t)id,x,y);
     if (id) {
-        callback_call_2((struct callback *) id, x, y);
+        callback_call_2((struct callback *) (intptr_t)id, x, y);
     }
 }
 
@@ -174,11 +174,11 @@ JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitGraphics_keypressCallback( JNIEnv* env, jobject thiz, jlong id, jstring str)
 {
     const char *s;
-    dbg(lvl_debug,"enter %p %p\n",(struct callback *)id,str);
+    dbg(lvl_debug,"enter %p %p\n",(struct callback *)(intptr_t)id,str);
     s=(*env)->GetStringUTFChars(env, str, NULL);
     dbg(lvl_debug,"key=%s",s);
     if (id) {
-        callback_call_1((struct callback *) id, s);
+        callback_call_1((struct callback *) (intptr_t)id, s);
     }
     (*env)->ReleaseStringUTFChars(env, str, s);
 }
@@ -186,23 +186,24 @@ Java_org_navitproject_navit_NavitGraphics_keypressCallback( JNIEnv* env, jobject
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitTimeout_timeoutCallback(JNIEnv *env, jobject instance, jlong id)
 {
-    dbg(lvl_debug,"enter %p %p\n",instance, (void *)id);
-    void (*event_handler)(void *) = *(void **)id;
+    dbg(lvl_debug,"enter %p %p\n",instance, (void *)(intptr_t)id);
+    void (*event_handler)(void *) = *(void **)(intptr_t)id;
     
-    event_handler((void*)id);
+    event_handler((void*)(intptr_t)id);
 }
 
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitVehicle_vehicleCallback( JNIEnv * env, jobject thiz, jlong id, jobject location)
 {
-    callback_call_1((struct callback *)id, (void *)location);
+    callback_call_1((struct callback *)(intptr_t)id, (void *)location);
 }
+
 
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitIdle_IdleCallback( JNIEnv* env, jobject thiz, jlong id)
 {
-    dbg(lvl_debug,"enter %p %p\n",thiz, (void *)id);
-    callback_call_0((struct callback *)id);
+    dbg(lvl_debug,"enter %p %p\n",thiz, (void *)(intptr_t)id);
+    callback_call_0((struct callback *)(intptr_t)id);
 }
 
 JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitWatch_poll(JNIEnv *env,
@@ -219,8 +220,8 @@ JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitWatch_poll(JNIEnv *env,
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitWatch_watchCallback(JNIEnv *env, jobject instance, jlong id) {
 
-  dbg(lvl_debug,"enter %p %p\n",instance, (void *)id);
-    callback_call_0((struct callback *)id);
+  dbg(lvl_debug,"enter %p %p\n",instance, (void *)(intptr_t)id);
+    callback_call_0((struct callback *)(intptr_t)id);
 
 }
 
@@ -228,8 +229,8 @@ Java_org_navitproject_navit_NavitWatch_watchCallback(JNIEnv *env, jobject instan
 JNIEXPORT void JNICALL
 Java_org_navitproject_navit_NavitSensors_sensorCallback( JNIEnv* env, jobject thiz, jlong id, jint sensor, jfloat x, jfloat y, jfloat z)
 {
-    dbg(lvl_debug,"enter %p %p %f %f %f\n",thiz, (void *)id,x,y,z);
-    callback_call_4((struct callback *)id, sensor, &x, &y, &z);
+    dbg(lvl_debug,"enter %p %p %f %f %f\n",thiz, (void *)(intptr_t)id,x,y,z);
+    callback_call_4((struct callback *)(intptr_t)id, sensor, &x, &y, &z);
 }
 
 // type: 0=town, 1=street, 2=House#
