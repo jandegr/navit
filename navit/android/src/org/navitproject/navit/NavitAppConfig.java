@@ -47,19 +47,19 @@ public class NavitAppConfig extends Application {
     // Called when the operating system has determined that it is a good time
     // for a process to trim unneeded memory from its process.
     // If you override this method you must call through to the superclass implementation.
-    public void onTrimMemory(int level){
+    public void onTrimMemory(int level) {
         super.onTrimMemory(level);
     }
 
     // This is called when the overall system is running low on memory,
     // and actively running processes should trim their memory usage.
     // If you override this method you must call through to the superclass implementation.
-    public void onLowMemory(){
+    public void onLowMemory() {
         super.onLowMemory();
     }
 
     // This method is for use in emulated process environments.
-    public void onTerminate(){
+    public void onTerminate() {
         super.onTerminate();
     }
 
