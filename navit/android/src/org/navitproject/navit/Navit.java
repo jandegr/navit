@@ -10,6 +10,8 @@
 
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -77,8 +79,8 @@ public class Navit extends Activity {
     public static long time_pressed_menu_key = 0L;
     private static Resources NavitResources = null;
     // define callback id here
-    public NavitGraphics mNavitGraphics = null;
-    static String map_filename_path = null;
+    public static NavitGraphics mNavitGraphics = null;
+    static String mapFilenamePath = null;
     private static Intent startupIntent = null;
     private static long startupIntentTimestamp = 0L;
     private static Navit navit;
@@ -89,10 +91,6 @@ public class Navit extends Activity {
         return navit;
     }
 
-
-    static String navitTranslate(String in) {
-        return callbackLocalizedString(in);
-    }
 
     // callback id gets set here when called from NavitGraphics
     public void setKeypressCallback(long kpCbId, NavitGraphics ng) {
@@ -113,22 +111,6 @@ public class Navit extends Activity {
      */
     private static void loadNativeNavit() {
         System.loadLibrary("navit");
-    }
-
-
-    /**
-     * get localized string from the native code.
-     */
-    static native String callbackLocalizedString(String s);
-
-    /* Translates a string from its id
-     * in R.strings
-     *
-     * @param riD resource identifier
-     * @retrun translated string
-     */
-    String getTstring(int riD) {
-        return callbackLocalizedString(getString(riD));
     }
 
     // not used !!!
@@ -236,7 +218,7 @@ public class Navit extends Activity {
                     RelativeLayout.LayoutParams.FILL_PARENT);
             message.setLayoutParams(rlp);
             final SpannableString s = new SpannableString(
-                    navitTranslate(getTstring(R.string.initial_info_box_message))); // TRANS
+                    (getTstring(R.string.initial_info_box_message))); // TRANS
             Linkify.addLinks(s, Linkify.WEB_URLS);
             message.setText(s);
             message.setMovementMethod(LinkMovementMethod.getInstance());
@@ -274,7 +256,6 @@ public class Navit extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         navit = this;
-        //ACRA.getErrorReporter().setEnabled(false);
         mDialogs = new NavitDialogs(this);
         NavitResources = getResources();
         // only take arguments here, onResume gets called all the time (e.g. when screenblanks, etc.)
@@ -338,7 +319,7 @@ public class Navit extends Activity {
         }
         Log.i(TAG, "Language " + lang);
         SharedPreferences prefs = getSharedPreferences(NAVIT_PREFS, MODE_PRIVATE);
-        map_filename_path = prefs.getString("filenamePath",
+        mapFilenamePath = prefs.getString("filenamePath",
                 Environment.getExternalStorageDirectory().getPath() + "/navit/");
 
         //map_filename_path  = prefs.getString("filenamePath", Environment.getExternalStorageDirectory().
@@ -355,9 +336,9 @@ public class Navit extends Activity {
 
 
         //map_filename_path = prefs.getString("filenamePath", navitfiles[0].toString() + "/");
-        map_filename_path  = prefs.getString("filenamePath", getApplicationContext().getFilesDir().getPath());
-        Log.e(TAG,"path = " + map_filename_path);
-        File navitMapsDir = new File(map_filename_path);
+        mapFilenamePath  = prefs.getString("filenamePath", getApplicationContext().getFilesDir().getPath()+'/');
+        Log.e(TAG,"path = " + mapFilenamePath);
+        File navitMapsDir = new File(mapFilenamePath);
         //map_filename_path = navitfiles[0].getParent() + "/";
 
         navitMapsDir.mkdirs();
@@ -414,7 +395,7 @@ public class Navit extends Activity {
         }
 
         navitMain(this, navitLanguage, android.os.Build.VERSION.SDK_INT, myDisplayDensity,
-                navitDataDir + "/bin/navit", map_filename_path);
+                navitDataDir + "/bin/navit", mapFilenamePath);
         showInfos();
         Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -581,8 +562,8 @@ public class Navit extends Activity {
         // c: google.navigation:ll=48.25676,16.643
         // b: google.navigation:q=48.25676,16.643
 
-        Float lat;
-        Float lon;
+        float lat;
+        float lon;
 
         Bundle b = new Bundle();
         String geoString = params.get("ll");
@@ -790,8 +771,8 @@ public class Navit extends Activity {
                     SharedPreferences.Editor prefsEditor = prefs.edit();
                     prefsEditor.putString("filenamePath", newDir + "/navit/");
                     prefsEditor.apply();
-                    map_filename_path = newDir + "/navit/";
-                    Toast.makeText(this, "New location set to " + map_filename_path
+                    mapFilenamePath = newDir + "/navit/";
+                    Toast.makeText(this, "New location set to " + mapFilenamePath
                             + "\n Restart Navit to apply the changes", Toast.LENGTH_LONG).show();
                 } else {
                     Log.w(TAG, "select path failed");

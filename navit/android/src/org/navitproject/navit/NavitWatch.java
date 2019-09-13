@@ -24,14 +24,14 @@ class NavitWatch implements Runnable {
     private static WatchHandler handler = new WatchHandler();
     private Thread mThread;
     private boolean mRemoved;
-    private int mWatchFunc;
+    private long mWatchFunc;
     private int mWatchFd;
     private int mWatchCond;
-    private int mWatchCallbackid;
+    private long mWatchCallbackid;
     private boolean mCallbackPending;
     private Runnable mCallbackRunnable;
 
-    NavitWatch(int func, int fd, int cond, int callbackid) {
+    NavitWatch(long func, int fd, int cond, long callbackid) {
         Log.d("NavitWatch","Creating new thread for " + fd + " " + cond + " from current thread "
                 + java.lang.Thread.currentThread().getName());
         mWatchFunc = func;
@@ -48,9 +48,9 @@ class NavitWatch implements Runnable {
         mThread.start();
     }
 
-    public native void poll(int func, int fd, int cond);
+    public native void poll(long func, int fd, int cond);
 
-    public native void watchCallback(int id);
+    public native void watchCallback(long id);
 
     public void run() {
         for (; ; ) {

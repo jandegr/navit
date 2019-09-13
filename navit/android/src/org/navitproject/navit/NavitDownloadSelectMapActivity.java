@@ -1,4 +1,4 @@
-/**
+/*
  * Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
@@ -15,7 +15,9 @@
 
 package org.navitproject.navit;
 
-import android.Manifest.permission;
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ExpandableListActivity;
@@ -25,6 +27,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.StatFs;
@@ -32,22 +35,20 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
-import android.widget.RelativeLayout;
 import android.widget.SimpleExpandableListAdapter;
-import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.navitproject.navit.NavitGraphics.MsgType;
+
 
 public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
     private static final String MAP_BULLETPOINT = " * ";
-    private static final String TAG = NavitDownloadSelectMapActivity.class.getName();
     private static SimpleExpandableListAdapter adapter = null;
     private static ArrayList<HashMap<String, String>> downloaded_maps_childs = null;
     private static ArrayList<HashMap<String, String>> maps_current_position_childs = null;
     private static boolean currentLocationKnown = false;
+    private static final String TAG = "DownloadSelectMapAct";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,23 +58,24 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
             adapter = createAdapter();
         }
         updateDownloadedMaps();
-        updateMapsForLocation(NavitMapDownloader.osm_maps);
+        updateMapsForLocation();
         setListAdapter(adapter);
         try {
-            setTitle(String.valueOf(getFreeSpace() / 1024 / 1024) + "MB available");
+            setTitle(getFreeSpace() / 1024 / 1024 + "MB available");
         } catch (Exception e) {
             Log.e(TAG, "Exception " + e.getClass().getName()
                     + " during getFreeSpace, reporting 'no sdcard present'");
             NavitDialogs.sendDialogMessage(NavitDialogs.MSG_TOAST_LONG, null,
-                    String.format(Navit.getInstance().getTstring(R.string.map_location_unavailable),
-                            Navit.map_filename_path),
+                    String.format(
+                        (getTstring(R.string.map_location_unavailable)),
+                        Navit.mapFilenamePath),
                     -1, 0, 0);
             finish();
         }
     }
 
     private long getFreeSpace() {
-        StatFs fsInfo = new StatFs(Navit.map_filename_path);
+        StatFs fsInfo = new StatFs(Navit.mapFilenamePath);
         return (long) fsInfo.getAvailableBlocks() * fsInfo.getBlockSize();
     }
 
@@ -87,10 +89,10 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
         }
     }
 
-    private void updateMapsForLocation(NavitMapDownloader.osm_map_values[] osmMaps) {
+    private void updateMapsForLocation() {
         Location currentLocation = NavitVehicle.lastLocation;
         if (maps_current_position_childs.size() == 0 || (currentLocation != null
-                && !currentLocationKnown)) {
+                    && !currentLocationKnown)) {
             if (currentLocation == null) {
                 LocationManager mapLocationManager = (LocationManager) getSystemService(
                         Context.LOCATION_SERVICE);
@@ -98,9 +100,11 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                 long lastUpdate;
                 long bestUpdateTime = -1;
                 for (String provider : providers) {
-                    if (ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED && ActivityCompat
-                            .checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION)
+                    if (ActivityCompat
+                            .checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat
+                            .checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                             != PackageManager.PERMISSION_GRANTED) {
                         return;
                     }
@@ -119,15 +123,15 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
             if (currentLocation != null) {
                 // if this map contains data to our current position, add it to
-                // the
-                // MapsOfCurrentLocation-list
-                for (int currentMapIndex = 0; currentMapIndex < osmMaps.length;
+                // the MapsOfCurrentLocation-list
+                for (int currentMapIndex = 0; currentMapIndex < NavitMapDownloader.osm_maps.length;
                         currentMapIndex++) {
-                    if (osmMaps[currentMapIndex].isInMap(currentLocation)) {
+                    if (NavitMapDownloader.osm_maps[currentMapIndex].isInMap(currentLocation)) {
                         HashMap<String, String> currentPositionMapChild = new HashMap<>();
-                        currentPositionMapChild
-                                .put("map_name", osmMaps[currentMapIndex].map_name + " "
-                                        + (osmMaps[currentMapIndex].est_size_bytes / 1024 / 1024) + "MB");
+                        currentPositionMapChild.put("map_name", NavitMapDownloader.osm_maps[currentMapIndex].mMapName
+                                    + " "
+                                    + (NavitMapDownloader.osm_maps[currentMapIndex].mEstSizeBytes / 1024 / 1024)
+                                    + "MB");
                         currentPositionMapChild.put("map_index", String.valueOf(currentMapIndex));
 
                         maps_current_position_childs.add(currentPositionMapChild);
@@ -143,12 +147,10 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
         // add already downloaded maps (group and empty child list
         HashMap<String, String> downloadedMapsHash = new HashMap<>();
-        downloadedMapsHash
-                .put("category_name", Navit.getInstance().getTstring(R.string.maps_installed));
+        downloadedMapsHash.put("category_name", getTstring(R.string.maps_installed));
         resultGroups.add(downloadedMapsHash);
         downloaded_maps_childs = new ArrayList<>();
-        ArrayList<ArrayList<HashMap<String, String>>> resultChilds =
-                new ArrayList<>();
+        ArrayList<ArrayList<HashMap<String, String>>> resultChilds = new ArrayList<>();
         resultChilds.add(downloaded_maps_childs);
 
         ArrayList<HashMap<String, String>> secList = new ArrayList<>();
@@ -156,26 +158,26 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
         // maps containing the current location
         HashMap<String, String> matchingMaps = new HashMap<>();
         matchingMaps.put("category_name",
-                Navit.getInstance().getTstring(R.string.maps_for_current_location));
+                getTstring(R.string.maps_for_current_location));
         resultGroups.add(matchingMaps);
         resultChilds.add(maps_current_position_childs);
-        NavitMapDownloader.osm_map_values[] osmMaps = NavitMapDownloader.osm_maps;
+        NavitMapDownloader.OsmMapValues[] osmMaps = NavitMapDownloader.osm_maps;
         // add all maps
         for (int currentMapIndex = 0; currentMapIndex < osmMaps.length; currentMapIndex++) {
-            if (osmMaps[currentMapIndex].level == 0) {
+            if (osmMaps[currentMapIndex].mLevel == 0) {
                 if (secList.size() > 0) {
                     resultChilds.add(secList);
                 }
                 secList = new ArrayList<>();
                 HashMap<String, String> mapInfoHash = new HashMap<>();
-                mapInfoHash.put("category_name", osmMaps[currentMapIndex].map_name);
+                mapInfoHash.put("category_name", osmMaps[currentMapIndex].mMapName);
                 resultGroups.add(mapInfoHash);
             }
 
             HashMap<String, String> child = new HashMap<>();
-            child.put("map_name", (osmMaps[currentMapIndex].level > 1 ? MAP_BULLETPOINT : "")
-                    + osmMaps[currentMapIndex].map_name + " "
-                    + (osmMaps[currentMapIndex].est_size_bytes / 1024 / 1024) + "MB");
+            child.put("map_name", (osmMaps[currentMapIndex].mLevel > 1 ? MAP_BULLETPOINT : "")
+                    + osmMaps[currentMapIndex].mMapName + " "
+                    + (osmMaps[currentMapIndex].mEstSizeBytes / 1024 / 1024) + "MB");
             child.put("map_index", String.valueOf(currentMapIndex));
 
             secList.add(child);
@@ -184,27 +186,28 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
         return new SimpleExpandableListAdapter(this, resultGroups,
                 android.R.layout.simple_expandable_list_item_1,
-                new String[]{"category_name"}, new int[]{android.R.id.text1}, resultChilds,
-                android.R.layout.simple_expandable_list_item_1, new String[]{"map_name"},
-                new int[]{android.R.id.text1});
+                new String[] {"category_name"}, new int[] {android.R.id.text1}, resultChilds,
+                android.R.layout.simple_expandable_list_item_1, new String[] {"map_name"},
+                new int[] {android.R.id.text1});
     }
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
             int childPosition, long id) {
         super.onChildClick(parent, v, groupPosition, childPosition, id);
-        Log.d("Navit", "p:" + groupPosition + ", child_pos:" + childPosition);
+        Log.d(TAG, "p:" + groupPosition + ", child_pos:" + childPosition);
 
         @SuppressWarnings("unchecked")
-        HashMap<String, String> child = (HashMap<String, String>) adapter
-                .getChild(groupPosition, childPosition);
+        HashMap<String, String> child = (HashMap<String, String>) adapter.getChild(groupPosition, childPosition);
 
         String mapIndex = child.get("map_index");
         if (mapIndex != null) {
             int mi = Integer.parseInt(mapIndex);
-            if (NavitMapDownloader.osm_maps[mi].est_size_bytes / 1024 / 1024 / 950 >= 4) {
+            if ((NavitMapDownloader.osm_maps[mi].mEstSizeBytes / 1024 / 1024 / 950 >= 4)
+                    && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)) {
+                // test large downloads on android 7 and up
                 NavitDialogs.sendDialogMessage(NavitDialogs.MSG_TOAST_LONG, null,
-                        Navit.getInstance().getTstring(R.string.map_download_oversize),
+                        getTstring(R.string.map_download_oversize),
                         -1, 0, 0);
                 return true;
             }
@@ -221,29 +224,21 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
 
     private void askForMapDeletion(final String mapLocation) {
         AlertDialog.Builder deleteMapBox = new AlertDialog.Builder(this);
-        deleteMapBox.setTitle(Navit.getInstance().getTstring(R.string.map_delete));
+        deleteMapBox.setTitle(getTstring(R.string.map_delete));
         deleteMapBox.setCancelable(true);
-        final TextView message = new TextView(this);
-        message.setFadingEdgeLength(20);
-        message.setVerticalFadingEdgeEnabled(true);
-        RelativeLayout.LayoutParams layoutParams =
-                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT,
-                        RelativeLayout.LayoutParams.FILL_PARENT);
 
-        message.setLayoutParams(layoutParams);
         NavitMap maptoDelete = new NavitMap(mapLocation);
-        message.setText(maptoDelete.mMapName + " " + String.valueOf(maptoDelete.size() / 1024 / 1024)
+        deleteMapBox.setMessage(
+                maptoDelete.mMapName + " " + maptoDelete.size() / 1024 / 1024
                 + "MB");
-        deleteMapBox.setView(message);
 
         // TRANS
-        deleteMapBox.setPositiveButton(Navit.getInstance().getTstring(R.string.yes),
+        deleteMapBox.setPositiveButton(getTstring(R.string.yes),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         Log.d(TAG, "Delete Map");
-                        Message msg =
-                                Message.obtain(Navit.getInstance().mNavitGraphics.callbackHandler,
-                                        MsgType.CLB_DELETE_MAP.ordinal());
+                        Message msg = Message.obtain(Navit.mNavitGraphics.callbackHandler,
+                                    NavitGraphics.MsgType.CLB_DELETE_MAP.ordinal());
                         Bundle b = new Bundle();
                         b.putString("title", mapLocation);
                         msg.setData(b);
@@ -252,7 +247,8 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                     }
                 });
 
-        deleteMapBox.setNegativeButton(Navit.getInstance().getTstring(R.string.no),
+        // TRANS
+        deleteMapBox.setNegativeButton((getTstring(R.string.no)),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         Log.d(TAG, "don't delete map");

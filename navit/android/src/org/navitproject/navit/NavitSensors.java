@@ -26,9 +26,9 @@ import android.hardware.SensorManager;
 
 @SuppressWarnings("unused")
 class NavitSensors implements SensorEventListener {
-    private int mCallbackid;
+    private long mCallbackid;
 
-    NavitSensors(Context context, int cbid) {
+    NavitSensors(Context context, long cbid) {
         SensorManager sensorManager;
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
@@ -38,7 +38,7 @@ class NavitSensors implements SensorEventListener {
         mCallbackid = cbid;
     }
 
-    public native void sensorCallback(int id, int sensor, float x, float y, float z);
+    public native void sensorCallback(long id, int sensor, float x, float y, float z);
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }

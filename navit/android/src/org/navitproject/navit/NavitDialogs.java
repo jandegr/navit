@@ -1,5 +1,7 @@
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -78,10 +80,10 @@ public class NavitDialogs extends Handler {
                             MsgType.CLB_CALL_CMD.ordinal());
                     Bundle b = new Bundle();
                     int mi = msg.getData().getInt("value2");
-                    double lon = (Double.parseDouble(NavitMapDownloader.osm_maps[mi].lon1) + Double
-                            .parseDouble(NavitMapDownloader.osm_maps[mi].lon2)) / 2.0;
-                    double lat = (Double.parseDouble(NavitMapDownloader.osm_maps[mi].lat1) + Double
-                            .parseDouble(NavitMapDownloader.osm_maps[mi].lat2)) / 2.0;
+                    double lon = (Double.parseDouble(NavitMapDownloader.osm_maps[mi].mLon1) + Double
+                            .parseDouble(NavitMapDownloader.osm_maps[mi].mLon2)) / 2.0;
+                    double lat = (Double.parseDouble(NavitMapDownloader.osm_maps[mi].mLat1) + Double
+                            .parseDouble(NavitMapDownloader.osm_maps[mi].mLat2)) / 2.0;
                     b.putString("cmd", "set_center(\"" + lon + " " + lat + "\",1); zoom=256");
                     msgOut.setData(b);
                     msgOut.sendToTarget();
@@ -148,13 +150,13 @@ public class NavitDialogs extends Handler {
                 mMapdownloaderDialog.setOnDismissListener(onDismissListener);
                 // show license for OSM maps
                 Toast.makeText(mActivity.getApplicationContext(),
-                        mActivity.getTstring(R.string.osm_copyright),
+                        getTstring(R.string.osm_copyright),
                         Toast.LENGTH_LONG).show();
                 return mMapdownloaderDialog;
 
             case DIALOG_BACKUP_RESTORE:
                 /* Create a Dialog that Displays Options wether to Backup or Restore */
-                builder.setTitle(mActivity.getTstring(R.string.choose_an_action))
+                builder.setTitle(getTstring(R.string.choose_an_action))
                         .setCancelable(true)
                         .setItems(R.array.dialog_backup_restore_items,
                                 new DialogInterface.OnClickListener() {
@@ -164,8 +166,7 @@ public class NavitDialogs extends Handler {
                                         /* Notify User if no SD Card present */
                                         if (!Environment.getExternalStorageState()
                                                 .equals(Environment.MEDIA_MOUNTED)) {
-                                            Toast.makeText(mActivity, mActivity
-                                                            .getTstring(R.string.please_insert_an_sd_card),
+                                            Toast.makeText(mActivity, getTstring(R.string.please_insert_an_sd_card),
                                                     Toast.LENGTH_LONG).show();
                                         }
 
@@ -197,12 +198,12 @@ public class NavitDialogs extends Handler {
 
                 if (backups == null || backups.length == 0) {
                     /* No Backups were found */
-                    builder.setTitle(mActivity.getTstring(R.string.no_backup_found));
-                    builder.setNegativeButton(mActivity.getTstring(android.R.string.cancel), null);
+                    builder.setTitle(getTstring(R.string.no_backup_found));
+                    builder.setNegativeButton(getTstring(android.R.string.cancel), null);
                     return builder.create();
                 }
 
-                builder.setTitle(mActivity.getTstring(R.string.select_backup));
+                builder.setTitle(getTstring(R.string.select_backup));
                 final ArrayAdapter<String> adapter = new ArrayAdapter<>(mActivity,
                         android.R.layout.simple_spinner_item, backups);
                 builder.setAdapter(adapter, new OnClickListener() {
@@ -212,7 +213,7 @@ public class NavitDialogs extends Handler {
                         //new NavitRestoreTask(mActivity, adapter.getItem(which)).execute();
                     }
                 });
-                builder.setNegativeButton(mActivity.getTstring(android.R.string.cancel), null);
+                builder.setNegativeButton(getTstring(android.R.string.cancel), null);
 
                 return builder.create();
             default:

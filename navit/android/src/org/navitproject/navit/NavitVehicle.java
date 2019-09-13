@@ -34,7 +34,7 @@ public class NavitVehicle {
 
     private static final String GPS_FIX_CHANGE = "android.location.GPS_FIX_CHANGE";
     private static final String TAG = NavitVehicle.class.getName();
-    public static Location lastLocation = null;
+    static Location lastLocation = null;
     private static LocationManager sLocationManager = null;
     private static NavitLocationListener preciseLocationListener = null;
     private static NavitLocationListener fastLocationListener = null;

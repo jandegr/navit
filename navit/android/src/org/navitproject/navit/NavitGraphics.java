@@ -14,6 +14,8 @@
 
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -326,7 +328,7 @@ public class NavitGraphics {
         mDrawCanvas.drawBitmap(bitmap, x, y, paint);
     }
 
-    /* takes an image and draws it on the screen as a prerendered maptile
+    /* takes an image and draws it on the screen as a prerendered maptile.
      *
      *
      *
@@ -348,7 +350,7 @@ public class NavitGraphics {
         //  {
         Log.e("NavitGraphics", "path = " + imagepath);
         Log.e("NavitGraphics", "count = " + count);
-        Log.e("NavitGraphics", "NMPpath = " + Navit.map_filename_path);
+        Log.e("NavitGraphics", "NMPpath = " + Navit.mapFilenamePath);
         float width;
         float scale;
         float deltaY;
@@ -360,7 +362,7 @@ public class NavitGraphics {
 
         if (count == 3) {
             if (!imagepath.startsWith("/")) {
-                imagepath = Navit.map_filename_path + imagepath;
+                imagepath = Navit.mapFilenamePath + imagepath;
             }
             Log.e("NavitGraphics", "pathc3 = " + imagepath);
             try {
@@ -563,10 +565,10 @@ public class NavitGraphics {
         @Override
         protected void onCreateContextMenu(ContextMenu menu) {
             super.onCreateContextMenu(menu);
-            menu.setHeaderTitle(Navit.getInstance().getTstring(R.string.position_popup_title) + "..");
-            menu.add(1, 1, NONE, Navit.getInstance().getTstring(R.string.position_popup_drive_here))
+            menu.setHeaderTitle(getTstring(R.string.position_popup_title) + "..");
+            menu.add(1, 1, NONE, getTstring(R.string.position_popup_drive_here))
                     .setOnMenuItemClickListener(this);
-            menu.add(1, 2, NONE, Navit.getInstance().getTstring(R.string.cancel)).setOnMenuItemClickListener(this);
+            menu.add(1, 2, NONE, getTstring(R.string.cancel)).setOnMenuItemClickListener(this);
         }
 
         @Override
@@ -758,7 +760,7 @@ public class NavitGraphics {
             }
             return pos;
         }
-        
+
 
         @Override
         public boolean onKeyDown(int keyCode, KeyEvent event) {

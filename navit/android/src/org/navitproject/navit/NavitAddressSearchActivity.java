@@ -15,6 +15,8 @@
 
 package org.navitproject.navit;
 
+import static org.navitproject.navit.NavitAppConfig.getTstring;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -116,8 +118,8 @@ public class NavitAddressSearchActivity extends Activity {
 
         // address: label and text field
         TextView addrView = new TextView(this);
-        addrView.setText(Navit.navitTranslate(
-                "Enter cityname or postcode or select another country")); // TRANS
+        addrView.setText(
+                "Enter cityname or postcode or select another country"); // TRANS
         addrView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT));
         addrView.setPadding(4, 4, 4, 4);
@@ -205,7 +207,7 @@ public class NavitAddressSearchActivity extends Activity {
 
         addressString.addTextChangedListener(watcher);
         addressString.setSelectAllOnFocus(true);
-        String title = Navit.getInstance().getTstring(R.string.address_search_title);
+        String title = getTstring(R.string.address_search_title);
 
         if (title != null && title.length() > 0) {
             this.setTitle(title);

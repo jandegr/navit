@@ -2,19 +2,12 @@ package org.navitproject.navit;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+
 import java.util.ArrayList;
 import java.util.List;
 
-//@ReportsCrashes(
-//      httpMethod = org.acra.sender.HttpSender.Method.PUT,
-//          reportType = org.acra.sender.HttpSender.Type.JSON,
-//          formUri = "http://192.168.1.115/acra-myapp/_design/acra-storage/_update/report",
-//          formUriBasicAuthLogin = "testnavit",
-//          formUriBasicAuthPassword = "p4ssw0rd")
-//@ReportsCrashes(mailTo = "me@somewhere.com",
-//      mode = ReportingInteractionMode.TOAST,
-//                resToastText = R.string.app_name
-//      )
+
 public class NavitAppConfig extends Application {
 
     private static final int         MAX_LAST_ADDRESSES = 10;
@@ -23,24 +16,13 @@ public class NavitAppConfig extends Application {
     private List<NavitSearchAddress> mLastAddresses     = null;
     private int                      mLastAddressField;
     private SharedPreferences        mSettings;
+    private static Resources         resources;
 
     @Override
     public void onCreate() {
-        // call ACRA.init(this) as reflection, because old ant may forgot to include it
-        //      try {
-        //          Class<?> acraClass = Class.forName("org.acra.ACRA");
-        //          Class<?> partypes[] = new Class[1];
-        //          partypes[0] = Application.class;
-        //          java.lang.reflect.Method initMethod = acraClass.getMethod("init", partypes);
-        //          Object arglist[] = new Object[1];
-        //          arglist[0] = this;
-        //          initMethod.invoke(null, arglist);
-        //      } catch (Exception e1) {
-        //          Log.e(TAG, "Could not init ACRA crash reporter");
-        //      }
-
-        mSettings = getSharedPreferences(Navit.NAVIT_PREFS, MODE_PRIVATE);
         super.onCreate();
+        mSettings = getSharedPreferences(Navit.NAVIT_PREFS, MODE_PRIVATE);
+        resources = getResources();
     }
 
 
@@ -112,4 +94,18 @@ public class NavitAppConfig extends Application {
 
         editSettings.apply();
     }
+
+    /**
+     * Translates a string from its id in R.strings.
+     *
+     * @param riD resource identifier
+     * @return translated string
+     */
+    static String getTstring(int riD) {
+
+        return callbackLocalizedString(resources.getString(riD));
+    }
+
+    static native String callbackLocalizedString(String s);
+
 }
