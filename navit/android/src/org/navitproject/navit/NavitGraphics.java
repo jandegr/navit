@@ -510,14 +510,16 @@ public class NavitGraphics {
                     callbackMessageChannel(3, "");
                     break;
                 case CLB_LOAD_MAP:
-                    Integer ret = callbackMessageChannel(6, msg.getData().getString(("title")));
-                    Log.e(TAG, "callBackRet = " + ret);
+                    int ret = callbackMessageChannel(6, msg.getData().getString(("title")));
+                    Log.d(TAG, "callBackRet = " + ret);
                     break;
                 case CLB_DELETE_MAP:
+                    // unload map before deletion !!!
+                    callbackMessageChannel(7, msg.getData().getString(("title")));
                     File toDelete = new File(msg.getData().getString(("title")));
                     Log.e("deletefile", "" + toDelete.getPath() + " " + toDelete.getName());
                     toDelete.delete();
-                    //fallthrough
+                    break;
                 case CLB_UNLOAD_MAP:
                     Log.e(TAG, "CLB_UNLOAD_MAP");
                     callbackMessageChannel(7, msg.getData().getString(("title")));
@@ -644,58 +646,38 @@ public class NavitGraphics {
             return retValue;
         }
 
+
+        
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-            //Log.e("NavitGraphics", "onTouchEvent");
             super.onTouchEvent(event);
             int x = (int) event.getX();
             int y = (int) event.getY();
-
-            final int actionPointerUp = getActionField("ACTION_POINTER_UP", event);
-            final int actionPointerDown = getActionField("ACTION_POINTER_DOWN", event);
-            final int actionMask = getActionField("ACTION_MASK", event);
-
-            int switchValue = event.getAction();
-            if (actionMask != -999) {
-                switchValue = (event.getAction() & actionMask);
-            }
+            int switchValue = (event.getActionMasked());
+            Log.d(TAG, "ACTION_ value =  " + switchValue);
 
             if (switchValue == MotionEvent.ACTION_DOWN) {
                 mTouchMode = PRESSED;
+                Log.v(TAG, "ACTION_DOWN mode PRESSED");
                 if (!in_map) {
                     buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                 }
                 mPressedPosition = new PointF(x, y);
                 postDelayed(this, time_for_long_press);
-            } else if ((switchValue == MotionEvent.ACTION_UP) || (switchValue == actionPointerUp)) {
-                Log.e("NavitGraphics", "ACTION_UP");
 
+            } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
+                mOldDist = spacing(event);
+                if (mOldDist > 2f) {
+                    mTouchMode = ZOOM;
+                    Log.v(TAG, "ACTION_DOWN mode ZOOM started");
+                }
+            } else if (switchValue == MotionEvent.ACTION_UP) {
+                Log.d(TAG, "ACTION_UP");
                 switch (mTouchMode) {
                     case DRAG:
-                        Log.e("NavitGraphics", "onTouch move");
-
+                        Log.d(TAG, "onTouch move");
                         motionCallback(mMotionCallbackID, x, y);
                         buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-
-                        break;
-                    case ZOOM:
-                        //Log.e("NavitGraphics", "onTouch zoom");
-
-                        float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
-                        float scale = 0;
-                        if (newDist > 10f) {
-                            scale = newDist / mOldDist;
-                        }
-
-                        if (scale > 1.3) {
-                            // zoom in
-                            callbackMessageChannel(1, null);
-                            //Log.e("NavitGraphics", "onTouch zoom in");
-                        } else if (scale < 0.8) {
-                            // zoom out
-                            callbackMessageChannel(2, null);
-                            //Log.e("NavitGraphics", "onTouch zoom out");
-                        }
                         break;
                     case PRESSED:
                         if (in_map) {
@@ -704,51 +686,57 @@ public class NavitGraphics {
                         buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
                         break;
                     default:
-                        break;
+                        Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
                 }
                 mTouchMode = NONE;
             } else if (switchValue == MotionEvent.ACTION_MOVE) {
-                //Log.e("NavitGraphics", "ACTION_MOVE");
-
                 switch (mTouchMode) {
                     case DRAG:
                         motionCallback(mMotionCallbackID, x, y);
                         break;
                     case ZOOM:
-                        float newDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
-                        float scale = newDist / mOldDist;
-                        Log.e("NavitGraphics", "New scale = " + scale);
-                        if (scale > 1.2) {
-                            // zoom in
-                            callbackMessageChannel(1, "");
-                            mOldDist = newDist;
-                            //Log.e("NavitGraphics", "onTouch zoom in");
-                        } else if (scale < 0.8) {
-                            mOldDist = newDist;
-                            // zoom out
-                            callbackMessageChannel(2, "");
-                            //Log.e("NavitGraphics", "onTouch zoom out");
-                        }
+                        doZoom(event);
                         break;
                     case PRESSED:
-                        Log.e("NavitGraphics", "Start drag mode");
+                        Log.d(TAG, "Start drag mode");
                         if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
                             buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                             mTouchMode = DRAG;
                         }
                         break;
                     default:
-                        break;
-                }
-            } else if (switchValue == actionPointerDown) {
-                //Log.e("NavitGraphics", "ACTION_POINTER_DOWN");
-                mOldDist = spacing(getFloatValue(event, 0), getFloatValue(event, 1));
-                if (mOldDist > 2f) {
-                    mTouchMode = ZOOM;
-                    //Log.e("NavitGraphics", "--> zoom");
+                        Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
                 }
             }
             return true;
+        }
+
+        private void doZoom(MotionEvent event) {
+            if (event.findPointerIndex(0) == -1 || event.findPointerIndex(1) == -1) {
+                Log.e(TAG,"missing pointer");
+                return;
+            }
+            float newDist = spacing(event);
+            float scale;
+            if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+                scale = newDist / mOldDist;
+                Log.v(TAG, "New scale = " + scale);
+                if (scale > 1.2) {
+                    // zoom in
+                    callbackMessageChannel(1, "");
+                    mOldDist = newDist;
+                } else if (scale < 0.8) {
+                    mOldDist = newDist;
+                    // zoom out
+                    callbackMessageChannel(2, "");
+                }
+            }
+        }
+
+        private float spacing(MotionEvent event) {
+            float x = event.getX(0) - event.getX(1);
+            float y = event.getY(0) - event.getY(1);
+            return (float) Math.sqrt(x * x + y * y);
         }
 
         private float spacing(PointF a, PointF b) {
