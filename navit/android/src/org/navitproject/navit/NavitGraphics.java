@@ -647,7 +647,7 @@ public class NavitGraphics {
         }
 
 
-        
+
         @Override
         public boolean onTouchEvent(MotionEvent event) {
             super.onTouchEvent(event);
@@ -758,124 +758,60 @@ public class NavitGraphics {
             }
             return pos;
         }
+        
 
         @Override
         public boolean onKeyDown(int keyCode, KeyEvent event) {
-            int i;
-            String s = null;
-            boolean handled = true;
-            i = event.getUnicodeChar();
-            //Log.e("NavitGraphics", "onKeyDown " + keyCode + " " + i);
-            // Log.e("NavitGraphics","Unicode "+event.getUnicodeChar());
-            if (i == 0) {
-                switch (keyCode) {
-                    case KeyEvent.KEYCODE_DEL:
-                        s = String.valueOf((char) 8);
-                        break;
-                    case KeyEvent.KEYCODE_MENU:
-                        if (!in_map) {
-                            // if last menukeypress is less than 0.2 seconds away then count longpress
-                            final long intervalForLongPress = 200L;
-                            if ((System.currentTimeMillis() - Navit.last_pressed_menu_key) < intervalForLongPress) {
-                                Navit.time_pressed_menu_key = Navit.time_pressed_menu_key
-                                        + (System.currentTimeMillis() - Navit.last_pressed_menu_key);
-                                //Log.e("NavitGraphics", "press time=" + Navit.time_pressed_menu_key);
-
-                                // on long press let softkeyboard popup
-                                if (Navit.time_pressed_menu_key > time_for_long_press) {
-                                    //Log.e("NavitGraphics", "long press menu key!!");
-                                    Navit.show_soft_keyboard = true;
-                                    Navit.time_pressed_menu_key = 0L;
-                                    // need to draw to get the keyboard showing
-                                    this.postInvalidate();
-                                }
-                            } else {
-                                Navit.time_pressed_menu_key = 0L;
-                            }
-                            Navit.last_pressed_menu_key = System.currentTimeMillis();
-                            // if in menu view:
-                            // use as OK (Enter) key
-                            // s = String.valueOf((char) 13);
-                            handled = true;
-                            // dont use menu key here (use it in onKeyUp)
-                            return handled;
-                        } else {
-                            // if on map view:
-                            // volume UP
-                            //s = java.lang.String.valueOf((char) 1);
-                            handled = false;
-                            return handled;
-                        }
-                    case KeyEvent.KEYCODE_SEARCH:
-                        /* Handle event in Main Activity if map is shown */
-                        if (in_map) {
-                            return false;
-                        }
-
-                        s = String.valueOf((char) 19);
-                        break;
-                    case KeyEvent.KEYCODE_BACK:
-                        //Log.e("NavitGraphics", "KEYCODE_BACK down");
-                        s = String.valueOf((char) 27);
-                        break;
-                    case KeyEvent.KEYCODE_CALL:
-                        s = String.valueOf((char) 3);
-                        break;
-                    case KeyEvent.KEYCODE_VOLUME_UP:
-                        if (!in_map) {
-                            // if in menu view:
-                            // use as UP key
-                            s = String.valueOf((char) 16);
-                            handled = true;
-                        } else {
-                            // if on map view:
-                            // volume UP
-                            //s = java.lang.String.valueOf((char) 21);
-                            handled = false;
-                            return handled;
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_VOLUME_DOWN:
-                        if (!in_map) {
-                            // if in menu view:
-                            // use as DOWN key
-                            s = String.valueOf((char) 14);
-                            handled = true;
-                        } else {
-                            // if on map view:
-                            // volume DOWN
-                            //s = java.lang.String.valueOf((char) 4);
-                            handled = false;
-                            return handled;
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_CENTER:
-                        s = String.valueOf((char) 13);
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_DOWN:
-                        s = String.valueOf((char) 16);
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_LEFT:
-                        s = String.valueOf((char) 2);
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_RIGHT:
-                        s = String.valueOf((char) 6);
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_UP:
-                        s = String.valueOf((char) 14);
-                        break;
-                    default:
-                        break;
-                }
-            } else if (i == 10) {
-                s = java.lang.String.valueOf((char) 13);
+            Log.d(TAG,"onkeydown = " + keyCode);
+            String keyStr = null;
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_ENTER:
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                    keyStr = String.valueOf((char) 13);
+                    break;
+                case KeyEvent.KEYCODE_DEL:
+                    keyStr = String.valueOf((char) 8);
+                    break;
+                //case KeyEvent.KEYCODE_MENU:
+                //    if (!mInMap) {
+                //        this.postInvalidate();
+                //        return true;
+                //    }
+                //    break;
+                case KeyEvent.KEYCODE_SEARCH:
+                    /* Handle event in Main Activity if map is shown */
+                    if (!in_map) {
+                        keyStr = String.valueOf((char) 19);
+                    }
+                    break;
+                case KeyEvent.KEYCODE_BACK:
+                    keyStr = String.valueOf((char) 27);
+                    break;
+                case KeyEvent.KEYCODE_CALL:
+                    keyStr = String.valueOf((char) 3);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    keyStr = String.valueOf((char) 14);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    keyStr = String.valueOf((char) 2);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    keyStr = String.valueOf((char) 6);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    keyStr = String.valueOf((char) 16);
+                    break;
+                default:
+                    Log.e(TAG, "Unexpected keycode: " + keyCode);
             }
-
-            if (s != null) {
-                keypressCallback(mKeypressCallbackID, s);
+            if (keyStr != null) {
+                keypressCallback(mKeypressCallbackID, keyStr);
+                return true;
             }
-            return handled;
+            return false;
         }
+
 
         @Override
         public boolean onKeyUp(int keyCode, KeyEvent event) {
