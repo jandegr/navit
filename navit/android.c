@@ -847,7 +847,7 @@ Java_org_navitproject_navit_NavitAddressSearchActivity_callbackSearch(JNIEnv *en
 
 
 JNIEXPORT jstring JNICALL
-Java_org_navitproject_navit_Navit_callbackLocalizedString(JNIEnv *env, jclass type, jstring s_)
+Java_org_navitproject_navit_NavitAppConfig_callbackLocalizedString(JNIEnv *env, jclass type, jstring s_)
 {
   const char *s;
   const char *localized_str;
