@@ -678,8 +678,8 @@ android_search_idle(struct android_search_priv *search_priv)
     } else {
         android_search_end(search_priv);
     }
-    return;
 }
+
 
 static char *
 search_fix_spaces(const char *str)
