@@ -23,7 +23,6 @@
 
 JNIEnv *jnienv;
 jobject *android_activity = NULL;
-jobject *android_application = NULL;
 int android_version;
 
 struct android_search_priv {
@@ -78,8 +77,8 @@ int android_find_static_method(jclass class, char *name, char *args, jmethodID *
 }
 
 JNIEXPORT void JNICALL Java_org_navitproject_navit_Navit_navitMain( JNIEnv* env, jobject thiz, jobject activity,
-        jobject application, jstring lang, jint version, jstring display_density_string, jstring path, jstring map_path,
-        jboolean isLaunch) {
+        jstring lang, jint version, jstring display_density_string, jstring path,
+        jstring map_path) {
     const char *langstr;
     const char *displaydensitystr;
     const char *map_file_path;
@@ -89,9 +88,7 @@ JNIEXPORT void JNICALL Java_org_navitproject_navit_Navit_navitMain( JNIEnv* env,
     if (android_activity)
         (*jnienv)->DeleteGlobalRef(jnienv, android_activity);
     android_activity = (*jnienv)->NewGlobalRef(jnienv, activity);
-    if (android_application)
-        (*jnienv)->DeleteGlobalRef(jnienv, android_application);
-    android_application = (*jnienv)->NewGlobalRef(jnienv, application);
+
     langstr=(*env)->GetStringUTFChars(env, lang, NULL);
     dbg(lvl_debug,"enter env=%p thiz=%p activity=%p lang=%s version=%d",env,thiz,android_activity,langstr,version);
     setenv("LANG",langstr,1);
@@ -105,12 +102,9 @@ JNIEXPORT void JNICALL Java_org_navitproject_navit_Navit_navitMain( JNIEnv* env,
     map_file_path=(*env)->GetStringUTFChars(env, map_path, NULL);
     setenv("NAVIT_USER_DATADIR",map_file_path,1);
     (*env)->ReleaseStringUTFChars(env, display_density_string, map_file_path);
-
-    if (isLaunch) {
-        const char *strings=(*env)->GetStringUTFChars(env, path, NULL);
-        main_real(1, &strings);
-        (*env)->ReleaseStringUTFChars(env, path, strings);
-    }
+    const char *strings=(*env)->GetStringUTFChars(env, path, NULL);
+    main_real(1, &strings);
+    (*env)->ReleaseStringUTFChars(env, path, strings);
 }
 
 JNIEXPORT void JNICALL Java_org_navitproject_navit_Navit_navitDestroy( JNIEnv* env, jobject thiz) {
@@ -152,7 +146,7 @@ JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitGraphics_keypressCallbac
     const char *s;
     dbg(lvl_debug,"enter %p %p",(struct callback *)(intptr_t)id,str);
     s=(*env)->GetStringUTFChars(env, str, NULL);
-    dbg(lvl_debug,"key=%d",s);
+    dbg(lvl_debug,"key = %s",s);
     if (id)
         callback_call_1((struct callback *)(intptr_t)id,s);
     (*env)->ReleaseStringUTFChars(env, str, s);
