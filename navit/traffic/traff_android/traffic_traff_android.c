@@ -123,7 +123,7 @@ static int traffic_traff_android_init(struct traffic_priv * this_) {
         return 0; /* exception thrown */
     }
     this_->NavitTraff=(*jnienv)->NewObject(jnienv, this_->NavitTraffClass, cid, android_activity,
-                                           (long) this_->cbid);
+                                           (jlong) this_->cbid);
     dbg(lvl_debug,"result=%p", this_->NavitTraff);
     if (!this_->NavitTraff)
         return 0;
