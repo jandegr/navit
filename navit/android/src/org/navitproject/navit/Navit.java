@@ -24,7 +24,6 @@ import static org.navitproject.navit.NavitAppConfig.getTstring;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -307,15 +306,9 @@ public class Navit extends Activity {
         Log.d(TAG, "**1**A " + startupIntent.getAction());
         Log.d(TAG, "**1**D " + startupIntent.getDataString());
 
-        // NOTIFICATION
-        // Setup the status bar notification
-        // This notification is removed in the exit() function
 
-        /* Whether this is the first launch of Navit (as opposed to the activity being recreated) */
-        boolean isLaunch = (navit == null);
-        if (isLaunch) {
-            createNotificationChannel();
-        }
+        createNotificationChannel();
+
         navit = this;
         buildNotification();
         verifyPermissions();
@@ -347,7 +340,8 @@ public class Navit extends Activity {
         File navitMapsDir = new File(mapFilenamePath);
         navitMapsDir.mkdirs();
 
-        // make sure the share dir exists
+        // make sure the share dir exists, for ????
+        // other activities fail if removed
         File navitDataShareDir = new File(NAVIT_DATA_DIR + "/share");
         navitDataShareDir.mkdirs();
 
@@ -402,8 +396,8 @@ public class Navit extends Activity {
             Log.e(TAG, "Failed to access assets using AssetManager");
         }
         Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + Integer.valueOf(Build.VERSION.SDK));
-        navitMain(this, getApplication(), navitLanguage, Integer.valueOf(Build.VERSION.SDK),
-                      myDisplayDensity, NAVIT_DATA_DIR + "/bin/navit", mapFilenamePath, isLaunch);
+        navitMain(this, navitLanguage, Integer.valueOf(Build.VERSION.SDK),
+                      myDisplayDensity, NAVIT_DATA_DIR + "/bin/navit", mapFilenamePath);
         if (graphics != null) {
             graphics.setmActivity(this);
         }
@@ -448,10 +442,20 @@ public class Navit extends Activity {
         nm.notify(R.string.app_name, navitNotification);// Show the notification
     }
 
+    public void onRestart() {
+        super.onRestart();
+        Log.e(TAG, "OnRestart");
+    }
+
+    public void onStart() {
+        super.onStart();
+        Log.e(TAG, "OnStart");
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "OnResume");
+        Log.e(TAG, "OnResume");
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             /* Required to make system bars fully transparent */
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -492,7 +496,7 @@ public class Navit extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause");
+        Log.e(TAG, "onPause");
         if (show_soft_keyboard_now_showing) {
             Log.d(TAG, "onPause:hiding soft input");
             this.hideNativeKeyboard();
@@ -852,8 +856,21 @@ public class Navit extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "OnDestroy");
+        Log.e(TAG, "OnDestroy");
     }
+
+    public void onStop() {
+        super.onStop();
+        Log.e(TAG, "OnStop");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.e(TAG, "OnSaveInstance");
+        // call superclass to save any view hierarchy
+        super.onSaveInstanceState(outState);
+    }
+
 
     void fullscreen(int fullscreen) {
         int width;
@@ -904,8 +921,8 @@ public class Navit extends Activity {
         navitDestroy();
     }
 
-    private native void navitMain(Navit x, Application application, String lang, int version,
-            String displayDensityString, String path, String path2, boolean isLaunch);
+    private native void navitMain(Navit x, String lang, int version,
+                                  String displayDensityString, String path, String path2);
 
     public native void navitDestroy();
 

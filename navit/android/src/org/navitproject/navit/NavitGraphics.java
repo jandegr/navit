@@ -1125,5 +1125,4 @@ class NavitGraphics {
         mPosWraparound = wraparound;
         mDrawCanvas.setBitmap(mDrawBitmap);
     }
-
 }

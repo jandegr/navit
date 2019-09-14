@@ -44,7 +44,7 @@ public class NavitVehicle {
 
     static Location lastLocation = null;
     private static LocationManager sLocationManager = null;
-    private Context mContext = null;
+    private static Context mContext = null;
     private long mVehiclePcbid;
     private long mVehicleScbid;
     private long mVehicleFcbid;
@@ -202,7 +202,7 @@ public class NavitVehicle {
             if (preciseLocationListener != null) {
                 sLocationManager.removeUpdates(preciseLocationListener);
                 sLocationManager.removeGpsStatusListener(preciseLocationListener);
-                applicationContext.unregisterReceiver(preciseLocationListener);
+                mContext.unregisterReceiver(preciseLocationListener);
             }
             if (fastLocationListener != null) {
                 sLocationManager.removeUpdates(fastLocationListener);
