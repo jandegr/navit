@@ -279,12 +279,12 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         // zoom in
         navit_zoom_in_cursor(attr.u.navit, 2);
         navit_draw(attr.u.navit);
-    break;
+        break;
     case 2:
         // zoom out
         navit_zoom_out_cursor(attr.u.navit, 2);
         navit_draw(attr.u.navit);
-    break;
+        break;
     case 6: {// add a map to the current mapset, return 1 on success
         struct mapset *ms = navit_get_mapset(attr.u.navit);
         struct attr type, name, data, *attrs[4];
@@ -313,7 +313,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
             navit_draw(attr.u.navit);
         }
         (*env)->ReleaseStringUTFChars(env, str, map_location);
-    break;
+        break;
     }
     case 7: { // remove a map from the current mapset, return 1 on success
         struct mapset *ms = navit_get_mapset(attr.u.navit);
@@ -329,7 +329,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
             navit_draw(attr.u.navit);
         }
         (*env)->ReleaseStringUTFChars(env, str, map_location);
-    break;
+        break;
     }
     case 5:
         // call a command (like in gui)
@@ -337,7 +337,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         dbg(lvl_debug, "*****string=%s", s);
         command_evaluate(&attr, s);
         (*env)->ReleaseStringUTFChars(env, str, s);
-    break;
+        break;
     case 4: { // navigate to display position
         char *pstr;
         struct point p;
@@ -373,7 +373,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
 
         // start navigation asynchronous
         navit_set_destination(attr.u.navit, &pc, parse_str, 1);
-    break;
+        break;
     }
     case 3: {
         // navigate to geo position
@@ -412,7 +412,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
 
         // start navigation asynchronous
         navit_set_destination(attr.u.navit, &pc, name, 1);
-    break;
+        break;
     }
     default:
         dbg(lvl_error, "Unknown command: %d", channel);
