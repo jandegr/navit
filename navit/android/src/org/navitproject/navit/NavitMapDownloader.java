@@ -484,7 +484,7 @@ public class NavitMapDownloader extends Thread {
     NavitMapDownloader(int mapId) {
         this.mMapValues = osm_maps[mapId];
         this.mMapId = mapId;
-        this.mMapFilenamePath = Navit.mapFilenamePath;
+        this.mMapFilenamePath = Navit.sMapFilenamePath;
     }
 
     static NavitMap[] getAvailableMaps() {
@@ -496,12 +496,12 @@ public class NavitMapDownloader extends Thread {
         }
 
         NavitMap[] maps = new NavitMap[0];
-        File mapDir = new File(Navit.mapFilenamePath);
+        File mapDir = new File(Navit.sMapFilenamePath);
         String[] mapFileNames = mapDir.list(new FilterMaps());
         if (mapFileNames != null) {
             maps = new NavitMap[mapFileNames.length];
             for (int mapFileIndex = 0; mapFileIndex < mapFileNames.length; mapFileIndex++) {
-                maps[mapFileIndex] = new NavitMap(Navit.mapFilenamePath,
+                maps[mapFileIndex] = new NavitMap(Navit.sMapFilenamePath,
                         mapFileNames[mapFileIndex]);
             }
         }

@@ -58,18 +58,18 @@ public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
         ObjectInputStream preferenceOis = null;
         try {
             /* Delete all old Files in Home */
-            NavitUtils.removeFileIfExists(Navit.NAVIT_DATA_DIR + "/home/bookmark.txt");
-            NavitUtils.removeFileIfExists(Navit.NAVIT_DATA_DIR + "/home/destination.txt");
-            NavitUtils.removeFileIfExists(Navit.NAVIT_DATA_DIR + "/home/gui_internal.txt");
+            NavitUtils.removeFileIfExists(Navit.sNavitDataDir + "/home/bookmark.txt");
+            NavitUtils.removeFileIfExists(Navit.sNavitDataDir + "/home/destination.txt");
+            NavitUtils.removeFileIfExists(Navit.sNavitDataDir + "/home/gui_internal.txt");
 
 
             /* Restore Files in home */
             NavitUtils.copyFileIfExists(backupDir.getPath() + "/bookmark.txt",
-                    Navit.NAVIT_DATA_DIR + "/home/bookmark.txt");
+                    Navit.sNavitDataDir + "/home/bookmark.txt");
             NavitUtils.copyFileIfExists(backupDir.getPath() + "/destination.txt",
-                    Navit.NAVIT_DATA_DIR + "/home/destination.txt");
+                    Navit.sNavitDataDir + "/home/destination.txt");
             NavitUtils.copyFileIfExists(backupDir.getPath() + "/gui_internal.txt",
-                    Navit.NAVIT_DATA_DIR + "/home/gui_internal.txt");
+                    Navit.sNavitDataDir + "/home/gui_internal.txt");
 
             /* Restore Shared Preferences */
             preferenceOis = new ObjectInputStream(
