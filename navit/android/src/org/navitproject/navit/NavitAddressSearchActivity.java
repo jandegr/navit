@@ -146,7 +146,7 @@ public class NavitAddressSearchActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
 
         // address: label and text field
-        SharedPreferences settings = getSharedPreferences(Navit.NAVIT_PREFS, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(NavitAppConfig.NAVIT_PREFS, MODE_PRIVATE);
         mCountry = settings.getString(("DefaultCountry"), null);
 
         if (mCountry == null) {
@@ -265,7 +265,7 @@ public class NavitAddressSearchActivity extends Activity {
 
         mapModeChooser.setItems(countryName, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                SharedPreferences settings = getSharedPreferences(Navit.NAVIT_PREFS, MODE_PRIVATE);
+                SharedPreferences settings = getSharedPreferences(NavitAppConfig.NAVIT_PREFS, MODE_PRIVATE);
                 mCountry = all_countries[item][0];
                 SharedPreferences.Editor editSettings = settings.edit();
                 editSettings.putString("DefaultCountry", mCountry);

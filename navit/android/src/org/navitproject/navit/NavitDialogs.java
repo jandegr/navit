@@ -30,7 +30,7 @@ public class NavitDialogs extends Handler {
     static final int MSG_START_MAP_DOWNLOAD = 7;
     private static final int DIALOG_SELECT_BACKUP = 3;
     private static final int MSG_REMOVE_DIALOG_GENERIC = 99;
-    private static Handler mHandler;
+    private static Handler sHandler;
     private static final String TAG = "NavitDialogs";
     private ProgressDialog mMapdownloaderDialog = null;
     private NavitMapDownloader mMapdownloader = null;
@@ -39,7 +39,7 @@ public class NavitDialogs extends Handler {
     NavitDialogs(Navit activity) {
         super();
         mActivity = activity;
-        mHandler = this;
+        sHandler = this;
     }
 
     static void sendDialogMessage(int what, String title, String text, int dialogNum,
@@ -50,10 +50,10 @@ public class NavitDialogs extends Handler {
         data.putInt("value1", value1);
         data.putInt("value2", value2);
         data.putInt("dialog_num", dialogNum);
-        Message msg = mHandler.obtainMessage(what);
+        Message msg = sHandler.obtainMessage(what);
         msg.setData(data);
 
-        mHandler.sendMessage(msg);
+        sHandler.sendMessage(msg);
     }
 
     @Override
@@ -64,13 +64,13 @@ public class NavitDialogs extends Handler {
                 mActivity.dismissDialog(DIALOG_MAPDOWNLOAD);
                 mActivity.removeDialog(DIALOG_MAPDOWNLOAD);
                 if (msg.getData().getInt("value1") == 1) {
-                    Message msgOut = Message.obtain(Navit.getInstance().getNavitGraphics().mCallbackHandler,
+                    Message msgOut = Message.obtain(NavitGraphics.sCallbackHandler,
                                 NavitGraphics.MsgType.CLB_LOAD_MAP.ordinal());
                     msgOut.setData(msg.getData());
                     msgOut.sendToTarget();
 
                     msgOut = Message
-                        .obtain(Navit.getInstance().getNavitGraphics().mCallbackHandler,
+                        .obtain(NavitGraphics.sCallbackHandler,
                                 NavitGraphics.MsgType.CLB_CALL_CMD.ordinal());
                     Bundle b = new Bundle();
                     int mi = msg.getData().getInt("value2");
@@ -142,8 +142,7 @@ public class NavitDialogs extends Handler {
                 mMapdownloaderDialog.setOnDismissListener(onDismissListener);
                 // show license for OSM maps
                 Toast.makeText(mActivity.getApplicationContext(),
-                        Navit.getInstance().getString(R.string.osm_copyright),
-                        Toast.LENGTH_LONG).show();
+                        R.string.osm_copyright, Toast.LENGTH_LONG).show();
                 return mMapdownloaderDialog;
 
             case DIALOG_BACKUP_RESTORE:

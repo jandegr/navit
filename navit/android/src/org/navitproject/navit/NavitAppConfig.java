@@ -11,6 +11,7 @@ import org.navitproject.navit.NavitAddressSearchActivity.NavitAddress;
 
 public class NavitAppConfig extends Application {
 
+    public static final String       NAVIT_PREFS = "NavitPrefs";
     private static final int         MAX_LAST_ADDRESSES = 10;
     private List<NavitAddress>       mLastAddresses     = null;
     private int                      mLastAddressField;
@@ -22,7 +23,7 @@ public class NavitAppConfig extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        mSettings = getSharedPreferences(Navit.NAVIT_PREFS, MODE_PRIVATE);
+        mSettings = getSharedPreferences(NAVIT_PREFS, MODE_PRIVATE);
         resources = getResources();
     }
 
@@ -90,4 +91,12 @@ public class NavitAppConfig extends Application {
 
     static native String callbackLocalizedString(String s);
 
+    /*
+     * this is used to load the 'navit' native library on
+     * application startup. The library has already been unpacked at
+     * installation time by the package manager.
+     */
+    static {
+        System.loadLibrary("navit");
+    }
 }

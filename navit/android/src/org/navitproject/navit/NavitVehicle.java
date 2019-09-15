@@ -197,7 +197,7 @@ public class NavitVehicle {
         }
     }
 
-    static void removeListeners(Context applicationContext) {
+    static void removeListeners() {
         if (sLocationManager != null) {
             if (preciseLocationListener != null) {
                 sLocationManager.removeUpdates(preciseLocationListener);

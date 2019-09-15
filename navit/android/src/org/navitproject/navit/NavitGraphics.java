@@ -76,7 +76,7 @@ class NavitGraphics {
     private int                            mPaddingTop = 0;
     private int                            mPaddingBottom = 0;
     private View                           mView;
-    static final Handler mCallbackHandler = new CallBackHandler(); // naam waarschijnlijk fout
+    static final Handler                   sCallbackHandler = new CallBackHandler();
     private SystemBarTintView              mLeftTintView;
     private SystemBarTintView              mRightTintView;
     private SystemBarTintView              mTopTintView;
@@ -85,9 +85,9 @@ class NavitGraphics {
     private RelativeLayout                 mRelativeLayout;
     private NavitCamera                    mCamera = null;
     private Navit                          mActivity;
-    private static Boolean                 mInMap = false;
+    private static Boolean                 sInMap = false;
     // for menu key
-    private static final long              mTimeForLongPress = 300L;
+    private static final long              sTimeForLongPress = 300L;
 
 
     void setBackgroundColor(int bgcolor) {
@@ -213,7 +213,7 @@ class NavitGraphics {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             if (item.getItemId() == 1) {
-                Message msg = Message.obtain(mCallbackHandler, MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
+                Message msg = Message.obtain(sCallbackHandler, MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
                         (int) mPressedPosition.x, (int) mPressedPosition.y);
                 msg.sendToTarget();
             }
@@ -227,7 +227,7 @@ class NavitGraphics {
             canvas.drawBitmap(mDrawBitmap, mPosX, mPosY, null);
             if (mOverlayDisabled == 0) {
                 // assume we ARE in map view mode!
-                mInMap = true;
+                sInMap = true;
                 for (NavitGraphics overlay : mOverlays) {
                     if (overlay.mOverlayDisabled == 0) {
                         Rect r = overlay.get_rect();
@@ -249,14 +249,14 @@ class NavitGraphics {
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             Log.d(TAG, "onSizeChanged pixels x=" + w + " pixels y=" + h);
-            Log.d(TAG, "onSizeChanged density=" + Navit.metrics.density);
-            Log.d(TAG, "onSizeChanged scaledDensity=" + Navit.metrics.scaledDensity);
+            Log.v(TAG, "onSizeChanged density=" + Navit.metrics.density);
+            Log.v(TAG, "onSizeChanged scaledDensity=" + Navit.metrics.scaledDensity);
             super.onSizeChanged(w, h, oldw, oldh);
             handleResize(w, h);
         }
 
         void do_longpress_action() {
-            Log.d(TAG, "do_longpress_action enter");
+            Log.v(TAG, "do_longpress_action enter");
             mActivity.openContextMenu(this);
         }
 
@@ -273,11 +273,11 @@ class NavitGraphics {
             if (switchValue == MotionEvent.ACTION_DOWN) {
                 mTouchMode = PRESSED;
                 Log.v(TAG, "ACTION_DOWN mode PRESSED");
-                if (!mInMap) {
+                if (!sInMap) {
                     buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                 }
                 mPressedPosition = new PointF(x, y);
-                postDelayed(this, mTimeForLongPress);
+                postDelayed(this, sTimeForLongPress);
 
             } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
                 mOldDist = spacing(event);
@@ -294,7 +294,7 @@ class NavitGraphics {
                         buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
                         break;
                     case PRESSED:
-                        if (mInMap) {
+                        if (sInMap) {
                             buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                         }
                         buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
@@ -388,14 +388,14 @@ class NavitGraphics {
                     keyStr = String.valueOf((char) 8);
                     break;
                 //case KeyEvent.KEYCODE_MENU:
-                //    if (!mInMap) {
+                //    if (!sInMap) {
                 //        this.postInvalidate();
                 //        return true;
                 //    }
                 //    break;
                 case KeyEvent.KEYCODE_SEARCH:
                     /* Handle event in Main Activity if map is shown */
-                    if (!mInMap) {
+                    if (!sInMap) {
                         keyStr = String.valueOf((char) 19);
                     }
                     break;
@@ -438,10 +438,10 @@ class NavitGraphics {
                 switch (keyCode) {
                     case KeyEvent.KEYCODE_VOLUME_UP:
                     case KeyEvent.KEYCODE_VOLUME_DOWN:
-                        return (!mInMap);
+                        return (!sInMap);
                     case KeyEvent.KEYCODE_SEARCH:
                         /* Handle event in Main Activity if map is shown */
-                        if (mInMap) {
+                        if (sInMap) {
                             return false;
                         }
                         break;
@@ -452,7 +452,7 @@ class NavitGraphics {
                         //s = java.lang.String.valueOf((char) 27);
                         return true;
                     case KeyEvent.KEYCODE_MENU:
-                        if (!mInMap) {
+                        if (!sInMap) {
                             if (!Navit.show_soft_keyboard_now_showing) {
                                 // if in menu view:
                                 // use as OK (Enter) key
@@ -518,7 +518,7 @@ class NavitGraphics {
         }
 
         public void run() {
-            if (mInMap && mTouchMode == PRESSED) {
+            if (sInMap && mTouchMode == PRESSED) {
                 do_longpress_action();
                 mTouchMode = NONE;
             }
@@ -534,13 +534,13 @@ class NavitGraphics {
 
     }
 
-    NavitGraphics(final Activity activity, NavitGraphics parent, int x, int y, int w, int h,
+    NavitGraphics(final Activity navit, NavitGraphics parent, int x, int y, int w, int h,
                          int wraparound, int useCamera) {
         if (parent == null) {
             if (useCamera != 0) {
                 addCamera();
             }
-            setmActivity(activity);
+            setmActivity((Navit)navit);
         } else {
             mDrawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             mBitmapWidth = w;
@@ -556,13 +556,11 @@ class NavitGraphics {
 
     /**
      * Sets up the main view.
-     * @param activity The main activity.
+     * @param navit The main activity.
      */
-    void setmActivity(final Activity activity) {
-        if (Navit.graphics == null) {
-            Navit.graphics = this;
-        }
-        this.mActivity = (Navit) activity;
+    void setmActivity(final Navit navit) {
+        navit.setGraphics(this);
+        this.mActivity = navit;
         mView = new NavitView(mActivity);
         mView.setClickable(false);
         mView.setFocusable(true);
@@ -667,8 +665,6 @@ class NavitGraphics {
     private native void buttonCallback(long id, int pressed, int button, int x, int y);
 
     private native void motionCallback(long id, int x, int y);
-
-    //native String getDefaultCountry(int id, String s);
 
     static native String[][] getAllCountries();
 
@@ -923,20 +919,20 @@ class NavitGraphics {
     }
 
     void setButtonCallback(long id) {
-        Log.e(TAG,"set Buttononcallback");
+        Log.d(TAG,"set Buttononcallback");
         mButtonCallbackID = id;
     }
 
     void setMotionCallback(long id) {
         mMotionCallbackID = id;
-        Log.e(TAG,"set Motioncallback");
+        Log.d(TAG,"set Motioncallback");
         if (mActivity != null) {
             mActivity.setGraphics(this);
         }
     }
 
     void setKeypressCallback(long id) {
-        Log.e(TAG,"set Keypresscallback");
+        Log.d(TAG,"set Keypresscallback");
         mKeypressCallbackID = id;
     }
 
@@ -1106,7 +1102,7 @@ class NavitGraphics {
         Log.d(TAG,"overlay_disable: " + disable + "Parent: " + (mNavitGraphics != null));
         // assume we are NOT in map view mode!
         if (mNavitGraphics == null) {
-            mInMap = (disable == 0);
+            sInMap = (disable == 0);
         }
         if (mOverlayDisabled != disable) {
             mOverlayDisabled = disable;
