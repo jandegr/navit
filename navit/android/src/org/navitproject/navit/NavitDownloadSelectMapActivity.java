@@ -68,14 +68,14 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
             NavitDialogs.sendDialogMessage(NavitDialogs.MSG_TOAST_LONG, null,
                     String.format(
                         (getTstring(R.string.map_location_unavailable)),
-                        Navit.mapFilenamePath),
+                        Navit.sMapFilenamePath),
                     -1, 0, 0);
             finish();
         }
     }
 
     private long getFreeSpace() {
-        StatFs fsInfo = new StatFs(Navit.mapFilenamePath);
+        StatFs fsInfo = new StatFs(Navit.sMapFilenamePath);
         return (long) fsInfo.getAvailableBlocks() * fsInfo.getBlockSize();
     }
 
@@ -90,7 +90,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
     }
 
     private void updateMapsForLocation() {
-        Location currentLocation = NavitVehicle.lastLocation;
+        Location currentLocation = NavitVehicle.sLastLocation;
         if (maps_current_position_childs.size() == 0 || (currentLocation != null
                     && !currentLocationKnown)) {
             if (currentLocation == null) {

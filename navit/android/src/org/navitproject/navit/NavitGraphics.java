@@ -60,6 +60,7 @@ import java.util.ArrayList;
 
 class NavitGraphics {
     private static final String            TAG = "NavitGraphics";
+    private static final long              TIME_FOR_LONG_PRESS = 300L;
     private final NavitGraphics            mNavitGraphics;
     private final ArrayList<NavitGraphics> mOverlays = new ArrayList<>();
     private int                            mBitmapWidth;
@@ -86,8 +87,7 @@ class NavitGraphics {
     private NavitCamera                    mCamera = null;
     private Navit                          mActivity;
     private static Boolean                 sInMap = false;
-    // for menu key
-    private static final long              sTimeForLongPress = 300L;
+
 
 
     void setBackgroundColor(int bgcolor) {
@@ -277,7 +277,7 @@ class NavitGraphics {
                     buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                 }
                 mPressedPosition = new PointF(x, y);
-                postDelayed(this, sTimeForLongPress);
+                postDelayed(this, TIME_FOR_LONG_PRESS);
 
             } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
                 mOldDist = spacing(event);
@@ -558,7 +558,7 @@ class NavitGraphics {
      * Sets up the main view.
      * @param navit The main activity.
      */
-    void setmActivity(final Navit navit) {
+    private void setmActivity(final Navit navit) {
         navit.setGraphics(this);
         this.mActivity = navit;
         mView = new NavitView(mActivity);
@@ -569,7 +569,6 @@ class NavitGraphics {
         mRelativeLayout = new RelativeLayout(mActivity);
         addCameraView();
         mRelativeLayout.addView(mView);
-
 
 
         /* The navigational and status bar tinting code is meaningful only on API19+ */

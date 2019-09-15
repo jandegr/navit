@@ -80,7 +80,7 @@ public class Navit extends Activity {
     public static Boolean              show_soft_keyboard              = false;
     public static Boolean              show_soft_keyboard_now_showing  = false;
     private static Intent              startupIntent                   = null;
-    private static long                startup_intent_timestamp        = 0L;
+    private static long                startup_intent_timestamp;
     private static NotificationManager sNotificationManager;
     private static Resources           NavitResources;
     private static final int           MY_PERMISSIONS_REQ_FINE_LOC     = 103;
@@ -90,8 +90,8 @@ public class Navit extends Activity {
     private static final String        CHANNEL_ID                      = "org.navitproject.navit";
     private static final String        NAVIT_PACKAGE_NAME              = "org.navitproject.navit";
     private static final String        TAG                             = "Navit";
-    static String                      mapFilenamePath                 = null;
-    static String                      NAVIT_DATA_DIR                  = null;
+    static String                      sMapFilenamePath;
+    static String                      sNavitDataDir;
     Boolean                            mIsFullscreen                   = false;
     private NavitGraphics              mNavitGraphics;
     private NavitDialogs               mDialogs;
@@ -120,14 +120,8 @@ public class Navit extends Activity {
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
-            //String description = getString(R.string.channel_description);
             int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            //channel.setDescription(description);
-            /*
-             * Register the channel with the system; you can't change the importance
-             * or other notification behaviors after this
-             */
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
@@ -283,7 +277,6 @@ public class Navit extends Activity {
         }
     }
 
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -302,7 +295,6 @@ public class Navit extends Activity {
         Log.d(TAG, "**1**D " + startupIntent.getDataString());
 
         createNotificationChannel();
-
         buildNotification();
         verifyPermissions();
         // get the local language -------------
@@ -325,17 +317,17 @@ public class Navit extends Activity {
         Log.d(TAG, "Language " + lang);
 
         SharedPreferences prefs = getSharedPreferences(NavitAppConfig.NAVIT_PREFS,MODE_PRIVATE);
-        NAVIT_DATA_DIR = getApplicationContext().getFilesDir().getPath();
-        mapFilenamePath = prefs.getString("filenamePath", NAVIT_DATA_DIR + '/');
-        Log.i(TAG,"NAVITDATADIR = " + NAVIT_DATA_DIR);
-        Log.i(TAG,"mapFilenamePath = " + mapFilenamePath);
+        sNavitDataDir = getApplicationContext().getFilesDir().getPath();
+        sMapFilenamePath = prefs.getString("filenamePath", sNavitDataDir + '/');
+        Log.i(TAG,"NavitDataDir = " + sNavitDataDir);
+        Log.i(TAG,"mapFilenamePath = " + sMapFilenamePath);
         // make sure the new path for the navitmap.bin file(s) exist!!
-        File navitMapsDir = new File(mapFilenamePath);
+        File navitMapsDir = new File(sMapFilenamePath);
         navitMapsDir.mkdirs();
 
         // make sure the share dir exists, for ????
         // other activities fail if removed
-        File navitDataShareDir = new File(NAVIT_DATA_DIR + "/share");
+        File navitDataShareDir = new File(sNavitDataDir + "/share");
         navitDataShareDir.mkdirs();
 
         Display display = getWindowManager().getDefaultDisplay();
@@ -352,7 +344,7 @@ public class Navit extends Activity {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE,"navit:DoNotDimScreen");
 
-        if (!extractRes(langc, NAVIT_DATA_DIR + "/locale/" + langc + "/LC_MESSAGES/navit.mo")) {
+        if (!extractRes(langc, sNavitDataDir + "/locale/" + langc + "/LC_MESSAGES/navit.mo")) {
             Log.e(TAG, "Failed to extract language resource " + langc);
         }
 
@@ -381,7 +373,7 @@ public class Navit extends Activity {
             String[] children = assetMgr.list("config/" + myDisplayDensity);
             for (String child : children) {
                 Log.d(TAG, "Processing config file '" + child + "' from assets");
-                if (!extractAsset("config/" + myDisplayDensity + "/" + child, NAVIT_DATA_DIR + "/share/" + child)) {
+                if (!extractAsset("config/" + myDisplayDensity + "/" + child, sNavitDataDir + "/share/" + child)) {
                     Log.e(TAG, "Failed to extract asset config/" + myDisplayDensity + "/" + child);
                 }
             }
@@ -390,7 +382,7 @@ public class Navit extends Activity {
         }
         Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + Integer.valueOf(Build.VERSION.SDK));
         navitMain(this, navitLanguage, Integer.valueOf(Build.VERSION.SDK),
-                      myDisplayDensity, NAVIT_DATA_DIR + "/bin/navit", mapFilenamePath);
+                      myDisplayDensity, sNavitDataDir + "/bin/navit", sMapFilenamePath);
         showInfos();
         Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     }
@@ -844,7 +836,7 @@ public class Navit extends Activity {
         super.onDestroy();
         Log.d(TAG, "OnDestroy");
         sNotificationManager.cancelAll();
-        NavitVehicle.removeListeners();
+        NavitVehicle.removeListeners(this);
         navitDestroy();
     }
 

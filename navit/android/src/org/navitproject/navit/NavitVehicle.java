@@ -41,10 +41,9 @@ import java.util.List;
 public class NavitVehicle {
 
     private static final String GPS_FIX_CHANGE = "android.location.GPS_FIX_CHANGE";
-
-    static Location lastLocation = null;
+    static Location sLastLocation;
     private static LocationManager sLocationManager = null;
-    private static Context mContext = null;
+    private Context mContext;
     private long mVehiclePcbid;
     private long mVehicleScbid;
     private long mVehicleFcbid;
@@ -63,7 +62,6 @@ public class NavitVehicle {
         boolean mPrecise = false;
 
         public void onLocationChanged(Location location) {
-            lastLocation = location;
             // Disable the fast provider if still active
             if (mPrecise && mFastProvider != null) {
                 sLocationManager.removeUpdates(fastLocationListener);
@@ -118,7 +116,7 @@ public class NavitVehicle {
                     }
                 }
             }
-        }
+         }
     }
 
     /**
@@ -197,12 +195,12 @@ public class NavitVehicle {
         }
     }
 
-    static void removeListeners() {
+    static void removeListeners(Navit navit) {
         if (sLocationManager != null) {
             if (preciseLocationListener != null) {
                 sLocationManager.removeUpdates(preciseLocationListener);
                 sLocationManager.removeGpsStatusListener(preciseLocationListener);
-                mContext.unregisterReceiver(preciseLocationListener);
+                navit.unregisterReceiver(preciseLocationListener);
             }
             if (fastLocationListener != null) {
                 sLocationManager.removeUpdates(fastLocationListener);
