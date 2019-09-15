@@ -91,7 +91,7 @@ public class NavitBackupTask extends AsyncTask<Void, Void, String> {
             preferencesOOs = new ObjectOutputStream(
                     new FileOutputStream(backupDir.getPath() + "/preferences.bak"));
             preferencesOOs.writeObject(
-                    mActivity.getSharedPreferences(Navit.NAVIT_PREFS, Context.MODE_PRIVATE)
+                    mActivity.getSharedPreferences(NavitAppConfig.NAVIT_PREFS, Context.MODE_PRIVATE)
                     .getAll());
         } catch (IOException e) {
             e.printStackTrace();
