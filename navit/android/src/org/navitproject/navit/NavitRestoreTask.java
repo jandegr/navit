@@ -76,7 +76,7 @@ public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
                     new FileInputStream(backupDir.getPath() + "/preferences.bak"));
             Map<String, ?> entries = (Map<String, ?>) preferenceOis.readObject();
 
-            Editor prefEditor = mActivity.getSharedPreferences(Navit.NAVIT_PREFS, Context.MODE_PRIVATE).edit();
+            Editor prefEditor = mActivity.getSharedPreferences(NavitAppConfig.NAVIT_PREFS, Context.MODE_PRIVATE).edit();
 
             /* Remove all old Preferences */
             prefEditor.clear();
@@ -114,7 +114,6 @@ public class NavitRestoreTask extends AsyncTask<Void, Void, String> {
                 }
             } catch (IOException e) {
                 // Catching but ignoring that exception when closing the stream
-                return null;
             }
         }
         return null;

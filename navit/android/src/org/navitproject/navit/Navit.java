@@ -82,11 +82,11 @@ public class Navit extends Activity {
     private static Intent              startupIntent                   = null;
     private static long                startup_intent_timestamp        = 0L;
     private static NotificationManager sNotificationManager;
+    private static Resources           NavitResources;
     private static final int           MY_PERMISSIONS_REQ_FINE_LOC     = 103;
     private static final int           NavitDownloaderSelectMap_id     = 967;
     private static final int           NavitAddressSearch_id           = 70;
     private static final int           NavitSelectStorage_id           = 43;
-    private static Resources           NavitResources                  = null;
     private static final String        CHANNEL_ID                      = "org.navitproject.navit";
     private static final String        NAVIT_PACKAGE_NAME              = "org.navitproject.navit";
     private static final String        TAG                             = "Navit";
