@@ -1057,7 +1057,7 @@ static struct event_priv *event_android_new(struct event_methods *meth) {
     Navit_disableSuspend = (*jnienv)->GetMethodID(jnienv, NavitClass, "disableSuspend", "()V");
     if (Navit_disableSuspend == NULL)
         return NULL;
-    Navit_exit = (*jnienv)->GetMethodID(jnienv, NavitClass, "exit", "()V");
+    Navit_exit = (*jnienv)->GetMethodID(jnienv, NavitClass, "onDestroy", "()V");
     if (Navit_exit == NULL)
         return NULL;
     Navit_fullscreen = (*jnienv)->GetMethodID(jnienv, NavitClass, "fullscreen", "(I)V");
