@@ -362,8 +362,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         pstr = strtok(NULL, "#");
         p.y = atoi(pstr);
 
-        //dbg(lvl_debug, "11x=%d", p.x);
-        //dbg(lvl_debug, "11y=%d", p.y);
+        dbg(lvl_debug, "11x=%d", p.x);
+        dbg(lvl_debug, "11y=%d", p.y);
 
         transform_reverse(transform, &p, &c);
 
@@ -371,8 +371,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         pc.y = c.y;
         pc.pro = transform_get_projection(transform);
 
-        //dbg(lvl_debug, "22x=%d", pc.x);
-        //dbg(lvl_debug, "22y=%d", pc.y);
+        dbg(lvl_debug, "22x=%d", pc.x);
+        dbg(lvl_debug, "22y=%d", pc.y);
 
         // start navigation asynchronous
         navit_set_destination(attr.u.navit, &pc, parse_str, 1);
