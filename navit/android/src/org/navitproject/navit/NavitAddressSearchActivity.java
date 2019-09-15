@@ -87,9 +87,9 @@ public class NavitAddressSearchActivity extends Activity {
     private long mSearchHandle = 0;
 
     // TODO remember settings
-    private static String               last_address_search_string = "";
-    private static Boolean              last_address_partial_match = false;
-    private static String               last_country = "";
+    private static String sLastAddressSearchString = "";
+    private static Boolean sLastAddressPartialMatch = false;
+    private static String sLastCountry = "";
 
     private int getDrawableID(String resourceName) {
         int drawableId = 0;
@@ -110,7 +110,7 @@ public class NavitAddressSearchActivity extends Activity {
         int[] flagIconSizes = {24,32,48,64,96};
         int exactSize;
         int nearestSize;
-        exactSize = (int)(Navit.metrics.density * 24.0 - .5);
+        exactSize = (int)(Navit.sMetrics.density * 24.0 - .5);
         nearestSize = flagIconSizes[0];
         for (int size: flagIconSizes) {
             nearestSize = size;
@@ -137,8 +137,8 @@ public class NavitAddressSearchActivity extends Activity {
             }
         }
 
-        mPartialSearch = last_address_partial_match;
-        mAddressString = last_address_search_string;
+        mPartialSearch = sLastAddressPartialMatch;
+        mAddressString = sLastAddressSearchString;
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND, WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
         LinearLayout panel = new LinearLayout(this);
@@ -177,11 +177,11 @@ public class NavitAddressSearchActivity extends Activity {
         // partial match checkbox
         final CheckBox checkboxPartialMatch = new CheckBox(this);
         checkboxPartialMatch.setText(getTstring(R.string.address_partial_match)); // TRANS
-        checkboxPartialMatch.setChecked(last_address_partial_match);
+        checkboxPartialMatch.setChecked(sLastAddressPartialMatch);
         checkboxPartialMatch.setGravity(Gravity.CENTER);
 
         final EditText address_string = new EditText(this);
-        address_string.setText(last_address_search_string);
+        address_string.setText(sLastAddressSearchString);
         address_string.setSelectAllOnFocus(true);
 
         // search button
@@ -193,8 +193,8 @@ public class NavitAddressSearchActivity extends Activity {
             public void onClick(View v) {
                 mPartialSearch = checkboxPartialMatch.isChecked();
                 mAddressString = address_string.getText().toString();
-                last_address_partial_match = mPartialSearch;
-                last_address_search_string = mAddressString;
+                sLastAddressPartialMatch = mPartialSearch;
+                sLastAddressSearchString = mAddressString;
                 executeSearch();
             }
         });

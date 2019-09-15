@@ -75,14 +75,14 @@ import java.util.regex.Pattern;
 public class Navit extends Activity {
 
 
-    public static InputMethodManager   mgr                             = null;
-    public static DisplayMetrics       metrics                         = null;
-    public static Boolean              show_soft_keyboard              = false;
-    public static Boolean              show_soft_keyboard_now_showing  = false;
-    private static Intent              startupIntent                   = null;
-    private static long                startup_intent_timestamp;
+    public static InputMethodManager   sInputMethodManager;
+    public static DisplayMetrics       sMetrics;
+    public static Boolean              sShowSoftKeyboard               = false;
+    public static Boolean              sShowSoftKeyboardNowShowing     = false;
+    private static Intent              sStartupIntent;
+    private static long                sStartupIntentTimestamp;
     private static NotificationManager sNotificationManager;
-    private static Resources           NavitResources;
+    private static Resources           sNavitResources;
     private static final int           MY_PERMISSIONS_REQ_FINE_LOC     = 103;
     private static final int           NavitDownloaderSelectMap_id     = 967;
     private static final int           NavitAddressSearch_id           = 70;
@@ -170,7 +170,7 @@ public class Navit extends Activity {
      */
     private boolean extractRes(String resname, String result) {
         Log.d(TAG, "Res Name " + resname + ", result " + result);
-        int id = NavitResources.getIdentifier(resname, "raw", NAVIT_PACKAGE_NAME);
+        int id = sNavitResources.getIdentifier(resname, "raw", NAVIT_PACKAGE_NAME);
         Log.d(TAG, "Res ID " + id);
         if (id == 0) {
             return false;
@@ -180,7 +180,7 @@ public class Navit extends Activity {
             Log.d(TAG, "Extracting resource");
 
             try {
-                InputStream resourcestream = NavitResources.openRawResource(id);
+                InputStream resourcestream = sNavitResources.openRawResource(id);
                 FileOutputStream resultfilestream = new FileOutputStream(new File(result));
                 byte[] buf = new byte[1024];
                 int i;
@@ -204,7 +204,7 @@ public class Navit extends Activity {
      * @return true if the local file is extracted in @p output
      */
     private boolean extractAsset(String assetFileName, String output) {
-        AssetManager assetMgr = NavitResources.getAssets();
+        AssetManager assetMgr = sNavitResources.getAssets();
         InputStream assetstream;
         Log.d(TAG, "Asset Name " + assetFileName + ", output " + output);
         try {
@@ -285,14 +285,14 @@ public class Navit extends Activity {
         windowSetup();
         mDialogs = new NavitDialogs(this);
 
-        NavitResources = getResources();
+        sNavitResources = getResources();
 
         // only take arguments here, onResume gets called all the time (e.g. when screenblanks, etc.)
-        Navit.startupIntent = this.getIntent();
+        Navit.sStartupIntent = this.getIntent();
         // hack! Remember time stamps, and only allow 4 secs. later in onResume to set target!
-        Navit.startup_intent_timestamp = System.currentTimeMillis();
-        Log.d(TAG, "**1**A " + startupIntent.getAction());
-        Log.d(TAG, "**1**D " + startupIntent.getDataString());
+        Navit.sStartupIntentTimestamp = System.currentTimeMillis();
+        Log.d(TAG, "**1**A " + sStartupIntent.getAction());
+        Log.d(TAG, "**1**D " + sStartupIntent.getDataString());
 
         createNotificationChannel();
         buildNotification();
@@ -331,13 +331,13 @@ public class Navit extends Activity {
         navitDataShareDir.mkdirs();
 
         Display display = getWindowManager().getDefaultDisplay();
-        metrics = new DisplayMetrics();
-        display.getMetrics(Navit.metrics);
-        int densityDpi = (int)((Navit.metrics.density * 160) - .5f);
+        sMetrics = new DisplayMetrics();
+        display.getMetrics(Navit.sMetrics);
+        int densityDpi = (int)((Navit.sMetrics.density * 160) - .5f);
         Log.d(TAG, "-> pixels x=" + display.getWidth() + " pixels y=" + display.getHeight());
         Log.d(TAG, "-> dpi=" + densityDpi);
-        Log.d(TAG, "-> density=" + Navit.metrics.density);
-        Log.d(TAG, "-> scaledDensity=" + Navit.metrics.scaledDensity);
+        Log.d(TAG, "-> density=" + Navit.sMetrics.density);
+        Log.d(TAG, "-> scaledDensity=" + Navit.sMetrics.scaledDensity);
 
         mActivityResults = new NavitActivityResult[16];
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -369,7 +369,7 @@ public class Navit extends Activity {
         Log.i(TAG, "Device density detected: " + myDisplayDensity);
 
         try {
-            AssetManager assetMgr = NavitResources.getAssets();
+            AssetManager assetMgr = sNavitResources.getAssets();
             String[] children = assetMgr.list("config/" + myDisplayDensity);
             for (String child : children) {
                 Log.d(TAG, "Processing config file '" + child + "' from assets");
@@ -384,7 +384,7 @@ public class Navit extends Activity {
         navitMain(this, navitLanguage, Integer.valueOf(Build.VERSION.SDK),
                       myDisplayDensity, sNavitDataDir + "/bin/navit", sMapFilenamePath);
         showInfos();
-        Navit.mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        Navit.sInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     private void windowSetup() {
@@ -444,19 +444,19 @@ public class Navit extends Activity {
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         }
-        //InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        //InputMethodManager sInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         // DEBUG
         // intent_data = "google.navigation:q=Wien Burggasse 27";
         // intent_data = "google.navigation:q=48.25676,16.643";
         // intent_data = "google.navigation:ll=48.25676,16.643&q=blabla-strasse";
         // intent_data = "google.navigation:ll=48.25676,16.643";
-        if (startupIntent != null) {
-            if (System.currentTimeMillis() <= Navit.startup_intent_timestamp + 4000L) {
-                Log.d(TAG, "**2**A " + startupIntent.getAction());
-                Log.d(TAG, "**2**D " + startupIntent.getDataString());
-                String naviScheme = startupIntent.getScheme();
+        if (sStartupIntent != null) {
+            if (System.currentTimeMillis() <= Navit.sStartupIntentTimestamp + 4000L) {
+                Log.d(TAG, "**2**A " + sStartupIntent.getAction());
+                Log.d(TAG, "**2**D " + sStartupIntent.getDataString());
+                String naviScheme = sStartupIntent.getScheme();
                 if (naviScheme != null && naviScheme.equals("google.navigation")) {
-                    parseNavigationURI(startupIntent.getData().getSchemeSpecificPart());
+                    parseNavigationURI(sStartupIntent.getData().getSchemeSpecificPart());
                 }
             } else {
                 Log.e(TAG, "timestamp for navigate_to expired! not using data");
@@ -464,7 +464,7 @@ public class Navit extends Activity {
         }
         Log.d(TAG, "onResume");
 
-        if (show_soft_keyboard_now_showing) {
+        if (sShowSoftKeyboardNowShowing) {
             /* Calling showNativeKeyboard() directly won't work here, we need to use the message queue */
             View cf = getCurrentFocus();
             if (cf == null) {
@@ -479,10 +479,10 @@ public class Navit extends Activity {
     public void onPause() {
         super.onPause();
         Log.e(TAG, "onPause");
-        if (show_soft_keyboard_now_showing) {
+        if (sShowSoftKeyboardNowShowing) {
             Log.d(TAG, "onPause:hiding soft input");
             this.hideNativeKeyboard();
-            show_soft_keyboard_now_showing = true;
+            sShowSoftKeyboardNowShowing = true;
         }
     }
 
@@ -708,8 +708,8 @@ public class Navit extends Activity {
         }
 
         /* Use SHOW_FORCED here, else keyboard won't show in landscape mode */
-        mgr.showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_FORCED);
-        show_soft_keyboard_now_showing = true;
+        sInputMethodManager.showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_FORCED);
+        sShowSoftKeyboardNowShowing = true;
 
         /*
          * Crude way to estimate the height occupied by the keyboard: for AOSP on KitKat and Lollipop it
@@ -735,8 +735,8 @@ public class Navit extends Activity {
      * Hides the native keyboard or other input method.
      */
     void hideNativeKeyboard() {
-        mgr.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        show_soft_keyboard_now_showing = false;
+        sInputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        sShowSoftKeyboardNowShowing = false;
     }
 
 

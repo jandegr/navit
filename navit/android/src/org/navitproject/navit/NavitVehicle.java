@@ -49,8 +49,8 @@ public class NavitVehicle {
     private long mVehicleFcbid;
     private String mFastProvider;
 
-    private static NavitLocationListener preciseLocationListener;
-    private static NavitLocationListener fastLocationListener;
+    private static NavitLocationListener sPreciseLocationListener;
+    private static NavitLocationListener sFastLocationListener;
 
     public native void vehicleCallback(long id, Location location);
 
@@ -64,7 +64,7 @@ public class NavitVehicle {
         public void onLocationChanged(Location location) {
             // Disable the fast provider if still active
             if (mPrecise && mFastProvider != null) {
-                sLocationManager.removeUpdates(fastLocationListener);
+                sLocationManager.removeUpdates(sFastLocationListener);
                 mFastProvider = null;
             }
             vehicleCallback(mVehiclePcbid, location);
@@ -136,9 +136,9 @@ public class NavitVehicle {
         }
         this.mContext = context;
         sLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-        preciseLocationListener = new NavitLocationListener();
-        preciseLocationListener.mPrecise = true;
-        fastLocationListener = new NavitLocationListener();
+        sPreciseLocationListener = new NavitLocationListener();
+        sPreciseLocationListener.mPrecise = true;
+        sFastLocationListener = new NavitLocationListener();
 
         /* Use 2 LocationProviders, one precise (usually GPS), and one
            not so precise, but possible faster. The fast provider is
@@ -170,9 +170,9 @@ public class NavitVehicle {
         mVehicleScbid = scbid;
         mVehicleFcbid = fcbid;
 
-        context.registerReceiver(preciseLocationListener, new IntentFilter(GPS_FIX_CHANGE));
-        sLocationManager.requestLocationUpdates(mPreciseProvider, 0, 0, preciseLocationListener);
-        sLocationManager.addGpsStatusListener(preciseLocationListener);
+        context.registerReceiver(sPreciseLocationListener, new IntentFilter(GPS_FIX_CHANGE));
+        sLocationManager.requestLocationUpdates(mPreciseProvider, 0, 0, sPreciseLocationListener);
+        sLocationManager.addGpsStatusListener(sPreciseLocationListener);
 
         /*
          * Since Android criteria have no way to specify "fast fix", lowCriteria may return the same
@@ -191,19 +191,19 @@ public class NavitVehicle {
             }
         }
         if (mFastProvider != null) {
-            sLocationManager.requestLocationUpdates(mFastProvider, 0, 0, fastLocationListener);
+            sLocationManager.requestLocationUpdates(mFastProvider, 0, 0, sFastLocationListener);
         }
     }
 
     static void removeListeners(Navit navit) {
         if (sLocationManager != null) {
-            if (preciseLocationListener != null) {
-                sLocationManager.removeUpdates(preciseLocationListener);
-                sLocationManager.removeGpsStatusListener(preciseLocationListener);
-                navit.unregisterReceiver(preciseLocationListener);
+            if (sPreciseLocationListener != null) {
+                sLocationManager.removeUpdates(sPreciseLocationListener);
+                sLocationManager.removeGpsStatusListener(sPreciseLocationListener);
+                navit.unregisterReceiver(sPreciseLocationListener);
             }
-            if (fastLocationListener != null) {
-                sLocationManager.removeUpdates(fastLocationListener);
+            if (sFastLocationListener != null) {
+                sLocationManager.removeUpdates(sFastLocationListener);
             }
         }
     }
