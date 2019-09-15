@@ -223,15 +223,12 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitAppConfig_callbackLoc
 
     // jstring dataStringValue = (jstring) localized_str;
     jstring js = (*env)->NewStringUTF(env,localized_str);
-
     (*env)->ReleaseStringUTFChars(env, str, s);
-
     return js;
 }
 
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCountry( JNIEnv* env, jobject thiz,
         jint channel, jstring str) {
-    
     struct attr search_attr, country_name, country_iso2, *country_attr;
     struct tracking *tracking;
     struct search_list_result *res;
@@ -282,12 +279,12 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         // zoom in
         navit_zoom_in_cursor(attr.u.navit, 2);
         navit_draw(attr.u.navit);
-        break;
+    break;
     case 2:
         // zoom out
         navit_zoom_out_cursor(attr.u.navit, 2);
         navit_draw(attr.u.navit);
-        break;
+    break;
     case 6: {// add a map to the current mapset, return 1 on success
         struct mapset *ms = navit_get_mapset(attr.u.navit);
         struct attr type, name, data, *attrs[4];
@@ -340,7 +337,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         dbg(lvl_debug, "*****string=%s", s);
         command_evaluate(&attr, s);
         (*env)->ReleaseStringUTFChars(env, str, s);
-        break;
+    break;
     case 4: { // navigate to display position
         char *pstr;
         struct point p;
