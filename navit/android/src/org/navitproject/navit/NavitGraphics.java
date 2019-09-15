@@ -54,7 +54,6 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 
@@ -124,11 +123,6 @@ class NavitGraphics {
         mCamera = new NavitCamera(mActivity);
     }
 
-    /**
-     * Adds a view for the camera.
-     *
-     * <p>If {@link #mCamera} is null, this method is a no-op.</p>
-     */
     private void addCameraView() {
         if (mCamera != null) {
             mRelativeLayout.addView(mCamera);
@@ -169,19 +163,11 @@ class NavitGraphics {
         static final int  DRAG       = 1;
         static final int  ZOOM       = 2;
         static final int  PRESSED    = 3;
-        Method mEventGetX = null;
-        Method mEventGetY = null;
 
         PointF mPressedPosition = null;
 
         NavitView(Context context) {
             super(context);
-            try {
-                mEventGetX = android.view.MotionEvent.class.getMethod("getX", int.class);
-                mEventGetY = android.view.MotionEvent.class.getMethod("getY", int.class);
-            } catch (Exception e) {
-                Log.d(TAG, "Multitouch zoom not supported");
-            }
         }
 
         @Override
@@ -357,22 +343,6 @@ class NavitGraphics {
             float x = a.x - b.x;
             float y = a.y - b.y;
             return (float)Math.sqrt(x * x + y * y);
-        }
-
-        private PointF getFloatValue(MotionEvent motionEvent, int pointerIndex) {
-            PointF pos = new PointF(0,0);
-
-            if (mEventGetX != null && mEventGetY != null) {
-                try {
-                    Float x = (java.lang.Float) mEventGetX.invoke(motionEvent, pointerIndex);
-                    Float y = (java.lang.Float) mEventGetY.invoke(motionEvent, pointerIndex);
-                    pos.set(x, y);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            return pos;
         }
 
         @Override
@@ -741,11 +711,11 @@ class NavitGraphics {
         if (this.mNavitGraphics != null) {
             this.mNavitGraphics.handleResize(w, h);
         } else {
-            Log.d(TAG, String.format("handleResize w=%d h=%d", w, h));
+            Log.v(TAG, String.format("handleResize w=%d h=%d", w, h));
 
             resizePadding();
 
-            Log.d(TAG, String.format("Padding left=%d top=%d right=%d bottom=%d",
+            Log.v(TAG, String.format("Padding left=%d top=%d right=%d bottom=%d",
                     mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
 
             adjustSystemBarsTintingViews();
@@ -805,14 +775,14 @@ class NavitGraphics {
         int navigationBarHeight = (nhid > 0) ? resources.getDimensionPixelSize(nhid) : 0;
         int navigationBarHeightLandscape = (nhlid > 0) ? resources.getDimensionPixelSize(nhlid) : 0;
         int navigationBarWidth = (nwid > 0) ? resources.getDimensionPixelSize(nwid) : 0;
-        Log.d(TAG, String.format(
+        Log.v(TAG, String.format(
                 "statusBarHeight=%d, actionBarDefaultHeight=%d, navigationBarHeight=%d, "
                         + "navigationBarHeightLandscape=%d, navigationBarWidth=%d",
                         statusBarHeight, actionBarDefaultHeight, navigationBarHeight,
                         navigationBarHeightLandscape, navigationBarWidth));
 
         if (mActivity == null) {
-            Log.w(TAG, "Main Activity is not a Navit instance, cannot update padding");
+            Log.w(TAG, "no main Activity, cannot update padding");
         } else if (mFrameLayout != null) {
             /* mFrameLayout is only created on platforms supporting navigation and status bar tinting */
 

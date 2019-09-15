@@ -13,18 +13,17 @@ public class NavitAppConfig extends Application {
 
     public static final String       NAVIT_PREFS = "NavitPrefs";
     private static final int         MAX_LAST_ADDRESSES = 10;
+    private static Resources         sResources;
     private List<NavitAddress>       mLastAddresses     = null;
     private int                      mLastAddressField;
     private SharedPreferences        mSettings;
-    private static Resources         resources;
-
 
 
     @Override
     public void onCreate() {
         super.onCreate();
         mSettings = getSharedPreferences(NAVIT_PREFS, MODE_PRIVATE);
-        resources = getResources();
+        sResources = getResources();
     }
 
     List<NavitAddress> getLastAddresses() {
@@ -86,7 +85,7 @@ public class NavitAppConfig extends Application {
      */
     static String getTstring(int riD) {
 
-        return callbackLocalizedString(resources.getString(riD));
+        return callbackLocalizedString(sResources.getString(riD));
     }
 
     static native String callbackLocalizedString(String s);

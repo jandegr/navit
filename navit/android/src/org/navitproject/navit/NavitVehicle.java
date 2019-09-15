@@ -42,15 +42,15 @@ public class NavitVehicle {
 
     private static final String GPS_FIX_CHANGE = "android.location.GPS_FIX_CHANGE";
     static Location sLastLocation;
-    private static LocationManager sLocationManager = null;
+    private static LocationManager sLocationManager;
     private Context mContext;
     private long mVehiclePcbid;
     private long mVehicleScbid;
     private long mVehicleFcbid;
     private String mFastProvider;
 
-    private static NavitLocationListener preciseLocationListener = null;
-    private static NavitLocationListener fastLocationListener = null;
+    private static NavitLocationListener preciseLocationListener;
+    private static NavitLocationListener fastLocationListener;
 
     public native void vehicleCallback(long id, Location location);
 
@@ -116,7 +116,7 @@ public class NavitVehicle {
                     }
                 }
             }
-         }
+        }
     }
 
     /**
