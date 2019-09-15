@@ -221,12 +221,12 @@ class NavitGraphics {
                     }
                 }
             } else {
-                if (Navit.show_soft_keyboard) {
-                    if (Navit.mgr != null) {
-                        Navit.mgr.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
-                        Navit.show_soft_keyboard_now_showing = true;
+                if (Navit.sShowSoftKeyboard) {
+                    if (Navit.sInputMethodManager != null) {
+                        Navit.sInputMethodManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
+                        Navit.sShowSoftKeyboardNowShowing = true;
                         // clear the variable now, keyboard will stay on screen until backbutton pressed
-                        Navit.show_soft_keyboard = false;
+                        Navit.sShowSoftKeyboard = false;
                     }
                 }
             }
@@ -235,8 +235,8 @@ class NavitGraphics {
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             Log.d(TAG, "onSizeChanged pixels x=" + w + " pixels y=" + h);
-            Log.v(TAG, "onSizeChanged density=" + Navit.metrics.density);
-            Log.v(TAG, "onSizeChanged scaledDensity=" + Navit.metrics.scaledDensity);
+            Log.v(TAG, "onSizeChanged density=" + Navit.sMetrics.density);
+            Log.v(TAG, "onSizeChanged scaledDensity=" + Navit.sMetrics.scaledDensity);
             super.onSizeChanged(w, h, oldw, oldh);
             handleResize(w, h);
         }
@@ -416,14 +416,14 @@ class NavitGraphics {
                         }
                         break;
                     case KeyEvent.KEYCODE_BACK:
-                        if (Navit.show_soft_keyboard_now_showing) {
-                            Navit.show_soft_keyboard_now_showing = false;
+                        if (Navit.sShowSoftKeyboardNowShowing) {
+                            Navit.sShowSoftKeyboardNowShowing = false;
                         }
                         //s = java.lang.String.valueOf((char) 27);
                         return true;
                     case KeyEvent.KEYCODE_MENU:
                         if (!sInMap) {
-                            if (!Navit.show_soft_keyboard_now_showing) {
+                            if (!Navit.sShowSoftKeyboardNowShowing) {
                                 // if in menu view:
                                 // use as OK (Enter) key
                                 s = String.valueOf((char) 13);
