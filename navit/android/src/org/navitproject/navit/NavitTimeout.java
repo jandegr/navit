@@ -29,7 +29,7 @@ class NavitTimeout implements Runnable {
     private static final TimeoutHandler handler = new TimeoutHandler();
     private final long mEventCallbackid;
     private final int mEventTimeout;
-    private boolean mEventMulti;
+    private final boolean mEventMulti;
 
     NavitTimeout(int timeout, boolean multi, long callbackid) {
         mEventTimeout = timeout;

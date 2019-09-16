@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.StatFs;
@@ -203,9 +202,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
         String mapIndex = child.get("map_index");
         if (mapIndex != null) {
             int mi = Integer.parseInt(mapIndex);
-            if ((NavitMapDownloader.osm_maps[mi].mEstSizeBytes / 1024 / 1024 / 950 >= 4)
-                    && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)) {
-                // test large downloads on android 7 and up
+            if (NavitMapDownloader.osm_maps[mi].mEstSizeBytes / 1024 / 1024 / 950 >= 4) {
                 NavitDialogs.sendDialogMessage(NavitDialogs.MSG_TOAST_LONG, null,
                         getTstring(R.string.map_download_oversize),
                         -1, 0, 0);

@@ -462,7 +462,6 @@ public class Navit extends Activity {
                 Log.e(TAG, "timestamp for navigate_to expired! not using data");
             }
         }
-        Log.d(TAG, "onResume");
 
         if (sShowSoftKeyboardNowShowing) {
             /* Calling showNativeKeyboard() directly won't work here, we need to use the message queue */
@@ -685,7 +684,7 @@ public class Navit extends Activity {
      * <p>Calling this method has the same effect as pressing the hardware Menu button, where present, or touching
      * the overflow button in the Action bar.</p>
      */
-    public void showMenu() {
+    void showMenu() {
         openOptionsMenu();
     }
 

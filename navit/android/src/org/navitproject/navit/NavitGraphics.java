@@ -60,7 +60,7 @@ import java.util.ArrayList;
 class NavitGraphics {
     private static final String            TAG = "NavitGraphics";
     private static final long              TIME_FOR_LONG_PRESS = 300L;
-    private final NavitGraphics            mNavitGraphics;
+    private final NavitGraphics            mParentGraphics;
     private final ArrayList<NavitGraphics> mOverlays = new ArrayList<>();
     private int                            mBitmapWidth;
     private int                            mBitmapHeight;
@@ -71,10 +71,10 @@ class NavitGraphics {
     private int                            mBgColor;
     private float                          mTrackballX;
     private float                          mTrackballY;
-    private int                            mPaddingLeft = 0;
-    private int                            mPaddingRight = 0;
-    private int                            mPaddingTop = 0;
-    private int                            mPaddingBottom = 0;
+    private int                            mPaddingLeft;
+    private int                            mPaddingRight;
+    private int                            mPaddingTop;
+    private int                            mPaddingBottom;
     private View                           mView;
     static final Handler                   sCallbackHandler = new CallBackHandler();
     private SystemBarTintView              mLeftTintView;
@@ -83,9 +83,9 @@ class NavitGraphics {
     private SystemBarTintView              mBottomTintView;
     private FrameLayout                    mFrameLayout;
     private RelativeLayout                 mRelativeLayout;
-    private NavitCamera                    mCamera = null;
+    private NavitCamera                    mCamera;
     private Navit                          mActivity;
-    private static Boolean                 sInMap = false;
+    private static Boolean                 sInMap;
 
 
 
@@ -136,20 +136,20 @@ class NavitGraphics {
         ret.top = mPosY;
         if (mPosWraparound != 0) {
             if (ret.left < 0) {
-                ret.left += mNavitGraphics.mBitmapWidth;
+                ret.left += mParentGraphics.mBitmapWidth;
             }
             if (ret.top < 0) {
-                ret.top += mNavitGraphics.mBitmapHeight;
+                ret.top += mParentGraphics.mBitmapHeight;
             }
         }
         ret.right = ret.left + mBitmapWidth;
         ret.bottom = ret.top + mBitmapHeight;
         if (mPosWraparound != 0) {
             if (mBitmapWidth < 0) {
-                ret.right = ret.left + mBitmapWidth + mNavitGraphics.mBitmapWidth;
+                ret.right = ret.left + mBitmapWidth + mParentGraphics.mBitmapWidth;
             }
             if (mBitmapHeight < 0) {
-                ret.bottom = ret.top + mBitmapHeight + mNavitGraphics.mBitmapHeight;
+                ret.bottom = ret.top + mBitmapHeight + mParentGraphics.mBitmapHeight;
             }
         }
         return ret;
@@ -158,7 +158,6 @@ class NavitGraphics {
     private class NavitView extends View implements Runnable, MenuItem.OnMenuItemClickListener {
         int               mTouchMode = NONE;
         float             mOldDist = 0;
-        int               mSecondaryPointer;
         static final int  NONE       = 0;
         static final int  DRAG       = 1;
         static final int  ZOOM       = 2;
@@ -242,7 +241,7 @@ class NavitGraphics {
         }
 
         void do_longpress_action() {
-            Log.v(TAG, "do_longpress_action enter");
+            Log.d(TAG, "do_longpress_action enter");
             mActivity.openContextMenu(this);
         }
 
@@ -258,7 +257,7 @@ class NavitGraphics {
 
             if (switchValue == MotionEvent.ACTION_DOWN) {
                 mTouchMode = PRESSED;
-                Log.v(TAG, "ACTION_DOWN mode PRESSED");
+                Log.d(TAG, "ACTION_DOWN mode PRESSED");
                 if (!sInMap) {
                     buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
                 }
@@ -269,7 +268,7 @@ class NavitGraphics {
                 mOldDist = spacing(event);
                 if (mOldDist > 2f) {
                     mTouchMode = ZOOM;
-                    Log.v(TAG, "ACTION_DOWN mode ZOOM started");
+                    Log.d(TAG, "ACTION_DOWN mode ZOOM started");
                 }
             } else if (switchValue == MotionEvent.ACTION_UP) {
                 Log.d(TAG, "ACTION_UP");
@@ -521,7 +520,7 @@ class NavitGraphics {
             mDrawCanvas = new Canvas(mDrawBitmap);
             parent.mOverlays.add(this);
         }
-        mNavitGraphics = parent;
+        mParentGraphics = parent;
     }
 
     /**
@@ -708,8 +707,8 @@ class NavitGraphics {
      * {@code onSizeChanged()} event handler fires or when toggling Fullscreen mode.</p>
      */
     void handleResize(int w, int h) {
-        if (this.mNavitGraphics != null) {
-            this.mNavitGraphics.handleResize(w, h);
+        if (this.mParentGraphics != null) {
+            this.mParentGraphics.handleResize(w, h);
         } else {
             Log.v(TAG, String.format("handleResize w=%d h=%d", w, h));
 
@@ -1045,18 +1044,20 @@ class NavitGraphics {
     }
 
     /* These constants must be synchronized with enum draw_mode_num in graphics.h. */
-    private static final int draw_mode_begin = 0;
-    private static final int draw_mode_end = 1;
+    private static final int DRAW_MODE_BEGIN = 0;
+    private static final int DRAW_MODE_END = 1;
+    /* Used by the pedestrian plugin, draws without a mapbackground */
+    private static final int DRAW_MODE_BEGIN_CLEAR = 2;
 
     protected void draw_mode(int mode) {
-        if (mode == draw_mode_end) {
-            if (mNavitGraphics == null) {
+        if (mode == DRAW_MODE_END) {
+            if (mParentGraphics == null) {
                 mView.invalidate();
             } else {
-                mNavitGraphics.mView.invalidate(get_rect());
+                mParentGraphics.mView.invalidate(get_rect());
             }
         }
-        if (mode == draw_mode_begin && mNavitGraphics != null) {
+        if (mode == DRAW_MODE_BEGIN_CLEAR ||(mode == DRAW_MODE_BEGIN && mParentGraphics != null)) {
             mDrawBitmap.eraseColor(0);
         }
 
@@ -1068,15 +1069,15 @@ class NavitGraphics {
     }
 
     protected void overlay_disable(int disable) {
-        Log.d(TAG,"overlay_disable: " + disable + "Parent: " + (mNavitGraphics != null));
+        Log.v(TAG,"overlay_disable: " + disable + "Parent: " + (mParentGraphics != null));
         // assume we are NOT in map view mode!
-        if (mNavitGraphics == null) {
+        if (mParentGraphics == null) {
             sInMap = (disable == 0);
         }
         if (mOverlayDisabled != disable) {
             mOverlayDisabled = disable;
-            if (mNavitGraphics != null) {
-                mNavitGraphics.mView.invalidate(get_rect());
+            if (mParentGraphics != null) {
+                mParentGraphics.mView.invalidate(get_rect());
             }
         }
     }
