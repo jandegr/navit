@@ -1057,7 +1057,7 @@ class NavitGraphics {
                 mParentGraphics.mView.invalidate(get_rect());
             }
         }
-        if (mode == DRAW_MODE_BEGIN_CLEAR ||(mode == DRAW_MODE_BEGIN && mParentGraphics != null)) {
+        if (mode == DRAW_MODE_BEGIN_CLEAR || (mode == DRAW_MODE_BEGIN && mParentGraphics != null)) {
             mDrawBitmap.eraseColor(0);
         }
 
