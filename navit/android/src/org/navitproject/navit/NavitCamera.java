@@ -28,11 +28,12 @@ import java.io.IOException;
 class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
 
     private Camera mCamera;
-    private static final String TAG = NavitCamera.class.getName();
+    private static final String TAG = "NavitCamera";
 
     NavitCamera(Context context) {
         super(context);
-        if (android.support.v4.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)
+        if (android.support.v4.content.ContextCompat.checkSelfPermission(context,
+                android.Manifest.permission.CAMERA)
                 != android.content.pm.PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG,"No permission to access camera");
             return;
@@ -78,7 +79,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
     /**
      * {@inheritDoc}
      *
-     * <p>set up the camera with the new parameters and begin the preview.</p>
+     * <p>set up the camera with the new parameters.</p>
      */
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         Log.d(TAG,"surfaceChanged " + w + "x " + h);
