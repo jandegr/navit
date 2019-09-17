@@ -377,7 +377,9 @@ public class Navit extends Activity {
             }
         }
     }
+
     /* uses NAVIT_PACKAGE_NAME as id */
+
     private void buildNotification() {
         sNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         PendingIntent appIntent = PendingIntent.getActivity(getApplicationContext(), 0, getIntent(), 0);

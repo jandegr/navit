@@ -169,15 +169,17 @@ class NavitGraphics {
             super(context);
         }
 
-        public void onWindowFocusChanged (boolean hasWindowFocus) {
+        public void onWindowFocusChanged(boolean hasWindowFocus) {
             Log.e(TAG,"onWindowFocusChanged = " + hasWindowFocus);
             // beter aanroepen in Navit of appconfig ?
-            if (Navit.sShowSoftKeyboardShowing && hasWindowFocus){
-                InputMethodManager imm =(InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (Navit.sShowSoftKeyboardShowing && hasWindowFocus) {
+                InputMethodManager imm  = (InputMethodManager) mActivity
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(this,InputMethodManager.SHOW_FORCED);
             }
-            if (Navit.sShowSoftKeyboardShowing && !hasWindowFocus){
-                InputMethodManager imm =(InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (Navit.sShowSoftKeyboardShowing && !hasWindowFocus) {
+                InputMethodManager imm  = (InputMethodManager) mActivity
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(this.getWindowToken(), 0);
             }
         }

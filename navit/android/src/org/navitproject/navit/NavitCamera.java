@@ -52,7 +52,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
      * <p>acquire the camera and tell it where to draw.</p>
      */
     public void surfaceCreated(SurfaceHolder holder) {
-        if(mCamera != null) {
+        if (mCamera != null) {
             try {
                 mCamera = Camera.open();
                 mCamera.setPreviewDisplay(holder);
