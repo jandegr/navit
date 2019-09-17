@@ -1077,7 +1077,12 @@ static struct event_priv *event_android_new(struct event_methods *meth) {
     return NULL;
 }
 
-
+/* below needs review, android resizes the view  and the actual height of the keyboard is not
+ * passed down here and is irrelevant, only wether it is onscreen matters, so
+ * android returns a height of 1 px in the case of an onscreen keyboard just
+ * to keep the logic to remove the keyboard from the screen afterwards working untill
+ * the logic in native code is reviewed.
+ * /
 /**
  * @brief Displays the native input method.
  *
@@ -1097,14 +1102,12 @@ static struct event_priv *event_android_new(struct event_methods *meth) {
  * @return True if the input method is going to be displayed, false if not.
  */
 int show_native_keyboard (struct graphics_keyboard *kbd) {
-    kbd->w = -1;
     if (Navit_showNativeKeyboard == NULL) {
         dbg(lvl_error, "method Navit.showNativeKeyboard() not found, cannot display keyboard");
         return 0;
     }
     kbd->h = (*jnienv)->CallIntMethod(jnienv, android_activity, Navit_showNativeKeyboard);
-    dbg(lvl_error, "keyboard size is %d x %d px", kbd->w, kbd->h);
-    dbg(lvl_error, "return");
+    dbg(lvl_error, "keyboard height is %d px is a lie", kbd->h);
     /* zero height means we're not showing a keyboard, therefore normalize height to boolean */
     return !!(kbd->h);
 }
