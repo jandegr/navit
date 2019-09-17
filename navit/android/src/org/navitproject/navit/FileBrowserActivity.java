@@ -71,7 +71,7 @@ public class FileBrowserActivity extends Activity {
     private String mFilterFileExtension = null;
 
     // Action constants
-    private static int currentAction = -1;
+    private static int sCurrentAction = -1;
     private static final int SELECT_DIRECTORY = 1;
     private static final int SELECT_FILE = 2;
 
@@ -87,11 +87,11 @@ public class FileBrowserActivity extends Activity {
 
         // Set action for this activity
         Intent thisInt = this.getIntent();
-        currentAction = SELECT_DIRECTORY;// This would be a default action in
+        sCurrentAction = SELECT_DIRECTORY;// This would be a default action in
         // case not set by intent
         if (thisInt.getAction().equalsIgnoreCase(INTENT_ACTION_SELECT_FILE)) {
             Log.d(TAG, "SELECT ACTION - SELECT FILE");
-            currentAction = SELECT_FILE;
+            sCurrentAction = SELECT_FILE;
         }
 
         mShowHiddenFilesAndDirs = thisInt.getBooleanExtra(
@@ -157,16 +157,16 @@ public class FileBrowserActivity extends Activity {
 
         Button selectFolderButton = this
                                     .findViewById(R.id.selectCurrentDirectoryButton);
-        if (currentAction == SELECT_DIRECTORY) {
+        if (sCurrentAction == SELECT_DIRECTORY) {
             selectFolderButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     Log.d(TAG, "onclick for selectFolderButton");
                     returnDirectoryFinishActivity();
                 }
             });
-        } else { // if(currentAction == this.SELECT_DIRECTORY) {
+        } else { // if(sCurrentAction == this.SELECT_DIRECTORY) {
             selectFolderButton.setVisibility(View.GONE);
-        } // } else {//if(currentAction == this.SELECT_DIRECTORY) {
+        } // } else {//if(sCurrentAction == this.SELECT_DIRECTORY) {
     } // private void initializeButtons() {
 
     private void loadDirectoryUp() {
@@ -278,10 +278,10 @@ public class FileBrowserActivity extends Activity {
                     boolean showReadableFile = mShowHiddenFilesAndDirs
                                                || sel.canRead();
                     // Filters based on whether the file is hidden or not
-                    if (currentAction == SELECT_DIRECTORY) {
+                    if (sCurrentAction == SELECT_DIRECTORY) {
                         return (sel.isDirectory() && showReadableFile);
                     }
-                    if (currentAction == SELECT_FILE) {
+                    if (sCurrentAction == SELECT_FILE) {
 
                         // If it is a file check the extension if provided
                         if (sel.isFile() && mFilterFileExtension != null) {
@@ -351,7 +351,7 @@ public class FileBrowserActivity extends Activity {
                 // int dp5 = (int) (5 *
                 // getResources().getDisplayMetrics().density + 0.5f);
                 int dp3 = (int) (3 * getResources().getDisplayMetrics().density + 0.5f);
-                // notdoneyet change next line for empty directory, so text will be
+                // TODO: change next line for empty directory, so text will be
                 // centered
                 textView.setCompoundDrawablePadding(dp3);
                 return view;
@@ -391,7 +391,7 @@ public class FileBrowserActivity extends Activity {
         }
         // Layout apparently changes itself, only have to provide good onMeasure
         // in custom components
-        // notdone check with keyboard
+        // TODO: check with keyboard
         // if(newConfig.keyboard == Configuration.KEYBOARDHIDDEN_YES)
     } // END public void onConfigurationChanged(Configuration newConfig) {
 
@@ -401,7 +401,7 @@ public class FileBrowserActivity extends Activity {
     } // END public static long getFreeSpace(String path) {
 
     private static String formatBytes(long bytes) {
-        // notdone add flag to which part is needed (e.g. GB, MB, KB or bytes)
+        // TODO: add flag to which part is needed (e.g. GB, MB, KB or bytes)
         String retStr = "";
         // One binary gigabyte equals 1,073,741,824 bytes.
         if (bytes > 1073741824) { // Add GB

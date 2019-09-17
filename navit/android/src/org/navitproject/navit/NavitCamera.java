@@ -42,7 +42,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
         holder = getHolder();
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        Log.d(TAG,"Creator");
+        Log.v(TAG,"Creator");
     }
 
 
@@ -52,15 +52,19 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
      * <p>acquire the camera and tell it where to draw.</p>
      */
     public void surfaceCreated(SurfaceHolder holder) {
-        try {
-            mCamera = Camera.open();
-            mCamera.setPreviewDisplay(holder);
-        } catch (IOException exception) {
-            mCamera.release();
-            mCamera = null;
-            Log.e(TAG,"IOException");
+        if(mCamera != null) {
+            try {
+                mCamera = Camera.open();
+                mCamera.setPreviewDisplay(holder);
+            } catch (IOException exception) {
+                mCamera.release();
+                mCamera = null;
+                Log.e(TAG, "IOException");
+            }
+            Log.i(TAG, "surfaceCreated");
+        } else {
+            Log.e(TAG, "null camera");
         }
-        Log.d(TAG,"surfaceCreated");
     }
 
 
@@ -72,7 +76,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceDestroyed(SurfaceHolder holder) {
         mCamera.stopPreview();
         mCamera = null;
-        Log.d(TAG,"surfaceDestroyed");
+        Log.e(TAG,"surfaceDestroyed");
     }
 
 
@@ -82,7 +86,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
      * <p>set up the camera with the new parameters.</p>
      */
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-        Log.d(TAG,"surfaceChanged " + w + "x " + h);
+        Log.e(TAG,"surfaceChanged " + w + "x " + h);
         mCamera.stopPreview();
         Camera.Parameters parameters = mCamera.getParameters();
         parameters.setPreviewSize(w, h);

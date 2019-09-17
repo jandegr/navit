@@ -21,31 +21,33 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
+import android.util.Log;
 
 
 @SuppressWarnings("unused")
 class NavitSensors implements SensorEventListener {
-    private long mCallbackid;
+    private final long mCallbackid;
+
+    private native void sensorCallback(long id, int sensor, float x, float y, float z);
+
 
     NavitSensors(Context context, long cbid) {
-        SensorManager sensorManager;
-        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-                SensorManager.SENSOR_DELAY_NORMAL);
+        SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        mSensorManager.registerListener(this,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                                        SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(this,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                                        SensorManager.SENSOR_DELAY_UI);
         mCallbackid = cbid;
     }
-
-    public native void sensorCallback(long id, int sensor, float x, float y, float z);
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
     public void onSensorChanged(SensorEvent sev) {
-        //Log.e("NavitSensor","Type:" + sev.sensor.getType() + " X:" + sev.values[0] + " Y:" + sev.values[1] +
-        // " Z:" + sev.values[2]);
+         Log.v("NavitSensor","Type:" + sev.sensor.getType() + " X:" + sev.values[0] + " Y:"+sev.values[1]+" Z:"
+         +sev.values[2]);
         sensorCallback(mCallbackid, sev.sensor.getType(), sev.values[0], sev.values[1], sev.values[2]);
     }
 }

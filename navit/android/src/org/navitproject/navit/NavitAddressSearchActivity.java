@@ -1,16 +1,20 @@
 /*
-  Navit, a modular navigation system. Copyright (C) 2005-2008 Navit Team
-
-  This program is free software; you can redistribute it and/or modify it under the terms of the
-  GNU General Public License version 2 as published by the Free Software Foundation.
-
-  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-  even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  General Public License for more details.
-
-  You should have received a copy of the GNU General Public License along with this program; if
-  not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-  02110-1301, USA.
+ * Navit, a modular navigation system.
+ * Copyright (C) 2005-2008 Navit Team
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  */
 
 package org.navitproject.navit;
@@ -20,15 +24,14 @@ import static org.navitproject.navit.NavitAppConfig.getTstring;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -36,44 +39,63 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Field;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 
 public class NavitAddressSearchActivity extends Activity {
+    static final class NavitAddress {
+        NavitAddress(int type, float latitude, float longitude, String address) {
+            mResultType = type;
+            mLat = latitude;
+            mLon = longitude;
+            mAddr = address;
+        }
 
-    private static final String TAG = "NavitAddress";
-    private static String mAddressString = "";
-    private ProgressBar mZoekBar;
-    private final int mZoekTypeTown = 2; // in enum steken ?
-    private int mZoektype = mZoekTypeTown; // town
-    private int mOngoingSearches = 0;
-    private ArrayAdapter<NavitSearchAddress> mAddressAdapter;
-    private final NavitAddressList mAddressesFound = new NavitAddressList();
-    private NavitSearchAddress mSelectedTown;
-    private NavitSearchAddress mSelectedStreet;
-    private String mCountry;
-    private ImageButton mCountryButton;
-    private Button mResultActionButton;
+        final int mResultType;
+        final float mLat;
+        final float mLon;
+        final String mAddr;
+    }
+
+    private static final String TAG                         = "NavitAddress";
+    private static final int    ADDRESS_RESULT_PROGRESS_MAX = 10;
+
+    private List<NavitAddress> mAddressesFound = null;
+    private List<NavitAddress> mAddressesShown = null;
+    private String             mAddressString               = "";
+    private boolean            mPartialSearch               = false;
+    private String             mCountry;
+    private ImageButton        mCountryButton;
+    private ProgressDialog mSearchResultsWait = null;
+    private int mSearchResultsTowns = 0;
+    private int mSearchResultsStreets = 0;
+    private int mSearchResultsStreetsHn = 0;
     private long mSearchHandle = 0;
+
+    // TODO remember settings
+    private static String sLastAddressSearchString = "";
+    private static Boolean sLastAddressPartialMatch = false;
+    private static String sLastCountry = "";
 
     private int getDrawableID(String resourceName) {
         int drawableId = 0;
         try {
             Class<?> res = R.drawable.class;
-            Field field = res.getField(resourceName + "_64_64");
+            Field field = res.getField(resourceName);
             drawableId = field.getInt(null);
         } catch (Exception e) {
             Log.e(TAG, "Failure to get drawable id.", e);
@@ -81,23 +103,50 @@ public class NavitAddressSearchActivity extends Activity {
         return drawableId;
     }
 
+    private void setCountryButtonImage() {
+        // We have all images stored as drawable_nodpi resources which allows native code to manipulate them
+        // without interference with android builtin choosing and scaling system. But that makes us to
+        // reinvent the wheel here to show an image in android native interface.
+        int[] flagIconSizes = {24,32,48,64,96};
+        int exactSize;
+        int nearestSize;
+        exactSize = (int)(Navit.sMetrics.density * 24.0 - .5);
+        nearestSize = flagIconSizes[0];
+        for (int size: flagIconSizes) {
+            nearestSize = size;
+            if (exactSize <= size) {
+                break;
+            }
+        }
+        mCountryButton.setImageResource(getDrawableID("country_" + mCountry + "_" + nearestSize + "_" + nearestSize));
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // mPartialSearch = last_address_partial_match;
-        mAddressString = "";
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String searchString = extras.getString(("search_string"));
+            if (searchString != null) {
+                mPartialSearch = true;
+                mAddressString = searchString;
+                executeSearch();
+                return;
+            }
+        }
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
-                WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+        mPartialSearch = sLastAddressPartialMatch;
+        mAddressString = sLastAddressSearchString;
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND, WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
         LinearLayout panel = new LinearLayout(this);
-        panel.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT));
+        panel.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         panel.setOrientation(LinearLayout.VERTICAL);
 
         // address: label and text field
-        SharedPreferences settings = getSharedPreferences(Navit.NAVIT_PREFS,
-                MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(NavitAppConfig.NAVIT_PREFS, MODE_PRIVATE);
         mCountry = settings.getString(("DefaultCountry"), null);
 
         if (mCountry == null) {
@@ -109,7 +158,9 @@ public class NavitAddressSearchActivity extends Activity {
         }
 
         mCountryButton = new ImageButton(this);
-        mCountryButton.setImageResource(getDrawableID("country_" + mCountry));
+
+        setCountryButtonImage();
+
         mCountryButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 requestCountryDialog();
@@ -118,337 +169,219 @@ public class NavitAddressSearchActivity extends Activity {
 
         // address: label and text field
         TextView addrView = new TextView(this);
-        addrView.setText(
-                "Enter cityname or postcode or select another country"); // TRANS
-        addrView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT));
+        addrView.setText(getTstring(R.string.address_enter_destination)); // TRANS
+        addrView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+        addrView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         addrView.setPadding(4, 4, 4, 4);
 
-        final EditText addressString = new EditText(this);
-        addressString.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        // partial match checkbox
+        final CheckBox checkboxPartialMatch = new CheckBox(this);
+        checkboxPartialMatch.setText(getTstring(R.string.address_partial_match)); // TRANS
+        checkboxPartialMatch.setChecked(sLastAddressPartialMatch);
+        checkboxPartialMatch.setGravity(Gravity.CENTER);
 
-        ListView zoekResults = new ListView(this);
-        mAddressAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, mAddressesFound);
+        final EditText address_string = new EditText(this);
+        address_string.setText(sLastAddressSearchString);
+        address_string.setSelectAllOnFocus(true);
 
-        zoekResults.setAdapter(mAddressAdapter);
-        zoekResults.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                    int position, long id) {
-                if (mAddressesFound.get(position).mResultType < 2) {
-                    callbackSearch(mSearchHandle, mZoektype,
-                            mAddressesFound.get(position).mId, "");
-
-                    if (mAddressesFound.get(position).mResultType == 0) {
-                        mSelectedTown = mAddressesFound.get(position);
-                        mResultActionButton.setText(mSelectedTown.toString());
-                    }
-                    if (mAddressesFound.get(position).mResultType == 1) {
-                        mSelectedStreet = mAddressesFound.get(position);
-                        mResultActionButton.setText(
-                                mSelectedTown.toString() + ", " + mSelectedStreet.toString());
-                    }
-                    addressString.setText("");
-                    //          if (zoektype == zoekTypeHouseNumber){
-                    //              addressString.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    //          } else {
-                    //              addressString.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                    //          }
-                    mZoektype++;
-                } else {
-                    addressDialog(mAddressesFound.get(position));
-                }
+        // search button
+        final Button btnSearch = new Button(this);
+        btnSearch.setText(getTstring(R.string.address_search_button)); // TRANS
+        btnSearch.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+        btnSearch.setGravity(Gravity.CENTER);
+        btnSearch.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                mPartialSearch = checkboxPartialMatch.isChecked();
+                mAddressString = address_string.getText().toString();
+                sLastAddressPartialMatch = mPartialSearch;
+                sLastAddressSearchString = mAddressString;
+                executeSearch();
             }
         });
 
-        mZoekBar = new ProgressBar(this.getApplicationContext());
-        mZoekBar.setIndeterminate(true);
-        mZoekBar.setVisibility(View.INVISIBLE);
+        ListView lastAddresses = new ListView(this);
+        NavitAppConfig navitConfig = (NavitAppConfig) getApplicationContext();
 
-        mResultActionButton = new Button(this);
-        mResultActionButton.setText("test");
-        mResultActionButton.setOnClickListener(new OnClickListener() {
+        final List<NavitAddress> addresses = navitConfig.getLastAddresses();
+        int addressCount = addresses.size();
+        if (addressCount > 0) {
+            String[] strAddresses = new String[addressCount];
+            for (int addrIndex = 0; addrIndex < addressCount; addrIndex++) {
+                strAddresses[addrIndex] = addresses.get(addrIndex).mAddr;
+            }
+            ArrayAdapter<String> addressList =
+                    new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, strAddresses);
+            lastAddresses.setAdapter(addressList);
+            lastAddresses.setOnItemClickListener(new OnItemClickListener() {
+                public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                    NavitAddress addressSelected = addresses.get(arg2);
+                    Intent resultIntent = new Intent();
 
-            @Override
-            public void onClick(View arg0) {
-                if (mSelectedStreet != null) {
-                    addressDialog(mSelectedStreet);
-                } else if (mSelectedTown != null) {
-                    addressDialog(mSelectedTown);
+                    resultIntent.putExtra("lat", addressSelected.mLat);
+                    resultIntent.putExtra("lon", addressSelected.mLon);
+                    resultIntent.putExtra("q", addressSelected.mAddr);
+
+                    setResult(Activity.RESULT_OK, resultIntent);
+                    finish();
                 }
-            }
-        });
-
-        final TextWatcher watcher = new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable addressEditString) {
-                mAddressString = addressEditString.toString();
-                mAddressAdapter.clear();
-                if ((mAddressString.length() > 1) || (mAddressString.length() > 0 && !(mZoektype
-                        == mZoekTypeTown))) {
-                    mZoekBar.setVisibility(View.VISIBLE);
-                    mOngoingSearches++;
-                    search();
-                } else { // voor geval een backspace is gebruikt
-                    if (mSearchHandle != 0) {
-                        callbackCancelAddressSearch(mSearchHandle);
-                    }
-                }
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        };
-
-        addressString.addTextChangedListener(watcher);
-        addressString.setSelectAllOnFocus(true);
-        String title = getTstring(R.string.address_search_title);
-
-        if (title != null && title.length() > 0) {
-            this.setTitle(title);
+            });
         }
+
+        String title = getString(R.string.address_search_title);
+        this.setTitle(title);
 
         LinearLayout searchSettingsLayout = new LinearLayout(this);
         searchSettingsLayout.setOrientation(LinearLayout.HORIZONTAL);
-        searchSettingsLayout.addView(mCountryButton);
-        searchSettingsLayout.addView(mZoekBar);
-        searchSettingsLayout.addView(mResultActionButton);
 
+        searchSettingsLayout.addView(mCountryButton);
+        searchSettingsLayout.addView(checkboxPartialMatch);
         panel.addView(addrView);
-        panel.addView(addressString);
+        panel.addView(address_string);
         panel.addView(searchSettingsLayout);
-        panel.addView(zoekResults);
+        panel.addView(btnSearch);
+        panel.addView(lastAddresses);
 
         setContentView(panel);
     }
 
     private void requestCountryDialog() {
-        final String[][] allCountries = NavitGraphics.getAllCountries();
-        Comparator<String[]> countryComperator = new Comparator<String[]>() {
+        final String[][] all_countries = NavitGraphics.getAllCountries();
+
+        Comparator<String[]> countryComparator = new Comparator<String[]>() {
             public int compare(String[] object1, String[] object2) {
                 return object1[1].compareTo(object2[1]);
             }
         };
 
-        Arrays.sort(allCountries, countryComperator);
+        Arrays.sort(all_countries, countryComparator);
 
         AlertDialog.Builder mapModeChooser = new AlertDialog.Builder(this);
-        String[] countryName = new String[allCountries.length];
+        // ToDo also show icons and country code
+        String[] countryName = new String[all_countries.length];
 
-        for (int countryIndex = 0; countryIndex < allCountries.length; countryIndex++) {
-            countryName[countryIndex] = allCountries[countryIndex][1];
+        for (int countryIndex = 0; countryIndex < all_countries.length; countryIndex++) {
+            countryName[countryIndex] = all_countries[countryIndex][1];
         }
 
-        mapModeChooser.setItems(countryName,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {
-                        SharedPreferences settings = getSharedPreferences(
-                                Navit.NAVIT_PREFS, MODE_PRIVATE);
-                        mCountry = allCountries[item][0];
-                        SharedPreferences.Editor editSettings = settings
-                                .edit();
-                        editSettings.putString("DefaultCountry", mCountry);
-                        editSettings.apply();
-                        mCountryButton
-                                .setImageResource(getDrawableID("country_"
-                                        + mCountry));
-                    }
-                });
+        mapModeChooser.setItems(countryName, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                SharedPreferences settings = getSharedPreferences(NavitAppConfig.NAVIT_PREFS, MODE_PRIVATE);
+                mCountry = all_countries[item][0];
+                SharedPreferences.Editor editSettings = settings.edit();
+                editSettings.putString("DefaultCountry", mCountry);
+                editSettings.apply();
+                setCountryButtonImage();
+            }
+        });
 
-        mapModeChooser.show();
+        AlertDialog d = mapModeChooser.create();
+        d.getListView().setFastScrollEnabled(true);
+        d.show();
     }
 
+    //start a search on the map
+    void receiveAddress(int type, float latitude, float longitude, String address) {
+        Log.d(TAG, "(" + latitude + ", " + longitude + ") " + address);
 
-    private void addressDialog(NavitSearchAddress address) {
-
-        final NavitSearchAddress addressSelected = address;
-
-        class AddressDialogFragment extends DialogFragment {
-
-            public AddressDialogFragment() {
-                super();
-            }
-
-            @Override
-            public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-                // Use the Builder class for convenient dialog construction
-                AlertDialog.Builder builder = new AlertDialog.Builder(
-                        getActivity());
-                builder.setMessage("address " + addressSelected.mAddr)
-                        .setPositiveButton("Als bestemming instellen",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int id) {
-
-                                        Intent resultIntent = new Intent();
-
-                                        resultIntent.putExtra("lat",
-                                                addressSelected.mLat);
-                                        resultIntent.putExtra("lon",
-                                                addressSelected.mLon);
-                                        resultIntent.putExtra("q",
-                                                addressSelected.mAddr);
-
-                                        setResult(Activity.RESULT_OK,
-                                                resultIntent);
-                                        finish();
-                                    }
-                                })
-                        //  .setPositiveButton("show on map",
-                        //          new DialogInterface.OnClickListener() {
-                        //              public void onClick(DialogInterface dialog,
-                        //                      int id) {
-                        //                  Message msg = Message.obtain(Navit.N_NavitGraphics.callback_handler,
-                        //                  NavitGraphics.msg_type.CLB_CALL_CMD.ordinal());
-                        //                  Bundle b = new Bundle();
-                        //                  String command = "set_center(\"" + addressSelected.lon + " "
-                        //                  + addressSelected.lat + "\");";
-                        //                  b.putString("cmd", command);
-                        //                  msg.setData(b);
-                        //                  msg.sendToTarget();
-                        //              }
-                        //          })
-                        .setNegativeButton("cancel",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int id) {
-                                        // User cancelled the dialog
-                                        AddressDialogFragment.this.getDialog()
-                                                .cancel();
-                                    }
-                                });
-                // Create the AlertDialog object and return it
-                return builder.create();
-            }
+        switch (type) {
+            case 0:
+                mSearchResultsTowns++;
+                break;
+            case 1:
+                mSearchResultsStreets++;
+                break;
+            case 2:
+                mSearchResultsStreetsHn++;
+                break;
+            default:
+                Log.e(TAG,"Unexpected value: " + type);
         }
+        mSearchResultsWait.setMessage(getTstring(R.string.address_search_towns) + ":"
+                + mSearchResultsTowns + " "
+                + getTstring(R.string.address_search_streets) + ":" + mSearchResultsStreets + "/"
+                + mSearchResultsStreetsHn);
 
-        AddressDialogFragment newFragment = new AddressDialogFragment();
-        newFragment.show(getFragmentManager(), "missiles");
+        mSearchResultsWait.setProgress(mAddressesFound.size() % (ADDRESS_RESULT_PROGRESS_MAX + 1));
+
+        mAddressesFound.add(new NavitAddress(type, latitude, longitude, address));
     }
 
-    /**
-     * Receives found addresses from the navitve code.
-     */
-    @SuppressWarnings("unused")
-    public void receiveAddress(int type, int id, float latitude, float longitude, String address, String extras) {
-
-        mAddressesFound.insert(new NavitSearchAddress(type, id, latitude, longitude, address, extras));
-        //mAddressAdapter.add(new NavitAddress(type, id, latitude, longitude, address,
-        //        extras));
-
-        // jdgAdapter.sort(new NavitAddressComparator());
-        //
-        mAddressAdapter.notifyDataSetChanged();
-        // -> is voor live update
-        // loopt veel soepeler zonder live update met sorted insert
-        // de lijst maar tonen when complete helpt niet merkbaar
-
-    }
-
-    /*
-    * This gets called from the native code to indicate
-    * no more search results are following
-    *
-    * */
-    @SuppressWarnings("unused")
     void finishAddressSearch() {
-        // search_handle = 0;
-        // versie update when complete
+        if (mAddressesFound.isEmpty()) {
+            // TRANS
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.address_search_not_found) + "\n" + mAddressString, Toast.LENGTH_LONG).show();
+            setResult(Activity.RESULT_CANCELED);
+            finish();
+        }
+        ListView addressesFound = new ListView(this);
+        addressesFound.setFastScrollEnabled(true);
+        ArrayAdapter<String> addressList =
+                new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
 
-        // comparator zit nu in addresslist, als dit nog zou gebruikt worden moet er een
-        // implement toegevoegd worden of zo
-        // mAddressAdapter.sort(new NavitAddressComparator());
-        mAddressAdapter.notifyDataSetChanged();
-        Log.e(TAG, "ongoingSearches " + mOngoingSearches);
-        if (mOngoingSearches > 0) {
-            mOngoingSearches--;
+        mAddressesShown = new ArrayList<>();
+
+        for (NavitAddress currentAddress : mAddressesFound) {
+            if (currentAddress.mResultType != 0 || mSearchResultsStreets == 0) {
+                addressList.add(currentAddress.mAddr);
+                mAddressesShown.add(currentAddress);
+            }
         }
-        if (mOngoingSearches == 0) {
-            mZoekBar.setVisibility(View.INVISIBLE);
-        }
-        Log.d(TAG, "end of search");
+
+        addressesFound.setAdapter(addressList);
+
+        addressesFound.setOnItemClickListener(new OnItemClickListener() {
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                NavitAddress addressSelected = mAddressesShown.get(arg2);
+                Intent resultIntent = new Intent();
+
+                resultIntent.putExtra("lat", addressSelected.mLat);
+                resultIntent.putExtra("lon", addressSelected.mLon);
+                resultIntent.putExtra("q", addressSelected.mAddr);
+
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
+            }
+        });
+
+        setContentView(addressesFound);
+        mSearchResultsWait.dismiss();
     }
 
-    public native long callbackStartAddressSearch(int partialMatch, String country, String s);
+    native long callbackStartAddressSearch(int partialMatch, String country, String s);
 
-    public native void callbackCancelAddressSearch(long handle);
+    native void callbackCancelAddressSearch(long handle);
 
-    public native void callbackSearch(long handle, int type, int id, String str);
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        mSearchResultsWait = new ProgressDialog(this);
+        mSearchResultsWait.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mSearchResultsWait.setTitle("Loading search results");
+        mSearchResultsWait.setMessage("--");
+        mSearchResultsWait.setCancelable(true);
+        mSearchResultsWait.setProgress(0);
+        mSearchResultsWait.setMax(10);
 
-    private void search() {
-        if (mSearchHandle != 0 && mOngoingSearches > 1) {
-            callbackCancelAddressSearch(mSearchHandle);
-        }
-        mAddressAdapter.clear();
-        if (mSearchHandle == 0) {
-            boolean mPartialSearch = true;
-            mSearchHandle = callbackStartAddressSearch(mPartialSearch ? 1 : 0,
-                    mCountry, mAddressString);
-        }
-        callbackSearch(mSearchHandle, mZoektype, 0, mAddressString);
+        mAddressesFound = new ArrayList<>();
+        mSearchResultsTowns = 0;
+        mSearchResultsStreets = 0;
+        mSearchResultsStreetsHn = 0;
+
+        mSearchHandle = callbackStartAddressSearch(mPartialSearch ? 1 : 0, mCountry, mAddressString);
+
+        mSearchResultsWait.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                callbackCancelAddressSearch(mSearchHandle);
+                mSearchHandle = 0;
+                mSearchResultsWait.dismiss();
+            }
+        });
+        return mSearchResultsWait;
     }
 
-
-    class NavitAddressList extends ArrayList<NavitSearchAddress> {
-
-        private static final long serialVersionUID = 1L;
-
-        void insert(NavitSearchAddress address) {
-            //  NavitAddressComparator comp = new NavitAddressComparator();
-            int index = this.size() - 1;
-            if (index >= 0) {
-                while (index >= 0 && compare(this.get(index), address) > 0) {
-                    index--;
-                }
-                this.add(index + 1, address);
-            } else {
-                this.add(address);
-            }
-        }
-
-        int compare(NavitSearchAddress lhs, NavitSearchAddress rhs) {
-
-            if (lhs.mResultType == 2
-                    && rhs.mResultType == 2) {
-                String lhsNum = "";
-                String rhsNum = "";
-                if (lhs.mAddr.length() > 0) {
-                    lhsNum = lhs.mAddr.split("[a-zA-Z]")[0];
-                }
-
-                if (rhs.mAddr.length() > 0) {
-                    rhsNum = rhs.mAddr.split("[a-zA-Z]")[0];
-                }
-
-                if (lhsNum.length() < rhsNum.length()) {
-                    return -1;
-                }
-                if (lhsNum.length() > rhsNum.length()) {
-                    return 1;
-                }
-            }
-            String lhsNormalized = Normalizer.normalize(lhs.mAddr, Normalizer.Form.NFD)
-                    .replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
-            String rhsNormalized = Normalizer.normalize(rhs.mAddr, Normalizer.Form.NFD)
-                    .replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
-            if (lhsNormalized.indexOf(mAddressString.toLowerCase()) == 0
-                    && rhsNormalized.toLowerCase().indexOf(mAddressString.toLowerCase()) != 0) {
-                return -1;
-            }
-            if (lhsNormalized.indexOf(mAddressString.toLowerCase()) != 0
-                    && rhsNormalized.toLowerCase().indexOf(mAddressString.toLowerCase()) == 0) {
-                return 1;
-            }
-            return (lhsNormalized.compareTo(rhsNormalized));
-        }
+    private void executeSearch() {
+        showDialog(0);
     }
 }
-
-
 

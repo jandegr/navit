@@ -3,8 +3,7 @@ package org.navitproject.navit;
 import java.io.File;
 
 public class NavitMap {
-
-    final String mMapName;
+    String mMapName;
     private final String mFileName;
     private final String mMapPath;
 
