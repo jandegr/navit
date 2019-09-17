@@ -3,7 +3,6 @@ package org.navitproject.navit;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.view.inputmethod.InputMethodManager;
 
 import java.util.ArrayList;
 import java.util.List;
