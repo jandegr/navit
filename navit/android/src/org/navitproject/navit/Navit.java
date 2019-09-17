@@ -75,10 +75,8 @@ import java.util.regex.Pattern;
 public class Navit extends Activity {
 
 
-    public static InputMethodManager   sInputMethodManager;
     public static DisplayMetrics       sMetrics;
-    public static Boolean              sShowSoftKeyboard               = false;
-    public static Boolean              sShowSoftKeyboardNowShowing     = false;
+    public static Boolean              sShowSoftKeyboardShowing        = false;
     private static Intent              sStartupIntent;
     private static long                sStartupIntentTimestamp;
     private static NotificationManager sNotificationManager;
@@ -87,7 +85,6 @@ public class Navit extends Activity {
     private static final int           NavitDownloaderSelectMap_id     = 967;
     private static final int           NavitAddressSearch_id           = 70;
     private static final int           NavitSelectStorage_id           = 43;
-    private static final String        CHANNEL_ID                      = "org.navitproject.navit";
     private static final String        NAVIT_PACKAGE_NAME              = "org.navitproject.navit";
     private static final String        TAG                             = "Navit";
     static String                      sMapFilenamePath;
@@ -100,33 +97,20 @@ public class Navit extends Activity {
 
 
 
-
-    /**
-     * A Runnable to restore soft input when the user returns to the activity.
-     *
-     * <p>An instance of this class can be passed to the main message queue in the Activity's
-     * {@code onRestore()} method.</p>
-     */
-    private class SoftInputRestorer implements Runnable {
-        public void run() {
-            Navit.this.showNativeKeyboard();
-        }
-    }
-
     private void createNotificationChannel() {
         /*
          * Create the NotificationChannel, but only on API 26+ because
          * the NotificationChannel class is new and not in the support library
+         * uses NAVIT_PACKAGE_NAME as id
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
             int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel(NAVIT_PACKAGE_NAME, name, importance);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
-
 
     /**
      * Check if a specific file needs to be extracted from the apk archive.
@@ -199,8 +183,8 @@ public class Navit extends Activity {
     /**
      * Extract an asset from the apk archive (assets) and save it to a local file.
      *
-     * @param output The full path to the output local file
-     * @param assetFileName The full path of the asset file within the archive
+     * @param output The full path to the local file
+     * @param assetFileName The full path of the asset file in the archive
      * @return true if the local file is extracted in @p output
      */
     private boolean extractAsset(String assetFileName, String output) {
@@ -230,7 +214,6 @@ public class Navit extends Activity {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -325,19 +308,18 @@ public class Navit extends Activity {
         File navitMapsDir = new File(sMapFilenamePath);
         navitMapsDir.mkdirs();
 
-        // make sure the share dir exists, for ????
-        // other activities fail if removed
+        // make sure the share dir exists
         File navitDataShareDir = new File(sNavitDataDir + "/share");
         navitDataShareDir.mkdirs();
 
         Display display = getWindowManager().getDefaultDisplay();
         sMetrics = new DisplayMetrics();
-        display.getMetrics(Navit.sMetrics);
-        int densityDpi = (int)((Navit.sMetrics.density * 160) - .5f);
+        display.getMetrics(sMetrics);
+        int densityDpi = (int)((sMetrics.density * 160) - .5f);
         Log.d(TAG, "-> pixels x=" + display.getWidth() + " pixels y=" + display.getHeight());
         Log.d(TAG, "-> dpi=" + densityDpi);
-        Log.d(TAG, "-> density=" + Navit.sMetrics.density);
-        Log.d(TAG, "-> scaledDensity=" + Navit.sMetrics.scaledDensity);
+        Log.d(TAG, "-> density=" + sMetrics.density);
+        Log.d(TAG, "-> scaledDensity=" + sMetrics.scaledDensity);
 
         mActivityResults = new NavitActivityResult[16];
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -384,7 +366,6 @@ public class Navit extends Activity {
         navitMain(this, navitLanguage, Integer.valueOf(Build.VERSION.SDK),
                       myDisplayDensity, sNavitDataDir + "/bin/navit", sMapFilenamePath);
         showInfos();
-        Navit.sInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     private void windowSetup() {
@@ -396,7 +377,7 @@ public class Navit extends Activity {
             }
         }
     }
-
+    /* uses NAVIT_PACKAGE_NAME as id */
     private void buildNotification() {
         sNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         PendingIntent appIntent = PendingIntent.getActivity(getApplicationContext(), 0, getIntent(), 0);
@@ -404,7 +385,7 @@ public class Navit extends Activity {
         Notification navitNotification;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder builder;
-            builder = new Notification.Builder(getApplicationContext(), CHANNEL_ID);
+            builder = new Notification.Builder(getApplicationContext(), NAVIT_PACKAGE_NAME);
             builder.setContentIntent(appIntent);
             builder.setAutoCancel(false).setOngoing(true);
             builder.setContentTitle(getTstring(R.string.app_name));
@@ -462,27 +443,12 @@ public class Navit extends Activity {
                 Log.e(TAG, "timestamp for navigate_to expired! not using data");
             }
         }
-
-        if (sShowSoftKeyboardNowShowing) {
-            /* Calling showNativeKeyboard() directly won't work here, we need to use the message queue */
-            View cf = getCurrentFocus();
-            if (cf == null) {
-                Log.e(TAG, "no view in focus, can't get a handler");
-            } else {
-                cf.getHandler().post(new SoftInputRestorer());
-            }
-        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.e(TAG, "onPause");
-        if (sShowSoftKeyboardNowShowing) {
-            Log.d(TAG, "onPause:hiding soft input");
-            this.hideNativeKeyboard();
-            sShowSoftKeyboardNowShowing = true;
-        }
     }
 
     @Override
@@ -691,42 +657,24 @@ public class Navit extends Activity {
 
     /**
      * Shows the native keyboard or other input method.
+     *
+     * @return 1 if keyboard is software, 0 if hardware
      */
     int showNativeKeyboard() {
-        /*
-         * Apologies for the huge mess that this function is, but Android's soft input API is a big
-         * nightmare. Its devs have mercifully given us an option to show or hide the keyboard, but
-         * there is no reliable way to figure out if it is actually showing, let alone how much of the
-         * screen it occupies, so our best bet is guesswork.
-         */
+        Log.d(TAG, "showNativeKeyboard");
         Configuration config = getResources().getConfiguration();
         if ((config.keyboard == Configuration.KEYBOARD_QWERTY)
                 && (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)) {
-            /* physical keyboard present, exit */
+            /* physical keyboard present */
             return 0;
         }
 
         /* Use SHOW_FORCED here, else keyboard won't show in landscape mode */
-        sInputMethodManager.showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_FORCED);
-        sShowSoftKeyboardNowShowing = true;
+        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
+        .showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_FORCED);
+        sShowSoftKeyboardShowing = true;
 
-        /*
-         * Crude way to estimate the height occupied by the keyboard: for AOSP on KitKat and Lollipop it
-         * is about 62-63% of available screen width (in portrait mode) but no more than slightly above
-         * 46% of height (in landscape mode).
-         */
-        Display display = getWindowManager().getDefaultDisplay();
-        int width = display.getWidth();
-        int height = display.getHeight();
-        int maxHeight = height * 47 / 100;
-        int inputHeight = width * 63 / 100;
-        if (inputHeight > (maxHeight)) {
-            inputHeight = maxHeight;
-        }
-
-        /* the receiver isn't going to fire before the UI thread becomes idle, well after this method returns */
-        Log.d(TAG, "showNativeKeyboard:return (assuming true)");
-        return inputHeight;
+        return 1;
     }
 
 
@@ -734,8 +682,9 @@ public class Navit extends Activity {
      * Hides the native keyboard or other input method.
      */
     void hideNativeKeyboard() {
-        sInputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        sShowSoftKeyboardNowShowing = false;
+        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
+        .hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        sShowSoftKeyboardShowing = false;
     }
 
 

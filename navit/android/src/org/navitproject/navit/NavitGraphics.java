@@ -169,6 +169,19 @@ class NavitGraphics {
             super(context);
         }
 
+        public void onWindowFocusChanged (boolean hasWindowFocus) {
+            Log.e(TAG,"onWindowFocusChanged = " + hasWindowFocus);
+            // beter aanroepen in Navit of appconfig ?
+            if (Navit.sShowSoftKeyboardShowing && hasWindowFocus){
+                InputMethodManager imm =(InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(this,InputMethodManager.SHOW_FORCED);
+            }
+            if (Navit.sShowSoftKeyboardShowing && !hasWindowFocus){
+                InputMethodManager imm =(InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(this.getWindowToken(), 0);
+            }
+        }
+
         @Override
         @TargetApi(20)
         public WindowInsets onApplyWindowInsets(WindowInsets insets) {
@@ -217,15 +230,6 @@ class NavitGraphics {
                     if (overlay.mOverlayDisabled == 0) {
                         Rect r = overlay.get_rect();
                         canvas.drawBitmap(overlay.mDrawBitmap, r.left, r.top, null);
-                    }
-                }
-            } else {
-                if (Navit.sShowSoftKeyboard) {
-                    if (Navit.sInputMethodManager != null) {
-                        Navit.sInputMethodManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
-                        Navit.sShowSoftKeyboardNowShowing = true;
-                        // clear the variable now, keyboard will stay on screen until backbutton pressed
-                        Navit.sShowSoftKeyboard = false;
                     }
                 }
             }
@@ -387,7 +391,7 @@ class NavitGraphics {
                     keyStr = String.valueOf((char) 16);
                     break;
                 default:
-                    Log.e(TAG, "Unexpected keycode: " + keyCode);
+                    Log.e(TAG, "keycode: " + keyCode);
             }
             if (keyStr != null) {
                 keypressCallback(mKeypressCallbackID, keyStr);
@@ -415,14 +419,14 @@ class NavitGraphics {
                         }
                         break;
                     case KeyEvent.KEYCODE_BACK:
-                        if (Navit.sShowSoftKeyboardNowShowing) {
-                            Navit.sShowSoftKeyboardNowShowing = false;
+                        if (Navit.sShowSoftKeyboardShowing) {
+                            Navit.sShowSoftKeyboardShowing = false;
                         }
                         //s = java.lang.String.valueOf((char) 27);
                         return true;
                     case KeyEvent.KEYCODE_MENU:
                         if (!sInMap) {
-                            if (!Navit.sShowSoftKeyboardNowShowing) {
+                            if (!Navit.sShowSoftKeyboardShowing) {
                                 // if in menu view:
                                 // use as OK (Enter) key
                                 s = String.valueOf((char) 13);
@@ -432,7 +436,7 @@ class NavitGraphics {
                         }
                         break;
                     default:
-                        Log.e(TAG, "Unexpected keycode: " + keyCode);
+                        Log.v(TAG, "keycode: " + keyCode);
                 }
             } else if (i != 10) {
                 s = java.lang.String.valueOf((char) i);
@@ -608,8 +612,10 @@ class NavitGraphics {
                 case CLB_DELETE_MAP:
                     //unload map before deleting it !!!
                     callbackMessageChannel(7, msg.getData().getString(("title")));
-                    File toDelete = new File(msg.getData().getString(("title")));
-                    toDelete.delete();
+                    //remove commentlines below after testing
+                    //File toDelete = new File(msg.getData().getString(("title")));
+                    //toDelete.delete();
+                    NavitUtils.removeFileIfExists(msg.getData().getString(("title")));
                     break;
                 case CLB_UNLOAD_MAP:
                     callbackMessageChannel(7, msg.getData().getString(("title")));
@@ -862,9 +868,7 @@ class NavitGraphics {
      * Menu button. On API levels 11 through 13 (Honeycomb releases), this method will always return
      * {@code false}, as Honeycomb was a tablet-only release and did not require devices to have a Menu button.</p>
      *
-     * <p>Note that this method is not aware of non-standard mechanisms on some customized builds of Android. For
-     * example, CyanogenMod has an option to add a menu button to the navigation bar. Even with that option,
-     * this method will still return `false`.</p>
+     * <p>Note that this method is not aware of non-standard mechanisms on some customized builds of Android</p>
      */
     boolean hasMenuButton() {
         if (Build.VERSION.SDK_INT <= 10) {
@@ -887,20 +891,20 @@ class NavitGraphics {
     }
 
     void setButtonCallback(long id) {
-        Log.d(TAG,"set Buttononcallback");
+        Log.v(TAG,"set Buttononcallback");
         mButtonCallbackID = id;
     }
 
     void setMotionCallback(long id) {
         mMotionCallbackID = id;
-        Log.d(TAG,"set Motioncallback");
+        Log.v(TAG,"set Motioncallback");
         if (mActivity != null) {
             mActivity.setGraphics(this);
         }
     }
 
     void setKeypressCallback(long id) {
-        Log.d(TAG,"set Keypresscallback");
+        Log.v(TAG,"set Keypresscallback");
         mKeypressCallbackID = id;
     }
 
