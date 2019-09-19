@@ -85,7 +85,7 @@ class NavitGraphics {
     private RelativeLayout                 mRelativeLayout;
     private NavitCamera                    mCamera;
     private Navit                          mActivity;
-    private static Boolean                 sInMap;
+    private static Boolean                 sInMap = false;
     private boolean mTinting;
 
 
@@ -188,7 +188,6 @@ class NavitGraphics {
         @TargetApi(21)
         public WindowInsets onApplyWindowInsets(WindowInsets insets) {
             Log.e(TAG,"onApplyWindowInsets");
-            //super.onApplyWindowInsets(insets);
             if (mTinting) {
                 mPaddingLeft = insets.getSystemWindowInsetLeft();
                 mPaddingRight = insets.getSystemWindowInsetRight();
@@ -196,14 +195,13 @@ class NavitGraphics {
                 mPaddingTop = insets.getSystemWindowInsetTop();
                 Log.e(TAG, String.format("Padding -1a- left=%d top=%d right=%d bottom=%d",
                         mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
+                int width = this.getWidth();
+                int height = this.getHeight();
+                if (width > 0 && height > 0) {
+                    adjustSystemBarsTintingViews();
+                    sizeChangedCallback(mSizeChangedCallbackID, width, height);
+                }
             }
-            int width = this.getWidth();
-            int height = this.getHeight();
-            if (width > 0 && height > 0) {
-                adjustSystemBarsTintingViews();
-                sizeChangedCallback(mSizeChangedCallbackID, width, height);
-            }
-
             return insets;
         }
 
@@ -561,7 +559,6 @@ class NavitGraphics {
         /* The navigational and status bar tinting code is meaningful only on API19+ */
         mTinting = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
-
         if (mTinting) {
             mFrameLayout = new FrameLayout(mActivity);
             mFrameLayout.addView(mRelativeLayout);
@@ -725,23 +722,13 @@ class NavitGraphics {
      */
     private void handleResize(int w, int h) {
         if (this.mParentGraphics == null) {
-            Log.e(TAG, String.format("handleResize w=%d h=%d", w, h));
+            Log.d(TAG, String.format("handleResize w=%d h=%d", w, h));
             if (mTinting) {
-                Log.e(TAG, String.format("Padding -2- left=%d top=%d right=%d bottom=%d",
-                        mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
                 if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
                     resizePaddingKitkat();
                 }
-                Log.e(TAG, String.format("Padding -3- left=%d top=%d right=%d bottom=%d",
-                        mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
-
                 adjustSystemBarsTintingViews(); // is incl paddingchangedcallback
-
-                Log.e(TAG, String.format("Padding -4- left=%d top=%d right=%d bottom=%d",
-                        mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
-
             }
-            //sizeChangedCallback(mSizeChangedCallbackID, w, h);
         }
     }
 
@@ -765,6 +752,13 @@ class NavitGraphics {
          * platform/frameworks/base/tools/layoutlib/bridge/src/com/android/
          * layoutlib/bridge/impl/RenderSessionImpl.java
          */
+        mPaddingLeft = 0;
+        if (!sInMap){
+            mPaddingTop = 0;
+            mPaddingRight = 0;
+            mPaddingBottom = 0;
+            return;
+        }
         Resources resources = NavitAppConfig.sResources;
         int shid = resources.getIdentifier("status_bar_height", "dimen", "android");
         int nhid = resources.getIdentifier("navigation_bar_height", "dimen", "android");
@@ -778,18 +772,16 @@ class NavitGraphics {
                         + "navigationBarHeightLandscape=%d, navigationBarWidth=%d",
                         statusBarHeight, navigationBarHeight,
                         navigationBarHeightLandscape, navigationBarWidth));
-
-        Navit navit = mActivity;
-        boolean isStatusShowing = !navit.mIsFullscreen;
-        boolean isNavShowing = !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(navit));
+        boolean isStatusShowing = !mActivity.mIsFullscreen;
+        boolean isNavShowing = !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mActivity));
         Log.v(TAG, String.format("isStatusShowing=%b isNavShowing=%b", isStatusShowing, isNavShowing));
-        boolean isLandscape = (navit.getResources().getConfiguration().orientation
+        boolean isLandscape = (mActivity.getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE);
         boolean isNavAtBottom = (!isLandscape)
-                || (navit.getResources().getConfiguration().smallestScreenWidthDp >= 600);
+                || (mActivity.getResources().getConfiguration().smallestScreenWidthDp >= 600);
         Log.v(TAG, String.format("isNavAtBottom=%b (Config.smallestScreenWidthDp=%d, isLandscape=%b)",
-                isNavAtBottom, navit.getResources().getConfiguration().smallestScreenWidthDp, isLandscape));
-        mPaddingLeft = 0;
+                isNavAtBottom, mActivity.getResources().getConfiguration().smallestScreenWidthDp, isLandscape));
+
         mPaddingTop = isStatusShowing ? statusBarHeight : 0;
         mPaddingRight = (isNavShowing && !isNavAtBottom) ? navigationBarWidth : 0;
         mPaddingBottom = (!(isNavShowing && isNavAtBottom)) ? 0 : (
@@ -1010,9 +1002,10 @@ class NavitGraphics {
     protected void overlay_disable(int disable) {
         Log.v(TAG,"overlay_disable: " + disable + ", Parent: " + (mParentGraphics != null));
         // assume we are NOT in map view mode!
+        // but this backfires when dragging the map
         if (mParentGraphics == null) {
             sInMap = (disable == 0);
-            workAroundGuiInternal(sInMap);
+            workAroundForGuiInternal(sInMap);
         }
         if (mOverlayDisabled != disable) {
             mOverlayDisabled = disable;
@@ -1022,7 +1015,7 @@ class NavitGraphics {
         }
     }
 
-    private void workAroundGuiInternal(Boolean inMap) {
+    private void workAroundForGuiInternal(Boolean inMap) {
         if (!mTinting) {
             return;
         }
