@@ -753,7 +753,7 @@ class NavitGraphics {
          * layoutlib/bridge/impl/RenderSessionImpl.java
          */
         mPaddingLeft = 0;
-        if (!sInMap){
+        if (!sInMap) {
             mPaddingTop = 0;
             mPaddingRight = 0;
             mPaddingBottom = 0;
