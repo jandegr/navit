@@ -796,17 +796,14 @@ public class Navit extends Activity {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
            // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-
            //     int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
-           //     decorView.setSystemUiVisibility(uiOptions);
-           // }
+           //     decorView.setSystemUiVisibility(uiOptions);}
 
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
            // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-           //     decorView.setSystemUiVisibility(0);
-           // }
+           //     decorView.setSystemUiVisibility(0);}
         }
     }
 

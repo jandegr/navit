@@ -256,8 +256,8 @@ class NavitGraphics {
             mDrawCanvas = new Canvas(mDrawBitmap);
             mBitmapWidth = w;
             mBitmapHeight = h;
-            //if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && mTinting) {
-                handleResize(w, h);
+            //if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && mTinting)
+            handleResize(w, h);
             //}
             sizeChangedCallback(mSizeChangedCallbackID, w, h);
         }
@@ -734,7 +734,7 @@ class NavitGraphics {
                     resizePaddingKitkat();
                 }
                 Log.e(TAG, String.format("Padding -3- left=%d top=%d right=%d bottom=%d",
-                    mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
+                        mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
 
                 adjustSystemBarsTintingViews(); // is incl paddingchangedcallback
 
@@ -1023,12 +1023,12 @@ class NavitGraphics {
         }
     }
 
-    private void workAroundGuiInternal(Boolean sInMap) {
+    private void workAroundGuiInternal(Boolean inMap) {
         if (!mTinting) {
             return;
         }
         Log.e(TAG,"workaround gui internal");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !sInMap) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !inMap) {
             mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             return;
         }
@@ -1036,7 +1036,7 @@ class NavitGraphics {
             mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             return;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && !sInMap) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && !inMap) {
             mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
             return;
