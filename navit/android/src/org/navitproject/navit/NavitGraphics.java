@@ -19,7 +19,6 @@
 
 package org.navitproject.navit;
 
-
 import static org.navitproject.navit.NavitAppConfig.getTstring;
 
 import android.annotation.SuppressLint;
