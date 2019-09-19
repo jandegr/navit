@@ -13,7 +13,7 @@ public class NavitAppConfig extends Application {
 
     public static final String       NAVIT_PREFS = "NavitPrefs";
     private static final int         MAX_LAST_ADDRESSES = 10;
-    private static Resources         sResources;
+    static Resources                 sResources;
     private List<NavitAddress>       mLastAddresses     = null;
     private int                      mLastAddressField;
     private SharedPreferences        mSettings;

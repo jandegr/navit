@@ -19,6 +19,7 @@
 
 package org.navitproject.navit;
 
+
 import static org.navitproject.navit.NavitAppConfig.getTstring;
 
 import android.annotation.SuppressLint;
@@ -49,11 +50,11 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowInsets;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
-import java.io.File;
 import java.util.ArrayList;
 
 
@@ -86,7 +87,7 @@ class NavitGraphics {
     private NavitCamera                    mCamera;
     private Navit                          mActivity;
     private static Boolean                 sInMap;
-
+    private boolean mTinting;
 
 
     void setBackgroundColor(int bgcolor) {
@@ -184,20 +185,27 @@ class NavitGraphics {
             }
         }
 
-        @Override
-        @TargetApi(20)
+
+        @TargetApi(21)
         public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-            /*
-             * We're skipping the top inset here because it appears to have a bug on most Android versions tested,
-             * causing it to report between 24 and 64 dip more than what is actually occupied by the system UI.
-             * The top inset is retrieved in handleResize(), with logic depending on the platform version.
-             */
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT_WATCH) {
+            Log.e(TAG,"onApplyWindowInsets");
+            //super.onApplyWindowInsets(insets);
+            if (mTinting) {
                 mPaddingLeft = insets.getSystemWindowInsetLeft();
                 mPaddingRight = insets.getSystemWindowInsetRight();
                 mPaddingBottom = insets.getSystemWindowInsetBottom();
+                mPaddingTop = insets.getSystemWindowInsetTop();
+                Log.e(TAG, String.format("Padding -1a- left=%d top=%d right=%d bottom=%d",
+                        mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
             }
-            return super.onApplyWindowInsets(insets);
+            int width = this.getWidth();
+            int height = this.getHeight();
+            if (width > 0 && height > 0) {
+                adjustSystemBarsTintingViews();
+                sizeChangedCallback(mSizeChangedCallbackID, width, height);
+            }
+
+            return insets;
         }
 
         @Override
@@ -207,7 +215,8 @@ class NavitGraphics {
             menu.setHeaderTitle(getTstring(R.string.position_popup_title) + "..");
             menu.add(1, 1, NONE, getTstring(R.string.position_popup_drive_here))
                     .setOnMenuItemClickListener(this);
-            menu.add(1, 2, NONE, getTstring(R.string.cancel)).setOnMenuItemClickListener(this);
+            menu.add(1, 2, NONE, getTstring(R.string.cancel))
+                    .setOnMenuItemClickListener(this);
         }
 
         @Override
@@ -243,11 +252,18 @@ class NavitGraphics {
             Log.v(TAG, "onSizeChanged density=" + Navit.sMetrics.density);
             Log.v(TAG, "onSizeChanged scaledDensity=" + Navit.sMetrics.scaledDensity);
             super.onSizeChanged(w, h, oldw, oldh);
-            handleResize(w, h);
+            mDrawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mDrawCanvas = new Canvas(mDrawBitmap);
+            mBitmapWidth = w;
+            mBitmapHeight = h;
+            //if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && mTinting) {
+                handleResize(w, h);
+            //}
+            sizeChangedCallback(mSizeChangedCallbackID, w, h);
         }
 
-        void do_longpress_action() {
-            Log.d(TAG, "do_longpress_action enter");
+        void doLongpressAction() {
+            Log.d(TAG, "doLongpressAction enter");
             mActivity.openContextMenu(this);
         }
 
@@ -494,7 +510,7 @@ class NavitGraphics {
 
         public void run() {
             if (sInMap && mTouchMode == PRESSED) {
-                do_longpress_action();
+                doLongpressAction();
                 mTouchMode = NONE;
             }
         }
@@ -534,7 +550,6 @@ class NavitGraphics {
      * @param navit The main activity.
      */
     private void setmActivity(final Navit navit) {
-        navit.setGraphics(this);
         this.mActivity = navit;
         mView = new NavitView(mActivity);
         mView.setClickable(false);
@@ -544,10 +559,11 @@ class NavitGraphics {
         mRelativeLayout = new RelativeLayout(mActivity);
         addCameraView();
         mRelativeLayout.addView(mView);
-
-
         /* The navigational and status bar tinting code is meaningful only on API19+ */
-        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)) {
+        mTinting = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+
+
+        if (mTinting) {
             mFrameLayout = new FrameLayout(mActivity);
             mFrameLayout.addView(mRelativeLayout);
             mLeftTintView = new SystemBarTintView(mActivity);
@@ -562,7 +578,6 @@ class NavitGraphics {
         } else {
             mActivity.setContentView(mRelativeLayout);
         }
-
         mView.requestFocus();
     }
 
@@ -663,11 +678,6 @@ class NavitGraphics {
      */
     private void adjustSystemBarsTintingViews() {
 
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            return;
-        }
-
         /* hide tint bars during update to prevent ugly effects */
         mLeftTintView.setVisibility(View.GONE);
         mRightTintView.setVisibility(View.GONE);
@@ -712,52 +722,37 @@ class NavitGraphics {
      * Handles resize events.
      *
      * <p>This method is called whenever the main View is resized in any way. This is the case when its
-     * {@code onSizeChanged()} event handler fires or when toggling Fullscreen mode.</p>
+     * {@code onSizeChanged()} event handler fires.</p>
      */
-    void handleResize(int w, int h) {
-        if (this.mParentGraphics != null) {
-            this.mParentGraphics.handleResize(w, h);
-        } else {
-            Log.v(TAG, String.format("handleResize w=%d h=%d", w, h));
-
-            resizePadding();
-
-            Log.v(TAG, String.format("Padding left=%d top=%d right=%d bottom=%d",
+    private void handleResize(int w, int h) {
+        if (this.mParentGraphics == null) {
+            Log.e(TAG, String.format("handleResize w=%d h=%d", w, h));
+            if (mTinting) {
+                Log.e(TAG, String.format("Padding -2- left=%d top=%d right=%d bottom=%d",
+                        mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
+                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+                    resizePaddingKitkat();
+                }
+                Log.e(TAG, String.format("Padding -3- left=%d top=%d right=%d bottom=%d",
                     mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
 
-            adjustSystemBarsTintingViews();
+                adjustSystemBarsTintingViews(); // is incl paddingchangedcallback
 
-            mDrawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mDrawCanvas = new Canvas(mDrawBitmap);
-            mBitmapWidth = w;
-            mBitmapHeight = h;
-            sizeChangedCallback(mSizeChangedCallbackID, w, h);
+                Log.e(TAG, String.format("Padding -4- left=%d top=%d right=%d bottom=%d",
+                        mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
+
+            }
+            //sizeChangedCallback(mSizeChangedCallbackID, w, h);
         }
     }
 
-    private void resizePadding() {
-
-        /* API 18 and below does not support drawing under the system bars, padding is 0 all around */
-        mPaddingLeft = 0;
-        mPaddingRight = 0;
-        mPaddingTop = 0;
-        mPaddingBottom = 0;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            resizePaddingM();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            resizePaddingKitkatWatch();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            resizePaddingKitkat();
-        }
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void resizePaddingKitkat() {
         /*
-         * API 19 does not support window insets at all, forcing us to do even more guessing than on API 20-22:
+         * API 19 does not support window insets.
          *
-         * All system bar sizes are platform defaults and do not change with rotation, but we have
+         * All system bar sizes are device defaults and do not change with rotation, but we have
          * to figure out which ones apply.
          *
          * Status bar visibility is as on API 20-22.
@@ -771,95 +766,37 @@ class NavitGraphics {
          * platform/frameworks/base/tools/layoutlib/bridge/src/com/android/
          * layoutlib/bridge/impl/RenderSessionImpl.java
          */
-        Resources resources = mView.getResources();
-        int shid = resources.getIdentifier("statusBarHeight", "dimen", "android");
-        int adhid = resources.getIdentifier("actionBarDefaultHeight", "dimen", "android");
-        int nhid = resources.getIdentifier("navigationBarHeight", "dimen", "android");
-        int nhlid = resources.getIdentifier("navigationBarHeightLandscape", "dimen", "android");
-        int nwid = resources.getIdentifier("navigationBarWidth", "dimen", "android");
+        Resources resources = NavitAppConfig.sResources;
+        int shid = resources.getIdentifier("status_bar_height", "dimen", "android");
+        int nhid = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        int nhlid = resources.getIdentifier("navigation_bar_height_landscape", "dimen", "android");
+        int nwid = resources.getIdentifier("navigation_bar_width", "dimen", "android");
         int statusBarHeight = (shid > 0) ? resources.getDimensionPixelSize(shid) : 0;
-        int actionBarDefaultHeight = (adhid > 0) ? resources.getDimensionPixelSize(adhid) : 0;
         int navigationBarHeight = (nhid > 0) ? resources.getDimensionPixelSize(nhid) : 0;
         int navigationBarHeightLandscape = (nhlid > 0) ? resources.getDimensionPixelSize(nhlid) : 0;
         int navigationBarWidth = (nwid > 0) ? resources.getDimensionPixelSize(nwid) : 0;
-        Log.v(TAG, String.format(
-                "statusBarHeight=%d, actionBarDefaultHeight=%d, navigationBarHeight=%d, "
+        Log.v(TAG, String.format("statusBarHeight=%d, navigationBarHeight=%d, "
                         + "navigationBarHeightLandscape=%d, navigationBarWidth=%d",
-                        statusBarHeight, actionBarDefaultHeight, navigationBarHeight,
+                        statusBarHeight, navigationBarHeight,
                         navigationBarHeightLandscape, navigationBarWidth));
 
-        if (mActivity == null) {
-            Log.w(TAG, "no main Activity, cannot update padding");
-        } else if (mFrameLayout != null) {
-            /* mFrameLayout is only created on platforms supporting navigation and status bar tinting */
-
-            Navit navit = mActivity;
-            boolean isStatusShowing = !navit.mIsFullscreen;
-            boolean isNavShowing = !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(navit));
-            Log.d(TAG, String.format("isStatusShowing=%b isNavShowing=%b", isStatusShowing, isNavShowing));
-
-            boolean isLandscape = (navit.getResources().getConfiguration().orientation
-                    == Configuration.ORIENTATION_LANDSCAPE);
-            boolean isNavAtBottom = (!isLandscape)
-                    || (navit.getResources().getConfiguration().smallestScreenWidthDp >= 600);
-            Log.d(TAG, String.format("isNavAtBottom=%b (Config.smallestScreenWidthDp=%d, isLandscape=%b)",
-                    isNavAtBottom, navit.getResources().getConfiguration().smallestScreenWidthDp, isLandscape));
-
-            mPaddingLeft = 0;
-            mPaddingTop = isStatusShowing ? statusBarHeight : 0;
-            mPaddingRight = (isNavShowing && !isNavAtBottom) ? navigationBarWidth : 0;
-            mPaddingBottom = (!(isNavShowing && isNavAtBottom)) ? 0 : (
-                    isLandscape ? navigationBarHeightLandscape : navigationBarHeight);
-        }
+        Navit navit = mActivity;
+        boolean isStatusShowing = !navit.mIsFullscreen;
+        boolean isNavShowing = !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(navit));
+        Log.v(TAG, String.format("isStatusShowing=%b isNavShowing=%b", isStatusShowing, isNavShowing));
+        boolean isLandscape = (navit.getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE);
+        boolean isNavAtBottom = (!isLandscape)
+                || (navit.getResources().getConfiguration().smallestScreenWidthDp >= 600);
+        Log.v(TAG, String.format("isNavAtBottom=%b (Config.smallestScreenWidthDp=%d, isLandscape=%b)",
+                isNavAtBottom, navit.getResources().getConfiguration().smallestScreenWidthDp, isLandscape));
+        mPaddingLeft = 0;
+        mPaddingTop = isStatusShowing ? statusBarHeight : 0;
+        mPaddingRight = (isNavShowing && !isNavAtBottom) ? navigationBarWidth : 0;
+        mPaddingBottom = (!(isNavShowing && isNavAtBottom)) ? 0 : (
+                isLandscape ? navigationBarHeightLandscape : navigationBarHeight);
     }
 
-    private void resizePaddingKitkatWatch() {
-        /*
-         * API 20-22 do not support root window insets, forcing us to make an educated guess about the
-         * navigation bar height:
-         *
-         * The size is a platform default and does not change with rotation, but we have to figure out if it
-         * applies, i.e. if the status bar is visible.
-         *
-         * The status bar is always visible unless we are in fullscreen mode. (Fortunately, none of the
-         * versions affected by this support split screen mode, which would have further complicated things.)
-         */
-        if (!mActivity.mIsFullscreen) {
-            Resources resources = mView.getResources();
-            int shid = resources.getIdentifier("status_bar_height", "dimen", "android");
-            mPaddingTop = (shid > 0) ? resources.getDimensionPixelSize(shid) : 0;
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void resizePaddingM() {
-        /*
-         * On API 23+ we can query window insets to determine the area which is obscured by the system bars.
-         * This appears to have a bug, though, causing an inset to be reported for the navigation bar even
-         * when it is not obstructing the window. Therefore, we are relying on the values previously obtained
-         * by NavitView#onApplyWindowInsets(), though this is affected by a different bug. Luckily, the two
-         * bugs appear to be complementary, allowing us to mix and match results.
-         */
-        if (mView == null) {
-            Log.w(TAG, "view is null, cannot update padding");
-        } else {
-            Log.d(TAG, String.format("view w=%d h=%d x=%.0f y=%.0f",
-                    mView.getWidth(), mView.getHeight(), mView.getX(), mView.getY()));
-            if (mView.getRootWindowInsets() == null) {
-                Log.w(TAG, "No root window insets, cannot update padding");
-            } else {
-                Log.d(TAG, String.format("RootWindowInsets left=%d right=%d top=%d bottom=%d",
-                        mView.getRootWindowInsets().getSystemWindowInsetLeft(),
-                        mView.getRootWindowInsets().getSystemWindowInsetRight(),
-                        mView.getRootWindowInsets().getSystemWindowInsetTop(),
-                        mView.getRootWindowInsets().getSystemWindowInsetBottom()));
-                mPaddingTop = mView.getRootWindowInsets().getSystemWindowInsetTop();
-                mPaddingBottom = mView.getRootWindowInsets().getSystemWindowInsetBottom();
-                mPaddingLeft = mView.getRootWindowInsets().getSystemWindowInsetLeft();
-                mPaddingRight = mView.getRootWindowInsets().getSystemWindowInsetRight();
-            }
-        }
-    }
 
     /**
      * Returns whether the device has a hardware menu button.
@@ -900,9 +837,6 @@ class NavitGraphics {
     void setMotionCallback(long id) {
         mMotionCallbackID = id;
         Log.v(TAG,"set Motioncallback");
-        if (mActivity != null) {
-            mActivity.setGraphics(this);
-        }
     }
 
     void setKeypressCallback(long id) {
@@ -1075,16 +1009,41 @@ class NavitGraphics {
     }
 
     protected void overlay_disable(int disable) {
-        Log.v(TAG,"overlay_disable: " + disable + "Parent: " + (mParentGraphics != null));
+        Log.v(TAG,"overlay_disable: " + disable + ", Parent: " + (mParentGraphics != null));
         // assume we are NOT in map view mode!
         if (mParentGraphics == null) {
             sInMap = (disable == 0);
+            workAroundGuiInternal(sInMap);
         }
         if (mOverlayDisabled != disable) {
             mOverlayDisabled = disable;
             if (mParentGraphics != null) {
                 mParentGraphics.mView.invalidate(get_rect());
             }
+        }
+    }
+
+    private void workAroundGuiInternal(Boolean sInMap) {
+        if (!mTinting) {
+            return;
+        }
+        Log.e(TAG,"workaround gui internal");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !sInMap) {
+            mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && !sInMap) {
+            mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         }
     }
 
