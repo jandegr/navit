@@ -11,6 +11,7 @@
 #include "callback.h"
 #include "country.h"
 #include "projection.h"
+#include "coord.h"
 #include "map.h"
 #include "mapset.h"
 #include "navit_nls.h"
@@ -23,7 +24,7 @@
 
 JNIEnv *jnienv;
 jobject *android_activity = NULL;
-int android_version;
+//int android_version;
 
 struct android_search_priv {
     struct jni_object search_result_obj;
@@ -76,21 +77,25 @@ int android_find_static_method(jclass class, char *name, char *args, jmethodID *
     return 1;
 }
 
+
+
+/*
+ *
+ *
+ *
+ */
 JNIEXPORT void JNICALL Java_org_navitproject_navit_Navit_navitMain( JNIEnv* env, jobject thiz, jobject activity,
-        jstring lang, jint version, jstring display_density_string, jstring path,
-        jstring map_path) {
+        jstring lang, jstring display_density_string, jstring path, jstring map_path) {
     const char *langstr;
     const char *displaydensitystr;
     const char *map_file_path;
-    android_version=version;
-    __android_log_print(ANDROID_LOG_ERROR,"test","called");
     jnienv=env;
     if (android_activity)
         (*jnienv)->DeleteGlobalRef(jnienv, android_activity);
     android_activity = (*jnienv)->NewGlobalRef(jnienv, activity);
 
     langstr=(*env)->GetStringUTFChars(env, lang, NULL);
-    dbg(lvl_debug,"enter env=%p thiz=%p activity=%p lang=%s version=%d",env,thiz,android_activity,langstr,version);
+    dbg(lvl_debug,"enter env=%p thiz=%p activity=%p lang=%s",env,thiz,android_activity,langstr);
     setenv("LANG",langstr,1);
     (*env)->ReleaseStringUTFChars(env, lang, langstr);
 
@@ -154,7 +159,7 @@ JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitGraphics_keypressCallbac
 
 JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitTimeout_timeoutCallback( JNIEnv* env, jobject thiz,
         jlong id) {
-    dbg(lvl_debug,"enter %p %p %p %lld",thiz,(void *)id, (void *)(intptr_t)id, id);
+    dbg(lvl_debug,"enter %p %p %p",thiz,(void *)id, (void *)(intptr_t)id);
     void (*event_handler)(void *) = *((void **)(intptr_t)id);
     event_handler((void*)(intptr_t)id);
 }
