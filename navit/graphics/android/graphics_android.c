@@ -483,8 +483,9 @@ static void resize_callback(struct graphics_priv *gra, int w, int h) {
     callback_list_call_attr_2(gra->cbl, attr_resize, (void *)w, (void *)h);
 }
 
-static void padding_callback(struct graphics_priv *gra, int left, int top, int right, int bottom) {
-    dbg(lvl_debug, "win.padding left=%d top=%d right=%d bottom=%d ok", left, top, right, bottom);
+static void padding_changed_callback(struct graphics_priv *gra, int left, int top, int right,
+                                     int bottom) {
+    dbg(lvl_error, "win.padding left=%d top=%d right=%d bottom=%d", left, top, right, bottom);
     gra->padding->left = left;
     gra->padding->top = top;
     gra->padding->right = right;
@@ -640,7 +641,7 @@ static int graphics_android_init(struct graphics_priv *ret, struct graphics_priv
         dbg(lvl_error,"no setPaddingCallback method found");
         return 0; /* exception thrown */
     }
-    cb=callback_new_1(callback_cast(padding_callback), ret);
+    cb=callback_new_1(callback_cast(padding_changed_callback), ret);
     (*jnienv)->CallVoidMethod(jnienv, ret->NavitGraphics, cid, (jlong)cb);
 
     cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setButtonCallback", "(J)V");
