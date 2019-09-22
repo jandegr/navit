@@ -38,6 +38,10 @@ android {
             resources.srcDirs = ["src"]
             renderscript.srcDirs = ["src"]
             res.srcDirs = ["res"]
+	    // let gradle pack the shared libraries into the apk
+	    // such as glib in case that is provided instead of
+	    // built from support, tested for arm64 single flavor buidls only
+	    jniLibs.srcDirs = ['/opt/android/sdk/ndk-bundle/sysroot/lib']
         }
     }
     externalNativeBuild {
