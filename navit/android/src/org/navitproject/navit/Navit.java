@@ -103,13 +103,13 @@ public class Navit extends Activity {
          * the NotificationChannel class is new and not in the support library
          * uses NAVIT_PACKAGE_NAME as id
          */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel channel = new NotificationChannel(NAVIT_PACKAGE_NAME, name, importance);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        //    CharSequence name = getString(R.string.channel_name);
+        //    int importance = NotificationManager.IMPORTANCE_LOW;
+        //    NotificationChannel channel = new NotificationChannel(NAVIT_PACKAGE_NAME, name, importance);
+        //    NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        //    notificationManager.createNotificationChannel(channel);
+        //}
     }
 
     /**
@@ -390,7 +390,7 @@ public class Navit extends Activity {
             builder.setAutoCancel(false).setOngoing(true);
             builder.setContentTitle(getTstring(R.string.app_name));
             builder.setContentText(getTstring(R.string.notification_event_default));
-            builder.setSmallIcon(R.drawable.ic_notify);
+        //    builder.setSmallIcon(R.drawable.ic_notify);
             navitNotification = builder.build();
         } else {
             NotificationCompat.Builder builder;
@@ -399,7 +399,7 @@ public class Navit extends Activity {
             builder.setAutoCancel(false).setOngoing(true);
             builder.setContentTitle(getTstring(R.string.app_name));
             builder.setContentText(getTstring(R.string.notification_event_default));
-            builder.setSmallIcon(R.drawable.ic_notify);
+        //   builder.setSmallIcon(R.drawable.ic_notify);
             navitNotification = builder.build();
         }
         sNotificationManager.notify(R.string.app_name, navitNotification);// Show the notification
@@ -541,7 +541,7 @@ public class Navit extends Activity {
         menu.add(1, 5, 400, getTstring(R.string.optionsmenu_toggle_poi)); //TRANS
 
         menu.add(1, 6, 500, getTstring(R.string.optionsmenu_address_search)); //TRANS
-        menu.add(1, 10, 600, getTstring(R.string.optionsmenu_set_map_location));
+        menu.add(1, 10, 600, getTstring(R.string.optionsmenu_set_maplocation));
 
         menu.add(1, 99, 900, getTstring(R.string.optionsmenu_exit_navit)); //TRANS
 
