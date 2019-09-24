@@ -210,9 +210,9 @@ class NavitGraphics {
             return insets;
         }
 
-        private final int MENU_DRIVE_HERE = 1;
-        private final int MENU_VIEW = 2;
-        private final int MENU_CANCEL = 3;
+        private static final int MENU_DRIVE_HERE = 1;
+        private static final int MENU_VIEW = 2;
+        private static final int MENU_CANCEL = 3;
 
         @Override
         protected void onCreateContextMenu(ContextMenu menu) {
@@ -230,7 +230,8 @@ class NavitGraphics {
             boolean isIntentSafe = (activities.size() > 0);
             /* ... and if so, add a menu option to open the currently clicked location inside an external app */
             if (isIntentSafe) {
-                menu.add(1, MENU_VIEW, NONE, NavitAppConfig.getTstring(R.string.position_popup_view)).setOnMenuItemClickListener(this);
+                menu.add(1, MENU_VIEW, NONE, NavitAppConfig.getTstring(R.string.position_popup_view))
+                        .setOnMenuItemClickListener(this);
             } else {
                 Log.w(TAG, "No application available to handle ACTION_VIEW intent, option not displayed");
             }
