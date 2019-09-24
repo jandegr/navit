@@ -247,8 +247,9 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCo
 
     country_attr=country_default();
     tracking=navit_get_tracking(attr.u.navit);
-    if (tracking && tracking_get_attr(tracking, attr_country_id, &search_attr, NULL))
-        country_attr=&search_attr;
+    if (tracking && tracking_get_attr(tracking, attr_country_id, &search_attr, NULL)) {
+        country_attr = &search_attr;
+    }
     if (country_attr) {
         struct country_search *cs=country_search_new(country_attr, 0);
         struct item *item=country_search_get_item(cs);
@@ -262,8 +263,9 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCo
             while((res=search_list_get_result(search_list))) {
                 dbg(lvl_debug,"Get result: %s", res->country->iso2);
             }
-            if (item_attr_get(item, attr_country_iso2, &country_iso2))
-                return_string = (*env)->NewStringUTF(env,country_iso2.u.str);
+            if (item_attr_get(item, attr_country_iso2, &country_iso2)) {
+                return_string = (*env)->NewStringUTF(env, country_iso2.u.str);
+            }
         }
         country_search_destroy(cs);
     }
@@ -299,8 +301,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllC
             jstring j_iso2 = (*env)->NewStringUTF(env, res->country->iso2);
             jstring j_name = (*env)->NewStringUTF(env, navit_nls_gettext(res->country->name));
 
-            current_country = (jobjectArray)(*env)->NewObjectArray(env, 2, (*env)->FindClass(env,
-                    "java/lang/String"), NULL);
+            current_country = (jobjectArray)(*env)->NewObjectArray(env, 2, (*env)->FindClass(env, "java/lang/String"), NULL);
 
             (*env)->SetObjectArrayElement(env, current_country, 0,  j_iso2);
             (*env)->SetObjectArrayElement(env, current_country, 1,  j_name);
@@ -314,8 +315,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllC
     }
 
     search_list_destroy(search_list);
-    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count,
-            (*env)->GetObjectClass(env,current_country), NULL);
+    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count, (*env)->GetObjectClass(env,current_country), NULL);
 
     while(countries) {
         (*env)->SetObjectArrayElement(env, all_countries, --country_count, countries->data);
