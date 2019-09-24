@@ -315,7 +315,8 @@ JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllC
     }
 
     search_list_destroy(search_list);
-    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count, (*env)->GetObjectClass(env,current_country), NULL);
+    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count, (*env)->GetObjectClass(env,current_country),
+                    NULL);
 
     while(countries) {
         (*env)->SetObjectArrayElement(env, all_countries, --country_count, countries->data);
