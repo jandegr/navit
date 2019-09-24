@@ -359,7 +359,7 @@ public class Navit extends Activity {
             Log.e(TAG, "Failed to access assets using AssetManager");
         }
         Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + Integer.valueOf(Build.VERSION.SDK));
-        navitMain(this, navitLanguage, myDisplayDensity, sNavitDataDir + "/bin/navit", sMapFilenamePath);
+        navitMain(navitLanguage, myDisplayDensity, sNavitDataDir + "/bin/navit", sMapFilenamePath);
         showInfos();
     }
 
@@ -816,7 +816,7 @@ public class Navit extends Activity {
         mWakeLock.release();
     }
 
-    private native void navitMain(Navit x, String lang,
+    private native void navitMain(String lang,
                                   String displayDensityString, String path, String path2);
 
     public native void navitDestroy();
