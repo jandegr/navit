@@ -221,7 +221,8 @@ class NavitGraphics {
             menu.setHeaderTitle(NavitAppConfig.getTstring(R.string.position_popup_title) + " " + clickCoord);
             menu.add(1, MENU_DRIVE_HERE, NONE, NavitAppConfig.getTstring(R.string.position_popup_drive_here))
                     .setOnMenuItemClickListener(this);
-            Uri intentUri = Uri.parse("geo:" + getCoordForPoint((int)mPressedPosition.x, (int)mPressedPosition.y, true));
+            Uri intentUri = Uri.parse("geo:" + getCoordForPoint((int)mPressedPosition.x,
+                    (int)mPressedPosition.y, true));
             Intent mContextMenuMapViewIntent = new Intent(Intent.ACTION_VIEW, intentUri);
 
             PackageManager packageManager = this.getContext().getPackageManager();
