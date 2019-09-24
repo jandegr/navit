@@ -90,7 +90,7 @@ class NavitGraphics {
     private RelativeLayout                 mRelativeLayout;
     private NavitCamera                    mCamera;
     private Navit                          mActivity;
-    private static Boolean                 sInMap = false;
+    private static boolean                 sInMap;
     private boolean mTinting;
 
 
@@ -228,9 +228,8 @@ class NavitGraphics {
             PackageManager packageManager = this.getContext().getPackageManager();
             List<ResolveInfo> activities = packageManager.queryIntentActivities(mContextMenuMapViewIntent,
                     PackageManager.MATCH_DEFAULT_ONLY);
-            boolean isIntentSafe = (activities.size() > 0);
-            /* ... and if so, add a menu option to open the currently clicked location inside an external app */
-            if (isIntentSafe) {
+            boolean isIntentSafe = (activities.size() > 1); //Navit + at least one other
+            if (isIntentSafe) { // add view with external app option
                 menu.add(1, MENU_VIEW, NONE, NavitAppConfig.getTstring(R.string.position_popup_view))
                         .setOnMenuItemClickListener(this);
             } else {
@@ -250,14 +249,10 @@ class NavitGraphics {
                 Uri intentUri = Uri.parse("geo:" + getCoordForPoint((int) mPressedPosition.x,
                         (int) mPressedPosition.y, true));
                 Intent mContextMenuMapViewIntent = new Intent(Intent.ACTION_VIEW, intentUri);
-                if (mContextMenuMapViewIntent != null) {
-                    if (mContextMenuMapViewIntent.resolveActivity(this.getContext().getPackageManager()) != null) {
-                        this.getContext().startActivity(mContextMenuMapViewIntent);
-                    } else {
-                        Log.w(TAG, "ACTION_VIEW intent is not handled by any application, discarding...");
-                    }
+                if (mContextMenuMapViewIntent.resolveActivity(this.getContext().getPackageManager()) != null) {
+                    this.getContext().startActivity(mContextMenuMapViewIntent);
                 } else {
-                    Log.e(TAG, "User clicked on view on menu but intent was null. Discarding...");
+                    Log.w(TAG, "ACTION_VIEW intent is not handled by any application, discarding...");
                 }
             }
             return true;
