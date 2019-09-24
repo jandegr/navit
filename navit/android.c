@@ -232,6 +232,7 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitAppConfig_callbackLoc
     return js;
 }
 
+
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCountry( JNIEnv* env, jobject thiz,
         jint channel, jstring str) {
     struct attr search_attr, country_name, country_iso2, *country_attr;
@@ -462,45 +463,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     }
 
     return ret;
-}
-
-
-JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_GetDefaultCountry( JNIEnv* env, jobject thiz,
-        int channel, jobject str) {
-    struct attr search_attr, country_name, country_iso2, *country_attr;
-    struct tracking *tracking;
-    struct search_list_result *res;
-    jstring return_string = NULL;
-
-    struct attr attr;
-    dbg(lvl_debug,"enter %d %p",channel,str);
-
-    config_get_attr(config_get(), attr_navit, &attr, NULL);
-
-    country_attr=country_default();
-    tracking=navit_get_tracking(attr.u.navit);
-    if (tracking && tracking_get_attr(tracking, attr_country_id, &search_attr, NULL))
-        country_attr=&search_attr;
-    if (country_attr) {
-        struct country_search *cs=country_search_new(country_attr, 0);
-        struct item *item=country_search_get_item(cs);
-        if (item && item_attr_get(item, attr_country_name, &country_name)) {
-            struct mapset *ms=navit_get_mapset(attr.u.navit);
-            struct search_list *search_list = search_list_new(ms);
-            search_attr.type=attr_country_all;
-            dbg(lvl_debug,"country %s", country_name.u.str);
-            search_attr.u.str=country_name.u.str;
-            search_list_search(search_list, &search_attr, 0);
-            while((res=search_list_get_result(search_list))) {
-                dbg(lvl_debug,"Get result: %s", res->country->iso2);
-            }
-            if (item_attr_get(item, attr_country_iso2, &country_iso2))
-                return_string = (*env)->NewStringUTF(env,country_iso2.u.str);
-        }
-        country_search_destroy(cs);
-    }
-
-    return return_string;
 }
 
 
