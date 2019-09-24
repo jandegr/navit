@@ -271,6 +271,61 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCo
     return return_string;
 }
 
+
+JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllCountries( JNIEnv* env,
+                                                                                          jclass thiz) {
+    struct attr search_attr;
+    struct search_list_result *res;
+    GList* countries = NULL;
+    int country_count = 0;
+    jobjectArray all_countries;
+
+    struct attr attr;
+    dbg(lvl_debug,"enter");
+
+    config_get_attr(config_get(), attr_navit, &attr, NULL);
+
+    struct mapset *ms=navit_get_mapset(attr.u.navit);
+    struct search_list *search_list = search_list_new(ms);
+    jobjectArray current_country = NULL;
+    search_attr.type=attr_country_all;
+    //dbg(lvl_debug,"country %s", country_name.u.str);
+    search_attr.u.str=g_strdup("");//country_name.u.str;
+    search_list_search(search_list, &search_attr, 1);
+    while((res=search_list_get_result(search_list))) {
+        dbg(lvl_debug,"Get result: %s", res->country->iso2);
+
+        if (strlen(res->country->iso2)==2) {
+            jstring j_iso2 = (*env)->NewStringUTF(env, res->country->iso2);
+            jstring j_name = (*env)->NewStringUTF(env, navit_nls_gettext(res->country->name));
+
+            current_country = (jobjectArray)(*env)->NewObjectArray(env, 2, (*env)->FindClass(env,
+                                                                                             "java/lang/String"), NULL);
+
+            (*env)->SetObjectArrayElement(env, current_country, 0,  j_iso2);
+            (*env)->SetObjectArrayElement(env, current_country, 1,  j_name);
+
+            (*env)->DeleteLocalRef(env, j_iso2);
+            (*env)->DeleteLocalRef(env, j_name);
+
+            countries = g_list_prepend(countries, current_country);
+            country_count++;
+        }
+    }
+
+    search_list_destroy(search_list);
+    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count,
+                                                         (*env)->GetObjectClass(env,current_country), NULL);
+
+    while(countries) {
+        (*env)->SetObjectArrayElement(env, all_countries, --country_count, countries->data);
+        countries = g_list_delete_link( countries, countries);
+    }
+
+    return all_countries;
+}
+
+
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getCoordForPoint( JNIEnv* env,
         jobject thiz, jint x, jint y, jboolean absolute_coord) {
 
@@ -465,59 +520,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     return ret;
 }
 
-
-JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllCountries( JNIEnv* env,
-        jclass thiz) {
-    struct attr search_attr;
-    struct search_list_result *res;
-    GList* countries = NULL;
-    int country_count = 0;
-    jobjectArray all_countries;
-
-    struct attr attr;
-    dbg(lvl_debug,"enter");
-
-    config_get_attr(config_get(), attr_navit, &attr, NULL);
-
-    struct mapset *ms=navit_get_mapset(attr.u.navit);
-    struct search_list *search_list = search_list_new(ms);
-    jobjectArray current_country = NULL;
-    search_attr.type=attr_country_all;
-    //dbg(lvl_debug,"country %s", country_name.u.str);
-    search_attr.u.str=g_strdup("");//country_name.u.str;
-    search_list_search(search_list, &search_attr, 1);
-    while((res=search_list_get_result(search_list))) {
-        dbg(lvl_debug,"Get result: %s", res->country->iso2);
-
-        if (strlen(res->country->iso2)==2) {
-            jstring j_iso2 = (*env)->NewStringUTF(env, res->country->iso2);
-            jstring j_name = (*env)->NewStringUTF(env, navit_nls_gettext(res->country->name));
-
-            current_country = (jobjectArray)(*env)->NewObjectArray(env, 2, (*env)->FindClass(env,
-                    "java/lang/String"), NULL);
-
-            (*env)->SetObjectArrayElement(env, current_country, 0,  j_iso2);
-            (*env)->SetObjectArrayElement(env, current_country, 1,  j_name);
-
-            (*env)->DeleteLocalRef(env, j_iso2);
-            (*env)->DeleteLocalRef(env, j_name);
-
-            countries = g_list_prepend(countries, current_country);
-            country_count++;
-        }
-    }
-
-    search_list_destroy(search_list);
-    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count,
-            (*env)->GetObjectClass(env,current_country), NULL);
-
-    while(countries) {
-        (*env)->SetObjectArrayElement(env, all_countries, --country_count, countries->data);
-        countries = g_list_delete_link( countries, countries);
-    }
-
-    return all_countries;
-}
 
 static char *postal_str(struct search_list_result *res, int level) {
     char *ret=NULL;
