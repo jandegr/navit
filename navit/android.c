@@ -270,6 +270,40 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getDefaultCo
     return return_string;
 }
 
+JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getCoordForPoint( JNIEnv* env,
+        jobject thiz, jint x, jint y, jboolean absolute_coord) {
+
+    jstring return_string = NULL;
+
+    struct attr attr;
+    config_get_attr(config_get(), attr_navit, &attr, NULL);
+
+    struct transformation *transform=navit_get_trans(attr.u.navit);
+    struct point p;
+    struct point c;
+    struct pcoord pc;
+
+    p.x = x;
+    p.y = y;
+
+    transform_reverse(transform, &p, &c);
+
+    pc.x = c.x;
+    pc.y = c.y;
+    pc.pro = transform_get_projection(transform);
+
+    char coord_str[32];
+    if (absolute_coord) {
+        pcoord_format_absolute(&pc, coord_str, sizeof(coord_str), ",");
+    } else {
+        pcoord_format_degree_short(&pc, coord_str, sizeof(coord_str), " ");
+    }
+
+    dbg(lvl_error,"Display point x=%d y=%d is \"%s\"",x,y,coord_str);
+    return_string = (*env)->NewStringUTF(env,coord_str);
+
+    return return_string;
+}
 
 JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessageChannel( JNIEnv* env, jclass thiz,
         jint channel, jstring str) {
@@ -430,41 +464,6 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     return ret;
 }
 
-
-JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getCoordForPoint( JNIEnv* env,
-        jobject thiz, jint x, jint y, jboolean absolute_coord) {
-
-    jstring return_string = NULL;
-
-    struct attr attr;
-    config_get_attr(config_get(), attr_navit, &attr, NULL);
-
-    struct transformation *transform=navit_get_trans(attr.u.navit);
-    struct point p;
-    struct point c;
-    struct pcoord pc;
-
-    p.x = x;
-    p.y = y;
-
-    transform_reverse(transform, &p, &c);
-
-    pc.x = c.x;
-    pc.y = c.y;
-    pc.pro = transform_get_projection(transform);
-
-    char coord_str[32];
-    if (absolute_coord) {
-        pcoord_format_absolute(&pc, coord_str, sizeof(coord_str), ",");
-    } else {
-        pcoord_format_degree_short(&pc, coord_str, sizeof(coord_str), " ");
-    }
-
-    dbg(lvl_error,"Display point x=%d y=%d is \"%s\"",x,y,coord_str);
-    return_string = (*env)->NewStringUTF(env,coord_str);
-
-    return return_string;
-}
 
 JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_GetDefaultCountry( JNIEnv* env, jobject thiz,
         int channel, jobject str) {
@@ -746,7 +745,7 @@ static char *search_fix_spaces(const char *str) {
             len--;
         }
     } while (c);
-    
+
     return ret;
 }
 
