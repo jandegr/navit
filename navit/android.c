@@ -466,7 +466,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
 }
 
 
-JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllCountries( JNIEnv* env, jclass thiz) {
+JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllCountries( JNIEnv* env,
+        jclass thiz) {
     struct attr search_attr;
     struct search_list_result *res;
     GList* countries = NULL;
@@ -492,7 +493,8 @@ JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllC
             jstring j_iso2 = (*env)->NewStringUTF(env, res->country->iso2);
             jstring j_name = (*env)->NewStringUTF(env, navit_nls_gettext(res->country->name));
 
-            current_country = (jobjectArray)(*env)->NewObjectArray(env, 2, (*env)->FindClass(env, "java/lang/String"), NULL);
+            current_country = (jobjectArray)(*env)->NewObjectArray(env, 2, (*env)->FindClass(env,
+                    "java/lang/String"), NULL);
 
             (*env)->SetObjectArrayElement(env, current_country, 0,  j_iso2);
             (*env)->SetObjectArrayElement(env, current_country, 1,  j_name);
@@ -506,8 +508,8 @@ JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllC
     }
 
     search_list_destroy(search_list);
-    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count, (*env)->GetObjectClass(env,current_country),
-                    NULL);
+    all_countries = (jobjectArray)(*env)->NewObjectArray(env, country_count,
+            (*env)->GetObjectClass(env,current_country), NULL);
 
     while(countries) {
         (*env)->SetObjectArrayElement(env, all_countries, --country_count, countries->data);
