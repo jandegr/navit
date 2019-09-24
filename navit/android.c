@@ -11,7 +11,6 @@
 #include "callback.h"
 #include "country.h"
 #include "projection.h"
-#include "coord.h"
 #include "map.h"
 #include "mapset.h"
 #include "navit_nls.h"
@@ -82,22 +81,20 @@ int android_find_static_method(jclass class, char *name, char *args, jmethodID *
  * @brief Starts the Navitlib for Android
  *
  * @param env provided by JVM
- * @param thiz the calling instance
- * @param activity the Navit instance
+ * @param thiz the calling Navit instance
  * @param lang a string describing the language
  * @param disply_density_string refers to xml version to use
  * @param path relates to NAVIT_DATA_DIR on linux
  * @param map_path where the binfiles are stored
  */
-JNIEXPORT void JNICALL Java_org_navitproject_navit_Navit_navitMain( JNIEnv* env, jobject thiz, jobject activity,
+JNIEXPORT void JNICALL Java_org_navitproject_navit_Navit_navitMain( JNIEnv* env, jobject thiz,
         jstring lang, jstring display_density_string, jstring path, jstring map_path) {
     const char *langstr;
     const char *displaydensitystr;
     const char *map_file_path;
     jnienv=env;
-    if (android_activity)
-        (*jnienv)->DeleteGlobalRef(jnienv, android_activity);
-    android_activity = (*jnienv)->NewGlobalRef(jnienv, activity);
+
+    android_activity = (*jnienv)->NewGlobalRef(jnienv, thiz);
 
     langstr=(*env)->GetStringUTFChars(env, lang, NULL);
     dbg(lvl_debug,"enter env=%p thiz=%p activity=%p lang=%s",env,thiz,android_activity,langstr);
@@ -377,10 +374,9 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         pc.pro = transform_get_projection(transform);
 
         char coord_str[32];
-        pcoord_format_short(&pc, coord_str, sizeof(coord_str), " ");
-
+        //pcoord_format_short(&pc, coord_str, sizeof(coord_str), " ");
+        pcoord_format_degree_short(&pc, coord_str, sizeof(coord_str), " ");
         dbg(lvl_debug,"Setting destination to %s",coord_str);
-
         // start navigation asynchronous
         navit_set_destination(attr.u.navit, &pc, coord_str, 1);
     }
@@ -418,7 +414,11 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
         pc.x = c.x;
         pc.y = c.y;
         pc.pro = projection_mg;
-
+        char coord_str[32];
+        if (!name || *name == '\0') {
+            pcoord_format_degree_short(&pc, coord_str, sizeof(coord_str), " ");
+            name = coord_str;
+        }
         // start navigation asynchronous
         navit_set_destination(attr.u.navit, &pc, name, 1);
         break;
@@ -430,8 +430,8 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
 }
 
 
-JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getCoordForPoint( JNIEnv* env, jobject thiz,
-        jint id, int x, int y) {
+JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getCoordForPoint( JNIEnv* env,
+        jobject thiz, jint x, jint y, jboolean absolute_coord) {
 
     jstring return_string = NULL;
 
@@ -440,7 +440,7 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getCoordForP
 
     struct transformation *transform=navit_get_trans(attr.u.navit);
     struct point p;
-    struct coord c;
+    struct point c;
     struct pcoord pc;
 
     p.x = x;
@@ -453,9 +453,13 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getCoordForP
     pc.pro = transform_get_projection(transform);
 
     char coord_str[32];
-    pcoord_format_short(&pc, coord_str, sizeof(coord_str), " ");
+    if (absolute_coord) {
+        pcoord_format_absolute(&pc, coord_str, sizeof(coord_str), ",");
+    } else {
+        pcoord_format_degree_short(&pc, coord_str, sizeof(coord_str), " ");
+    }
 
-    dbg(lvl_debug,"Display point x=%d y=%d is \"%s\"",x,y,coord_str);
+    dbg(lvl_error,"Display point x=%d y=%d is \"%s\"",x,y,coord_str);
     return_string = (*env)->NewStringUTF(env,coord_str);
     return return_string;
 }
