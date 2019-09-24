@@ -426,6 +426,7 @@ JNIEXPORT jint JNICALL Java_org_navitproject_navit_NavitGraphics_callbackMessage
     default:
         dbg(lvl_error, "Unknown command: %d", channel);
     }
+
     return ret;
 }
 
@@ -461,6 +462,7 @@ JNIEXPORT jstring JNICALL Java_org_navitproject_navit_NavitGraphics_getCoordForP
 
     dbg(lvl_error,"Display point x=%d y=%d is \"%s\"",x,y,coord_str);
     return_string = (*env)->NewStringUTF(env,coord_str);
+
     return return_string;
 }
 
@@ -550,6 +552,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_navitproject_navit_NavitGraphics_getAllC
         (*env)->SetObjectArrayElement(env, all_countries, --country_count, countries->data);
         countries = g_list_delete_link( countries, countries);
     }
+
     return all_countries;
 }
 
@@ -743,6 +746,7 @@ static char *search_fix_spaces(const char *str) {
             len--;
         }
     } while (c);
+    
     return ret;
 }
 
