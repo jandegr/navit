@@ -244,7 +244,7 @@ int coord_parse(const char *coord_input, enum projection output_projection, stru
     }
     ret+=str-coord_input;
     dbg(lvl_info, "ret=%d delta=%d ret_str='%s'", ret, GPOINTER_TO_INT(str-coord_input), coord_input+ret);
-    out:
+out:
     g_free(proj);
     return ret;
 }
