@@ -361,3 +361,61 @@ gui_internal_keyboard_init_mode(char *lang)
 	g_free(lang);
 	return ret;
 }
+
+/**
+ * @brief Hides the platform's native on-screen keyboard or other input method
+ *
+ * This function is called as the {@code wfree} method of the placeholder widget for the platform's
+ * native on-screen keyboard.
+ *
+ * @param this The internal GUI instance
+ * @param w The placeholder widget
+ */
+void gui_internal_keyboard_hide_native(struct gui_priv *this_, struct widget *w) {
+
+    graphics_hide_native_keyboard(this_->gra);
+	g_free(w);
+}
+
+
+/**
+ * @brief Shows the platform's native on-screen keyboard or other input method
+ *
+ * The widget's {@code wfree} function, to be called when the widget is destroyed, will be used to hide
+ * the platform keyboard when it is no longer needed.
+ *
+ * @param this The internal GUI instance
+ * @param w The parent of the widget requiring text input
+ * @param mode The requested keyboard mode
+ * @param lang The language for text input, --NOT-- used to select a keyboard layout
+ *
+ * @return The placeholder widget for the on-screen keyboard, may be {@code NULL}
+ */
+struct widget * gui_internal_keyboard_show_native(struct gui_priv *this, struct widget *w, int mode, char *lang) {
+	struct widget *ret = NULL;
+	struct menu_data *md = gui_internal_menu_data(this);
+	int res;
+
+	res = graphics_show_native_keyboard(this->gra);
+
+	switch(res) {
+		case -1:
+		dbg(lvl_error, "graphics has no show_native_keyboard method, cannot display keyboard\n");
+			/* no break */
+		case 0:
+			return NULL;
+	}
+
+	ret = gui_internal_box_new(this, gravity_center|orientation_horizontal_vertical|flags_fill);
+	md->keyboard = ret;
+	md->keyboard_mode=mode;
+	ret->wfree = gui_internal_keyboard_hide_native;
+
+        ret->h = res;
+
+        ret->w = w->w;
+
+    gui_internal_widget_append(w, ret);
+	/* FIXME do we need to render anything? */
+	return ret;
+}

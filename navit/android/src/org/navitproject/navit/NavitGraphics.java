@@ -21,45 +21,39 @@ package org.navitproject.navit;
 
 import static org.navitproject.navit.NavitAppConfig.getTstring;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.RequiresApi;
-import android.support.v4.view.ViewConfigurationCompat;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Gravity;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup.LayoutParams;
 import android.view.WindowInsets;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 
 class NavitGraphics {
     private static final String            TAG = "NavitGraphics";
-    private static final long              TIME_FOR_LONG_PRESS = 300L;
     private final NavitGraphics            mParentGraphics;
     private final ArrayList<NavitGraphics> mOverlays = new ArrayList<>();
     private int                            mBitmapWidth;
@@ -68,48 +62,26 @@ class NavitGraphics {
     private int                            mPosY;
     private int                            mPosWraparound;
     private int                            mOverlayDisabled;
-    private int                            mBgColor;
     private float                          mTrackballX;
     private float                          mTrackballY;
-    private int                            mPaddingLeft;
-    private int                            mPaddingRight;
-    private int                            mPaddingTop;
-    private int                            mPaddingBottom;
+    private ImageButton                    mZoomInButton;
+    private ImageButton                    mZoomOutButton;
     private View                           mView;
     static final Handler                   sCallbackHandler = new CallBackHandler();
-    private SystemBarTintView              mLeftTintView;
-    private SystemBarTintView              mRightTintView;
-    private SystemBarTintView              mTopTintView;
-    private SystemBarTintView              mBottomTintView;
-    private FrameLayout                    mFrameLayout;
     private RelativeLayout                 mRelativeLayout;
     private NavitCamera                    mCamera;
     private Navit                          mActivity;
-    private static Boolean                 sInMap;
+    private static boolean                 sInMap;
 
-
-
-    void setBackgroundColor(int bgcolor) {
-        this.mBgColor = bgcolor;
-        if (mLeftTintView != null) {
-            mLeftTintView.setBackgroundColor(bgcolor);
-        }
-        if (mRightTintView != null) {
-            mRightTintView.setBackgroundColor(bgcolor);
-        }
-        if (mTopTintView != null) {
-            mTopTintView.setBackgroundColor(bgcolor);
-        }
-        if (mBottomTintView != null) {
-            mBottomTintView.setBackgroundColor(bgcolor);
-        }
-    }
 
     private void setCamera(int useCamera) {
+        Log.e (TAG,"setCamera = " + useCamera);
         if (useCamera != 0 && mCamera == null) {
+            Log.e (TAG,"setCamera = " + useCamera);
             // mActivity.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            addCamera();
-            addCameraView();
+            mCamera = new NavitCamera(mActivity);
+            mRelativeLayout.addView(mCamera);
+            mRelativeLayout.bringChildToFront(mView);
         }
     }
 
@@ -120,13 +92,12 @@ class NavitGraphics {
      * {@link #addCameraView()}.</p>
      */
     private void addCamera() {
-        mCamera = new NavitCamera(mActivity);
+
     }
 
     private void addCameraView() {
         if (mCamera != null) {
-            mRelativeLayout.addView(mCamera);
-            mRelativeLayout.bringChildToFront(mView);
+
         }
     }
 
@@ -155,47 +126,52 @@ class NavitGraphics {
         return ret;
     }
 
-    private class NavitView extends View implements Runnable, MenuItem.OnMenuItemClickListener {
-        int               mTouchMode = NONE;
+    private class NavitView extends View implements MenuItem.OnMenuItemClickListener,
+            GestureDetector.OnGestureListener{
+        private final GestureDetector mDetector;
         float             mOldDist = 0;
         static final int  NONE       = 0;
-        static final int  DRAG       = 1;
-        static final int  ZOOM       = 2;
-        static final int  PRESSED    = 3;
 
         PointF mPressedPosition = null;
 
         NavitView(Context context) {
             super(context);
+            mDetector = new GestureDetector(context,this);
         }
 
-        public void onWindowFocusChanged (boolean hasWindowFocus) {
+        public void onWindowFocusChanged(boolean hasWindowFocus) {
             Log.e(TAG,"onWindowFocusChanged = " + hasWindowFocus);
             // beter aanroepen in Navit of appconfig ?
-            if (Navit.sShowSoftKeyboardShowing && hasWindowFocus){
-                InputMethodManager imm =(InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (Navit.sShowSoftKeyboardShowing && hasWindowFocus) {
+                InputMethodManager imm  = (InputMethodManager) mActivity
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(this,InputMethodManager.SHOW_FORCED);
             }
-            if (Navit.sShowSoftKeyboardShowing && !hasWindowFocus){
-                InputMethodManager imm =(InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (Navit.sShowSoftKeyboardShowing && !hasWindowFocus) {
+                InputMethodManager imm  = (InputMethodManager) mActivity
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(this.getWindowToken(), 0);
             }
         }
 
-        @Override
-        @TargetApi(20)
+
+        @TargetApi(21)
         public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-            /*
-             * We're skipping the top inset here because it appears to have a bug on most Android versions tested,
-             * causing it to report between 24 and 64 dip more than what is actually occupied by the system UI.
-             * The top inset is retrieved in handleResize(), with logic depending on the platform version.
-             */
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT_WATCH) {
-                mPaddingLeft = insets.getSystemWindowInsetLeft();
-                mPaddingRight = insets.getSystemWindowInsetRight();
-                mPaddingBottom = insets.getSystemWindowInsetBottom();
-            }
-            return super.onApplyWindowInsets(insets);
+            Log.e(TAG,"onApplyWindowInsets");
+            //if (mTinting) {
+            //    mPaddingLeft = insets.getSystemWindowInsetLeft();
+            //    mPaddingRight = insets.getSystemWindowInsetRight();
+            //    mPaddingBottom = insets.getSystemWindowInsetBottom();
+            //    mPaddingTop = insets.getSystemWindowInsetTop();
+            //    Log.e(TAG, String.format("Padding -1a- left=%d top=%d right=%d bottom=%d",
+            //            mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
+            //    int width = this.getWidth();
+            //    int height = this.getHeight();
+            //    if (width > 0 && height > 0) {
+            //        sizeChangedCallback(mSizeChangedCallbackID, width, height);
+            //    }
+            //}
+            return insets;
         }
 
         @Override
@@ -205,7 +181,8 @@ class NavitGraphics {
             menu.setHeaderTitle(getTstring(R.string.position_popup_title) + "..");
             menu.add(1, 1, NONE, getTstring(R.string.position_popup_drive_here))
                     .setOnMenuItemClickListener(this);
-            menu.add(1, 2, NONE, getTstring(R.string.cancel)).setOnMenuItemClickListener(this);
+            menu.add(1, 2, NONE, getTstring(R.string.cancel))
+                    .setOnMenuItemClickListener(this);
         }
 
         @Override
@@ -241,79 +218,182 @@ class NavitGraphics {
             Log.v(TAG, "onSizeChanged density=" + Navit.sMetrics.density);
             Log.v(TAG, "onSizeChanged scaledDensity=" + Navit.sMetrics.scaledDensity);
             super.onSizeChanged(w, h, oldw, oldh);
-            handleResize(w, h);
+            mDrawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mDrawCanvas = new Canvas(mDrawBitmap);
+            mBitmapWidth = w;
+            mBitmapHeight = h;
+            sizeChangedCallback(mSizeChangedCallbackID, w, h);
         }
 
-        void do_longpress_action() {
-            Log.d(TAG, "do_longpress_action enter");
+        void doLongpressAction() {
+            Log.e(TAG, "doLongpressAction enter");
             mActivity.openContextMenu(this);
         }
-
-
-        @SuppressLint("ClickableViewAccessibility")
         @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            super.onTouchEvent(event);
-            int x = (int) event.getX();
-            int y = (int) event.getY();
-            int switchValue = (event.getActionMasked());
-            Log.d(TAG, "ACTION_ value =  " + switchValue);
-
-            if (switchValue == MotionEvent.ACTION_DOWN) {
-                mTouchMode = PRESSED;
-                Log.d(TAG, "ACTION_DOWN mode PRESSED");
-                if (!sInMap) {
-                    buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
-                }
-                mPressedPosition = new PointF(x, y);
-                postDelayed(this, TIME_FOR_LONG_PRESS);
-
-            } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
-                mOldDist = spacing(event);
-                if (mOldDist > 2f) {
-                    mTouchMode = ZOOM;
-                    Log.d(TAG, "ACTION_DOWN mode ZOOM started");
-                }
-            } else if (switchValue == MotionEvent.ACTION_UP) {
-                Log.d(TAG, "ACTION_UP");
-                switch (mTouchMode) {
-                    case DRAG:
-                        Log.d(TAG, "onTouch move");
-                        motionCallback(mMotionCallbackID, x, y);
-                        buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-                        break;
-                    case PRESSED:
-                        if (sInMap) {
-                            buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
-                        }
-                        buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-                        break;
-                    default:
-                        Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
-                }
-                mTouchMode = NONE;
-            } else if (switchValue == MotionEvent.ACTION_MOVE) {
-                switch (mTouchMode) {
-                    case DRAG:
-                        motionCallback(mMotionCallbackID, x, y);
-                        break;
-                    case ZOOM:
-                        doZoom(event);
-                        break;
-                    case PRESSED:
-                        Log.d(TAG, "Start drag mode");
-                        if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
-                            buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
-                            mTouchMode = DRAG;
-                        }
-                        break;
-                    default:
-                        Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
-                }
-            }
+        public boolean onDown(MotionEvent motionEvent) {
+            Log.e(TAG,"onDown");
+           // if (sInMap) {
+            buttonCallback(mButtonCallbackID, 1, 1,
+                    (int)mPressedPosition.x, (int)mPressedPosition.y); // down
+            //}
             return true;
         }
 
+        public boolean onContextClick (MotionEvent motionEvent) {
+            Log.e(TAG,"onContextClick: " + motionEvent.toString());
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent motionEvent) {
+            Log.e(TAG,"onShowPress: " + motionEvent.toString());
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent motionEvent) {
+            Log.e(TAG, "onSingleTapUp: " + motionEvent.toString());
+          //  if (sInMap) {
+
+                buttonCallback(mButtonCallbackID, 0, 1,
+                        (int)mPressedPosition.x, (int)mPressedPosition.y); // up
+          //  }
+            return true;
+        }
+
+        //@Override
+        public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
+            Log.e(TAG, "onSingleTapConfirmed: " + motionEvent.toString());
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX,
+                                float distanceY) {
+            Log.w(TAG, "onScroll: " + event1.toString() + event2.toString());
+            motionCallback(mMotionCallbackID, (int)event2.getX(), (int)event2.getY());
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent motionEvent) {
+            Log.e(TAG, "onLongPress: " + motionEvent.toString());
+            if (sInMap) {
+                doLongpressAction();
+            }
+        }
+
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY) {
+        //    Log.e(TAG, "onFling: " + event1.toString() + event2.toString());
+            Log.e(TAG, "onFling: " + velocityX + " " + velocityY);
+            return false;
+        //    FlingAnimation fling = new FlingAnimation(this, DynamicAnimation.SCROLL_X);
+        //    fling.setStartVelocity(-velocityX)
+        //            .setMinValue(0)
+        //            .setMaxValue(600) //maxscroll
+        //            .setFriction(1.1f)
+        //            .start();
+
+        //    Log.e(TAG,"scrolling ENDED");
+        //    return true;
+        }
+
+        public boolean performClick () {
+            super.performClick();
+            Log.e(TAG,"performClick");
+            return true; //??????????? of moet dat return super.... zijn ?
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+                mPressedPosition = new PointF(x, y);
+                Log.e(TAG,"ACTION_DOWN point " + mPressedPosition.toString());
+            //    performClick();
+            }
+            if (this.mDetector.onTouchEvent(event)){
+                return true;
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) { //afblokken als er een fling is en daarna dan afhandelen ?
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+            //    mPressedPosition = new PointF(x, y);
+                Log.e(TAG,"ACTION_UP point " + mPressedPosition.toString());
+                buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
+                //    performClick();
+            }
+
+          //  return  super.onTouchEvent(event); // if not processed, give super a chance
+            return true; // anders krijg je de rest niet meer
+        }
+
+
+
+            //  super.onTouchEvent(event); -----------------------!!!!!!
+        //    int x = (int) event.getX();
+        //    int y = (int) event.getY();
+        //    int switchValue = (event.getActionMasked());
+            //Log.e(TAG, "onTouchEvent value =  " + switchValue);
+
+         //   if (switchValue == MotionEvent.ACTION_DOWN) {
+         //       mTouchMode = PRESSED;
+         //       Log.d(TAG, "ACTION_DOWN mode PRESSED");
+         //       if (!sInMap) {
+         //           buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
+         //       }
+         //       mPressedPosition = new PointF(x, y);
+                //postDelayed(this, TIME_FOR_LONG_PRESS);
+
+         //   } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
+         //       mOldDist = spacing(event);
+         //       if (mOldDist > 2f) {
+         //           mTouchMode = ZOOM;
+         //           Log.d(TAG, "ACTION_DOWN mode ZOOM started");
+         //       }
+         //   } else if (switchValue == MotionEvent.ACTION_UP) {
+         //       Log.d(TAG, "ACTION_UP");
+         //       switch (mTouchMode) {
+         //           case DRAG:
+         //               Log.d(TAG, "onTouch move");
+         //               motionCallback(mMotionCallbackID, x, y);
+         //               buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
+         //               break;
+         //           case PRESSED:
+         //               if (sInMap) {
+         //                   buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
+         //               }
+         //               buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
+         //               break;
+         //           default:
+         //               Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
+         //       }
+         //       mTouchMode = NONE;
+         //   } else if (switchValue == MotionEvent.ACTION_MOVE) {
+         //       switch (mTouchMode) {
+         //           case DRAG:
+         //               motionCallback(mMotionCallbackID, x, y);
+         //               break;
+         //           case ZOOM:
+         //               doZoom(event);
+         //               break;
+         //           case PRESSED:
+         //               Log.d(TAG, "Start drag mode");
+         //               if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
+         //                   buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
+         //                   mTouchMode = DRAG;
+         //               }
+         //               break;
+         //           default:
+         //               Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
+         //       }
+         //   }
+         //   return true;
+        //}
+
+        // unused
         private void doZoom(MotionEvent event) {
             if (event.findPointerIndex(0) == -1 || event.findPointerIndex(1) == -1) {
                 Log.e(TAG,"missing pointer");
@@ -489,22 +569,6 @@ class NavitGraphics {
             }
             return true;
         }
-
-        public void run() {
-            if (sInMap && mTouchMode == PRESSED) {
-                do_longpress_action();
-                mTouchMode = NONE;
-            }
-        }
-    }
-
-    private class SystemBarTintView extends View {
-
-        public SystemBarTintView(Context context) {
-            super(context);
-            this.setBackgroundColor(mBgColor);
-        }
-
     }
 
     NavitGraphics(final Activity navit, NavitGraphics parent, int x, int y, int w, int h,
@@ -532,7 +596,6 @@ class NavitGraphics {
      * @param navit The main activity.
      */
     private void setmActivity(final Navit navit) {
-        navit.setGraphics(this);
         this.mActivity = navit;
         mView = new NavitView(mActivity);
         mView.setClickable(false);
@@ -541,32 +604,40 @@ class NavitGraphics {
         mView.setKeepScreenOn(true);
         mRelativeLayout = new RelativeLayout(mActivity);
         addCameraView();
+
+        RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(96,96);
+        lpLeft.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        mZoomOutButton = new ImageButton(mActivity);
+        mZoomOutButton.setLayoutParams(lpLeft);
+        mZoomOutButton.setBackgroundResource(R.drawable.zoom_out);
+        mZoomOutButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                callbackMessageChannel(2, "");
+            }
+        });
+
+        mZoomInButton = new ImageButton(mActivity);
+        RelativeLayout.LayoutParams lpRight = new RelativeLayout.LayoutParams(96,96);
+        lpRight.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        mZoomInButton.setLayoutParams(lpRight);
+        mZoomInButton.setBackgroundResource(R.drawable.zoom_in);
+        mZoomInButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                callbackMessageChannel(1, "");
+            }
+        });
+
         mRelativeLayout.addView(mView);
-
-
-        /* The navigational and status bar tinting code is meaningful only on API19+ */
-        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)) {
-            mFrameLayout = new FrameLayout(mActivity);
-            mFrameLayout.addView(mRelativeLayout);
-            mLeftTintView = new SystemBarTintView(mActivity);
-            mRightTintView = new SystemBarTintView(mActivity);
-            mTopTintView = new SystemBarTintView(mActivity);
-            mBottomTintView = new SystemBarTintView(mActivity);
-            mFrameLayout.addView(mLeftTintView);
-            mFrameLayout.addView(mRightTintView);
-            mFrameLayout.addView(mTopTintView);
-            mFrameLayout.addView(mBottomTintView);
-            mActivity.setContentView(mFrameLayout);
-        } else {
-            mActivity.setContentView(mRelativeLayout);
-        }
-
+        mRelativeLayout.addView(mZoomInButton);
+        mRelativeLayout.addView(mZoomOutButton);
+        mActivity.setContentView(mRelativeLayout);
         mView.requestFocus();
     }
 
     enum MsgType {
-        CLB_ZOOM_IN, CLB_ZOOM_OUT, CLB_REDRAW, CLB_MOVE, CLB_BUTTON_UP, CLB_BUTTON_DOWN, CLB_SET_DESTINATION,
-        CLB_SET_DISPLAY_DESTINATION, CLB_CALL_CMD, CLB_COUNTRY_CHOOSER, CLB_LOAD_MAP, CLB_UNLOAD_MAP, CLB_DELETE_MAP
+        CLB_ZOOM_IN, CLB_ZOOM_OUT, CLB_REDRAW, CLB_MOVE, CLB_BUTTON_UP, CLB_BUTTON_DOWN, CLB_SET_DESTINATION
+        , CLB_SET_DISPLAY_DESTINATION, CLB_CALL_CMD, CLB_COUNTRY_CHOOSER, CLB_LOAD_MAP, CLB_UNLOAD_MAP, CLB_DELETE_MAP
+        ,CLB_ABORT_NAVIGATION, CLB_BLOCK, CLB_UNBLOCK
     }
 
     private static final MsgType[] msg_values = MsgType.values();
@@ -630,8 +701,6 @@ class NavitGraphics {
 
     private native void sizeChangedCallback(long id, int x, int y);
 
-    private native void paddingChangedCallback(long id, int left, int top, int right, int bottom);
-
     private native void keypressCallback(long id, String s);
 
     private static native int callbackMessageChannel(int i, String s);
@@ -645,249 +714,21 @@ class NavitGraphics {
     private Canvas mDrawCanvas;
     private Bitmap mDrawBitmap;
     private long mSizeChangedCallbackID;
-    private long mPaddingChangedCallbackID;
     private long mButtonCallbackID;
     private long mMotionCallbackID;
     private long mKeypressCallbackID;
 
-    /**
-     * Adjust views used to tint navigation and status bars.
-     *
-     * <p>This method is called from handleResize.
-     *
-     * It (re-)evaluates if and where the navigation bar is going to be shown, and calculates the
-     * padding for objects which should not be obstructed.</p>
-     *
-     */
-    private void adjustSystemBarsTintingViews() {
-
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            return;
-        }
-
-        /* hide tint bars during update to prevent ugly effects */
-        mLeftTintView.setVisibility(View.GONE);
-        mRightTintView.setVisibility(View.GONE);
-        mTopTintView.setVisibility(View.GONE);
-        mBottomTintView.setVisibility(View.GONE);
-
-        mFrameLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                FrameLayout.LayoutParams leftLayoutParams = new FrameLayout.LayoutParams(mPaddingLeft,
-                        LayoutParams.MATCH_PARENT, Gravity.BOTTOM | Gravity.LEFT);
-                mLeftTintView.setLayoutParams(leftLayoutParams);
-
-                FrameLayout.LayoutParams rightLayoutParams = new FrameLayout.LayoutParams(mPaddingRight,
-                        LayoutParams.MATCH_PARENT, Gravity.BOTTOM | Gravity.RIGHT);
-                mRightTintView.setLayoutParams(rightLayoutParams);
-
-                FrameLayout.LayoutParams topLayoutParams = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                        mPaddingTop, Gravity.TOP);
-                /* Prevent horizontal and vertical tint views from overlapping */
-                topLayoutParams.setMargins(mPaddingLeft, 0, mPaddingRight, 0);
-                mTopTintView.setLayoutParams(topLayoutParams);
-
-                FrameLayout.LayoutParams bottomLayoutParams = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                        mPaddingBottom, Gravity.BOTTOM);
-                /* Prevent horizontal and vertical tint views from overlapping */
-                bottomLayoutParams.setMargins(mPaddingLeft, 0, mPaddingRight, 0);
-                mBottomTintView.setLayoutParams(bottomLayoutParams);
-
-                /* show tint bars again */
-                mLeftTintView.setVisibility(View.VISIBLE);
-                mRightTintView.setVisibility(View.VISIBLE);
-                mTopTintView.setVisibility(View.VISIBLE);
-                mBottomTintView.setVisibility(View.VISIBLE);
-            }
-        });
-
-        paddingChangedCallback(mPaddingChangedCallbackID, mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom);
-    }
-
-    /**
-     * Handles resize events.
-     *
-     * <p>This method is called whenever the main View is resized in any way. This is the case when its
-     * {@code onSizeChanged()} event handler fires or when toggling Fullscreen mode.</p>
-     */
-    void handleResize(int w, int h) {
-        if (this.mParentGraphics != null) {
-            this.mParentGraphics.handleResize(w, h);
-        } else {
-            Log.v(TAG, String.format("handleResize w=%d h=%d", w, h));
-
-            resizePadding();
-
-            Log.v(TAG, String.format("Padding left=%d top=%d right=%d bottom=%d",
-                    mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom));
-
-            adjustSystemBarsTintingViews();
-
-            mDrawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mDrawCanvas = new Canvas(mDrawBitmap);
-            mBitmapWidth = w;
-            mBitmapHeight = h;
-            sizeChangedCallback(mSizeChangedCallbackID, w, h);
-        }
-    }
-
-    private void resizePadding() {
-
-        /* API 18 and below does not support drawing under the system bars, padding is 0 all around */
-        mPaddingLeft = 0;
-        mPaddingRight = 0;
-        mPaddingTop = 0;
-        mPaddingBottom = 0;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            resizePaddingM();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            resizePaddingKitkatWatch();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            resizePaddingKitkat();
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void resizePaddingKitkat() {
-        /*
-         * API 19 does not support window insets at all, forcing us to do even more guessing than on API 20-22:
-         *
-         * All system bar sizes are platform defaults and do not change with rotation, but we have
-         * to figure out which ones apply.
-         *
-         * Status bar visibility is as on API 20-22.
-         *
-         * The navigation bar is shown on devices that report they have no physical menu button. This seems to
-         * work even on devices that allow disabling the physical buttons (and use the navigation bar, in which
-         * case they report no physical menu button is available; tested with a OnePlus One running CyanogenMod)
-         *
-         * If shown, the navigation bar may appear on the side or at the bottom. The logic to determine this is
-         * taken from AOSP RenderSessionImpl.findNavigationBar()
-         * platform/frameworks/base/tools/layoutlib/bridge/src/com/android/
-         * layoutlib/bridge/impl/RenderSessionImpl.java
-         */
-        Resources resources = mView.getResources();
-        int shid = resources.getIdentifier("statusBarHeight", "dimen", "android");
-        int adhid = resources.getIdentifier("actionBarDefaultHeight", "dimen", "android");
-        int nhid = resources.getIdentifier("navigationBarHeight", "dimen", "android");
-        int nhlid = resources.getIdentifier("navigationBarHeightLandscape", "dimen", "android");
-        int nwid = resources.getIdentifier("navigationBarWidth", "dimen", "android");
-        int statusBarHeight = (shid > 0) ? resources.getDimensionPixelSize(shid) : 0;
-        int actionBarDefaultHeight = (adhid > 0) ? resources.getDimensionPixelSize(adhid) : 0;
-        int navigationBarHeight = (nhid > 0) ? resources.getDimensionPixelSize(nhid) : 0;
-        int navigationBarHeightLandscape = (nhlid > 0) ? resources.getDimensionPixelSize(nhlid) : 0;
-        int navigationBarWidth = (nwid > 0) ? resources.getDimensionPixelSize(nwid) : 0;
-        Log.v(TAG, String.format(
-                "statusBarHeight=%d, actionBarDefaultHeight=%d, navigationBarHeight=%d, "
-                        + "navigationBarHeightLandscape=%d, navigationBarWidth=%d",
-                        statusBarHeight, actionBarDefaultHeight, navigationBarHeight,
-                        navigationBarHeightLandscape, navigationBarWidth));
-
-        if (mActivity == null) {
-            Log.w(TAG, "no main Activity, cannot update padding");
-        } else if (mFrameLayout != null) {
-            /* mFrameLayout is only created on platforms supporting navigation and status bar tinting */
-
-            Navit navit = mActivity;
-            boolean isStatusShowing = !navit.mIsFullscreen;
-            boolean isNavShowing = !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(navit));
-            Log.d(TAG, String.format("isStatusShowing=%b isNavShowing=%b", isStatusShowing, isNavShowing));
-
-            boolean isLandscape = (navit.getResources().getConfiguration().orientation
-                    == Configuration.ORIENTATION_LANDSCAPE);
-            boolean isNavAtBottom = (!isLandscape)
-                    || (navit.getResources().getConfiguration().smallestScreenWidthDp >= 600);
-            Log.d(TAG, String.format("isNavAtBottom=%b (Config.smallestScreenWidthDp=%d, isLandscape=%b)",
-                    isNavAtBottom, navit.getResources().getConfiguration().smallestScreenWidthDp, isLandscape));
-
-            mPaddingLeft = 0;
-            mPaddingTop = isStatusShowing ? statusBarHeight : 0;
-            mPaddingRight = (isNavShowing && !isNavAtBottom) ? navigationBarWidth : 0;
-            mPaddingBottom = (!(isNavShowing && isNavAtBottom)) ? 0 : (
-                    isLandscape ? navigationBarHeightLandscape : navigationBarHeight);
-        }
-    }
-
-    private void resizePaddingKitkatWatch() {
-        /*
-         * API 20-22 do not support root window insets, forcing us to make an educated guess about the
-         * navigation bar height:
-         *
-         * The size is a platform default and does not change with rotation, but we have to figure out if it
-         * applies, i.e. if the status bar is visible.
-         *
-         * The status bar is always visible unless we are in fullscreen mode. (Fortunately, none of the
-         * versions affected by this support split screen mode, which would have further complicated things.)
-         */
-        if (!mActivity.mIsFullscreen) {
-            Resources resources = mView.getResources();
-            int shid = resources.getIdentifier("status_bar_height", "dimen", "android");
-            mPaddingTop = (shid > 0) ? resources.getDimensionPixelSize(shid) : 0;
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void resizePaddingM() {
-        /*
-         * On API 23+ we can query window insets to determine the area which is obscured by the system bars.
-         * This appears to have a bug, though, causing an inset to be reported for the navigation bar even
-         * when it is not obstructing the window. Therefore, we are relying on the values previously obtained
-         * by NavitView#onApplyWindowInsets(), though this is affected by a different bug. Luckily, the two
-         * bugs appear to be complementary, allowing us to mix and match results.
-         */
-        if (mView == null) {
-            Log.w(TAG, "view is null, cannot update padding");
-        } else {
-            Log.d(TAG, String.format("view w=%d h=%d x=%.0f y=%.0f",
-                    mView.getWidth(), mView.getHeight(), mView.getX(), mView.getY()));
-            if (mView.getRootWindowInsets() == null) {
-                Log.w(TAG, "No root window insets, cannot update padding");
-            } else {
-                Log.d(TAG, String.format("RootWindowInsets left=%d right=%d top=%d bottom=%d",
-                        mView.getRootWindowInsets().getSystemWindowInsetLeft(),
-                        mView.getRootWindowInsets().getSystemWindowInsetRight(),
-                        mView.getRootWindowInsets().getSystemWindowInsetTop(),
-                        mView.getRootWindowInsets().getSystemWindowInsetBottom()));
-                mPaddingTop = mView.getRootWindowInsets().getSystemWindowInsetTop();
-                mPaddingBottom = mView.getRootWindowInsets().getSystemWindowInsetBottom();
-                mPaddingLeft = mView.getRootWindowInsets().getSystemWindowInsetLeft();
-                mPaddingRight = mView.getRootWindowInsets().getSystemWindowInsetRight();
-            }
-        }
-    }
 
     /**
      * Returns whether the device has a hardware menu button.
      *
-     * <p>Only Android versions starting with ICS (API version 14) support the API call to detect the presence of a
-     * Menu button. On earlier Android versions, the following assumptions will be made: On API levels up to 10,
-     * this method will always return {@code true}, as these Android versions relied on devices having a physical
-     * Menu button. On API levels 11 through 13 (Honeycomb releases), this method will always return
-     * {@code false}, as Honeycomb was a tablet-only release and did not require devices to have a Menu button.</p>
-     *
-     * <p>Note that this method is not aware of non-standard mechanisms on some customized builds of Android</p>
      */
     boolean hasMenuButton() {
-        if (Build.VERSION.SDK_INT <= 10) {
-            return true;
-        } else {
-            if (Build.VERSION.SDK_INT <= 13) {
-                return false;
-            } else {
-                return ViewConfiguration.get(mActivity.getApplication()).hasPermanentMenuKey();
-            }
-        }
+        return ViewConfiguration.get(mActivity.getApplication()).hasPermanentMenuKey();
     }
 
     void setSizeChangedCallback(long id) {
         mSizeChangedCallbackID = id;
-    }
-
-    void setPaddingChangedCallback(long id) {
-        mPaddingChangedCallbackID = id;
     }
 
     void setButtonCallback(long id) {
@@ -898,9 +739,6 @@ class NavitGraphics {
     void setMotionCallback(long id) {
         mMotionCallbackID = id;
         Log.v(TAG,"set Motioncallback");
-        if (mActivity != null) {
-            mActivity.setGraphics(this);
-        }
     }
 
     void setKeypressCallback(long id) {
@@ -1006,46 +844,74 @@ class NavitGraphics {
         mDrawCanvas.drawBitmap(bitmap, x, y, null);
     }
 
-    /* takes an image and draws it on the screen as a prerendered maptile.
+    /* takes an image and draws it on the screen as a prerendered maptile
      *
      *
      *
-     * @param paint     Paint object used to draw the image
-     * @param count     the number of points specified
-     * @param p0x and p0y   specifying the top left point
-     * @param p1x and p1y   specifying the top right point
-     * @param p2x and p2y   specifying the bottom left point, not yet used but kept
-     *                      for compatibility with the linux port
-     * @param bitmap    Bitmap object holding the image to draw
+     * @param imagepath		a string representing an absolute or relative path
+     * 		  				to the image file
+     * @param count			the number of points specified
+     * @param p0x and p0y 	specifying the top left point
+     * @param p1x and p1y 	specifying the top right point
+     * @param p2x and p2y 	specifying the bottom left point, not yet used but kept
+     * 						for compatibility with the linux port
      *
      * TODO make it work with 4 points specified to make it work for 3D mapview, so it can be used
-     *      for small but very detailed maps as well as for large maps with very little detail but large
-     *      coverage.
+     * 		for small but very detailed maps as well as for large maps with very little detail but large
+     * 		coverage.
      * TODO make it work with rectangular tiles as well ?
      */
-    protected void draw_image_warp(Paint paint, int count, int p0x, int p0y, int p1x, int p1y, int p2x, int p2y,
-            Bitmap bitmap) {
+    protected void draw_image_warp(String imagepath, int count, int p0x, int p0y, int p1x, int p1y, int p2x, int p2y)
+    {
+        //	if (!isAccelerated)
+        //	{
+        Log.e("NavitGraphics","path = "+imagepath);
+        Log.e("NavitGraphics","count = "+count);
 
         float width;
         float scale;
         float deltaY;
         float deltaX;
         float angle;
+        Bitmap bitmap = null;
+        FileInputStream infile;
         Matrix matrix;
 
-        if (count == 3) {
-            matrix = new Matrix();
-            deltaX = p1x - p0x;
-            deltaY = p1y - p0y;
-            width = (float) (Math.sqrt((deltaX * deltaX) + (deltaY * deltaY)));
-            angle = (float) (Math.atan2(deltaY, deltaX) * 180d / Math.PI);
-            scale = width / bitmap.getWidth();
-            matrix.preScale(scale, scale);
-            matrix.postTranslate(p0x, p0y);
-            matrix.postRotate(angle, p0x, p0y);
-            mDrawCanvas.drawBitmap(bitmap, matrix, paint);
+        if (count == 3)
+        {
+            if (!imagepath.startsWith("/"))
+                imagepath = Navit.sMapFilenamePath + imagepath;
+            Log.e("NavitGraphics","pathc3 = "+imagepath);
+            try
+            {
+                infile = new FileInputStream(imagepath);
+                bitmap = BitmapFactory.decodeStream(infile);
+                infile.close();
+            }
+            catch (IOException e)
+            {
+                Log.e("NavitGraphics","could not open "+imagepath);
+            }
+            if (bitmap != null)
+            {
+                matrix = new Matrix();
+                deltaX = p1x - p0x;
+                deltaY = p1y - p0y;
+                width = (float) (Math.sqrt((deltaX * deltaX) + (deltaY * deltaY)));
+                angle = (float) (Math.atan2(deltaY, deltaX) * 180d / Math.PI);
+                scale = width / bitmap.getWidth();
+                matrix.preScale(scale, scale);
+                matrix.postTranslate(p0x, p0y);
+                matrix.postRotate(angle, p0x, p0y);
+                mDrawCanvas.drawBitmap(bitmap, matrix, null);
+            }
         }
+        //	}
+        //	else
+        //		((NavitCanvas)draw_canvas).draw_image_warp(imagepath,count,p0x,p0y,p1x,p1y,p2x,p2y);
+
     }
+
 
     /* These constants must be synchronized with enum draw_mode_num in graphics.h. */
     private static final int DRAW_MODE_BEGIN = 0;
@@ -1056,6 +922,11 @@ class NavitGraphics {
     protected void draw_mode(int mode) {
         if (mode == DRAW_MODE_END) {
             if (mParentGraphics == null) {
+                if (mOverlayDisabled == 0) {
+                    this.setButtonState(true);
+                } else {
+                    this.setButtonState(false);
+                }
                 mView.invalidate();
             } else {
                 mParentGraphics.mView.invalidate(get_rect());
@@ -1064,7 +935,19 @@ class NavitGraphics {
         if (mode == DRAW_MODE_BEGIN_CLEAR || (mode == DRAW_MODE_BEGIN && mParentGraphics != null)) {
             mDrawBitmap.eraseColor(0);
         }
+    }
 
+    private void setButtonState(boolean b) {
+        this.mZoomInButton.setEnabled(b);
+        this.mZoomOutButton.setEnabled(b);
+        if (b) {
+            this.mZoomInButton.setVisibility(View.VISIBLE);
+            this.mZoomOutButton.setVisibility(View.VISIBLE);
+        } else {
+            this.mZoomInButton.setVisibility(View.INVISIBLE);
+            this.mZoomOutButton.setVisibility(View.INVISIBLE);
+        }
+        Log.d("Navitgraphics", "setbuttons " + b);
     }
 
     protected void draw_drag(int x, int y) {
@@ -1073,8 +956,7 @@ class NavitGraphics {
     }
 
     protected void overlay_disable(int disable) {
-        Log.v(TAG,"overlay_disable: " + disable + "Parent: " + (mParentGraphics != null));
-        // assume we are NOT in map view mode!
+        Log.v(TAG,"overlay_disable: " + disable + ", Parent: " + (mParentGraphics != null));
         if (mParentGraphics == null) {
             sInMap = (disable == 0);
         }

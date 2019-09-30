@@ -25,7 +25,6 @@ JNIEnv *jnienv_t;
 JNIEnv *jnienv;
 JNIEnv *jnienv2;
 jobject *android_activity;
-int android_version;
 JavaVM *cachedJVM = NULL;
 
 struct android_search_priv
@@ -102,34 +101,22 @@ android_find_static_method(jclass class, char *name, char *args, jmethodID *ret)
 
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_Navit_navitMain(JNIEnv *env,
-                                            jclass type,
-                                            jobject navit,
-                                            jstring lang,
-                                            jint version,
-                                            jstring displaydensity,
-                                            jstring path,
+Java_org_navitproject_navit_Navit_navitMain(JNIEnv *env, jobject thiz, jstring lang, jstring path,
                                             jstring mappath)
 {
     const char *langstr;
     const char *displaydensitystr;
     const char *map_filename_path;
-    android_version=version;
     jnienv_t=env;
-    android_activity = (*env)->NewGlobalRef(env, navit);
+    android_activity = (*env)->NewGlobalRef(env, thiz);
     langstr=(*env)->GetStringUTFChars(env, lang, NULL);
-    dbg(lvl_debug,"enter env=%p type=%p activity=%p lang=%s version=%d\n",env,type,android_activity,langstr,version);
+    dbg(lvl_debug,"enter env=%p activity=%p lang=%s\n",env,android_activity,langstr);
     setenv("LANG",langstr,1);
     (*env)->ReleaseStringUTFChars(env, lang, langstr);
 
-    displaydensitystr=(*env)->GetStringUTFChars(env, displaydensity, NULL);
-    dbg(lvl_debug,"*****displaydensity=%s\n",displaydensitystr);
-    setenv("ANDROID_DENSITY",displaydensitystr,1);
-    (*env)->ReleaseStringUTFChars(env, displaydensity, displaydensitystr);
-
     map_filename_path=(*env)->GetStringUTFChars(env, mappath, NULL);
     setenv("NAVIT_USER_DATADIR",map_filename_path,1);
-    (*env)->ReleaseStringUTFChars(env, displaydensity, map_filename_path);
+    (*env)->ReleaseStringUTFChars(env, mappath, map_filename_path);
 
     const char *strings=(*env)->GetStringUTFChars(env, path, NULL);
     main_real(1, &strings);
@@ -176,7 +163,7 @@ Java_org_navitproject_navit_NavitGraphics_keypressCallback( JNIEnv* env, jobject
     const char *s;
     dbg(lvl_debug,"enter %p %p\n",(struct callback *)(intptr_t)id,str);
     s=(*env)->GetStringUTFChars(env, str, NULL);
-    dbg(lvl_debug,"key=%s",s);
+    dbg(lvl_debug,"key = %s",s);
     if (id) {
         callback_call_1((struct callback *) (intptr_t)id, s);
     }
@@ -206,8 +193,7 @@ Java_org_navitproject_navit_NavitIdle_IdleCallback( JNIEnv* env, jobject thiz, j
     callback_call_0((struct callback *)(intptr_t)id);
 }
 
-JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitWatch_poll(JNIEnv *env,
-                                                jobject instance,
+JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitWatch_poll(JNIEnv *env, jobject instance,
                                                 jlong func,
                                                 jint fd,
                                                 jint cond)
@@ -218,7 +204,8 @@ JNIEXPORT void JNICALL Java_org_navitproject_navit_NavitWatch_poll(JNIEnv *env,
 }
 
 JNIEXPORT void JNICALL
-Java_org_navitproject_navit_NavitWatch_watchCallback(JNIEnv *env, jobject instance, jlong id) {
+Java_org_navitproject_navit_NavitWatch_watchCallback(JNIEnv *env, jobject instance, jlong id)
+{
 
   dbg(lvl_debug,"enter %p %p\n",instance, (void *)(intptr_t)id);
     callback_call_0((struct callback *)(intptr_t)id);
@@ -576,7 +563,7 @@ district_str(struct search_list_result *res, int level)
 }
 
 static char *
-town_str(struct search_list_result *res, int level) {
+town_str(struct search_list_result *res, int level){
     char *district = district_str(res, level % 10);
     char *postal = postal_str(res, level % 10);
     char *postal_sep = " ";

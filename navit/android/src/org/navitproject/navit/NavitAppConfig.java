@@ -3,46 +3,43 @@ package org.navitproject.navit;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.view.inputmethod.InputMethodManager;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.navitproject.navit.NavitAddressSearchActivity.NavitAddress;
 
 public class NavitAppConfig extends Application {
 
     public static final String       NAVIT_PREFS = "NavitPrefs";
     private static final int         MAX_LAST_ADDRESSES = 10;
-    private static Resources         sResources;
-    private List<NavitAddress>       mLastAddresses     = null;
+    static Resources                 sResources;
+    private List<NavitSearchAddress>       mLastAddresses     = null;
     private int                      mLastAddressField;
-    private SharedPreferences        mSettings;
+    static SharedPreferences sSettings;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mSettings = getSharedPreferences(NAVIT_PREFS, MODE_PRIVATE);
+        sSettings = getSharedPreferences(NAVIT_PREFS, MODE_PRIVATE);
         sResources = getResources();
     }
 
-    List<NavitAddress> getLastAddresses() {
+    List<NavitSearchAddress> getLastAddresses() {
         if (mLastAddresses == null) {
             mLastAddresses = new ArrayList<>();
-            int mLastAddressField = mSettings.getInt("LastAddress", -1);
+            int mLastAddressField = sSettings.getInt("LastAddress", -1);
             if (mLastAddressField >= 0) {
                 int index = mLastAddressField;
                 do {
-                    String addrStr = mSettings.getString("LastAddress_" + index, "");
+                    String addrStr = sSettings.getString("LastAddress_" + index, "");
 
-                    if (addrStr.length() > 0) {
-                        mLastAddresses.add(new NavitAddress(
-                                               1,
-                                               mSettings.getFloat("LastAddress_Lat_" + index, 0),
-                                               mSettings.getFloat("LastAddress_Lon_" + index, 0),
-                                               addrStr));
-                    }
+                 //   if (addrStr.length() > 0) {
+                 //       mLastAddresses.add(new NavitSearchAddress(
+                 //                              1,
+                 //                              sSettings.getFloat("LastAddress_Lat_" + index, 0),
+                 //                              sSettings.getFloat("LastAddress_Lon_" + index, 0),
+                 //                              addrStr));
+                 //   }
 
                     if (--index < 0) {
                         index = MAX_LAST_ADDRESSES - 1;
@@ -54,7 +51,7 @@ public class NavitAppConfig extends Application {
         return mLastAddresses;
     }
 
-    void addLastAddress(NavitAddress newAddress) {
+    void addLastAddress(NavitSearchAddress newAddress) {
         getLastAddresses();
 
         mLastAddresses.add(newAddress);
@@ -67,7 +64,7 @@ public class NavitAppConfig extends Application {
             mLastAddressField = 0;
         }
 
-        SharedPreferences.Editor editSettings = mSettings.edit();
+        SharedPreferences.Editor editSettings = sSettings.edit();
 
         editSettings.putInt("LastAddress", mLastAddressField);
         editSettings.putString("LastAddress_" + mLastAddressField, newAddress.mAddr);
@@ -89,6 +86,17 @@ public class NavitAppConfig extends Application {
         return callbackLocalizedString(sResources.getString(riD));
     }
 
+    /**
+     * Translates a string
+     * DEPECRATED !!!
+     *
+     * @param string to translate
+     * @return translated string
+     */
+    static String getTstring(String string) {
+
+        return callbackLocalizedString(string);
+    }
     static native String callbackLocalizedString(String s);
 
     /*

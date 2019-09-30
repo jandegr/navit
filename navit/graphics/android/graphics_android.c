@@ -33,6 +33,10 @@
 
 int dummy;
 
+static jclass NavitClass;
+static jmethodID Navit_disableSuspend, Navit_exit, Navit_fullscreen, Navit_runOptionsItem,
+        Navit_showNativeKeyboard, Navit_hideNativeKeyboard;
+
 struct graphics_priv {
 	jclass NavitGraphicsClass;
 	jmethodID NavitGraphics_draw_polyline, NavitGraphics_draw_polygon, NavitGraphics_draw_rectangle, 
@@ -485,6 +489,39 @@ set_attr(struct graphics_priv *gra, struct attr *attr)
 	}
 }
 
+/**
+ * @brief Displays the native input method.
+ *
+ * This method decides whether a native on-screen input method, such as a virtual keyboard, needs to be
+ * displayed. A typical case in which there is no need for an on-screen input method is if a hardware
+ * keyboard is present.
+ *
+ * @return True if the input method is displayed, false if not.
+ */
+int show_native_keyboard () {
+    // TODO populate kbd with values
+    if (Navit_showNativeKeyboard == NULL) {
+        dbg(lvl_error, "method Navit.showNativeKeyboard() not found\n");
+        return 0;
+    }
+    return (*jnienv)->CallIntMethod(jnienv, android_activity, Navit_showNativeKeyboard);
+}
+
+
+/**
+ * @brief Hides the native input method and frees associated private data.
+ *
+ * {@link show_native_keyboard(struct graphics_keyboard *)}. The {@code gra_priv} member of the struct
+ * will be freed by this function.
+ */
+void hide_native_keyboard () {
+    if (Navit_hideNativeKeyboard == NULL) {
+        dbg(lvl_error, "method Navit.hideNativeKeyboard() not found\n");
+        return;
+    }
+    (*jnienv)->CallVoidMethod(jnienv, android_activity, Navit_hideNativeKeyboard);
+}
+
 static struct graphics_methods graphics_methods = {
 	graphics_destroy,
 	draw_mode,
@@ -507,6 +544,8 @@ static struct graphics_methods graphics_methods = {
 	overlay_disable,
 	overlay_resize,
 	set_attr,
+    show_native_keyboard,
+    hide_native_keyboard,
 };
 
 static void
@@ -571,7 +610,8 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
                       int w, int h, int alpha, int wraparound, int use_camera)
 {
 	struct callback *cb;
-	jmethodID cid, Context_getPackageName;
+	jmethodID cid;
+	jmethodID Context_getPackageName;
 
 	dbg(lvl_debug,"at 2 jnienv=%p\n",jnienv);
 	if (!find_class_global("android/graphics/Paint", &ret->PaintClass))
@@ -621,7 +661,7 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 	if (!find_class_global("org/navitproject/navit/NavitGraphics", &ret->NavitGraphicsClass))
 		return 0;
 	dbg(lvl_debug,"at 3\n");
-	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "<init>", "(Landroid/app/Activity;Lorg/navitproject/navit/NavitGraphics;IIIIIII)V");
+	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "<init>", "(Landroid/app/Activity;Lorg/navitproject/navit/NavitGraphics;IIIIII)V");
 	if (cid == NULL) {
 		dbg(lvl_error,"no method found\n");
 		return 0; /* exception thrown */
@@ -643,7 +683,6 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 	if (ret->Paint)
 		ret->Paint = (*jnienv)->NewGlobalRef(jnienv, ret->Paint);
 
-	// J denotes long where I denotes int
 	cid = (*jnienv)->GetMethodID(jnienv, ret->NavitGraphicsClass, "setSizeChangedCallback", "(J)V");
 	if (cid == NULL) {
 		dbg(lvl_error,"no SetResizeCallback method found\n");
@@ -698,7 +737,7 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 		return 0;
 	if (!find_method(ret->NavitGraphicsClass, "overlay_disable", "(I)V", &ret->NavitGraphics_overlay_disable))
 		return 0;
-	if (!find_method(ret->NavitGraphicsClass, "overlay_resize", "(IIIIII)V", &ret->NavitGraphics_overlay_resize))
+	if (!find_method(ret->NavitGraphicsClass, "overlay_resize", "(IIIII)V", &ret->NavitGraphics_overlay_resize))
 		return 0;
     if (!find_method(ret->NavitGraphicsClass, "setCamera", "(I)V", &ret->NavitGraphics_setCamera))
         return 0;
@@ -708,8 +747,7 @@ graphics_android_init(struct graphics_priv *ret, struct graphics_priv *parent, s
 	return 1;
 }
 
-static jclass NavitClass;
-static jmethodID Navit_disableSuspend, Navit_exit, Navit_fullscreen, Navit_runOptionsItem;
+
 
 static int
 graphics_android_fullscreen(struct window *win, int on)
@@ -728,23 +766,9 @@ graphics_android_disable_suspend(struct window *win)
 static void
 graphics_android_cmd_runMenuItem(struct graphics_priv *this, char *function, struct attr **in, struct attr ***out, int *valid)
 {
-	int ncmd=0;
-       	dbg(0,"Running %s\n",function);
-	if(!strcmp(function,"map_download_dialog")) {
-		ncmd=3;
-	} else if(!strcmp(function,"backup_restore_dialog")) {
-		ncmd=7;
-	} else if(!strcmp(function,"set_map_location")) {
-		ncmd=10;
-	}
-	(*jnienv)->CallVoidMethod(jnienv, android_activity, Navit_runOptionsItem, ncmd);
+	// dummy
 }
 
-static struct command_table commands[] = {
-	{"map_download_dialog",command_cast(graphics_android_cmd_runMenuItem)},
-	{"set_map_location",command_cast(graphics_android_cmd_runMenuItem)},
-	{"backup_restore_dialog",command_cast(graphics_android_cmd_runMenuItem)},
-};
 
 static struct graphics_priv *
 graphics_android_new(struct navit *nav, struct graphics_methods *meth, struct attr **attrs, struct callback_list *cbl)
@@ -752,8 +776,9 @@ graphics_android_new(struct navit *nav, struct graphics_methods *meth, struct at
 	struct graphics_priv *ret;
 	struct attr *attr;
     int use_camera=0;
-	if (!event_request_system("android","graphics_android"))
-		return NULL;
+	if (!event_request_system("android","graphics_android")) {
+        return NULL;
+    }
 	ret=g_new0(struct graphics_priv, 1);
 
 	ret->cbl=cbl;
@@ -762,10 +787,7 @@ graphics_android_new(struct navit *nav, struct graphics_methods *meth, struct at
 	ret->win.fullscreen=graphics_android_fullscreen;
 	ret->win.disable_suspend=graphics_android_disable_suspend;
     if ((attr=attr_search(attrs, NULL, attr_use_camera))) {
-        use_camera=attr->u.num;
-    }
-    if ((attr=attr_search(attrs, NULL, attr_callback_list))) {
-		command_add_table(attr->u.callback_list, commands, sizeof(commands)/sizeof(struct command_table), ret);
+        use_camera = (int)attr->u.num;
     }
 	image_cache_hash = g_hash_table_new(g_str_hash, g_str_equal);
 	if (graphics_android_init(ret, NULL, NULL, 0, 0, 0, 0, use_camera)) {
@@ -985,20 +1007,19 @@ event_android_new(struct event_methods *meth)
 	Navit_disableSuspend = (*jnienv)->GetMethodID(jnienv, NavitClass, "disableSuspend", "()V");
 	if (Navit_disableSuspend == NULL) 
 		return NULL;
-	Navit_exit = (*jnienv)->GetMethodID(jnienv, NavitClass, "exit", "()V");
+	Navit_exit = (*jnienv)->GetMethodID(jnienv, NavitClass, "onDestroy", "()V");
 	if (Navit_exit == NULL) 
 		return NULL;
 	Navit_fullscreen = (*jnienv)->GetMethodID(jnienv, NavitClass, "fullscreen", "(I)V"); 
 	if (Navit_fullscreen == NULL) 
-		return NULL; 
-	Navit_runOptionsItem = (*jnienv)->GetMethodID(jnienv, NavitClass, "runOptionsItem", "(I)V");
-	if (Navit_runOptionsItem == NULL) 
-		return NULL; 
-
+		return NULL;
+    Navit_showNativeKeyboard = (*jnienv)->GetMethodID(jnienv, NavitClass, "showNativeKeyboard", "()I");
+    Navit_hideNativeKeyboard = (*jnienv)->GetMethodID(jnienv, NavitClass, "hideNativeKeyboard", "()V");
 	dbg(lvl_debug,"ok\n");
         *meth=event_android_methods;
         return NULL;
 }
+
 
 
 void

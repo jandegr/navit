@@ -42,7 +42,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
         holder = getHolder();
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        Log.v(TAG,"Creator");
+        Log.e(TAG,"Creator");
     }
 
 
@@ -52,7 +52,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
      * <p>acquire the camera and tell it where to draw.</p>
      */
     public void surfaceCreated(SurfaceHolder holder) {
-        if(mCamera != null) {
+        //if (mCamera != null) {
             try {
                 mCamera = Camera.open();
                 mCamera.setPreviewDisplay(holder);
@@ -61,10 +61,10 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
                 mCamera = null;
                 Log.e(TAG, "IOException");
             }
-            Log.i(TAG, "surfaceCreated");
-        } else {
-            Log.e(TAG, "null camera");
-        }
+            Log.e(TAG, "surfaceCreated");
+        //} else {
+        //    Log.e(TAG, "surfaceCreated null camera");
+        //}
     }
 
 
@@ -74,6 +74,11 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
      * <p>stop the preview and release the camera.</p>
      */
     public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.e(TAG,"surfaceDestroyed ");
+        if (mCamera == null) {
+            Log.e(TAG,"surfaceDestroyed null Camera");
+            return;
+        }
         mCamera.stopPreview();
         mCamera = null;
         Log.e(TAG,"surfaceDestroyed");
@@ -87,6 +92,10 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         Log.e(TAG,"surfaceChanged " + w + "x " + h);
+        if (mCamera == null) {
+            Log.e(TAG,"surfaceChanged null Camera");
+            return;
+        }
         mCamera.stopPreview();
         Camera.Parameters parameters = mCamera.getParameters();
         parameters.setPreviewSize(w, h);

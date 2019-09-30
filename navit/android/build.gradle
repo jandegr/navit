@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "org.navitproject.navit"
-        minSdkVersion 14
-        targetSdkVersion 28
+        minSdkVersion 16 // jelly bean (android 4.1)
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -17,6 +17,7 @@ android {
         externalNativeBuild {
             cmake {
                 arguments '-DUSE_PLUGINS=n', '-DBUILD_MAPTOOL=n', '-DXSL_PROCESSING=n', '-DSAMPLE_MAP=n', '-DENABLE_ROLL=y'
+                "Dplugin/pedestrian=y" //werkt op linux maar niet hier in androidstudio !!!
             }
         }
     }
@@ -108,4 +109,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 //    implementation 'ch.acra:acra:4.9.2'
     implementation 'com.android.support:support-v4:28.0.0'
+//    implementation 'com.android.support:support-dynamic-animation:28.0.0'
+
 }

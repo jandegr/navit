@@ -20,6 +20,8 @@
 #ifndef NAVIT_POINT_H
 #define NAVIT_POINT_H
 
+/* identical to coord, but used as a point on the screen */
+
 struct point {
 	int x;
 	int y;

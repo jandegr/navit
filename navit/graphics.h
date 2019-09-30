@@ -85,6 +85,8 @@ struct graphics_methods {
     void (*overlay_disable)(struct graphics_priv *gr, int disable);
     void (*overlay_resize)(struct graphics_priv *gr, struct point *p, int w, int h, int alpha, int wraparound);
     int (*set_attr)(struct graphics_priv *gr, struct attr *attr);
+    int (*show_native_keyboard)();
+    void (*hide_native_keyboard)();
 };
 
 
@@ -209,6 +211,8 @@ int graphics_displayitem_within_dist(struct displaylist *displaylist, struct dis
 void graphics_add_selection(struct graphics *gra, struct item *item, enum item_type type, struct displaylist *dl);
 void graphics_remove_selection(struct graphics *gra, struct item *item, enum item_type type, struct displaylist *dl);
 void graphics_clear_selection(struct graphics *gra, struct displaylist *dl);
+int graphics_show_native_keyboard (struct graphics *this_);
+int graphics_hide_native_keyboard (struct graphics *this_);
 /* end of prototypes */
 #ifdef __cplusplus
 }

@@ -46,8 +46,8 @@ class NavitSensors implements SensorEventListener {
     }
 
     public void onSensorChanged(SensorEvent sev) {
-         Log.v("NavitSensor","Type:" + sev.sensor.getType() + " X:" + sev.values[0] + " Y:"+sev.values[1]+" Z:"
-         +sev.values[2]);
+        Log.v("NavitSensor","Type:" + sev.sensor.getType() + " X:" + sev.values[0] + " Y:"
+                + sev.values[1] + " Z:" + sev.values[2]);
         sensorCallback(mCallbackid, sev.sensor.getType(), sev.values[0], sev.values[1], sev.values[2]);
     }
 }

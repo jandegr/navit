@@ -33,8 +33,4 @@ public class NavitSearchAddress {
         }
         return (this.mAddr + " " + this.mAddrExtras);
     }
-
-
-
-
 }
