@@ -39,10 +39,10 @@ android {
             resources.srcDirs = ["src"]
             renderscript.srcDirs = ["src"]
             res.srcDirs = ["res"]
-	    // let gradle pack the shared libraries into the apk
-	    // such as glib in case that is provided instead of
-	    // built from support, tested for arm64 single flavor buidls only
-	    jniLibs.srcDirs = ['/opt/android/sdk/ndk-bundle/sysroot/lib']
+          //let gradle pack the shared libraries into the apk
+          //such as glib in case that is provided instead of
+          //built from support, tested for arm64 single flavor buidls only
+            jniLibs.srcDirs = ['/opt/android/sdk/ndk-bundle/sysroot/lib']
         }
     }
     externalNativeBuild {
@@ -53,22 +53,22 @@ android {
     
      task checkstyleMain(type: Checkstyle){
         source 'src'
-	include '**/*.java'
+    include '**/*.java'
         configFile = rootProject.file('navit/android/google_checks.xml')
-	ignoreFailures = true
+    ignoreFailures = true
         showViolations = true
-	// empty classpath
+    // empty classpath
        classpath = files()
         reports {
-	     include ('**/*.java')
-	     xml.enabled = true
-	     html.enabled = true
-	     xml {
-	         destination file("checkstyle/checkstyleMain.xml")
-	     }
-	     html {
-	         destination file("checkstyle/checkstyleMain.html")
-	     }
+        include ('**/*.java')
+        xml.enabled = true
+        html.enabled = true
+        xml {
+             destination file("checkstyle/checkstyleMain.xml")
+        }
+         html {
+             destination file("checkstyle/checkstyleMain.html")
+         }
          }
      }
      checkstyle {
@@ -93,7 +93,7 @@ android {
             title = rootProject.name
             options.memberLevel = JavadocMemberLevel.PACKAGE
             verbose = true
-	    
+
             // you will probably get errors from using the @annotations and 
             // the support library, so just turn off failing for errors
             failOnError false    
