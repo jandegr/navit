@@ -1008,9 +1008,7 @@ struct tilt_data {
     char buffer[32];
 };
 
-void
-pedestrian_write_tilt(int fd, int axis)
-{
+void pedestrian_write_tilt(int fd, int axis) {
     char *buffer="01";
     int ret;
 
@@ -1021,9 +1019,7 @@ pedestrian_write_tilt(int fd, int axis)
 }
 
 
-void
-pedestrian_read_tilt(int fd, struct navit *nav, struct tilt_data *data)
-{
+void pedestrian_read_tilt(int fd, struct navit *nav, struct tilt_data *data) {
     int val,ret,maxlen=3;
     ret=read(fd, data->buffer+data->len, maxlen-data->len);
     if (ret > 0) {
@@ -1051,15 +1047,11 @@ pedestrian_read_tilt(int fd, struct navit *nav, struct tilt_data *data)
     }
 }
 
-void
-pedestrian_write_tilt_timer(int fd, struct tilt_data *data)
-{
+void pedestrian_write_tilt_timer(int fd, struct tilt_data *data) {
     pedestrian_write_tilt(fd, data->axis);
 }
 
-void
-pedestrian_setup_tilt(struct navit *nav)
-{
+void pedestrian_setup_tilt(struct navit *nav) {
     int fd,on=1;
     struct termios t;
     struct callback *cb,*cbt;
@@ -1245,10 +1237,9 @@ static void pedestrian_navit_init(struct navit *nav) {
     if (navit_get_attr(nav, attr_graphics, &graphics, NULL)) {
         struct attr attr;
         struct callback *cb = callback_new_attr_1(callback_cast(pedestrian_graphics_resize),
-                                                  attr_resize, graphics.u.graphics);
+                              attr_resize, graphics.u.graphics);
         graphics_add_callback(graphics.u.graphics, cb);
-        cb = callback_new_attr_1(callback_cast(pedestrian_graphics_postdraw), attr_postdraw,
-                                 graphics.u.graphics);
+        cb = callback_new_attr_1(callback_cast(pedestrian_graphics_postdraw), attr_postdraw, graphics.u.graphics);
         graphics_add_callback(graphics.u.graphics, cb);
         attr.type = attr_use_camera;
         attr.u.num = 1;
