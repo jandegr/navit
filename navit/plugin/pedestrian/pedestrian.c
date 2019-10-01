@@ -231,7 +231,7 @@ static void osd_marker_init(struct marker *this, struct navit *nav) {
     struct attr *color = attr_new_from_text("color", "#ff0000");
 
     cursor = (struct attr) {
-       attr_cursor, {(void *) cursor_new(NULL, (struct attr *[]) {
+        attr_cursor, {(void *) cursor_new(NULL, (struct attr *[]) {
             &(struct attr) {
                 attr_w, {(void *) 26}
             }, &(struct attr) {
@@ -258,20 +258,44 @@ static void osd_marker_init(struct marker *this, struct navit *nav) {
                     }
     };
     itemgra_add_attr(itemgra.u.itemgra, &polygon);
-    polygoncoord1 = (struct attr) {attr_coord, {(void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
-        &(struct attr) {attr_x, {(void *) -7}}, &(struct attr) {attr_y, {(void *) -10}}, NULL})}};
+    polygoncoord1 = (struct attr) {
+        attr_coord, {(void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
+            &(struct attr) {
+                attr_x, {(void *) -7}
+            }, &(struct attr) {
+                attr_y, {(void *) -10}
+            }, NULL
+        })
+                    }
+    };
     element_add_attr(polygon.u.element, &polygoncoord1);
-    polygoncoord2 = (struct attr) {attr_coord,
-                                   {(void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
-                                           &(struct attr) {attr_x, {(void *) 0}},
-                                           &(struct attr) {attr_y, {(void *) 12}},
-                                           NULL})}};
+    polygoncoord2 = (struct attr) {
+        attr_coord, {
+            (void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
+                &(struct attr) {
+                    attr_x, {(void *) 0}
+                },
+                &(struct attr) {
+                    attr_y, {(void *) 12}
+                },
+                NULL
+            })
+        }
+    };
     element_add_attr(polygon.u.element, &polygoncoord2);
-    polygoncoord3 = (struct attr) {attr_coord,
-                                   {(void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
-                                           &(struct attr) {attr_x, {(void *) 7}},
-                                           &(struct attr) {attr_y, {(void *) -10}},
-                                           NULL})}};
+    polygoncoord3 = (struct attr) {
+        attr_coord, {
+            (void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
+                &(struct attr) {
+                    attr_x, {(void *) 7}
+                },
+                &(struct attr) {
+                    attr_y, {(void *) -10}
+                },
+                NULL
+            })
+        }
+    };
     element_add_attr(polygon.u.element, &polygoncoord3);
     attr_free(color);
     this->cursor = cursor.u.cursor;
