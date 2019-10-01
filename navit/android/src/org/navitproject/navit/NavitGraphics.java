@@ -159,7 +159,7 @@ class NavitGraphics {
             sInMap = true;
         }
 
-        boolean isDrag(){
+        boolean isDrag() {
             return mTouchMode == DRAG;
         }
 

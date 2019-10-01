@@ -71,7 +71,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
      * <p>stop the preview and release the camera.</p>
      */
     public void surfaceDestroyed(SurfaceHolder holder) {
-        if(mCamera != null) {
+        if (mCamera != null) {
             mCamera.stopPreview();
             mCamera = null;
             Log.e(TAG, "surfaceDestroyed");
@@ -86,7 +86,7 @@ class NavitCamera extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         Log.e(TAG,"surfaceChanged " + w + "x " + h);
-        if(mCamera != null) {
+        if (mCamera != null) {
             mCamera.stopPreview();
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setPreviewSize(w, h);
