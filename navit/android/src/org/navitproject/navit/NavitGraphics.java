@@ -551,7 +551,6 @@ class NavitGraphics {
             }
             setmActivity((Navit)navit);
         } else {
-            mOverlays = null;
             mDrawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             mBitmapWidth = w;
             mBitmapHeight = h;
