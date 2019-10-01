@@ -467,11 +467,11 @@ static int intersect(struct coord *p1, struct coord *p2, struct coord *p3, struc
 }
 
 /* return
-	0=Not clipped
-	1=Start clipped
-	2=End clipped
-	3=Both clipped
-	4=Invisible
+    0=Not clipped
+    1=Start clipped
+    2=End clipped
+    3=Both clipped
+    4=Invisible
 */
 
 /* #define DEBUG_VISIBLE */
@@ -723,38 +723,38 @@ static int map_route_occluded_coord_get(void *priv_data, struct coord *c, int co
 
 #if 0
             case 2:
-                    dbg(lvl_debug,"visible up to 0x%x,0x%x",l1.x,l1.y);
-                    if (mr->first) {
-                        mr->first=0;
-                        c[ret++]=mr->c_out;
-                        dbg(lvl_debug,"out 0x%x,0x%x", mr->c_out.x, mr->c_out.y);
-                    }
-                    c[ret++]=mr->c_out=l1;
-                    dbg(lvl_debug,"out 0x%x,0x%x", l1.x, l1.y);
-                    mr->last=1;
-                    mr->route_item_done=1;
-                    break;
-                case 1:
-                case 3:
-                case 4:
-                    dbg(lvl_debug,"invisible");
-                    mr->c_out=l1;
-                    mr->idx++;
-                    mr->last=1;
-                    mr->route_item_done=1;
-                    break;
+                dbg(lvl_debug,"visible up to 0x%x,0x%x",l1.x,l1.y);
+                if (mr->first) {
+                    mr->first=0;
+                    c[ret++]=mr->c_out;
+                    dbg(lvl_debug,"out 0x%x,0x%x", mr->c_out.x, mr->c_out.y);
                 }
-                if (!vis)
-                    break;
-#endif
-            default:
+                c[ret++]=mr->c_out=l1;
+                dbg(lvl_debug,"out 0x%x,0x%x", l1.x, l1.y);
+                mr->last=1;
+                mr->route_item_done=1;
                 break;
-        }
-    }
-#ifdef DEBUG_COORD_GET
-    dbg(lvl_debug, "ret=%d last=%d", ret, mr->last);
+            case 1:
+            case 3:
+            case 4:
+                dbg(lvl_debug,"invisible");
+                mr->c_out=l1;
+                mr->idx++;
+                mr->last=1;
+                mr->route_item_done=1;
+                break;
+            }
+            if (!vis)
+                break;
 #endif
-    return ret;
+    default:
+        break;
+    }
+}
+#ifdef DEBUG_COORD_GET
+dbg(lvl_debug, "ret=%d last=%d", ret, mr->last);
+#endif
+return ret;
 }
 
 static struct item_methods methods_route_occluded_item = {
@@ -867,8 +867,7 @@ static struct item *map_route_occluded_get_item(struct map_rect_priv *mr) {
     return &mr->item;
 }
 
-static struct item *
-map_route_occluded_get_item_byid(struct map_rect_priv *mr, int id_hi, int id_lo) {
+static struct item * map_route_occluded_get_item_byid(struct map_rect_priv *mr, int id_hi, int id_lo) {
     struct item *ret = NULL;
     while (id_lo-- > 0) {
         ret = map_route_occluded_get_item(mr);
@@ -1170,14 +1169,14 @@ static void android_sensors(struct navit *nav, int sensor, float *x, float *y, f
 static void pedestrian_log(char **logstr) {
 #ifdef HAVE_API_ANDROID
     char *tag = g_strdup_printf(
-            "\t\t<navit:compass:x>%f</navit:compass:x>\n"
-            "\t\t<navit:compass:y>%f</navit:compass:y>\n"
-            "\t\t<navit:compass:z>%f</navit:compass:z>\n"
-            "\t\t<navit:accel:x>%f</navit:accel:x>\n"
-            "\t\t<navit:accel:y>%f</navit:accel:y>\n"
-            "\t\t<navit:accel:z>%f</navit:accel:z>\n",
-            sensors[0][0], sensors[0][1], sensors[0][2],
-            sensors[1][0], sensors[1][1], sensors[1][2]);
+                    "\t\t<navit:compass:x>%f</navit:compass:x>\n"
+                    "\t\t<navit:compass:y>%f</navit:compass:y>\n"
+                    "\t\t<navit:compass:z>%f</navit:compass:z>\n"
+                    "\t\t<navit:accel:x>%f</navit:accel:x>\n"
+                    "\t\t<navit:accel:y>%f</navit:accel:y>\n"
+                    "\t\t<navit:accel:z>%f</navit:accel:z>\n",
+                    sensors[0][0], sensors[0][1], sensors[0][2],
+                    sensors[1][0], sensors[1][1], sensors[1][2]);
     vehicle_log_gpx_add_tag(tag, logstr);
 #endif
 }
@@ -1271,9 +1270,17 @@ static void pedestrian_navit_init(struct navit *nav) {
         return;
     map.type = attr_map;
     map.u.map = map_new(NULL, (struct attr *[]) {
-        &(struct attr) {attr_type, {"route_occluded"}}, &(struct attr) {attr_data, {""}},
-                &(struct attr) {attr_description, {"Occluded Route"}},
-                &(struct attr) {attr_navit, {(void *) nav}}, NULL});
+        &(struct attr) {
+            attr_type, {"route_occluded"}
+        }, &(struct attr) {
+                attr_data, {""}
+        },
+        &(struct attr) {
+            attr_description, {"Occluded Route"}
+        },
+        &(struct attr) {attr_navit, {(void *) nav}
+        }, NULL
+    });
     global_map = map.u.map;
     mapset_add_attr(mapset.u.mapset, &map);
 
