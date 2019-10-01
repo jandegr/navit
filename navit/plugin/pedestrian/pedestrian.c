@@ -214,7 +214,7 @@ static void osd_marker_draw(struct marker *this, struct navit *nav) {
 #if 0
     struct attr graphics;
     struct point p;
-    dbg(lvl_debug,"enter\n");
+    dbg(lvl_debug,"enter");
     if (!navit_get_attr(nav, attr_graphics, &graphics, NULL)) {
         return;
     }
@@ -442,8 +442,7 @@ static void map_route_occluded_check_buildings(struct coord *c0) {
 #endif
 }
 
-static int
-intersect(struct coord *p1, struct coord *p2, struct coord *p3, struct coord *p4, struct coord *i) {
+static int intersect(struct coord *p1, struct coord *p2, struct coord *p3, struct coord *p4, struct coord *i) {
     double num = (p4->x - p3->x) * (p1->y - p3->y) - (p4->y - p3->y) * (p1->x - p3->x);
     double den = (p4->y - p3->y) * (p2->x - p1->x) - (p4->x - p3->x) * (p2->y - p1->y);
     if (num < 0 && den < 0) {
@@ -590,8 +589,7 @@ static void map_route_occluded_attr_rewind(void *priv_data) {
     item_attr_rewind(mr->route_item);
 }
 
-static int
-map_route_occluded_attr_get(void *priv_data, enum attr_type attr_type, struct attr *attr) {
+static int map_route_occluded_attr_get(void *priv_data, enum attr_type attr_type, struct attr *attr) {
     struct map_rect_priv *mr = priv_data;
     dbg(lvl_debug, "enter\n");
     return item_attr_get(mr->route_item, attr_type, attr);
@@ -725,21 +723,21 @@ static int map_route_occluded_coord_get(void *priv_data, struct coord *c, int co
 
 #if 0
             case 2:
-                    dbg(lvl_debug,"visible up to 0x%x,0x%x\n",l1.x,l1.y);
+                    dbg(lvl_debug,"visible up to 0x%x,0x%x",l1.x,l1.y);
                     if (mr->first) {
                         mr->first=0;
                         c[ret++]=mr->c_out;
-                        dbg(lvl_debug,"out 0x%x,0x%x\n", mr->c_out.x, mr->c_out.y);
+                        dbg(lvl_debug,"out 0x%x,0x%x", mr->c_out.x, mr->c_out.y);
                     }
                     c[ret++]=mr->c_out=l1;
-                    dbg(lvl_debug,"out 0x%x,0x%x\n", l1.x, l1.y);
+                    dbg(lvl_debug,"out 0x%x,0x%x", l1.x, l1.y);
                     mr->last=1;
                     mr->route_item_done=1;
                     break;
                 case 1:
                 case 3:
                 case 4:
-                    dbg(lvl_debug,"invisible\n");
+                    dbg(lvl_debug,"invisible");
                     mr->c_out=l1;
                     mr->idx++;
                     mr->last=1;
@@ -760,10 +758,10 @@ static int map_route_occluded_coord_get(void *priv_data, struct coord *c, int co
 }
 
 static struct item_methods methods_route_occluded_item = {
-        map_route_occluded_coord_rewind,
-        map_route_occluded_coord_get,
-        map_route_occluded_attr_rewind,
-        map_route_occluded_attr_get,
+    map_route_occluded_coord_rewind,
+    map_route_occluded_coord_get,
+    map_route_occluded_attr_rewind,
+    map_route_occluded_attr_get,
 };
 
 static void map_route_occluded_destroy(struct map_priv *priv) {
@@ -772,8 +770,7 @@ static void map_route_occluded_destroy(struct map_priv *priv) {
 
 static int no_recurse;
 
-static struct map_rect_priv *
-map_route_occluded_rect_new(struct map_priv *priv, struct map_selection *sel) {
+static struct map_rect_priv * map_route_occluded_rect_new(struct map_priv *priv, struct map_selection *sel) {
     struct map_rect_priv *mr;
     struct attr route;
     struct attr route_map;
@@ -880,16 +877,16 @@ map_route_occluded_get_item_byid(struct map_rect_priv *mr, int id_hi, int id_lo)
 }
 
 static struct map_methods map_route_occluded_methods = {
-        projection_mg,
-        "utf-8",
-        map_route_occluded_destroy,
-        map_route_occluded_rect_new,
-        map_route_occluded_rect_destroy,
-        map_route_occluded_get_item,
-        map_route_occluded_get_item_byid,
-        NULL,
-        NULL,
-        NULL,
+    projection_mg,
+    "utf-8",
+    map_route_occluded_destroy,
+    map_route_occluded_rect_new,
+    map_route_occluded_rect_destroy,
+    map_route_occluded_get_item,
+    map_route_occluded_get_item_byid,
+    NULL,
+    NULL,
+    NULL,
 };
 
 
@@ -1119,30 +1116,30 @@ static void android_sensors(struct navit *nav, int sensor, float *x, float *y, f
     }
 
     switch (orientation) {
-        case ORIENTATION_FLAT:
-            if (sensor == TYPE_MAGNETIC_FIELD) {
-                yaw = (int) (atan2f(-*y, -*x) * 180 / M_PI + 180);
-            }
-            pitch = 0;
-            break;
-        case ORIENTATION_LANDSCAPE:
-            if (sensor == TYPE_ACCELEROMETER) {
-                pitch = (int) (atan2f(*x, *z) * 180 / M_PI);
-            }
-            if (sensor == TYPE_MAGNETIC_FIELD) {
-                yaw = (int) (atan2f(-*y, *z) * 180 / M_PI + 180);
-            }
-            break;
-        case ORIENTATION_PORTRAIT:
-            if (sensor == TYPE_ACCELEROMETER) {
-                pitch = (int) (atan2f(*y, *z) * 180 / M_PI);
-            }
-            if (sensor == TYPE_MAGNETIC_FIELD) {
-                yaw = (int) (atan2f(*x, *z) * 180 / M_PI + 180);
-            }
-            break;
-        default:
-            break;
+    case ORIENTATION_FLAT:
+        if (sensor == TYPE_MAGNETIC_FIELD) {
+            yaw = (int) (atan2f(-*y, -*x) * 180 / M_PI + 180);
+        }
+        pitch = 0;
+        break;
+    case ORIENTATION_LANDSCAPE:
+        if (sensor == TYPE_ACCELEROMETER) {
+            pitch = (int) (atan2f(*x, *z) * 180 / M_PI);
+        }
+        if (sensor == TYPE_MAGNETIC_FIELD) {
+            yaw = (int) (atan2f(-*y, *z) * 180 / M_PI + 180);
+        }
+        break;
+    case ORIENTATION_PORTRAIT:
+        if (sensor == TYPE_ACCELEROMETER) {
+            pitch = (int) (atan2f(*y, *z) * 180 / M_PI);
+        }
+        if (sensor == TYPE_MAGNETIC_FIELD) {
+            yaw = (int) (atan2f(*x, *z) * 180 / M_PI + 180);
+        }
+        break;
+    default:
+        break;
     }
     if (navit_get_attr(nav, attr_transformation, &attr, NULL)) {
         struct transformation *trans = attr.u.transformation;
