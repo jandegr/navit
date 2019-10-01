@@ -1065,7 +1065,7 @@ void pedestrian_setup_tilt(struct navit *nav) {
     tcgetattr(fd, &t);
     cfmakeraw(&t);
     cfsetspeed(&t, B19200);
-           tcsetattr(fd, TCSANOW, &t);
+    tcsetattr(fd, TCSANOW, &t);
     ioctl(fd, FIONBIO, &on);
     cb=callback_new_3(callback_cast(pedestrian_read_tilt), fd, nav, data);
     cbt=callback_new_2(callback_cast(pedestrian_write_tilt_timer), fd, data);
@@ -1093,12 +1093,15 @@ static void android_sensors(struct navit *nav, int sensor, float *x, float *y, f
     }
     dbg(lvl_debug, "enter %d %f %f %f\n", sensor, *x, *y, *z);
     if (sensor == TYPE_ACCELEROMETER) {
-        if (*x > 7.5)
+        if (*x > 7.5) {
             orientation = ORIENTATION_LANDSCAPE;
-        if (*y > 7.5)
+        }
+        if (*y > 7.5) {
             orientation = ORIENTATION_PORTRAIT;
-        if (*z > 7.5)
+        }
+        if (*z > 7.5) {
             orientation = ORIENTATION_FLAT;
+        }
         dbg(lvl_debug, "orientation = %d\n", orientation);
     }
     if ((orientation_old != orientation)) {
@@ -1183,9 +1186,7 @@ static void pedestrian_log(char **logstr) {
 }
 
 #ifdef DEMO
-static void
-vehicle_changed(struct vehicle *v, struct transformation *trans)
-{
+static void vehicle_changed(struct vehicle *v, struct transformation *trans) {
     struct attr attr;
     if (vehicle_get_attr(v, attr_position_direction, &attr, NULL)) {
         int dir=(int)(*attr.u.numd);
@@ -1222,11 +1223,11 @@ static void pedestrian_navit_init(struct navit *nav) {
         dbg(lvl_debug, "cid=%p\n", cid);
         if (cid) {
             cb = callback_new_1(callback_cast(android_sensors), nav);
-            navitsensors = (*jnienv)->NewObject(jnienv, navitsensorsclass, cid, android_activity,
-                                                cb);
+            navitsensors = (*jnienv)->NewObject(jnienv, navitsensorsclass, cid, android_activity, cb);
             dbg(lvl_debug, "object=%p\n", navitsensors);
-            if (navitsensors)
+            if (navitsensors) {
                 navitsensors = (*jnienv)->NewGlobalRef(jnienv, navitsensors);
+            }
         }
     }
 #endif
