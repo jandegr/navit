@@ -188,9 +188,7 @@ static void pedestrian_cmd_pedestrian_rocket(struct rocket *rocket) {
 #endif
 }
 
-static struct command_table commands[] = {
-        {"pedestrian_rocket", command_cast(pedestrian_cmd_pedestrian_rocket)},
-};
+static struct command_table commands[] = {{"pedestrian_rocket", command_cast(pedestrian_cmd_pedestrian_rocket)},};
 
 
 static void osd_rocket_init(struct navit *nav) {
@@ -233,22 +231,14 @@ static void osd_marker_init(struct marker *this, struct navit *nav) {
     struct attr *color = attr_new_from_text("color", "#ff0000");
 
     cursor = (struct attr) {attr_cursor, {(void *) cursor_new(NULL, (struct attr *[]) {
-            &(struct attr) {attr_w, {(void *) 26}},
-            &(struct attr) {attr_h, {(void *) 26}},
-            NULL})}};
-    itemgra = (struct attr) {attr_itemgra, {(void *) itemgra_new(&cursor, (struct attr *[]) {
-            NULL})}};
+        &(struct attr) {attr_w, {(void *) 26}}, &(struct attr) {attr_h, {(void *) 26}}, NULL})}};
+    itemgra = (struct attr) {attr_itemgra, {(void *) itemgra_new(&cursor, (struct attr *[]) {NULL})}};
     cursor_add_attr(cursor.u.cursor, &itemgra);
     polygon = (struct attr) {attr_polygon, {(void *) polygon_new(&itemgra, (struct attr *[]) {
-            color,
-            &(struct attr) {attr_width, {(void *) 2}},
-            NULL})}};
+        color, &(struct attr) {attr_width, {(void *) 2}}, NULL})}};
     itemgra_add_attr(itemgra.u.itemgra, &polygon);
-    polygoncoord1 = (struct attr) {attr_coord,
-                                   {(void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
-                                           &(struct attr) {attr_x, {(void *) -7}},
-                                           &(struct attr) {attr_y, {(void *) -10}},
-                                           NULL})}};
+    polygoncoord1 = (struct attr) {attr_coord, {(void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
+        &(struct attr) {attr_x, {(void *) -7}}, &(struct attr) {attr_y, {(void *) -10}}, NULL})}};
     element_add_attr(polygon.u.element, &polygoncoord1);
     polygoncoord2 = (struct attr) {attr_coord,
                                    {(void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
