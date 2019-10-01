@@ -1219,11 +1219,11 @@ static void pedestrian_navit_init(struct navit *nav) {
     dbg(lvl_debug,"enter");
     if (android_find_class_global("org/navitproject/navit/NavitSensors", &navitsensorsclass)) {
         dbg(lvl_debug,"class found");
-        cid = (*jnienv)->GetMethodID(jnienv, navitsensorsclass, "<init>", "(Landroid/content/Context;I)V");
+        cid = (*jnienv)->GetMethodID(jnienv, navitsensorsclass, "<init>", "(Landroid/content/Context;J)V");
         dbg(lvl_debug,"cid=%p",cid);
         if (cid) {
             cb=callback_new_1(callback_cast(android_sensors), nav);
-            navitsensors=(*jnienv)->NewObject(jnienv, navitsensorsclass, cid, android_application, cb);
+            navitsensors=(*jnienv)->NewObject(jnienv, navitsensorsclass, cid,android_activity, cb);
             dbg(lvl_debug,"object=%p",navitsensors);
             if (navitsensors)
                 navitsensors = (*jnienv)->NewGlobalRef(jnienv, navitsensors);
