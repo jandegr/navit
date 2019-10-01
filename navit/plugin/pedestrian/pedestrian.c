@@ -230,12 +230,33 @@ static void osd_marker_init(struct marker *this, struct navit *nav) {
     struct attr itemgra, polygon, polygoncoord1, polygoncoord2, polygoncoord3;
     struct attr *color = attr_new_from_text("color", "#ff0000");
 
-    cursor = (struct attr) {attr_cursor, {(void *) cursor_new(NULL, (struct attr *[]) {
-        &(struct attr) {attr_w, {(void *) 26}}, &(struct attr) {attr_h, {(void *) 26}}, NULL})}};
-    itemgra = (struct attr) {attr_itemgra, {(void *) itemgra_new(&cursor, (struct attr *[]) {NULL})}};
+    cursor = (struct attr) {
+       attr_cursor, {(void *) cursor_new(NULL, (struct attr *[]) {
+            &(struct attr) {
+                attr_w, {(void *) 26}
+            }, &(struct attr) {
+                attr_h, {(void *) 26}
+            }, NULL
+        })
+                     }
+    };
+    itemgra = (struct attr) {
+        attr_itemgra, {(void *) itemgra_new(&cursor, (struct attr *[]) {
+            NULL
+        })
+                      }
+    };
     cursor_add_attr(cursor.u.cursor, &itemgra);
-    polygon = (struct attr) {attr_polygon, {(void *) polygon_new(&itemgra, (struct attr *[]) {
-        color, &(struct attr) {attr_width, {(void *) 2}}, NULL})}};
+    polygoncoord1 = (struct attr) {
+        attr_coord, {(void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
+            &(struct attr) {
+                attr_x, {(void *) -7}
+            }, &(struct attr) {
+                attr_y, {(void *) -10}
+            }, NULL
+        })
+                    }
+    };
     itemgra_add_attr(itemgra.u.itemgra, &polygon);
     polygoncoord1 = (struct attr) {attr_coord, {(void *) coord_new_from_attrs(&polygon, (struct attr *[]) {
         &(struct attr) {attr_x, {(void *) -7}}, &(struct attr) {attr_y, {(void *) -10}}, NULL})}};
@@ -668,82 +689,82 @@ static int map_route_occluded_coord_get(void *priv_data, struct coord *c, int co
         mr->lseg_base[1] = mr->lseg[1];
         mr->lseg_done_base = mr->lseg_done;
         switch (vis) {
-            case 0:
-                mr->c_next_base = mr->c_next;
+        case 0:
+            mr->c_next_base = mr->c_next;
 #ifdef DEBUG_COORD_GET
-                dbg(lvl_debug, "out 0x%x,0x%x", l0.x, l1.y);
+            dbg(lvl_debug, "out 0x%x,0x%x", l0.x, l1.y);
 #endif
-                c[ret++] = l0;
+            c[ret++] = l0;
 #ifdef DEBUG_COORD_GET
-                dbg(lvl_debug, "out 0x%x,0x%x", l1.x, l1.y);
+            dbg(lvl_debug, "out 0x%x,0x%x", l1.x, l1.y);
 #endif
-                c[ret++] = l1;
-                mr->lseg_done_base = mr->lseg_done = 1;
-                mr->last = 1;
-                break;
-            case 1:
+            c[ret++] = l1;
+            mr->lseg_done_base = mr->lseg_done = 1;
+            mr->last = 1;
+            break;
+        case 1:
 #ifdef DEBUG_COORD_GET
             dbg(lvl_debug, "begin clipped");
-                dbg(lvl_debug, "out 0x%x,0x%x", l0.x, l1.y);
+            dbg(lvl_debug, "out 0x%x,0x%x", l0.x, l1.y);
 #endif
-                c[ret++] = l0;
+            c[ret++] = l0;
 #ifdef DEBUG_COORD_GET
-                dbg(lvl_debug, "out 0x%x,0x%x", l1.x, l1.y);
+            dbg(lvl_debug, "out 0x%x,0x%x", l1.x, l1.y);
 #endif
-                c[ret++] = l1;
-                mr->c_next_base = mr->c_next = l1;
-                mr->last = 1;
-                break;
-            case 2:
+            c[ret++] = l1;
+            mr->c_next_base = mr->c_next = l1;
+            mr->last = 1;
+            break;
+        case 2:
 #ifdef DEBUG_COORD_GET
             dbg(lvl_debug, "end clipped");
 #endif
-            case 3:
+        case 3:
 #ifdef DEBUG_COORD_GET
-                if (vis == 3) {
-                    dbg(lvl_debug, "both clipped");
-                }
+            if (vis == 3) {
+                dbg(lvl_debug, "both clipped");
+            }
 #endif
-                mr->c_next_base = mr->c_next;
+            mr->c_next_base = mr->c_next;
 #ifdef DEBUG_COORD_GET
-                dbg(lvl_debug, "out 0x%x,0x%x", l0.x, l1.y);
+            dbg(lvl_debug, "out 0x%x,0x%x", l0.x, l1.y);
 #endif
-                c[ret++] = l0;
+            c[ret++] = l0;
 #ifdef DEBUG_COORD_GET
-                dbg(lvl_debug, "out 0x%x,0x%x", l1.x, l1.y);
+            dbg(lvl_debug, "out 0x%x,0x%x", l1.x, l1.y);
 #endif
-                c[ret++] = l1;
-                mr->c_next_base = mr->c_next = l1;
-                mr->last = 1;
-                break;
-            case 4:
-                mr->last = 1;
-                mr->lseg_done_base = mr->lseg_done = 1;
-                break;
+            c[ret++] = l1;
+            mr->c_next_base = mr->c_next = l1;
+            mr->last = 1;
+            break;
+        case 4:
+            mr->last = 1;
+            mr->lseg_done_base = mr->lseg_done = 1;
+            break;
 
 #if 0
-            case 2:
-                dbg(lvl_debug,"visible up to 0x%x,0x%x",l1.x,l1.y);
-                if (mr->first) {
-                    mr->first=0;
-                    c[ret++]=mr->c_out;
-                    dbg(lvl_debug,"out 0x%x,0x%x", mr->c_out.x, mr->c_out.y);
-                }
-                c[ret++]=mr->c_out=l1;
-                dbg(lvl_debug,"out 0x%x,0x%x", l1.x, l1.y);
-                mr->last=1;
-                mr->route_item_done=1;
-                break;
-            case 1:
-            case 3:
-            case 4:
-                dbg(lvl_debug,"invisible");
-                mr->c_out=l1;
-                mr->idx++;
-                mr->last=1;
-                mr->route_item_done=1;
-                break;
+        case 2:
+            dbg(lvl_debug,"visible up to 0x%x,0x%x",l1.x,l1.y);
+            if (mr->first) {
+                mr->first=0;
+                c[ret++]=mr->c_out;
+                dbg(lvl_debug,"out 0x%x,0x%x", mr->c_out.x, mr->c_out.y);
             }
+            c[ret++]=mr->c_out=l1;
+            dbg(lvl_debug,"out 0x%x,0x%x", l1.x, l1.y);
+            mr->last=1;
+            mr->route_item_done=1;
+            break;
+        case 1:
+        case 3:
+        case 4:
+            dbg(lvl_debug,"invisible");
+            mr->c_out=l1;
+            mr->idx++;
+            mr->last=1;
+            mr->route_item_done=1;
+            break;
+        }
             if (!vis)
                 break;
 #endif
@@ -1273,12 +1294,13 @@ static void pedestrian_navit_init(struct navit *nav) {
         &(struct attr) {
             attr_type, {"route_occluded"}
         }, &(struct attr) {
-                attr_data, {""}
+            attr_data, {""}
         },
         &(struct attr) {
             attr_description, {"Occluded Route"}
         },
-        &(struct attr) {attr_navit, {(void *) nav}
+        &(struct attr) {
+            attr_navit, {(void *) nav}
         }, NULL
     });
     global_map = map.u.map;
