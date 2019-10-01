@@ -403,7 +403,8 @@ static void map_route_occluded_get_buildings(struct mapset *mapset, struct coord
                 if (item->id_hi != 0x8)
                     continue;
 #if 1
-                if (item->id_lo != 0x2b3e0 && item->id_lo != 0x2ae7a && item->id_lo != 0x2af1a && item->id_lo != 0x2b348 && item->id_lo != 0x18bb5 && item->id_lo != 0x18ce5 && item->id_lo != 0x18a85)
+                if (item->id_lo != 0x2b3e0 && item->id_lo != 0x2ae7a && item->id_lo != 0x2af1a && item->id_lo != 0x2b348
+                        && item->id_lo != 0x18bb5 && item->id_lo != 0x18ce5 && item->id_lo != 0x18a85)
 #else
                 if (item->id_lo != 0x18bb5 && item->id_lo != 0x18ce5 && item->id_lo != 0x18a85)
 #endif
@@ -531,7 +532,8 @@ static int is_visible_line(struct coord *c0, struct coord *c1, struct coord *c2)
     while (b) {
         if (side(&b->left, &b->right, c1) < 0 || side(&b->left, &b->right, c2) < 0) {
 #ifdef DEBUG_VISIBLE
-            dbg(lvl_debug,"sides left: start %d end %d right: start %d end %d", side(c0, &b->left, c1), side(c0, &b->left, c2), side(c0, &b->right, c1), side(c0, &b->right, c2));
+            dbg(lvl_debug,"sides left: start %d end %d right: start %d end %d", side(c0, &b->left, c1),
+                side(c0, &b->left, c2), side(c0, &b->right, c1), side(c0, &b->right, c2));
 #endif
             for (;;) {
                 if (side(c0, &b->left, c1) <= 0) {
@@ -789,8 +791,8 @@ static int map_route_occluded_coord_get(void *priv_data, struct coord *c, int co
             mr->route_item_done=1;
             break;
         }
-            if (!vis)
-                break;
+        if (!vis)
+            break;
 #endif
     default:
         break;
