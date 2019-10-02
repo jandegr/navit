@@ -453,16 +453,6 @@ public class Navit extends Activity {
     {
         switch (item.getItemId())
         {
-            case 1 :
-                // zoom in
-                Message.obtain(CallBackHandler.sCallbackHandler, CallBackHandler.MsgType.CLB_ZOOM_IN.ordinal()).sendToTarget();
-                Log.i("Navit", "onOptionsItemSelected -> zoom in");
-                break;
-            case 2 :
-                // zoom out
-                Message.obtain(CallBackHandler.sCallbackHandler, CallBackHandler.MsgType.CLB_ZOOM_OUT.ordinal()).sendToTarget();
-                Log.i("Navit", "onOptionsItemSelected -> zoom out");
-                break;
             case R.id.optionsmenu_download_maps:
                 Intent map_download_list_activity = new Intent(this, NavitDownloadSelectMapActivity.class);
                 startActivityForResult(map_download_list_activity, Navit.NavitDownloaderSelectMap_id);
@@ -523,16 +513,6 @@ public class Navit extends Activity {
         }
         //	Return false to allow normal menu processing to proceed, true to consume it here
         return false;
-    }
-
-    /**
-     * Shows the Options menu.
-     *
-     * <p>Calling this method has the same effect as pressing the hardware Menu button, where present, or touching
-     * the overflow button in the Action bar.</p>
-     */
-    void showMenu() {
-        openOptionsMenu();
     }
 
 

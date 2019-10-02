@@ -245,6 +245,32 @@ android_return_search_result(struct jni_object *jni_o, int type, int id, struct 
 }
 
 JNIEXPORT jobject JNICALL
+Java_org_navitproject_navit_CallBackHandler_callbackCmdChannel( JNIEnv* env, jclass thiz, jint command)
+{
+    struct attr attr;
+    const char *s;
+    dbg(lvl_debug,"enter %d\n",command);
+    config_get_attr(config_get(), attr_navit, &attr, NULL);
+
+    switch(command)
+    {
+        case 1:
+            // zoom in
+            navit_zoom_in_cursor(attr.u.navit, 2);
+            navit_draw(attr.u.navit);
+            break;
+        case 2:
+            // zoom out
+            navit_zoom_out_cursor(attr.u.navit, 2);
+            navit_draw(attr.u.navit);
+            break;
+        default:
+            dbg(lvl_error, "Unknown command: %d", command);
+            break;
+    }
+}
+
+JNIEXPORT jobject JNICALL
 Java_org_navitproject_navit_CallBackHandler_callbackMessageChannel( JNIEnv* env, jclass thiz, jint channel, jstring str)
 {
     struct attr attr;
@@ -410,7 +436,7 @@ Java_org_navitproject_navit_CallBackHandler_callbackMessageChannel( JNIEnv* env,
         break;
 
     default:
-        dbg(lvl_error, "Unknown command: %d", channel);
+        dbg(lvl_error, "Unknown message: %d", channel);
         break;
     }
 

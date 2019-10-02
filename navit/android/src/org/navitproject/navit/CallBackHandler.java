@@ -11,21 +11,24 @@ class CallBackHandler extends Handler {
     static final Handler sCallbackHandler = new CallBackHandler();
     private static final String TAG = "NavitCallB";
 
-    // er zijn er nog een paar die dit rechtstreeks aanroepen,
-    // na te zien
-    static native int callbackMessageChannel(int i, String s);
+
+    private static native int callbackCmdChannel(int i);
+
+    static void sendCommand(CmdType command) {
+        switch (command) {
+            case CMD_ZOOM_IN:
+                callbackCmdChannel(1);
+                break;
+            case CMD_ZOOM_OUT:
+                callbackCmdChannel(2);
+                break;
+        }
+    }
+
+    private static native int callbackMessageChannel(int i, String s);
 
     public void handleMessage(Message msg) {
         switch (msg_values[msg.what]) {
-            case CLB_ZOOM_IN:
-                callbackMessageChannel(1, "");
-                break;
-            case CLB_ZOOM_OUT:
-                callbackMessageChannel(2, "");
-                break;
-            case CLB_MOVE:
-                //motionCallback(mMotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
-                break;
             case CLB_SET_DESTINATION:
                 String lat = Float.toString(msg.getData().getFloat("lat"));
                 String lon = Float.toString(msg.getData().getFloat("lon"));
@@ -37,17 +40,9 @@ class CallBackHandler extends Handler {
                 int y = msg.arg2;
                 callbackMessageChannel(4, "" + x + "#" + y);
                 break;
-            case CLB_CALL_CMD:
+            case CLB_CALL_CMD: // call a command (like in gui)
                 String cmd = msg.getData().getString(("cmd"));
                 callbackMessageChannel(5, cmd);
-                break;
-            case CLB_BUTTON_UP:
-                //buttonCallback(mButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
-                break;
-            case CLB_BUTTON_DOWN:
-                //buttonCallback(mButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
-                break;
-            case CLB_COUNTRY_CHOOSER:
                 break;
             case CLB_LOAD_MAP:
                 callbackMessageChannel(6, msg.getData().getString(("title")));
@@ -66,9 +61,8 @@ class CallBackHandler extends Handler {
         }
     }
 
-    enum MsgType {
-        CLB_ZOOM_IN, CLB_ZOOM_OUT, CLB_REDRAW, CLB_MOVE, CLB_BUTTON_UP, CLB_BUTTON_DOWN, CLB_SET_DESTINATION
-        , CLB_SET_DISPLAY_DESTINATION, CLB_CALL_CMD, CLB_COUNTRY_CHOOSER, CLB_LOAD_MAP, CLB_UNLOAD_MAP, CLB_DELETE_MAP
-        ,CLB_ABORT_NAVIGATION, CLB_BLOCK, CLB_UNBLOCK
-    }
+    enum CmdType {CMD_ZOOM_IN, CMD_ZOOM_OUT}
+    enum MsgType {CLB_REDRAW, CLB_MOVE, CLB_SET_DESTINATION, CLB_SET_DISPLAY_DESTINATION,
+        CLB_CALL_CMD, CLB_LOAD_MAP, CLB_UNLOAD_MAP, CLB_DELETE_MAP ,CLB_ABORT_NAVIGATION, CLB_BLOCK,
+        CLB_UNBLOCK}
 }

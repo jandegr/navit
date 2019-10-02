@@ -185,6 +185,7 @@ class NavitGraphics {
             if (mOverlayDisabled == 0) {
                 // assume we ARE in map view mode!
                 sInMap = true;
+                assert mOverlays != null;
                 for (NavitGraphics overlay : mOverlays) {
                     if (overlay.mOverlayDisabled == 0) {
                         Rect r = overlay.get_rect();
@@ -388,12 +389,12 @@ class NavitGraphics {
                 Log.v(TAG, "New scale = " + scale);
                 if (scale > 1.2) {
                     // zoom in
-                    CallBackHandler.callbackMessageChannel(1, "");
+                    CallBackHandler.sendCommand(CallBackHandler.CmdType.CMD_ZOOM_IN);
                     mOldDist = newDist;
                 } else if (scale < 0.8) {
                     mOldDist = newDist;
                     // zoom out
-                    CallBackHandler.callbackMessageChannel(2, "");
+                    CallBackHandler.sendCommand(CallBackHandler.CmdType.CMD_ZOOM_OUT);
                 }
             }
         }
@@ -481,10 +482,7 @@ class NavitGraphics {
                         }
                         break;
                     case KeyEvent.KEYCODE_BACK:
-                        if (Navit.sShowSoftKeyboardShowing) {
-                            Navit.sShowSoftKeyboardShowing = false;
-                        }
-                        //s = java.lang.String.valueOf((char) 27);
+                        Navit.sShowSoftKeyboardShowing = false;
                         return true;
                     case KeyEvent.KEYCODE_MENU:
                         if (!sInMap) {
@@ -595,7 +593,7 @@ class NavitGraphics {
         mZoomOutButton.setBackgroundResource(R.drawable.zoom_out);
         mZoomOutButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                CallBackHandler.callbackMessageChannel(2, "");
+                CallBackHandler.sendCommand(CallBackHandler.CmdType.CMD_ZOOM_OUT);
             }
         });
 
@@ -606,7 +604,7 @@ class NavitGraphics {
         mZoomInButton.setBackgroundResource(R.drawable.zoom_in);
         mZoomInButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                CallBackHandler.callbackMessageChannel(1, "");
+                CallBackHandler.sendCommand(CallBackHandler.CmdType.CMD_ZOOM_IN);
             }
         });
 

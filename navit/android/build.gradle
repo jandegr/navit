@@ -6,7 +6,7 @@ android {
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "org.navitproject.navit"
-        minSdkVersion 16 // jelly bean (android 4.1)
+        minSdkVersion 17 // jelly bean (android 4.2)
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -17,7 +17,7 @@ android {
         externalNativeBuild {
             cmake {
                 arguments '-DUSE_PLUGINS=n', '-DBUILD_MAPTOOL=n', '-DXSL_PROCESSING=n', '-DSAMPLE_MAP=n', '-DENABLE_ROLL=y'
-                "Dplugin/pedestrian=y" //werkt op linux maar niet hier in androidstudio !!!
+                'Dplugin/pedestrian=n' //werkt op linux maar niet hier in androidstudio !!!
             }
         }
     }
