@@ -73,9 +73,9 @@ class NavitGraphics {
 
 
     private void setCamera(int useCamera) {
-        Log.e (TAG,"setCamera = " + useCamera);
+        Log.e(TAG,"setCamera = " + useCamera);
         if (useCamera != 0 && mCamera == null) {
-            Log.e (TAG,"setCamera = " + useCamera);
+            Log.e(TAG,"setCamera = " + useCamera);
             // mActivity.requestWindowFeature(Window.FEATURE_NO_TITLE);
             mCamera = new NavitCamera(mActivity);
             mRelativeLayout.addView(mCamera);
@@ -109,7 +109,7 @@ class NavitGraphics {
     }
 
     private class NavitView extends View implements MenuItem.OnMenuItemClickListener,
-            GestureDetector.OnGestureListener{
+            GestureDetector.OnGestureListener {
         private final GestureDetector mDetector;
         float             mOldDist = 0;
         static final int  NONE       = 0;
@@ -170,7 +170,8 @@ class NavitGraphics {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             if (item.getItemId() == 1) {
-                Message msg = Message.obtain(CallBackHandler.sCallbackHandler, CallBackHandler.MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
+                Message msg = Message.obtain(CallBackHandler.sCallbackHandler,
+                        CallBackHandler.MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
                         (int) mPressedPosition.x, (int) mPressedPosition.y);
                 msg.sendToTarget();
             }
@@ -212,17 +213,18 @@ class NavitGraphics {
             Log.e(TAG, "doLongpressAction enter");
             mActivity.openContextMenu(this);
         }
+
         @Override
         public boolean onDown(MotionEvent motionEvent) {
             Log.e(TAG,"onDown");
-           // if (sInMap) {
+            // if (sInMap) {
             buttonCallback(mButtonCallbackID, 1, 1,
                     (int)mPressedPosition.x, (int)mPressedPosition.y); // down
             //}
             return true;
         }
 
-        public boolean onContextClick (MotionEvent motionEvent) {
+        public boolean onContextClick(MotionEvent motionEvent) {
             Log.e(TAG,"onContextClick: " + motionEvent.toString());
             return false;
         }
@@ -763,25 +765,24 @@ class NavitGraphics {
      *
      *
      *
-     * @param imagepath		a string representing an absolute or relative path
-     * 		  				to the image file
-     * @param count			the number of points specified
-     * @param p0x and p0y 	specifying the top left point
-     * @param p1x and p1y 	specifying the top right point
-     * @param p2x and p2y 	specifying the bottom left point, not yet used but kept
-     * 						for compatibility with the linux port
+     * @param imagepath	    a string representing an absolute or relative path
+     * 		                to the image file
+     * @param count	        the number of points specified
+     * @param p0x and p0y   specifying the top left point
+     * @param p1x and p1y   specifying the top right point
+     * @param p2x and p2y   specifying the bottom left point, not yet used but kept
+     * 	                    for compatibility with the linux port
      *
      * TODO make it work with 4 points specified to make it work for 3D mapview, so it can be used
-     * 		for small but very detailed maps as well as for large maps with very little detail but large
-     * 		coverage.
+     * 	    for small but very detailed maps as well as for large maps with very little detail but large
+     *      coverage.
      * TODO make it work with rectangular tiles as well ?
      */
-    protected void draw_image_warp(String imagepath, int count, int p0x, int p0y, int p1x, int p1y, int p2x, int p2y)
-    {
-        //	if (!isAccelerated)
-        //	{
-        Log.e("NavitGraphics","path = "+imagepath);
-        Log.e("NavitGraphics","count = "+count);
+    protected void draw_image_warp(String imagepath, int count, int p0x, int p0y, int p1x, int p1y, int p2x, int p2y) {
+        //  if (!isAccelerated)
+        //  {
+        Log.e("NavitGraphics","path = " + imagepath);
+        Log.e("NavitGraphics","count = " + count);
 
         float width;
         float scale;
@@ -792,23 +793,19 @@ class NavitGraphics {
         FileInputStream infile;
         Matrix matrix;
 
-        if (count == 3)
-        {
+        if (count == 3) {
             if (!imagepath.startsWith("/"))
                 imagepath = Navit.sMapFilenamePath + imagepath;
             Log.e("NavitGraphics","pathc3 = "+imagepath);
-            try
-            {
+            try {
                 infile = new FileInputStream(imagepath);
                 bitmap = BitmapFactory.decodeStream(infile);
                 infile.close();
             }
-            catch (IOException e)
-            {
-                Log.e("NavitGraphics","could not open "+imagepath);
+            catch (IOException e) {
+                Log.e("NavitGraphics","could not open " + imagepath);
             }
-            if (bitmap != null)
-            {
+            if (bitmap != null) {
                 matrix = new Matrix();
                 deltaX = p1x - p0x;
                 deltaY = p1y - p0y;
@@ -821,8 +818,8 @@ class NavitGraphics {
                 mDrawCanvas.drawBitmap(bitmap, matrix, null);
             }
         }
-        //	}
-        //	else
+        //  }
+        //  else
         //		((NavitCanvas)draw_canvas).draw_image_warp(imagepath,count,p0x,p0y,p1x,p1y,p2x,p2y);
 
     }

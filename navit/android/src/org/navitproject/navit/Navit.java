@@ -284,8 +284,7 @@ public class Navit extends Activity {
         }
         Log.i(TAG, "Device density detected: " + myDisplayDensity);
 
-        if (!extractRes("navit" + myDisplayDensity, sNavitDataDir + "/share/navit.xml"))
-        {
+        if (!extractRes("navit" + myDisplayDensity, sNavitDataDir + "/share/navit.xml")) {
             Log.e("Navit", "Failed to extract navit.xml for " + myDisplayDensity);
         }
 
@@ -449,45 +448,47 @@ public class Navit extends Activity {
 
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId())
-        {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.optionsmenu_download_maps:
-                Intent map_download_list_activity = new Intent(this, NavitDownloadSelectMapActivity.class);
-                startActivityForResult(map_download_list_activity, Navit.NavitDownloaderSelectMap_id);
+                Intent mapDownloadListActivity = new Intent(this, NavitDownloadSelectMapActivity.class);
+                startActivityForResult(mapDownloadListActivity, Navit.NavitDownloaderSelectMap_id);
                 break;
             case 5 :
                 // toggle the normal POI layers (to avoid double POIs)
-                Message msg = Message.obtain(CallBackHandler.sCallbackHandler, CallBackHandler.MsgType.CLB_CALL_CMD.ordinal());
+                Message msg = Message.obtain(CallBackHandler.sCallbackHandler,
+                        CallBackHandler.MsgType.CLB_CALL_CMD.ordinal());
                 Bundle b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"POI Symbols\");");
                 msg.setData(b);
                 msg.sendToTarget();
 
                 // toggle full POI icons on/off
-                msg = Message.obtain(CallBackHandler.sCallbackHandler, CallBackHandler.MsgType.CLB_CALL_CMD.ordinal());
+                msg = Message.obtain(CallBackHandler.sCallbackHandler,
+                        CallBackHandler.MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"Android-POI-Icons-full\");");
                 msg.setData(b);
                 msg.sendToTarget();
                 break;
             case R.id.optionsmenu_address_search:
-                Intent search_intent = new Intent(this, NavitAddressSearchActivity.class);
-                this.startActivityForResult(search_intent, NavitAddressSearch_id);
+                Intent searchIntent = new Intent(this, NavitAddressSearchActivity.class);
+                this.startActivityForResult(searchIntent, NavitAddressSearch_id);
                 break;
             case R.id.optionsmenu_set_maplocation:
                 setMapLocation();
                 break;
             case R.id.action_zoom_to_route:
-                msg = Message.obtain(CallBackHandler.sCallbackHandler, CallBackHandler.MsgType.CLB_CALL_CMD.ordinal());
+                msg = Message.obtain(CallBackHandler.sCallbackHandler,
+                        CallBackHandler.MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "zoom_to_route()");
                 msg.setData(b);
                 msg.sendToTarget();
                 break;
             case R.id.action_stop_navigation:
-                msg = Message.obtain(CallBackHandler.sCallbackHandler, CallBackHandler.MsgType.CLB_ABORT_NAVIGATION.ordinal());
+                msg = Message.obtain(CallBackHandler.sCallbackHandler,
+                        CallBackHandler.MsgType.CLB_ABORT_NAVIGATION.ordinal());
                 msg.sendToTarget();
                 break;
             case R.id.action_quit:

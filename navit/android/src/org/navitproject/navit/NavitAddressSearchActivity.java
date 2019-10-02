@@ -192,13 +192,13 @@ public class NavitAddressSearchActivity extends Activity {
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1,
                     int arg2, int arg3) {
-                // TODO Auto-generated method stub
+                // Auto-generated method stub
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before,
                     int count) {
-                // TODO Auto-generated method stub
+                // Auto-generated method stub
             }
         };
 

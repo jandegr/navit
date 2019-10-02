@@ -22,6 +22,8 @@ class CallBackHandler extends Handler {
             case CMD_ZOOM_OUT:
                 callbackCmdChannel(2);
                 break;
+            default:
+                Log.e(TAG, "Unhandled command : " + command);
         }
     }
 

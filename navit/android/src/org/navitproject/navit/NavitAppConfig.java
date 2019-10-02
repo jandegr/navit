@@ -33,13 +33,13 @@ public class NavitAppConfig extends Application {
                 do {
                     String addrStr = sSettings.getString("LastAddress_" + index, "");
 
-                 //   if (addrStr.length() > 0) {
-                 //       mLastAddresses.add(new NavitSearchAddress(
-                 //                              1,
-                 //                              sSettings.getFloat("LastAddress_Lat_" + index, 0),
-                 //                              sSettings.getFloat("LastAddress_Lon_" + index, 0),
-                 //                              addrStr));
-                 //   }
+                   // if (addrStr.length() > 0) {
+                   //       mLastAddresses.add(new NavitSearchAddress(
+                   //                              1,
+                   //                              sSettings.getFloat("LastAddress_Lat_" + index, 0),
+                   //                              sSettings.getFloat("LastAddress_Lon_" + index, 0),
+                   //                              addrStr));
+                   //   }
 
                     if (--index < 0) {
                         index = MAX_LAST_ADDRESSES - 1;
@@ -87,7 +87,7 @@ public class NavitAppConfig extends Application {
     }
 
     /**
-     * Translates a string
+     * Translates a string.
      * DEPECRATED !!!
      *
      * @param string to translate
@@ -97,6 +97,7 @@ public class NavitAppConfig extends Application {
 
         return callbackLocalizedString(string);
     }
+
     static native String callbackLocalizedString(String s);
 
     /*
