@@ -238,9 +238,8 @@ class NavitGraphics {
         public boolean onSingleTapUp(MotionEvent motionEvent) {
             Log.e(TAG, "onSingleTapUp: " + motionEvent.toString());
             //  if (sInMap) {
-
-                buttonCallback(mButtonCallbackID, 0, 1,
-                        (int)mPressedPosition.x, (int)mPressedPosition.y); // up
+            buttonCallback(mButtonCallbackID, 0, 1,
+                    (int)mPressedPosition.x, (int)mPressedPosition.y); // up
             //  }
             return true;
         }
@@ -297,9 +296,9 @@ class NavitGraphics {
                 int y = (int) event.getY();
                 mPressedPosition = new PointF(x, y);
                 Log.e(TAG,"ACTION_DOWN point " + mPressedPosition.toString());
-            //    performClick();
+                //performClick();
             }
-            if (this.mDetector.onTouchEvent(event)){
+            if (this.mDetector.onTouchEvent(event)) {
                 return true;
             }
             if (event.getAction() == MotionEvent.ACTION_UP) { //afblokken als er een fling is en daarna dan afhandelen ?
@@ -765,9 +764,9 @@ class NavitGraphics {
      *
      *
      *
-     * @param imagepath	    a string representing an absolute or relative path
+     * @param imagepath     a string representing an absolute or relative path
      *                      to the image file
-     * @param count	        the number of points specified
+     * @param count         the number of points specified
      * @param p0x and p0y   specifying the top left point
      * @param p1x and p1y   specifying the top right point
      * @param p2x and p2y   specifying the bottom left point, not yet used but kept
