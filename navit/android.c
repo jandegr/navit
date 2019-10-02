@@ -245,7 +245,7 @@ android_return_search_result(struct jni_object *jni_o, int type, int id, struct 
 }
 
 JNIEXPORT jobject JNICALL
-Java_org_navitproject_navit_NavitGraphics_callbackMessageChannel( JNIEnv* env, jclass thiz, jint channel, jstring str)
+Java_org_navitproject_navit_CallBackHandler_callbackMessageChannel( JNIEnv* env, jclass thiz, jint channel, jstring str)
 {
     struct attr attr;
     const char *s;

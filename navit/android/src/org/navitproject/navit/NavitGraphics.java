@@ -32,7 +32,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -55,7 +54,7 @@ import java.util.ArrayList;
 class NavitGraphics {
     private static final String            TAG = "NavitGraphics";
     private final NavitGraphics            mParentGraphics;
-    private final ArrayList<NavitGraphics> mOverlays = new ArrayList<>();
+    private final ArrayList<NavitGraphics> mOverlays;
     private int                            mBitmapWidth;
     private int                            mBitmapHeight;
     private int                            mPosX;
@@ -67,7 +66,6 @@ class NavitGraphics {
     private ImageButton                    mZoomInButton;
     private ImageButton                    mZoomOutButton;
     private View                           mView;
-    static final Handler                   sCallbackHandler = new CallBackHandler();
     private RelativeLayout                 mRelativeLayout;
     private NavitCamera                    mCamera;
     private Navit                          mActivity;
@@ -82,22 +80,6 @@ class NavitGraphics {
             mCamera = new NavitCamera(mActivity);
             mRelativeLayout.addView(mCamera);
             mRelativeLayout.bringChildToFront(mView);
-        }
-    }
-
-    /**
-     * Adds a camera.
-     *
-     * <p>This method does not create the view for the camera. This must be done separately by calling
-     * {@link #addCameraView()}.</p>
-     */
-    private void addCamera() {
-
-    }
-
-    private void addCameraView() {
-        if (mCamera != null) {
-
         }
     }
 
@@ -188,7 +170,7 @@ class NavitGraphics {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             if (item.getItemId() == 1) {
-                Message msg = Message.obtain(sCallbackHandler, MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
+                Message msg = Message.obtain(CallBackHandler.sCallbackHandler, CallBackHandler.MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
                         (int) mPressedPosition.x, (int) mPressedPosition.y);
                 msg.sendToTarget();
             }
@@ -406,12 +388,12 @@ class NavitGraphics {
                 Log.v(TAG, "New scale = " + scale);
                 if (scale > 1.2) {
                     // zoom in
-                    callbackMessageChannel(1, "");
+                    CallBackHandler.callbackMessageChannel(1, "");
                     mOldDist = newDist;
                 } else if (scale < 0.8) {
                     mOldDist = newDist;
                     // zoom out
-                    callbackMessageChannel(2, "");
+                    CallBackHandler.callbackMessageChannel(2, "");
                 }
             }
         }
@@ -575,10 +557,12 @@ class NavitGraphics {
                          int wraparound, int useCamera) {
         if (parent == null) {
             if (useCamera != 0) {
-                addCamera();
+                setCamera(useCamera);
             }
+            mOverlays = new ArrayList<>();
             setmActivity((Navit)navit);
         } else {
+            mOverlays = null;
             mDrawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             mBitmapWidth = w;
             mBitmapHeight = h;
@@ -603,7 +587,6 @@ class NavitGraphics {
         mView.setFocusableInTouchMode(true);
         mView.setKeepScreenOn(true);
         mRelativeLayout = new RelativeLayout(mActivity);
-        addCameraView();
 
         RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(96,96);
         lpLeft.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -612,7 +595,7 @@ class NavitGraphics {
         mZoomOutButton.setBackgroundResource(R.drawable.zoom_out);
         mZoomOutButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                callbackMessageChannel(2, "");
+                CallBackHandler.callbackMessageChannel(2, "");
             }
         });
 
@@ -623,7 +606,7 @@ class NavitGraphics {
         mZoomInButton.setBackgroundResource(R.drawable.zoom_in);
         mZoomInButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                callbackMessageChannel(1, "");
+                CallBackHandler.callbackMessageChannel(1, "");
             }
         });
 
@@ -634,76 +617,10 @@ class NavitGraphics {
         mView.requestFocus();
     }
 
-    enum MsgType {
-        CLB_ZOOM_IN, CLB_ZOOM_OUT, CLB_REDRAW, CLB_MOVE, CLB_BUTTON_UP, CLB_BUTTON_DOWN, CLB_SET_DESTINATION
-        , CLB_SET_DISPLAY_DESTINATION, CLB_CALL_CMD, CLB_COUNTRY_CHOOSER, CLB_LOAD_MAP, CLB_UNLOAD_MAP, CLB_DELETE_MAP
-        ,CLB_ABORT_NAVIGATION, CLB_BLOCK, CLB_UNBLOCK
-    }
-
-    private static final MsgType[] msg_values = MsgType.values();
-
-    private static class CallBackHandler extends Handler {
-        public void handleMessage(Message msg) {
-            switch (msg_values[msg.what]) {
-                case CLB_ZOOM_IN:
-                    callbackMessageChannel(1, "");
-                    break;
-                case CLB_ZOOM_OUT:
-                    callbackMessageChannel(2, "");
-                    break;
-                case CLB_MOVE:
-                    //motionCallback(mMotionCallbackID, msg.getData().getInt("x"), msg.getData().getInt("y"));
-                    break;
-                case CLB_SET_DESTINATION:
-                    String lat = Float.toString(msg.getData().getFloat("lat"));
-                    String lon = Float.toString(msg.getData().getFloat("lon"));
-                    String q = msg.getData().getString(("q"));
-                    callbackMessageChannel(3, lat + "#" + lon + "#" + q);
-                    break;
-                case CLB_SET_DISPLAY_DESTINATION:
-                    int x = msg.arg1;
-                    int y = msg.arg2;
-                    callbackMessageChannel(4, "" + x + "#" + y);
-                    break;
-                case CLB_CALL_CMD:
-                    String cmd = msg.getData().getString(("cmd"));
-                    callbackMessageChannel(5, cmd);
-                    break;
-                case CLB_BUTTON_UP:
-                    //buttonCallback(mButtonCallbackID, 0, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
-                    break;
-                case CLB_BUTTON_DOWN:
-                    //buttonCallback(mButtonCallbackID, 1, 1, msg.getData().getInt("x"), msg.getData().getInt("y"));
-                    break;
-                case CLB_COUNTRY_CHOOSER:
-                    break;
-                case CLB_LOAD_MAP:
-                    callbackMessageChannel(6, msg.getData().getString(("title")));
-                    break;
-                case CLB_DELETE_MAP:
-                    //unload map before deleting it !!!
-                    callbackMessageChannel(7, msg.getData().getString(("title")));
-                    //remove commentlines below after testing
-                    //File toDelete = new File(msg.getData().getString(("title")));
-                    //toDelete.delete();
-                    NavitUtils.removeFileIfExists(msg.getData().getString(("title")));
-                    break;
-                case CLB_UNLOAD_MAP:
-                    callbackMessageChannel(7, msg.getData().getString(("title")));
-                    break;
-                case CLB_REDRAW:
-                default:
-                    Log.e(TAG, "Unhandled callback : " + msg_values[msg.what]);
-            }
-        }
-    }
-
 
     private native void sizeChangedCallback(long id, int x, int y);
 
     private native void keypressCallback(long id, String s);
-
-    private static native int callbackMessageChannel(int i, String s);
 
     private native void buttonCallback(long id, int pressed, int button, int x, int y);
 

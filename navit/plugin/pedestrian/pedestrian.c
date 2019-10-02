@@ -1263,7 +1263,7 @@ pedestrian_navit_init(struct navit *nav)
     orientation_old = ORIENTATION_UNKNOWN;
 	if (android_find_class_global("org/navitproject/navit/NavitSensors", &navitsensorsclass)) {
 		dbg(lvl_debug,"class found\n");
-		cid = (*jnienv)->GetMethodID(jnienv, navitsensorsclass, "<init>", "(Landroid/content/Context;I)V");
+		cid = (*jnienv)->GetMethodID(jnienv, navitsensorsclass, "<init>", "(Landroid/content/Context;J)V");
 		dbg(lvl_debug,"cid=%p\n",cid);
 		if (cid) {
 			cb = callback_new_1(callback_cast(android_sensors), nav);

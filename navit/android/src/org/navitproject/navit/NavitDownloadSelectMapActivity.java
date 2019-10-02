@@ -234,8 +234,8 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         Log.d(TAG, "Delete Map");
-                        Message msg = Message.obtain(NavitGraphics.sCallbackHandler,
-                                    NavitGraphics.MsgType.CLB_DELETE_MAP.ordinal());
+                        Message msg = Message.obtain(CallBackHandler.sCallbackHandler,
+                                    CallBackHandler.MsgType.CLB_DELETE_MAP.ordinal());
                         Bundle b = new Bundle();
                         b.putString("title", mapLocation);
                         msg.setData(b);

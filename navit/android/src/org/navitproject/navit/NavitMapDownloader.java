@@ -575,8 +575,8 @@ public class NavitMapDownloader extends Thread {
         File finalOutputFile = getMapFile();
 
         if (finalOutputFile.exists()) {
-            Message msg = Message.obtain(NavitGraphics.sCallbackHandler,
-                        NavitGraphics.MsgType.CLB_DELETE_MAP.ordinal());
+            Message msg = Message.obtain(CallBackHandler.sCallbackHandler,
+                        CallBackHandler.MsgType.CLB_DELETE_MAP.ordinal());
             Bundle b = new Bundle();
             b.putString("title", finalOutputFile.getAbsolutePath());
             msg.setData(b);
