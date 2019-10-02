@@ -269,12 +269,12 @@ public class NavitAddressSearchActivity extends Activity {
         builder.setPositiveButton("Als bestemming instellen",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                              Intent resultIntent = new Intent();
-                              resultIntent.putExtra("lat", addressSelected.mLat);
-                              resultIntent.putExtra("lon", addressSelected.mLon);
-                              resultIntent.putExtra("q", addressSelected.mAddr);
-                              setResult(Activity.RESULT_OK, resultIntent);
-                              finish();
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra("lat", addressSelected.mLat);
+                        resultIntent.putExtra("lon", addressSelected.mLon);
+                        resultIntent.putExtra("q", addressSelected.mAddr);
+                        setResult(Activity.RESULT_OK, resultIntent);
+                        finish();
                     }
                 });
         builder.setNegativeButton("cancel",

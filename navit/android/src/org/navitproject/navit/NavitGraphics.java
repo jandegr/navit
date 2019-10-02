@@ -237,11 +237,11 @@ class NavitGraphics {
         @Override
         public boolean onSingleTapUp(MotionEvent motionEvent) {
             Log.e(TAG, "onSingleTapUp: " + motionEvent.toString());
-          //  if (sInMap) {
+            //  if (sInMap) {
 
                 buttonCallback(mButtonCallbackID, 0, 1,
                         (int)mPressedPosition.x, (int)mPressedPosition.y); // up
-          //  }
+            //  }
             return true;
         }
 
@@ -269,21 +269,21 @@ class NavitGraphics {
 
         public boolean onFling(MotionEvent event1, MotionEvent event2,
                                float velocityX, float velocityY) {
-        //    Log.e(TAG, "onFling: " + event1.toString() + event2.toString());
+            //Log.e(TAG, "onFling: " + event1.toString() + event2.toString());
             Log.e(TAG, "onFling: " + velocityX + " " + velocityY);
             return false;
-        //    FlingAnimation fling = new FlingAnimation(this, DynamicAnimation.SCROLL_X);
-        //    fling.setStartVelocity(-velocityX)
-        //            .setMinValue(0)
-        //            .setMaxValue(600) //maxscroll
-        //            .setFriction(1.1f)
-        //            .start();
+            //FlingAnimation fling = new FlingAnimation(this, DynamicAnimation.SCROLL_X);
+            //fling.setStartVelocity(-velocityX)
+            //        .setMinValue(0)
+            //        .setMaxValue(600) //maxscroll
+            //        .setFriction(1.1f)
+            //        .start();
 
-        //    Log.e(TAG,"scrolling ENDED");
-        //    return true;
+            //    Log.e(TAG,"scrolling ENDED");
+            //    return true;
         }
 
-        public boolean performClick () {
+        public boolean performClick() {
             super.performClick();
             Log.e(TAG,"performClick");
             return true; //??????????? of moet dat return super.... zijn ?
@@ -305,13 +305,13 @@ class NavitGraphics {
             if (event.getAction() == MotionEvent.ACTION_UP) { //afblokken als er een fling is en daarna dan afhandelen ?
                 int x = (int) event.getX();
                 int y = (int) event.getY();
-            //    mPressedPosition = new PointF(x, y);
+                //    mPressedPosition = new PointF(x, y);
                 Log.e(TAG,"ACTION_UP point " + mPressedPosition.toString());
                 buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
                 //    performClick();
             }
 
-          //  return  super.onTouchEvent(event); // if not processed, give super a chance
+            //  return  super.onTouchEvent(event); // if not processed, give super a chance
             return true; // anders krijg je de rest niet meer
         }
 
@@ -766,15 +766,15 @@ class NavitGraphics {
      *
      *
      * @param imagepath	    a string representing an absolute or relative path
-     * 		                to the image file
+     *                      to the image file
      * @param count	        the number of points specified
      * @param p0x and p0y   specifying the top left point
      * @param p1x and p1y   specifying the top right point
      * @param p2x and p2y   specifying the bottom left point, not yet used but kept
-     * 	                    for compatibility with the linux port
+     *                      for compatibility with the linux port
      *
      * TODO make it work with 4 points specified to make it work for 3D mapview, so it can be used
-     * 	    for small but very detailed maps as well as for large maps with very little detail but large
+     *      for small but very detailed maps as well as for large maps with very little detail but large
      *      coverage.
      * TODO make it work with rectangular tiles as well ?
      */
@@ -794,15 +794,15 @@ class NavitGraphics {
         Matrix matrix;
 
         if (count == 3) {
-            if (!imagepath.startsWith("/"))
+            if (!imagepath.startsWith("/")) {
                 imagepath = Navit.sMapFilenamePath + imagepath;
-            Log.e("NavitGraphics","pathc3 = "+imagepath);
+            }
+            Log.e("NavitGraphics","pathc3 = " + imagepath);
             try {
                 infile = new FileInputStream(imagepath);
                 bitmap = BitmapFactory.decodeStream(infile);
                 infile.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 Log.e("NavitGraphics","could not open " + imagepath);
             }
             if (bitmap != null) {
@@ -820,7 +820,7 @@ class NavitGraphics {
         }
         //  }
         //  else
-        //		((NavitCanvas)draw_canvas).draw_image_warp(imagepath,count,p0x,p0y,p1x,p1y,p2x,p2y);
+        //     ((NavitCanvas)draw_canvas).draw_image_warp(imagepath,count,p0x,p0y,p1x,p1y,p2x,p2y);
 
     }
 
