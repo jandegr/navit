@@ -512,7 +512,7 @@ public class Navit extends Activity {
             default:
                 Log.w(TAG,"unhandled optionsItem");
         }
-        //	Return false to allow normal menu processing to proceed, true to consume it here
+        //  Return false to allow normal menu processing to proceed, true to consume it here
         return false;
     }
 

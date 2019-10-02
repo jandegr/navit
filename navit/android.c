@@ -264,6 +264,12 @@ Java_org_navitproject_navit_CallBackHandler_callbackCmdChannel( JNIEnv* env, jcl
             navit_zoom_out_cursor(attr.u.navit, 2);
             navit_draw(attr.u.navit);
             break;
+        case 3:
+            navit_block(attr.u.navit, 1);
+            break;
+        case 4:
+            navit_block(attr.u.navit, 0);
+            break;
         default:
             dbg(lvl_error, "Unknown command: %d", command);
             break;
@@ -281,16 +287,6 @@ Java_org_navitproject_navit_CallBackHandler_callbackMessageChannel( JNIEnv* env,
 
     switch(channel)
     {
-    case 1:
-        // zoom in
-        navit_zoom_in_cursor(attr.u.navit, 2);
-        navit_draw(attr.u.navit);
-        break;
-    case 2:
-        // zoom out
-        navit_zoom_out_cursor(attr.u.navit, 2);
-        navit_draw(attr.u.navit);
-        break;
     case 3:
         {
             // navigate to geo position
@@ -428,13 +424,6 @@ Java_org_navitproject_navit_CallBackHandler_callbackMessageChannel( JNIEnv* env,
         (*env)->ReleaseStringUTFChars(env, str, map_location);
     }
     break;
-    case 8:
-        navit_block(attr.u.navit, 1);
-    break;
-    case 9:
-        navit_block(attr.u.navit, 0);
-        break;
-
     default:
         dbg(lvl_error, "Unknown message: %d", channel);
         break;
