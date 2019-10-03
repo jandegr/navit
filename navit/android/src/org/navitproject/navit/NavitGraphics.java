@@ -316,65 +316,65 @@ class NavitGraphics {
 
 
 
-            //  super.onTouchEvent(event); -----------------------!!!!!!
+        //  super.onTouchEvent(event); -----------------------!!!!!!
         //    int x = (int) event.getX();
         //    int y = (int) event.getY();
         //    int switchValue = (event.getActionMasked());
-            //Log.e(TAG, "onTouchEvent value =  " + switchValue);
+        //Log.e(TAG, "onTouchEvent value =  " + switchValue);
 
-         //   if (switchValue == MotionEvent.ACTION_DOWN) {
-         //       mTouchMode = PRESSED;
-         //       Log.d(TAG, "ACTION_DOWN mode PRESSED");
-         //       if (!sInMap) {
-         //           buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
-         //       }
-         //       mPressedPosition = new PointF(x, y);
-                //postDelayed(this, TIME_FOR_LONG_PRESS);
+        //   if (switchValue == MotionEvent.ACTION_DOWN) {
+        //       mTouchMode = PRESSED;
+        //       Log.d(TAG, "ACTION_DOWN mode PRESSED");
+        //       if (!sInMap) {
+        //           buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
+        //       }
+        //       mPressedPosition = new PointF(x, y);
+        // postDelayed(this, TIME_FOR_LONG_PRESS);
 
-         //   } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
-         //       mOldDist = spacing(event);
-         //       if (mOldDist > 2f) {
-         //           mTouchMode = ZOOM;
-         //           Log.d(TAG, "ACTION_DOWN mode ZOOM started");
-         //       }
-         //   } else if (switchValue == MotionEvent.ACTION_UP) {
-         //       Log.d(TAG, "ACTION_UP");
-         //       switch (mTouchMode) {
-         //           case DRAG:
-         //               Log.d(TAG, "onTouch move");
-         //               motionCallback(mMotionCallbackID, x, y);
-         //               buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-         //               break;
-         //           case PRESSED:
-         //               if (sInMap) {
-         //                   buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
-         //               }
-         //               buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-         //               break;
-         //           default:
-         //               Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
-         //       }
-         //       mTouchMode = NONE;
-         //   } else if (switchValue == MotionEvent.ACTION_MOVE) {
-         //       switch (mTouchMode) {
-         //           case DRAG:
-         //               motionCallback(mMotionCallbackID, x, y);
-         //               break;
-         //           case ZOOM:
-         //               doZoom(event);
-         //               break;
-         //           case PRESSED:
-         //               Log.d(TAG, "Start drag mode");
-         //               if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
-         //                   buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
-         //                   mTouchMode = DRAG;
-         //               }
-         //               break;
-         //           default:
-         //               Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
-         //       }
-         //   }
-         //   return true;
+        //   } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
+        //       mOldDist = spacing(event);
+        //       if (mOldDist > 2f) {
+        //           mTouchMode = ZOOM;
+        //           Log.d(TAG, "ACTION_DOWN mode ZOOM started");
+        //       }
+        //   } else if (switchValue == MotionEvent.ACTION_UP) {
+        //       Log.d(TAG, "ACTION_UP");
+        //       switch (mTouchMode) {
+        //           case DRAG:
+        //               Log.d(TAG, "onTouch move");
+        //               motionCallback(mMotionCallbackID, x, y);
+        //               buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
+        //               break;
+        //           case PRESSED:
+        //               if (sInMap) {
+        //                   buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
+        //               }
+        //               buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
+        //               break;
+        //           default:
+        //               Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
+        //       }
+        //       mTouchMode = NONE;
+        //   } else if (switchValue == MotionEvent.ACTION_MOVE) {
+        //       switch (mTouchMode) {
+        //           case DRAG:
+        //               motionCallback(mMotionCallbackID, x, y);
+        //               break;
+        //           case ZOOM:
+        //               doZoom(event);
+        //               break;
+        //           case PRESSED:
+        //               Log.d(TAG, "Start drag mode");
+        //               if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
+        //                   buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
+        //                   mTouchMode = DRAG;
+        //               }
+        //               break;
+        //           default:
+        //               Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
+        //       }
+        //   }
+        //   return true;
         //}
 
         // unused

@@ -454,7 +454,7 @@ public class Navit extends Activity {
                 Intent mapDownloadListActivity = new Intent(this, NavitDownloadSelectMapActivity.class);
                 startActivityForResult(mapDownloadListActivity, Navit.NavitDownloaderSelectMap_id);
                 break;
-            case 5 :
+            case R.id.action_toggle_pois :
                 // toggle the normal POI layers (to avoid double POIs)
                 Message msg = Message.obtain(CallBackHandler.sCallbackHandler,
                         CallBackHandler.MsgType.CLB_CALL_CMD.ordinal());
@@ -575,6 +575,7 @@ public class Navit extends Activity {
                 break;
             case NavitAddressSearch_id :
                 if (resultCode == Activity.RESULT_OK) {
+                    Log.d(TAG,"received addressSearch OK");
                     Bundle destination = data.getExtras();
                     Toast.makeText(getApplicationContext(),
                             getTstring(R.string.address_search_set_destination) + "\n" + destination.getString(("q")),
@@ -656,7 +657,6 @@ public class Navit extends Activity {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     void fullscreen(int fullscreen) {
         int width;
         int height;

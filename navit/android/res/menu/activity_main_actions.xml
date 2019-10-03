@@ -17,6 +17,10 @@
 	  android:title="@string/action_stop_navigation" 
 	  android:showAsAction="never">
     </item>
+    <item android:id="@+id/action_toggle_pois"
+        android:title="toggle poi visibility"
+        android:showAsAction="never">
+    </item>
     <item android:title="@string/optionsmenu_download_maps" 
     	  android:showAsAction="never" 
 	  android:id="@+id/optionsmenu_download_maps">

@@ -245,13 +245,11 @@ public class NavitAddressSearchActivity extends Activity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
                         mCountry = allCountries[item][0];
-                        SharedPreferences.Editor editSettings = NavitAppConfig.sSettings
-                                .edit();
+                        SharedPreferences.Editor editSettings = NavitAppConfig.sSettings.edit();
                         editSettings.putString("DefaultCountry", mCountry);
                         editSettings.apply();
                         mCountryButton
-                                .setImageResource(getDrawableID("country_"
-                                        + mCountry));
+                                .setImageResource(getDrawableID("country_" + mCountry));
                     }
                 });
 

@@ -265,9 +265,11 @@ Java_org_navitproject_navit_CallBackHandler_callbackCmdChannel( JNIEnv* env, jcl
             navit_draw(attr.u.navit);
             break;
         case 3:
+            // block
             navit_block(attr.u.navit, 1);
             break;
         case 4:
+            // unblock
             navit_block(attr.u.navit, 0);
             break;
         default:
