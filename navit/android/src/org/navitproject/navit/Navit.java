@@ -39,9 +39,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.PowerManager;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -487,9 +487,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 break;
             case R.id.action_stop_navigation:
-                msg = Message.obtain(CallBackHandler.sCallbackHandler,
-                        CallBackHandler.MsgType.CLB_ABORT_NAVIGATION.ordinal());
-                msg.sendToTarget();
+                CallBackHandler.sendCommand(CallBackHandler.CmdType.CMD_CANCEL_ROUTE);
                 break;
             case R.id.action_quit:
                 this.onStop();
