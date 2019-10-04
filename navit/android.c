@@ -272,6 +272,11 @@ Java_org_navitproject_navit_CallBackHandler_callbackCmdChannel( JNIEnv* env, jcl
             // unblock
             navit_block(attr.u.navit, 0);
             break;
+        case 5:
+            // cancel route
+            navit_set_destination(attr.u.navit, NULL, NULL, 0);
+            navit_draw(attr.u.navit);
+            break;
         default:
             dbg(lvl_error, "Unknown command: %d", command);
             break;
