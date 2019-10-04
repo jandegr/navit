@@ -10,7 +10,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {// 'x86_64' ?? , 'x86'
             abiFilters 'x86_64', 'arm64-v8a', 'armeabi-v7a'
         }
@@ -31,7 +31,7 @@ android {
         disable 'UnusedResources'
         abortOnError false
     }
-    
+
     sourceSets {
         main {
             manifest.srcFile "AndroidManifest.xml"
@@ -39,9 +39,9 @@ android {
             resources.srcDirs = ["src"]
             renderscript.srcDirs = ["src"]
             res.srcDirs = ["res"]
-          //let gradle pack the shared libraries into the apk
-          //such as glib in case that is provided instead of
-          //built from support, tested for arm64 single flavor buidls only
+            //let gradle pack the shared libraries into the apk
+            //such as glib in case that is provided instead of
+            //built from support, tested for arm64 single flavor buidls only
             jniLibs.srcDirs = ['/opt/android/sdk/ndk-bundle/sysroot/lib']
         }
     }
@@ -50,31 +50,31 @@ android {
             path '../../CMakeLists.txt'
         }
     }
-    
-     task checkstyleMain(type: Checkstyle){
+
+    task checkstyleMain(type: Checkstyle) {
         source 'src'
-    include '**/*.java'
+        include '**/*.java'
         configFile = rootProject.file('navit/android/google_checks.xml')
-    ignoreFailures = true
+        ignoreFailures = true
         showViolations = true
-    // empty classpath
-       classpath = files()
+        // empty classpath
+        classpath = files()
         reports {
-        include ('**/*.java')
-        xml.enabled = true
-        html.enabled = true
-        xml {
-             destination file("checkstyle/checkstyleMain.xml")
+            include('**/*.java')
+            xml.enabled = true
+            html.enabled = true
+            xml {
+                destination file("checkstyle/checkstyleMain.xml")
+            }
+            html {
+                destination file("checkstyle/checkstyleMain.html")
+            }
         }
-         html {
-             destination file("checkstyle/checkstyleMain.html")
-         }
-         }
-     }
-     checkstyle {
-         toolVersion = '8.10'
-     }
-     
+    }
+    checkstyle {
+        toolVersion = '8.10'
+    }
+
     applicationVariants.all { variant ->
         // create tasks to generate Javadocs
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
@@ -103,12 +103,14 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     testImplementation 'junit:junit:4.12'
 //    implementation 'ch.acra:acra:4.9.2'
-    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 //    implementation 'com.android.support:support-dynamic-animation:28.0.0'
 
 }
