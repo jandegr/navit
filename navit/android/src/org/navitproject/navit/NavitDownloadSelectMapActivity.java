@@ -30,11 +30,12 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.StatFs;
-import androidx.core.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
+import androidx.core.app.ActivityCompat;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

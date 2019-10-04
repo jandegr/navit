@@ -30,7 +30,10 @@ class CallBackHandler extends Handler {
                 break;
             case CMD_CANCEL_ROUTE:
                 callbackCmdChannel(5);
+                break;
             case CMD_REDRAW:
+                //
+                break;
             default:
                 Log.e(TAG, "Unhandled command : " + command);
         }
@@ -71,7 +74,7 @@ class CallBackHandler extends Handler {
         }
     }
 
-    enum CmdType { CMD_ZOOM_IN, CMD_ZOOM_OUT, CMD_BLOCK, CMD_UNBLOCK, CMD_REDRAW, CMD_CANCEL_ROUTE}
+    enum CmdType { CMD_ZOOM_IN, CMD_ZOOM_OUT, CMD_BLOCK, CMD_UNBLOCK, CMD_REDRAW, CMD_CANCEL_ROUTE }
 
     enum MsgType { CLB_REDRAW, CLB_MOVE, CLB_SET_DESTINATION, CLB_SET_DISPLAY_DESTINATION,
         CLB_CALL_CMD, CLB_LOAD_MAP, CLB_UNLOAD_MAP, CLB_DELETE_MAP }
