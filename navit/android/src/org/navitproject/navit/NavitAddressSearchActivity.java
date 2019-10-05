@@ -69,7 +69,9 @@ public class NavitAddressSearchActivity extends Activity {
         int drawableId = 0;
         try {
             Class<?> res = R.drawable.class;
-            Field field = res.getField(resourceName + "_64_64");
+            //issue with rescaling to be fixed or ??
+            //Field field = res.getField(resourceName + "_64_64");
+            Field field = res.getField(resourceName);
             drawableId = field.getInt(null);
         } catch (Exception e) {
             Log.e(TAG, "Failure to get drawable id.", e);
