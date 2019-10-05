@@ -644,7 +644,11 @@ if(ANDROID)
 #           PATHS /usr/lib)
 #   set(JNIGRAPHICS_LIBRARIES ${JNIGRAPHICS_LIBRARY})
 #   if (OPENGLES2_LIBRARY)
-      set_with_reason(plugin/tileprovider "Android openglES2 found" TRUE)
+
+# not on CI !
+#      set_with_reason(plugin/tileprovider "Android openglES2 found" TRUE)
+      
+      
 #       MESSAGE(STATUS "   opengles2_library '${OPENGLES2_LIBRARY}'")
 #       MESSAGE(STATUS "   jnigraphics_library '${JNIGRAPHICS_LIBRARY}'")
 #   endif()
