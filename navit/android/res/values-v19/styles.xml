@@ -2,7 +2,6 @@
     <style name="NavitTheme" parent="android:Theme.DeviceDefault.NoActionBar">
 
         <!-- API 19 theme customizations can go here. -->
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
+     
     </style>
 </resources>
