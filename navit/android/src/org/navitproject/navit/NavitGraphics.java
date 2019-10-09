@@ -73,7 +73,6 @@ class NavitGraphics {
     private int                            mPosY;
     private int                            mPosWraparound;
     private int                            mOverlayDisabled;
-    private int                            mBgColor;
     private float                          mTrackballX;
     private float                          mTrackballY;
     private int                            mPaddingLeft;
@@ -94,8 +93,8 @@ class NavitGraphics {
     private boolean                        mTinting;
 
 
+    @SuppressWarnings("unused")
     void setBackgroundColor(int bgcolor) {
-        this.mBgColor = bgcolor;
         if (mLeftTintView != null) {
             mLeftTintView.setBackgroundColor(bgcolor);
         }
@@ -537,7 +536,6 @@ class NavitGraphics {
 
         public SystemBarTintView(Context context) {
             super(context);
-            this.setBackgroundColor(mBgColor);
         }
 
     }
@@ -829,10 +827,12 @@ class NavitGraphics {
         }
     }
 
+    @SuppressWarnings("unused")
     void setSizeChangedCallback(long id) {
         mSizeChangedCallbackID = id;
     }
 
+    @SuppressWarnings("unused")
     void setPaddingChangedCallback(long id) {
         mPaddingChangedCallbackID = id;
     }
@@ -1016,6 +1016,7 @@ class NavitGraphics {
         mPosY = y;
     }
 
+    @SuppressWarnings("unused")
     protected void overlay_disable(int disable) {
         Log.v(TAG,"overlay_disable: " + disable + ", Parent: " + (mParentGraphics != null));
         if (mParentGraphics == null) {
