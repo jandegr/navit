@@ -72,7 +72,7 @@ jobs:
             sudo ls -la
             mv *dpi.xml android/res/raw
             cd ../
-      - run: ./misc/download_keystore.sh
+      - run: ci/download_keystore.sh
 #      - run: ./misc/inject_circle_build_number.sh
       - run:
          name: Chmod permissions
