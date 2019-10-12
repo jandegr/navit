@@ -30,6 +30,7 @@
     <string name="optionsmenu_set_maplocation">set map location</string>
     <string name="action_toggle_layout">toggle day/night layout</string>
     <string name="action_enable_auto_layout">enable auto day/night layout</string>
+    <string name="action_mapTileActivity">mapTileActivity</string>
 
     <!-- POSITION POP-UP -->
     <string name="position_popup_title">Position</string>
