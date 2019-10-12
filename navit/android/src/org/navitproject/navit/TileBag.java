@@ -7,7 +7,7 @@ import com.google.android.gms.maps.model.Tile;
 import java.util.HashMap;
 
 
-class TileBag extends HashMap<String,TileXYZP> {
+class TileBag extends HashMap<String, TileXYZp> {
 
 
     TileBag() {
@@ -15,7 +15,7 @@ class TileBag extends HashMap<String,TileXYZP> {
     }
 
 
-    public TileXYZP put(String string, TileXYZP tileP) {
+    public TileXYZp put(String string, TileXYZp tileP) {
         super.put(string, tileP);
         if (tileP.getTile() != null) {
             tileP.pending.release();
@@ -27,7 +27,7 @@ class TileBag extends HashMap<String,TileXYZP> {
     Tile getTile(int x,int y,int z) {
 
         if (this.get("" + x + "," + y + "," + z) == null) {
-            Log.e("AZERT", "no tileXYZP in hash" );
+            Log.e("AZERT", "no tileXYZP in hash");
             return null;
         }
 

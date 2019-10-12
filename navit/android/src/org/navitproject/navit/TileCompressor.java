@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 class TileCompressor {
 
-    LinkedBlockingQueue<TileXYZP> mQueUe = new LinkedBlockingQueue<TileXYZP>();
+    LinkedBlockingQueue<TileXYZp> mQueUe = new LinkedBlockingQueue<TileXYZp>();
 
     class MyRunnable implements Runnable {
 
@@ -30,7 +30,7 @@ class TileCompressor {
             while (true) {
                 Log.e(TAG, " -- ready " + mNumber);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                TileXYZP tileP = null;
+                TileXYZp tileP = null;
                 try {
                     tileP = mQueUe.take();
                 } catch (InterruptedException e) {

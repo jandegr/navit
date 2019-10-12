@@ -14,7 +14,7 @@ class NavitMapTileProvider implements TileProvider {
 
     private final int mSize;
 
-    private boolean nativeIsDrawing = false;
+    private boolean mNativeIsDrawing = false;
 
     private final TileCompressor mTileCompressor;
 
@@ -23,19 +23,19 @@ class NavitMapTileProvider implements TileProvider {
     // request or release the native tileprovider
     private synchronized boolean isOccupied(boolean wantIt) {
 
-        if (!nativeIsDrawing && wantIt) { // permit to draw
-            nativeIsDrawing = true;
+        if (!mNativeIsDrawing && wantIt) { // permit to draw
+            mNativeIsDrawing = true;
             return false;
         }
-        if (nativeIsDrawing && wantIt) { // refuse to draw
+        if (mNativeIsDrawing && wantIt) { // refuse to draw
             return true;
         }
-        nativeIsDrawing = false; // release
+        mNativeIsDrawing = false; // release
         return false;
     }
 
 
-    NavitMapTileProvider(int size){
+    NavitMapTileProvider(int size) {
         mSize = size;
         mTileCompressor = new TileCompressor();
     }
@@ -51,21 +51,21 @@ class NavitMapTileProvider implements TileProvider {
         // create pending tiles
         for (int row = 0; row < rowsCols; row++) {
             for (int col = 0; col < rowsCols; col++) {
-                TileXYZP tileXYZP = new TileXYZP(x + col, y + row, zoom, null, null);
-                mTileBag.put(tileXYZP.toString(), tileXYZP);
+                TileXYZp tileP = new TileXYZp(x + col, y + row, zoom, null, null);
+                mTileBag.put(tileP.toString(), tileP);
             }
         }
 
         for (int row = 0; row < rowsCols; row++) {
             for (int col = 0; col < rowsCols; col++) {
 
-                Bitmap part = Bitmap.createBitmap(bitmap,(col * mSize) , (row * mSize), mSize, mSize);
+                Bitmap part = Bitmap.createBitmap(bitmap, (col * mSize), (row * mSize), mSize, mSize);
 
-                Log.e(TAG, "received Tile is compressed to PNG " + zoom + "," + (x+col) + "," + (y+row));
+                Log.e(TAG, "received Tile is compressed to PNG " + zoom + "," + (x + col) + "," + (y + row));
 
-                TileXYZP tileXYZP = new TileXYZP(x + col, y + row, zoom, null, part);
-                mTileBag.put(tileXYZP.toString(), tileXYZP);
-                mTileCompressor.mQueUe.offer(tileXYZP);
+                TileXYZp tileP = new TileXYZp(x + col, y + row, zoom, null, part);
+                mTileBag.put(tileP.toString(), tileP);
+                mTileCompressor.mQueUe.offer(tileP);
 
             }
         }
@@ -78,7 +78,7 @@ class NavitMapTileProvider implements TileProvider {
     @Override
     public synchronized Tile getTile(int x, int y, int zoom) {
 
-        Log.e(TAG, "getTile z" + zoom +" x" + x + " y" + y);
+        Log.e(TAG, "getTile z" + zoom + " x" + x + " y" + y);
         Tile tile = null;
         if (zoom > 20 || zoom < 6) {
             Log.e(TAG, "asked zoomlevel out of range");
