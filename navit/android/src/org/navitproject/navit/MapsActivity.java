@@ -1,8 +1,9 @@
 package org.navitproject.navit;
 
-import androidx.fragment.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import androidx.fragment.app.FragmentActivity;
+
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;

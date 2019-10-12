@@ -12,13 +12,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 class TileCompressor {
 
-    LinkedBlockingQueue<TileXYZP> queUe = new LinkedBlockingQueue<TileXYZP>();
+    LinkedBlockingQueue<TileXYZP> mQueUe = new LinkedBlockingQueue<TileXYZP>();
 
     class MyRunnable implements Runnable {
 
 
         private final int mNumber;
-        private final String TAG = "Tilecompressor";
+        private static final String TAG = "Tilecompressor";
 
         MyRunnable(int i) {
             super();
@@ -27,21 +27,21 @@ class TileCompressor {
 
         @Override
         public void run() {
-            while(true) {
+            while (true) {
                 Log.e(TAG, " -- ready " + mNumber);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                TileXYZP tileXYZP = null;
+                TileXYZP tileP = null;
                 try {
-                    tileXYZP = queUe.take();
+                    tileP = mQueUe.take();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                Bitmap bitmap = tileXYZP.mBitmap;
+                Bitmap bitmap = tileP.mBitmap;
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                Tile tile = new Tile(tileXYZP.getSize(), tileXYZP.getSize(), baos.toByteArray());
-                tileXYZP.setTile(tile);
+                Tile tile = new Tile(tileP.getSize(), tileP.getSize(), baos.toByteArray());
+                tileP.setTile(tile);
                 Log.e(TAG, " -- finished a compression " + mNumber);
-                Log.e(TAG," " +tileXYZP.toString());
+                Log.e(TAG," " + tileP.toString());
             }
         }
     }

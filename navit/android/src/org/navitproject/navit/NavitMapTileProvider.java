@@ -65,7 +65,7 @@ class NavitMapTileProvider implements TileProvider {
 
                 TileXYZP tileXYZP = new TileXYZP(x + col, y + row, zoom, null, part);
                 mTileBag.put(tileXYZP.toString(), tileXYZP);
-                mTileCompressor.queUe.offer(tileXYZP);
+                mTileCompressor.mQueUe.offer(tileXYZP);
 
             }
         }
