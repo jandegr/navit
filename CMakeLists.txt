@@ -639,19 +639,18 @@ if(ANDROID)
 #           NAMES GLESv2
 #           PATHS /usr/lib)
 #   set(OPENGLES2_LIBRARIES ${OPENGLES2_LIBRARY})
-#   find_library(JNIGRAPHICS_LIBRARY
-#           NAMES jnigraphics
-#           PATHS /usr/lib)
-#   set(JNIGRAPHICS_LIBRARIES ${JNIGRAPHICS_LIBRARY})
+   find_library(JNIGRAPHICS_LIBRARY
+           NAMES jnigraphics
+           PATHS /usr/lib)
+   set(JNIGRAPHICS_LIBRARIES ${JNIGRAPHICS_LIBRARY})
 #   if (OPENGLES2_LIBRARY)
 
-# not on CI !
-#      set_with_reason(plugin/tileprovider "Android openglES2 found" TRUE)
+      set_with_reason(plugin/tileprovider "Android openglES2 found" TRUE)
       
       
-#       MESSAGE(STATUS "   opengles2_library '${OPENGLES2_LIBRARY}'")
-#       MESSAGE(STATUS "   jnigraphics_library '${JNIGRAPHICS_LIBRARY}'")
-#   endif()
+ #      MESSAGE(STATUS "   opengles2_library '${OPENGLES2_LIBRARY}'")
+ #      MESSAGE(STATUS "   jnigraphics_library '${JNIGRAPHICS_LIBRARY}'")
+ #  endif()
    include_directories(${OPENGLES2_INCLUDE_DIR})
    list(APPEND NAVIT_LIBS ${OPENGLES2_LIBRARY})
    list(APPEND NAVIT_LIBS ${JNIGRAPHICS_LIBRARY})
