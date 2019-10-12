@@ -18,7 +18,7 @@ class TileBag extends HashMap<String, TileXYZp> {
     public TileXYZp put(String string, TileXYZp tileP) {
         super.put(string, tileP);
         if (tileP.getTile() != null) {
-            tileP.pending.release();
+            tileP.mPending.release();
         }
         return tileP;
     }

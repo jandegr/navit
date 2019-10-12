@@ -75,6 +75,7 @@ public class Navit extends Activity {
     private static final int           NavitDownloaderSelectMap_id     = 967;
     private static final int           NavitAddressSearch_id           = 70;
     private static final int           NavitSelectStorage_id           = 43;
+    private static final int           MapsActivity_id                 = 56;
     private static final String        NAVIT_PACKAGE_NAME              = "org.navitproject.navit";
     private static final String        TAG                             = "Navit";
     static String                      sMapFilenamePath;
@@ -507,6 +508,10 @@ public class Navit extends Activity {
                 msg.setData(b);
                 msg.sendToTarget();
                 break;
+            case R.id.action_mapTileActivity:
+                Intent intent = new Intent(this,MapsActivity.class);
+                this.startActivityForResult(intent, MapsActivity_id);
+                break;
             default:
                 Log.w(TAG,"unhandled optionsItem");
         }
@@ -606,9 +611,9 @@ public class Navit extends Activity {
                 }
                 break;
             default :
-                if (mActivityResults[requestCode] != null) {
-                    mActivityResults[requestCode].onActivityResult(requestCode, resultCode, data);
-                }
+                //if (mActivityResults[requestCode] != null) {
+                //    mActivityResults[requestCode].onActivityResult(requestCode, resultCode, data);
+                //}
                 break;
         }
     }
