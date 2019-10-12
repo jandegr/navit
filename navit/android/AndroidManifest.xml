@@ -1,53 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.navitproject.navit"
-    android:sharedUserId="org.navitproject.navit"
-    android:installLocation="auto">
-    <uses-feature android:name="android.hardware.location.network" android:required="false"/>
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
-    <uses-feature android:glEsVersion="0x00020000"/>
-    <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:resizeable="true" android:anyDensity="true"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    android:installLocation="auto"
+    android:sharedUserId="org.navitproject.navit">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-feature
+        android:name="android.hardware.location.network"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature android:glEsVersion="0x00020000" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <application android:label="@string/app_name"
-        android:resizeableActivity="true"
-        android:usesCleartextTraffic="true"
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application
+        android:name=".NavitAppConfig"
         android:allowBackup="false"
         android:icon="@drawable/icon"
-        android:name=".NavitAppConfig">
-        <activity android:name="Navit"
-            android:label="@string/app_name"
+        android:label="@string/app_name"
+        android:resizeableActivity="true"
+        android:usesCleartextTraffic="true">
+
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
+        -->
+      <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyB2HDdoFJs035eSPqFpW-lWLuQuI23UB5E" />
+
+        <activity
+            android:name=".MapsActivity"
+            android:label="NavitMapAct">
+        </activity>
+        <activity
+            android:name=".Navit"
             android:configChanges="screenLayout|smallestScreenSize|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|fontScale|screenSize"
+            android:label="@string/app_name"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:scheme="google.navigation" />
             </intent-filter>
         </activity>
-        <activity android:name=".NavitAddressSearchActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden">
-        </activity>
-        <activity android:name=".NavitSettingsActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden">
-        </activity>
-        <activity android:name=".NavitDownloadSelectMapActivity"></activity>
-        <!--       <activity android:name=".NavitAddressResultListActivity"></activity> -->
         <activity
-            android:name="FileBrowserActivity"
-            android:label="File browser"
-            android:configChanges="orientation|keyboardHidden">
+            android:name=".NavitAddressSearchActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"></activity>
+        <activity
+            android:name=".NavitSettingsActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"></activity>
+        <activity android:name=".NavitDownloadSelectMapActivity" /> <!-- <activity android:name=".NavitAddressResultListActivity"></activity> -->
+        <activity
+            android:name=".FileBrowserActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="File browser">
             <intent-filter>
-                <action android:name="ua.com.vassiliev.androidfilebrowser.SELECT_DIRECTORY_ACTION"></action>
+                <action android:name="ua.com.vassiliev.androidfilebrowser.SELECT_DIRECTORY_ACTION" />
             </intent-filter>
         </activity>
     </application>
+
 </manifest>
