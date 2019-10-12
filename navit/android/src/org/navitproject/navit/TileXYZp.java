@@ -11,7 +11,7 @@ import java.util.concurrent.Semaphore;
 public class TileXYZp {
 
 
-    final Semaphore pending = new Semaphore(0);
+    final Semaphore mPending = new Semaphore(0);
     Bitmap mBitmap = null;
     private final int mX;
     private final int mY;
@@ -28,13 +28,13 @@ public class TileXYZp {
 
     void setTile(Tile tile) {
         this.mTile = tile;
-        pending.release();
+        mPending.release();
     }
 
 
     void acquire() {
         try {
-            pending.acquire();
+            mPending.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
