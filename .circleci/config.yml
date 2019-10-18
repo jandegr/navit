@@ -6,7 +6,7 @@ jobs:
   build_linux:
     <<: *defaults
     environment:
-      MAPTOOL_CMD: "bin/navit/maptool/maptool -P  -6"
+      MAPTOOL_CMD: "bin/navit/maptool/maptool -P  -6 -k"
     steps:
       - checkout
       - run:
@@ -91,6 +91,7 @@ jobs:
             ls -la
             cd ..
             ls -la
+            cp tilesdir.* out
       - store_artifacts:
           path: out
 workflows:
