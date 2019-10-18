@@ -91,7 +91,7 @@ jobs:
             ls -la
             cd ..
             ls -la
-            cp tilesdir.* out
+            cp tilesdir_.* out
       - store_artifacts:
           path: out
 workflows:
