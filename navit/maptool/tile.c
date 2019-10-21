@@ -612,7 +612,7 @@ merge_tiles(struct tile_info *info)
 		while (last) {
 			processed_tiles++;
 			len=tile_len(last->data);
-			if (len >= 1 && len !=9  && len != 8 && len != 7) {
+			if (len >= 1) {
 				strcpy(basetile,last->data);
 				basetile[len-1]='\0';
 				strcat(basetile, info->suffix);
