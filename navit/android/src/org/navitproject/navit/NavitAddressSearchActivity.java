@@ -108,9 +108,8 @@ public class NavitAddressSearchActivity extends Activity {
         // without interference with android builtin choosing and scaling system. But that makes us to
         // reinvent the wheel here to show an image in android native interface.
         int[] flagIconSizes = {24,32,48,64,96};
-        int exactSize;
         int nearestSize;
-        exactSize = (int)(Navit.sMetrics.density * 24.0 - .5);
+        int exactSize = (int)(getResources().getDisplayMetrics().density *24 - 0.5);
         nearestSize = flagIconSizes[0];
         for (int size: flagIconSizes) {
             nearestSize = size;
@@ -158,7 +157,6 @@ public class NavitAddressSearchActivity extends Activity {
         }
 
         mCountryButton = new ImageButton(this);
-
         setCountryButtonImage();
 
         mCountryButton.setOnClickListener(new OnClickListener() {
