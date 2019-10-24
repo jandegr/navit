@@ -13,7 +13,7 @@ class NavitCallbackHandler {
     static final Handler sCallbackHandler = new CallBackHandler();
 
     private static native int callbackMessageChannel(int channel, String s);
-    
+
     private static native int callbackCmdChannel(int commandd);
 
     enum CmdType { CMD_ZOOM_IN, CMD_ZOOM_OUT, CMD_BLOCK, CMD_UNBLOCK, CMD_REDRAW, CMD_CANCEL_ROUTE }
