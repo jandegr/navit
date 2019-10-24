@@ -109,7 +109,7 @@ public class NavitAddressSearchActivity extends Activity {
         // reinvent the wheel here to show an image in android native interface.
         int[] flagIconSizes = {24,32,48,64,96};
         int nearestSize;
-        int exactSize = (int)(getResources().getDisplayMetrics().density *24 - 0.5);
+        int exactSize = (int)(getResources().getDisplayMetrics().density * 24 - 0.5);
         nearestSize = flagIconSizes[0];
         for (int size: flagIconSizes) {
             nearestSize = size;

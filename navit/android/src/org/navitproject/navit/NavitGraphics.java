@@ -276,7 +276,8 @@ class NavitGraphics {
                 mContextMenuMapViewIntent = null;
             }
             if (itemId == MENU_DRIVE_HERE) {
-                Message msg = Message.obtain(NavitCallbackHandler.sCallbackHandler, NavitCallbackHandler.MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
+                Message msg = Message.obtain(NavitCallbackHandler.sCallbackHandler,
+                        NavitCallbackHandler.MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
                         (int) mPressedPosition.x, (int) mPressedPosition.y);
                 msg.sendToTarget();
             } else if (itemId == MENU_VIEW) {

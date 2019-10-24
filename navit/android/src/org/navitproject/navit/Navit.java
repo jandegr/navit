@@ -633,14 +633,16 @@ public class Navit extends Activity {
                 b.putString("cmd", "toggle_layer(\"POI Symbols\");");
                 msg.setData(b);
                 msg.sendToTarget();
-                msg = Message.obtain(NavitCallbackHandler.sCallbackHandler, NavitCallbackHandler.MsgType.CLB_CALL_CMD.ordinal());
+                msg = Message.obtain(NavitCallbackHandler.sCallbackHandler,
+                        NavitCallbackHandler.MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"POI Labels\");");
                 msg.setData(b);
                 msg.sendToTarget();
 
                 // toggle full POI icons on/off
-                msg = Message.obtain(NavitCallbackHandler.sCallbackHandler, NavitCallbackHandler.MsgType.CLB_CALL_CMD.ordinal());
+                msg = Message.obtain(NavitCallbackHandler.sCallbackHandler,
+                        NavitCallbackHandler.MsgType.CLB_CALL_CMD.ordinal());
                 b = new Bundle();
                 b.putString("cmd", "toggle_layer(\"Android-POI-Icons-full\");");
                 msg.setData(b);
