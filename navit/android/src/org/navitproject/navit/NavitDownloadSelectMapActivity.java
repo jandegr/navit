@@ -74,6 +74,10 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
     }
 
 
+    public void updateTitle (){
+
+    }
+
     private void updateDownloadedMaps() {
         sDownloadedMapsChilds.clear();
         for (NavitMap map : NavitMapDownloader.getAvailableMaps()) {
@@ -236,10 +240,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                         b.putString("title", mapLocation);
                         msg.setData(b);
                         msg.sendToTarget();
-                        updateDownloadedMaps();
-                        setTitle(NavitUtils.getFreeSpace(Navit.sMapFilenamePath) / 1024 / 1024 + "MB available");
-                        sAdapter.
-                        //finish();
+                        finish();
                     }
                 });
 
