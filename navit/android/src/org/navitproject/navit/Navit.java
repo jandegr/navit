@@ -355,8 +355,6 @@ public class Navit extends Activity {
         navitMain(navitLanguage, sNavitDataDir + "/bin/navit", sMapFilenamePath);
         showInfos();
 
-        /* Only store the startup intent, onResume() gets called all the time (e.g. when screenblanks, etc.) and
-           will process this intent later on if needed */
         Intent startupIntent = new Intent(this.getIntent());
         Log.d(TAG, "Recording intent " + startupIntent.toString());
         //InputMethodManager sInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -517,7 +515,7 @@ public class Navit extends Activity {
                 msg.sendToTarget();
                 Log.d(TAG, "target found (b): " + geoString);
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                Log.e(TAG,"numberFormatException");
             }
         } else {
             Log.w(TAG, "Ignoring invalid geo string: " + geoString);

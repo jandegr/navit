@@ -16,7 +16,7 @@ class NavitCallbackHandler {
 
     private static native int callbackCmdChannel(int commandd);
 
-    enum CmdType { CMD_ZOOM_IN, CMD_ZOOM_OUT, CMD_BLOCK, CMD_UNBLOCK, CMD_REDRAW, CMD_CANCEL_ROUTE }
+    enum CmdType { CMD_ZOOM_IN, CMD_ZOOM_OUT, CMD_BLOCK, CMD_UNBLOCK, CMD_CANCEL_ROUTE }
 
     static void sendCommand(CmdType command) {
         switch (command) {
@@ -34,9 +34,6 @@ class NavitCallbackHandler {
                 break;
             case CMD_CANCEL_ROUTE:
                 callbackCmdChannel(5);
-                break;
-            case CMD_REDRAW:
-                //
                 break;
             default:
                 Log.e(TAG, "Unhandled command : " + command);

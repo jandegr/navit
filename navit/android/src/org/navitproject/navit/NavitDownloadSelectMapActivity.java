@@ -60,7 +60,7 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
         updateMapsForLocation();
         setListAdapter(sAdapter);
         try {
-            setTitle(getFreeSpace() / 1024 / 1024 + "MB available");
+            setTitle(NavitUtils.getFreeSpace(Navit.sMapFilenamePath) / 1024 / 1024 + "MB available");
         } catch (Exception e) {
             Log.e(TAG, "Exception " + e.getClass().getName()
                     + " during getFreeSpace, reporting 'no sdcard present'");
@@ -73,10 +73,6 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
         }
     }
 
-    private long getFreeSpace() {
-        StatFs fsInfo = new StatFs(Navit.sMapFilenamePath);
-        return (long) fsInfo.getAvailableBlocks() * fsInfo.getBlockSize();
-    }
 
     private void updateDownloadedMaps() {
         sDownloadedMapsChilds.clear();
@@ -240,7 +236,10 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
                         b.putString("title", mapLocation);
                         msg.setData(b);
                         msg.sendToTarget();
-                        finish();
+                        updateDownloadedMaps();
+                        setTitle(NavitUtils.getFreeSpace(Navit.sMapFilenamePath) / 1024 / 1024 + "MB available");
+                        sAdapter.
+                        //finish();
                     }
                 });
 

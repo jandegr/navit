@@ -37,7 +37,6 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
-import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.util.Log;
@@ -238,7 +237,7 @@ class NavitGraphics {
                     result = Intent.createChooser(customShareIntentList.remove(customShareIntentList.size() - 1),
                             NavitAppConfig.getTstring(R.string.use_position_with));
                     result.putExtra(Intent.EXTRA_INITIAL_INTENTS,
-                            customShareIntentList.toArray(new Parcelable[customShareIntentList.size()]));
+                            customShareIntentList.toArray(new Intent[0]));
                     Log.d(TAG, "Preparing action intent (" + customShareIntentList.size() + 1
                                + " candidate apps) to view selected coord: " + selectedPointCoord);
                 }
@@ -271,28 +270,20 @@ class NavitGraphics {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             int itemId = item.getItemId();
-            if (itemId != MENU_VIEW) {
-                /* Destroy any previous map view intent if the user didn't select the MENU_VIEW action */
-                mContextMenuMapViewIntent = null;
-            }
             if (itemId == MENU_DRIVE_HERE) {
                 Message msg = Message.obtain(NavitCallbackHandler.sCallbackHandler,
                         NavitCallbackHandler.MsgType.CLB_SET_DISPLAY_DESTINATION.ordinal(),
                         (int) mPressedPosition.x, (int) mPressedPosition.y);
                 msg.sendToTarget();
             } else if (itemId == MENU_VIEW) {
-                if (mContextMenuMapViewIntent != null) {
-                    mContextMenuMapViewIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    if (mContextMenuMapViewIntent.resolveActivity(this.getContext().getPackageManager()) != null) {
-                        this.getContext().startActivity(mContextMenuMapViewIntent);
-                    } else {
-                        Log.w(TAG, "View menu selected but intent is not handled by any application. Ignoring...");
-                    }
-                    mContextMenuMapViewIntent = null;   /* Destoy the intent once it has been used */
+                mContextMenuMapViewIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                if (mContextMenuMapViewIntent.resolveActivity(this.getContext().getPackageManager()) != null) {
+                    this.getContext().startActivity(mContextMenuMapViewIntent);
                 } else {
-                    Log.e(TAG, "User clicked on view on menu but intent was null. Discarding...");
+                    Log.w(TAG, "View menu selected but intent is not handled by any application. Ignoring...");
                 }
             }
+            mContextMenuMapViewIntent = null;
             return true;
         }
 
