@@ -74,10 +74,6 @@ public class NavitDownloadSelectMapActivity extends ExpandableListActivity {
     }
 
 
-    public void updateTitle (){
-
-    }
-
     private void updateDownloadedMaps() {
         sDownloadedMapsChilds.clear();
         for (NavitMap map : NavitMapDownloader.getAvailableMaps()) {

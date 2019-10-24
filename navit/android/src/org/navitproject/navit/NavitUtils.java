@@ -1,6 +1,5 @@
 package org.navitproject.navit;
 
-import android.os.StatFs;
 
 import java.io.File;
 import java.io.FileInputStream;
