@@ -137,10 +137,10 @@ jobs:
           name: Store Lint reports
           path: navit/android/build/reports
           destination: reports
-      - store_artifacts:
-          name: Store translations
-          path: po
-          destination: translations
+#      - store_artifacts:
+#          name: Store translations
+#          path: po
+#          destination: translations
       - store_artifacts:
           name: Store checkstyle report
           path: /home/circleci/code/navit/android/checkstyle
