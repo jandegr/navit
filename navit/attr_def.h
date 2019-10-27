@@ -118,7 +118,7 @@ ATTR(message_maxage)
 ATTR(message_maxnum)
 ATTR(pitch)
 ATTR(lanes)
-ATTR_UNUSED
+ATTR(osm_layer)
 ATTR(route_status)
 ATTR(route_weight)
 ATTR(roundabout_weight)
