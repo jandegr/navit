@@ -67,10 +67,7 @@ import java.util.regex.Pattern;
 public class Navit extends Activity {
 
 
-    public static DisplayMetrics sMetrics;
     public static boolean sShowSoftKeyboardShowing;
-    private static Intent sStartupIntent;
-    private static long sStartupIntentTimestamp;
     private static final int MY_PERMISSIONS_REQ_FINE_LOC = 103;
     private static final int NavitDownloaderSelectMap_id = 967;
     private static final int NavitAddressSearch_id = 70;
@@ -79,8 +76,7 @@ public class Navit extends Activity {
     private static final String NAVIT_PACKAGE_NAME = "org.navitproject.navit";
     private static final String TAG = "Navit";
     static String sMapFilenamePath;
-    static String sNavitDataDir;
-    boolean mIsFullscreen;
+    private boolean mIsFullscreen;
     private NavitDialogs mDialogs;
     private PowerManager.WakeLock mWakeLock;
     private NavitActivityResult[] mActivityResults;
@@ -92,7 +88,7 @@ public class Navit extends Activity {
      *
      * @param filename The full path to the file
      * @return true if file does not exist, but it can be created at the specified location, we will also return
-     * true if the file exist but the apk archive is more recent (probably package was upgraded)
+     *         true if the file exist but the apk archive is more recent (probably package was upgraded)
      */
     private boolean resourceFileNeedsUpdate(String filename) {
         File resultfile = new File(filename);
@@ -206,13 +202,6 @@ public class Navit extends Activity {
         windowSetup();
         mDialogs = new NavitDialogs(this);
 
-        // only take arguments here, onResume gets called all the time (e.g. when screenblanks, etc.)
-        Navit.sStartupIntent = this.getIntent();
-        // hack! Remember time stamps, and only allow 4 secs. later in onResume to set target!
-        Navit.sStartupIntentTimestamp = System.currentTimeMillis();
-        Log.d(TAG, "**1**A " + sStartupIntent.getAction());
-        Log.d(TAG, "**1**D " + sStartupIntent.getDataString());
-
         verifyPermissions();
         // get the local language -------------
         Locale locale = Locale.getDefault();
@@ -234,7 +223,7 @@ public class Navit extends Activity {
         Log.d(TAG, "Language " + lang);
 
         SharedPreferences settings = getSharedPreferences(NavitAppConfig.NAVIT_PREFS, MODE_PRIVATE);
-        sNavitDataDir = getApplicationContext().getFilesDir().getPath();
+        String navitDataDir = getApplicationContext().getFilesDir().getPath();
 
         String candidateFileNamePath = getApplicationContext().getExternalFilesDir(null).toString();
         boolean firstStart = settings.getBoolean("firstStart", true);
@@ -246,31 +235,31 @@ public class Navit extends Activity {
         }
         sMapFilenamePath = settings.getString("filenamePath", candidateFileNamePath);
 
-        Log.i(TAG, "NavitDataDir = " + sNavitDataDir);
+        Log.i(TAG, "NavitDataDir = " + navitDataDir);
         Log.i(TAG, "mapFilenamePath = " + sMapFilenamePath);
         // make sure the new path for the navitmap.bin file(s) exist!!
         File navitMapsDir = new File(sMapFilenamePath);
         navitMapsDir.mkdirs();
 
         // make sure the share dir exists
-        File navitDataShareDir = new File(sNavitDataDir + "/share");
+        File navitDataShareDir = new File(navitDataDir + "/share");
         navitDataShareDir.mkdirs();
 
         Display display = getWindowManager().getDefaultDisplay();
-        sMetrics = new DisplayMetrics();
-        display.getMetrics(sMetrics);
-        int densityDpi = (int) ((sMetrics.density * 160) - .5f);
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        int densityDpi = (int) ((metrics.density * 160) - .5f);
         Log.d(TAG, "-> pixels x=" + display.getWidth() + " pixels y=" + display.getHeight());
         Log.d(TAG, "-> dpi=" + densityDpi);
-        Log.d(TAG, "-> density=" + sMetrics.density);
-        Log.d(TAG, "-> scaledDensity=" + sMetrics.scaledDensity);
+        Log.d(TAG, "-> density=" + metrics.density);
+        Log.d(TAG, "-> scaledDensity=" + metrics.scaledDensity);
 
         mActivityResults = new NavitActivityResult[16];
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "navit:DoNotDimScreen");
 
-        if (!extractRes(langc, sNavitDataDir + "/locale/" + langc + "/LC_MESSAGES/navit.mo")) {
+        if (!extractRes(langc, navitDataDir + "/locale/" + langc + "/LC_MESSAGES/navit.mo")) {
             Log.e(TAG, "Failed to extract language resource " + langc);
         }
 
@@ -294,13 +283,32 @@ public class Navit extends Activity {
         }
         Log.i(TAG, "Device density detected: " + myDisplayDensity);
 
-        if (!extractRes("navit" + myDisplayDensity, sNavitDataDir + "/share/navit.xml")) {
+        if (!extractRes("navit" + myDisplayDensity, navitDataDir + "/share/navit.xml")) {
             Log.e("Navit", "Failed to extract navit.xml for " + myDisplayDensity);
         }
 
         Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + Integer.valueOf(Build.VERSION.SDK));
-        navitMain(navitLanguage, sNavitDataDir + "/bin/navit", sMapFilenamePath + '/');
+        navitMain(navitLanguage, navitDataDir + "/bin/navit", sMapFilenamePath + '/');
         showInfos();
+
+        Intent startupIntent = new Intent(this.getIntent());
+        Log.d(TAG, "onCreate intent " + startupIntent.toString());
+        handleIntent(startupIntent);
+    }
+
+    private void handleIntent(Intent intent) {
+        String naviScheme = intent.getScheme();
+        if (naviScheme != null) {
+            Log.d(TAG, "Using intent " + intent.toString());
+            if (naviScheme.equals("google.navigation")) {
+                parseNavigationURI(intent.getData().getSchemeSpecificPart());
+            }
+            //else if (naviScheme.equals("geo")
+            //        && intent.getAction().equals("android.intent.action.VIEW")) {
+            //    invokeCallbackOnGeo(intent.getData().getSchemeSpecificPart(),
+            //            NavitCallbackHandler.MsgType.CLB_SET_DESTINATION, "");
+            //}
+        }
     }
 
     private void windowSetup() {
@@ -333,22 +341,8 @@ public class Navit extends Activity {
         }
         //InputMethodManager sInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         // DEBUG
-        // intent_data = "google.navigation:q=Wien Burggasse 27";
-        // intent_data = "google.navigation:q=48.25676,16.643";
-        // intent_data = "google.navigation:ll=48.25676,16.643&q=blabla-strasse";
-        // intent_data = "google.navigation:ll=48.25676,16.643";
-        if (sStartupIntent != null) {
-            if (System.currentTimeMillis() <= Navit.sStartupIntentTimestamp + 4000L) {
-                Log.d(TAG, "**2**A " + sStartupIntent.getAction());
-                Log.d(TAG, "**2**D " + sStartupIntent.getDataString());
-                String naviScheme = sStartupIntent.getScheme();
-                if (naviScheme != null && naviScheme.equals("google.navigation")) {
-                    parseNavigationURI(sStartupIntent.getData().getSchemeSpecificPart());
-                }
-            } else {
-                Log.e(TAG, "timestamp for navigate_to expired! not using data");
-            }
-        }
+
+
     }
 
     @Override
@@ -389,7 +383,10 @@ public class Navit extends Activity {
                 params.put(m.group(1), m.group(2));
             }
         }
-
+        // intent_data = "google.navigation:q=Wien Burggasse 27";
+        // intent_data = "google.navigation:q=48.25676,16.643";
+        // intent_data = "google.navigation:ll=48.25676,16.643&q=blabla-strasse";
+        // intent_data = "google.navigation:ll=48.25676,16.643";
         // d: google.navigation:q=blabla-strasse # (this happens when you are offline, or from contacts)
         // a: google.navigation:ll=48.25676,16.643&q=blabla-strasse
         // c: google.navigation:ll=48.25676,16.643
@@ -539,6 +536,7 @@ public class Navit extends Activity {
      *
      * @return 1 if keyboard is software, 0 if hardware
      */
+    @SuppressWarnings("unused")
     int showNativeKeyboard() {
         Log.d(TAG, "showNativeKeyboard");
         Configuration config = getResources().getConfiguration();

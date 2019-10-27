@@ -199,8 +199,6 @@ class NavitGraphics {
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             Log.d(TAG, "onSizeChanged pixels x=" + w + " pixels y=" + h);
-            Log.v(TAG, "onSizeChanged density=" + Navit.sMetrics.density);
-            Log.v(TAG, "onSizeChanged scaledDensity=" + Navit.sMetrics.scaledDensity);
             super.onSizeChanged(w, h, oldw, oldh);
             mDrawBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             mDrawCanvas = new Canvas(mDrawBitmap);
@@ -344,11 +342,6 @@ class NavitGraphics {
             return (float) Math.sqrt(x * x + y * y);
         }
 
-        private float spacing(PointF a, PointF b) {
-            float x = a.x - b.x;
-            float y = a.y - b.y;
-            return (float)Math.sqrt(x * x + y * y);
-        }
 
         @Override
         public boolean onKeyDown(int keyCode, KeyEvent event) {

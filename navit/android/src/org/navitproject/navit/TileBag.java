@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 
 class TileBag extends HashMap<String, TileXYZp> {
-    private final static String TAG = "TileBag";
+    private static final  String TAG = "TileBag";
 
 
     TileBag() {
@@ -20,7 +20,7 @@ class TileBag extends HashMap<String, TileXYZp> {
 
     public TileXYZp put(String string, TileXYZp tileP) {
         super.put(string, tileP);
-        Log.e("AZERT", "put done");
+        Log.e(TAG, "put done");
         return tileP;
     }
 
@@ -28,13 +28,13 @@ class TileBag extends HashMap<String, TileXYZp> {
     Tile getTile(int x, int y, int z) {
 
         if (this.get("" + x + "," + y + "," + z) == null) {
-            Log.e("AZERT", "no tileXYZP in hash");
+            Log.e(TAG, "no tileXYZP in hash");
             return null;
         }
 
         this.get("" + x + "," + y + "," + z).acquire();
         if (this.get("" + x + "," + y + "," + z).getTile() == null) {
-            Log.e("AZERT", "tileXYZP in hash has no tile");
+            Log.e(TAG, "tileXYZP in hash has no tile");
             return null;
         }
 
