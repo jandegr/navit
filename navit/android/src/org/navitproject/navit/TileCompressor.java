@@ -28,7 +28,6 @@ class TileCompressor {
         @Override
         public void run() {
             while (true) {
-                Log.e(TAG, " -- ready " + mNumber);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 TileXYZp tileP = null;
                 try {
@@ -36,24 +35,29 @@ class TileCompressor {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                //Log.e(TAG, " -- start compression " + mNumber);
                 Bitmap bitmap = tileP.mBitmap;
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
                 Tile tile = new Tile(tileP.getSize(), tileP.getSize(), baos.toByteArray());
                 tileP.setTile(tile);
-                Log.e(TAG, " -- finished a compression " + mNumber);
-                Log.e(TAG," " + tileP.toString());
+                Log.e(TAG, " -- finished a compression (" + mNumber + ") " +tileP.toString());
             }
         }
     }
 
 
     TileCompressor() {
+        Log.e("compressor","init\n");
         Thread compressorThread1 = new Thread(new MyRunnable(1));
         compressorThread1.start();
         Thread compressorThread2 = new Thread(new MyRunnable(2));
         compressorThread2.start();
         Thread compressorThread3 = new Thread(new MyRunnable(3));
         compressorThread3.start();
+        Thread compressorThread4 = new Thread(new MyRunnable(4));
+        compressorThread4.start();
+        Thread compressorThread5 = new Thread(new MyRunnable(5));
+        compressorThread5.start();
     }
 
 }

@@ -1,6 +1,7 @@
 package org.navitproject.navit;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.Tile;
 
@@ -11,8 +12,8 @@ import java.util.concurrent.Semaphore;
 public class TileXYZp {
 
 
-    final Semaphore mPending = new Semaphore(0);
-    Bitmap mBitmap = null;
+    private final Semaphore mPending = new Semaphore(0);
+    Bitmap mBitmap;
     private final int mX;
     private final int mY;
     private final int mZ;
@@ -37,6 +38,7 @@ public class TileXYZp {
             mPending.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Log.e("acquire ","interrupted");
         }
     }
 
@@ -45,7 +47,8 @@ public class TileXYZp {
     }
 
     Tile getTile() {
-        return this.mTile;
+        //Log.e("getTile"," data length = " + mTile.data.length);
+        return mTile;
     }
 
     public int getSize() {

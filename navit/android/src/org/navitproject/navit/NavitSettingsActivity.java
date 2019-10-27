@@ -13,12 +13,12 @@ import java.io.File;
 
 public class NavitSettingsActivity extends PreferenceActivity {
 
-    private static final String TAG = NavitSettingsActivity.class.getName();
+    private static final String TAG = "Settings";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.e(TAG,"onCreate");
         PreferenceManager prefMgr = getPreferenceManager();
         prefMgr.setSharedPreferencesName("NavitPrefs");
         prefMgr.setSharedPreferencesMode(MODE_PRIVATE);
@@ -26,7 +26,7 @@ public class NavitSettingsActivity extends PreferenceActivity {
     }
 
     private PreferenceScreen createPreferenceHierarchy() {
-
+        Log.e(TAG,"onCreateHierarchy");
         PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -38,7 +38,7 @@ public class NavitSettingsActivity extends PreferenceActivity {
                 File candidateDir = candidateDirs[i];
                 entries[i] = candidateDir.toString(); // entries is the human readable form
                 entryValues[i] = entries[i];
-                Log.e(TAG,"candidate Dir " + candidateDir);
+                Log.e(TAG,"candidate Dir ");
             }
             listPref.setEntries(entries);
             listPref.setEntryValues(entryValues);

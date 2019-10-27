@@ -175,6 +175,7 @@ public class NavitAddressSearchActivity extends Activity {
         });
 
         final TextWatcher watcher = new TextWatcher() {
+
             @Override
             public void afterTextChanged(Editable addressEditString) {
                 sAddressString = addressEditString.toString();

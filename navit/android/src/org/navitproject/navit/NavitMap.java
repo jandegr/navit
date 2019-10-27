@@ -30,11 +30,11 @@ public class NavitMap {
     }
 
     public long size() {
-        File mapFile = new File(mMapPath + mFileName);
+        File mapFile = new File(NavitUtils.pathConcat(mMapPath , mFileName, null));
         return mapFile.length();
     }
 
     public String getLocation() {
-        return mMapPath + mFileName;
+        return NavitUtils.pathConcat(mMapPath, mFileName, null);
     }
 }

@@ -47,7 +47,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().setZoomControlsEnabled(true);
         //mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        LatLng sydney = new LatLng(50.9, 3.4);
+        LatLng sydney = new LatLng(51.01195, 3.7266);
 
         TileProvider navitTileProvider = new NavitMapTileProvider(256);
 
@@ -57,6 +57,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Add a marker in Sydney and move the camera
 
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,18));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,17));
     }
 }

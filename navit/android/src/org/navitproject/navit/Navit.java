@@ -234,9 +234,19 @@ public class Navit extends Activity {
         }
         Log.d(TAG, "Language " + lang);
 
-        SharedPreferences prefs = getSharedPreferences(NavitAppConfig.NAVIT_PREFS,MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(NavitAppConfig.NAVIT_PREFS,MODE_PRIVATE);
         sNavitDataDir = getApplicationContext().getFilesDir().getPath();
-        sMapFilenamePath = prefs.getString("filenamePath", sNavitDataDir + '/');
+
+        String candidateFileNamePath = getApplicationContext().getExternalFilesDir(null).toString();
+        boolean firstStart = settings.getBoolean("firstStart", true);
+        if (firstStart) {
+            Log.e(TAG, "set to " + candidateFileNamePath);
+            SharedPreferences.Editor preferenceEditor = settings.edit();
+            preferenceEditor.putString("filenamePath", candidateFileNamePath);
+            preferenceEditor.apply();
+        }
+        sMapFilenamePath = settings.getString("filenamePath", candidateFileNamePath );
+
         Log.i(TAG,"NavitDataDir = " + sNavitDataDir);
         Log.i(TAG,"mapFilenamePath = " + sMapFilenamePath);
         // make sure the new path for the navitmap.bin file(s) exist!!
@@ -290,7 +300,7 @@ public class Navit extends Activity {
         }
 
         Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + Integer.valueOf(Build.VERSION.SDK));
-        navitMain(navitLanguage, sNavitDataDir + "/bin/navit", sMapFilenamePath);
+        navitMain(navitLanguage, sNavitDataDir + "/bin/navit", sMapFilenamePath + '/');
         showInfos();
     }
 
@@ -303,18 +313,19 @@ public class Navit extends Activity {
 
     public void onRestart() {
         super.onRestart();
-        Log.e(TAG, "OnRestart");
+        Log.e(TAG, "onRestart");
     }
 
     public void onStart() {
         super.onStart();
-        Log.e(TAG, "OnStart");
+        Log.e(TAG, "onStart");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.e(TAG, "OnResume");
+        Log.e(TAG, "onResume");
+        CallBackHandler.sendCommand(CallBackHandler.CmdType.CMD_UNBLOCK);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             /* Required to make system bars fully transparent */
         //    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -344,6 +355,7 @@ public class Navit extends Activity {
     @Override
     public void onPause() {
         super.onPause();
+        CallBackHandler.sendCommand(CallBackHandler.CmdType.CMD_BLOCK);
         Log.e(TAG, "onPause");
     }
 
@@ -512,6 +524,9 @@ public class Navit extends Activity {
                 Intent intent = new Intent(this,MapsActivity.class);
                 this.startActivityForResult(intent, MapsActivity_id);
                 break;
+            case R.id.optionsmenu_settings:
+                setMapLocationNew();
+                break;
             default:
                 Log.w(TAG,"unhandled optionsItem");
         }
@@ -595,9 +610,7 @@ public class Navit extends Activity {
                     String newDir = data.getStringExtra(FileBrowserActivity.returnDirectoryParameter);
                     Log.d(TAG, "selected path= " + newDir);
                     if (!newDir.contains("/navit")) {
-                        newDir = newDir + "/navit/";
-                    } else {
-                        newDir = newDir + "/";
+                        newDir = newDir + "/navit";
                     }
                     SharedPreferences prefs = this.getSharedPreferences(NavitAppConfig.NAVIT_PREFS,MODE_PRIVATE);
                     SharedPreferences.Editor  prefsEditor = prefs.edit();
@@ -645,10 +658,17 @@ public class Navit extends Activity {
         startActivityForResult(fileExploreIntent,NavitSelectStorage_id);
     }
 
+    private void setMapLocationNew() {
+        Intent fileExploreIntent = new Intent(this,NavitSettingsActivity.class);
+        fileExploreIntent.setAction(FileBrowserActivity.INTENT_ACTION_SELECT_DIR);
+        startActivityForResult(fileExploreIntent,NavitSelectStorage_id);
+    }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "OnDestroy");
+        Log.d(TAG, "onDestroy");
         NavitVehicle.removeListeners(this);
         navitDestroy();
     }
@@ -656,7 +676,7 @@ public class Navit extends Activity {
 
     public void onStop() {
         super.onStop();
-        Log.d(TAG, "OnStop");
+        Log.d(TAG, "onStop");
     }
 
 

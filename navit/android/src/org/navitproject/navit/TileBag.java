@@ -8,18 +8,19 @@ import java.util.HashMap;
 
 
 class TileBag extends HashMap<String, TileXYZp> {
+    String TAG = "TileBag";
 
 
     TileBag() {
+
         super();
+        Log.e(TAG,"init");
     }
 
 
     public TileXYZp put(String string, TileXYZp tileP) {
         super.put(string, tileP);
-        if (tileP.getTile() != null) {
-            tileP.mPending.release();
-        }
+        Log.e("AZERT", "put done");
         return tileP;
     }
 

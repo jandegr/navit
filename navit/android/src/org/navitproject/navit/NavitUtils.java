@@ -50,4 +50,28 @@ class NavitUtils {
         }
     }
 
+    // mapFilenamePath =  some absolute path optionally ending with /, can be null
+    // filetype is null, bin, .bin, txt, .txt .....
+    static String pathConcat(String mapFilenamePath, String fileName, String filetype) {
+
+        String returnPath = "";
+        if (mapFilenamePath != null && mapFilenamePath.length() > 0) {
+            returnPath = mapFilenamePath;
+            if (!mapFilenamePath.endsWith("/") && !fileName.startsWith("/")) {
+                returnPath = returnPath + '/';
+            }
+        }
+
+        returnPath = returnPath + fileName;
+
+        if (filetype != null && !filetype.startsWith(".")) {
+            returnPath = returnPath + '.';
+        }
+        if (filetype != null) {
+            returnPath = returnPath + filetype;
+        }
+
+
+        return returnPath;
+    }
 }

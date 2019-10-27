@@ -315,68 +315,6 @@ class NavitGraphics {
         }
 
 
-
-        //  super.onTouchEvent(event); -----------------------!!!!!!
-        //    int x = (int) event.getX();
-        //    int y = (int) event.getY();
-        //    int switchValue = (event.getActionMasked());
-        //Log.e(TAG, "onTouchEvent value =  " + switchValue);
-
-        //   if (switchValue == MotionEvent.ACTION_DOWN) {
-        //       mTouchMode = PRESSED;
-        //       Log.d(TAG, "ACTION_DOWN mode PRESSED");
-        //       if (!sInMap) {
-        //           buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
-        //       }
-        //       mPressedPosition = new PointF(x, y);
-        // postDelayed(this, TIME_FOR_LONG_PRESS);
-
-        //   } else if (switchValue == MotionEvent.ACTION_POINTER_DOWN) {
-        //       mOldDist = spacing(event);
-        //       if (mOldDist > 2f) {
-        //           mTouchMode = ZOOM;
-        //           Log.d(TAG, "ACTION_DOWN mode ZOOM started");
-        //       }
-        //   } else if (switchValue == MotionEvent.ACTION_UP) {
-        //       Log.d(TAG, "ACTION_UP");
-        //       switch (mTouchMode) {
-        //           case DRAG:
-        //               Log.d(TAG, "onTouch move");
-        //               motionCallback(mMotionCallbackID, x, y);
-        //               buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-        //               break;
-        //           case PRESSED:
-        //               if (sInMap) {
-        //                   buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
-        //               }
-        //               buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
-        //               break;
-        //           default:
-        //               Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
-        //       }
-        //       mTouchMode = NONE;
-        //   } else if (switchValue == MotionEvent.ACTION_MOVE) {
-        //       switch (mTouchMode) {
-        //           case DRAG:
-        //               motionCallback(mMotionCallbackID, x, y);
-        //               break;
-        //           case ZOOM:
-        //               doZoom(event);
-        //               break;
-        //           case PRESSED:
-        //               Log.d(TAG, "Start drag mode");
-        //               if (spacing(mPressedPosition, new PointF(event.getX(), event.getY())) > 20f) {
-        //                   buttonCallback(mButtonCallbackID, 1, 1, x, y); // down
-        //                   mTouchMode = DRAG;
-        //               }
-        //               break;
-        //           default:
-        //               Log.i(TAG, "Unexpected touchmode: " + mTouchMode);
-        //       }
-        //   }
-        //   return true;
-        //}
-
         // unused
         private void doZoom(MotionEvent event) {
             if (event.findPointerIndex(0) == -1 || event.findPointerIndex(1) == -1) {
@@ -716,6 +654,7 @@ class NavitGraphics {
         mDrawCanvas.drawRect(r, paint);
     }
 
+    @SuppressWarnings("unused")
     protected void draw_circle(Paint paint, int x, int y, int r) {
         paint.setStyle(Paint.Style.STROKE);
         mDrawCanvas.drawCircle(x, y, r / 2, paint);
@@ -771,11 +710,6 @@ class NavitGraphics {
      * @param p1x and p1y   specifying the top right point
      * @param p2x and p2y   specifying the bottom left point, not yet used but kept
      *                      for compatibility with the linux port
-     *
-     * TODO make it work with 4 points specified to make it work for 3D mapview, so it can be used
-     *      for small but very detailed maps as well as for large maps with very little detail but large
-     *      coverage.
-     * TODO make it work with rectangular tiles as well ?
      */
     protected void draw_image_warp(String imagepath, int count, int p0x, int p0y, int p1x, int p1y, int p2x, int p2y) {
         //  if (!isAccelerated)

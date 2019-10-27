@@ -19,6 +19,7 @@
 
 package org.navitproject.navit;
 
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,10 +33,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.core.content.ContextCompat;
 
 import java.util.List;
-
 
 
 public class NavitVehicle {
@@ -67,6 +68,8 @@ public class NavitVehicle {
                 sLocationManager.removeUpdates(sFastLocationListener);
                 mFastProvider = null;
             }
+
+            sLastLocation = location;
             vehicleCallback(mVehiclePcbid, location);
             vehicleCallback(mVehicleFcbid, 1);
         }
