@@ -92,7 +92,7 @@ class NavitMapTileProvider implements TileProvider {
             Log.e(TAG, "asked zoomlevel out of range");
             return NO_TILE;
         }
-        tile = mTileBag.getTile(x,y,zoom);
+        tile = mTileBag.getTile(x, y, zoom);
         if (tile != null) {
             Log.e(TAG, "returning tile from cache");
             return tile;
@@ -113,9 +113,9 @@ class NavitMapTileProvider implements TileProvider {
 
             int a = getTileOpenGL(mSize, zoom, x, y);
             Log.e(TAG, "asked Tile z " + zoom + " x = " + x + " y = " + y);
-            tile = mTileBag.getTile(x,y,zoom);
+            tile = mTileBag.getTile(x, y, zoom);
             if (tile != null) {
-                Log.e(TAG, "returning tile " + zoom + " x = " + x + " y = " + y );
+                Log.e(TAG, "returning tile " + zoom + " x = " + x + " y = " + y);
                 return tile;
             } else {
                 Log.e(TAG, "NO_TILE");

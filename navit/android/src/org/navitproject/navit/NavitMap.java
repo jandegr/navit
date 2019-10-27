@@ -30,7 +30,7 @@ public class NavitMap {
     }
 
     public long size() {
-        File mapFile = new File(NavitUtils.pathConcat(mMapPath , mFileName, null));
+        File mapFile = new File(NavitUtils.pathConcat(mMapPath, mFileName, null));
         return mapFile.length();
     }
 

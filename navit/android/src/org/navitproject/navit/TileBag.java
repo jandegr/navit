@@ -8,13 +8,13 @@ import java.util.HashMap;
 
 
 class TileBag extends HashMap<String, TileXYZp> {
-    String TAG = "TileBag";
+    private final static String TAG = "TileBag";
 
 
     TileBag() {
 
         super();
-        Log.e(TAG,"init");
+        Log.e(TAG, "init");
     }
 
 
@@ -25,7 +25,7 @@ class TileBag extends HashMap<String, TileXYZp> {
     }
 
 
-    Tile getTile(int x,int y,int z) {
+    Tile getTile(int x, int y, int z) {
 
         if (this.get("" + x + "," + y + "," + z) == null) {
             Log.e("AZERT", "no tileXYZP in hash");

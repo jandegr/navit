@@ -40,14 +40,14 @@ class TileCompressor {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
                 Tile tile = new Tile(tileP.getSize(), tileP.getSize(), baos.toByteArray());
                 tileP.setTile(tile);
-                Log.e(TAG, " -- finished a compression (" + mNumber + ") " +tileP.toString());
+                Log.e(TAG, " -- finished a compression (" + mNumber + ") " + tileP.toString());
             }
         }
     }
 
 
     TileCompressor() {
-        Log.e("compressor","init\n");
+        Log.e("compressor", "init\n");
         Thread compressorThread1 = new Thread(new MyRunnable(1));
         compressorThread1.start();
         Thread compressorThread2 = new Thread(new MyRunnable(2));
