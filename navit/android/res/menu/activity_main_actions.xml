@@ -1,57 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/item1"
           android:title="@string/settings"
-          android:icon="@android:drawable/ic_dialog_map" 
-          android:showAsAction="ifRoom">
+          android:icon="@android:drawable/ic_dialog_map"
+        app:showAsAction="ifRoom">
     </item>
     <item android:id="@+id/action_zoom_to_route"
-	  android:title="@string/action_zoom_to_route" 
-	  android:showAsAction="never">
+	  android:title="@string/action_zoom_to_route"
+        app:showAsAction="never">
     </item>
     <item android:id="@+id/toggle_autozoom"
         android:title="toggle autozoom"
-        android:showAsAction="never">
+        app:showAsAction="never">
     </item>
     <item android:id="@+id/action_stop_navigation" 
-	  android:title="@string/action_stop_navigation" 
-	  android:showAsAction="never">
+	  android:title="@string/action_stop_navigation"
+        app:showAsAction="never">
     </item>
     <item android:id="@+id/action_toggle_pois"
         android:title="toggle poi visibility"
-        android:showAsAction="never">
+        app:showAsAction="never">
     </item>
-    <item android:title="@string/optionsmenu_download_maps" 
-    	  android:showAsAction="never" 
-	  android:id="@+id/optionsmenu_download_maps">
+    <item android:title="@string/optionsmenu_download_maps"
+        android:id="@+id/optionsmenu_download_maps"
+        app:showAsAction="never">
     </item>
     <item android:title="@string/optionsmenu_set_maplocation"
 	  android:id="@+id/optionsmenu_set_maplocation"
-	  android:showAsAction="never">
+        app:showAsAction="never">
     </item>
     <item android:title="@string/optionsmenu_settings"
         android:id="@+id/optionsmenu_settings"
-        android:showAsAction="never">
+        app:showAsAction="never">
     </item>
     <item android:id="@+id/action_quit"
 	  android:title="@string/optionsmenu_exit_navit"
-	  android:showAsAction="never">
+        app:showAsAction="never">
     </item>
-    <item android:id="@+id/optionsmenu_address_search" 
-   	  android:showAsAction="ifRoom" 
-   	  android:title="@string/optionsmenu_address_search"
-   	  android:icon="@android:drawable/ic_menu_search">
+    <item android:id="@+id/optionsmenu_address_search"
+        android:title="@string/optionsmenu_address_search"
+   	  android:icon="@android:drawable/ic_menu_search"
+        app:showAsAction="ifRoom">
     </item>
     <item android:id="@+id/action_toggle_layout"
     	  android:title="@string/action_toggle_layout"
-    	  android:showAsAction="never">
+        app:showAsAction="never">
     </item>
     <item android:id="@+id/action_enable_auto_layout"
-          android:title="@string/action_enable_auto_layout" 
-	  android:showAsAction="never">
+          android:title="@string/action_enable_auto_layout"
+        app:showAsAction="never">
     </item>
     <item android:id="@+id/action_mapTileActivity"
         android:title="@string/action_mapTileActivity"
-        android:showAsAction="never">
+        app:showAsAction="never">
     </item>
 </menu>
