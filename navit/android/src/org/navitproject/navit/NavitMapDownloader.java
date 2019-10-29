@@ -889,10 +889,6 @@ public class NavitMapDownloader extends Thread {
         final String mMapName;
         long mEstSizeBytes;
         int mLevel;
-        final int mId1;
-        final int mId2;
-        final int mId3;
-
 
         private void setMapValues(String lon1, String lat1, String lon2, String lat2, long bytesEst, int level) {
             this.mLon1 = lon1;
@@ -906,9 +902,6 @@ public class NavitMapDownloader extends Thread {
         private OsmMapValues(int id1, String lon1, String lat1, String lon2, String lat2,
                              long bytesEst, int level) {
 
-            this.mId1 = id1;
-            this.mId2 = 0;
-            this.mId3 = 0;
             this.mMapName = getTstring(id1);
             setMapValues(lon1, lat1, lon2, lat2, bytesEst, level);
         }
@@ -916,9 +909,6 @@ public class NavitMapDownloader extends Thread {
         private OsmMapValues(int id1, int id2, String lon1, String lat1, String lon2, String lat2,
                              long bytesEst, int level) {
 
-            this.mId1 = id1;
-            this.mId2 = id2;
-            this.mId3 = 0;
             this.mMapName = getTstring(id1) + " + " + getTstring(id2);
             setMapValues(lon1, lat1, lon2, lat2, bytesEst, level);
         }
@@ -927,9 +917,6 @@ public class NavitMapDownloader extends Thread {
         private OsmMapValues(int id1, int id2, int id3, String lon1, String lat1, String lon2, String lat2,
                              long bytesEst, int level) {
 
-            mId1 = id1;
-            mId2 = id2;
-            mId3 = id3;
             mMapName = getTstring(id1) + " + " + getTstring(id2) + " + " + getTstring(id3);
             setMapValues(lon1, lat1, lon2, lat2, bytesEst, level);
         }
