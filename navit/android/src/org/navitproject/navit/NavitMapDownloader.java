@@ -894,11 +894,11 @@ public class NavitMapDownloader extends Thread {
 
     static class Updater extends Thread {
 
-        final OsmMapValues[] sOsm_maps;
+        final OsmMapValues[] mOsmMaps;
 
         @SuppressWarnings("unused")
-        public Updater(OsmMapValues[] osm_maps) {
-            sOsm_maps = osm_maps;
+        public Updater(OsmMapValues[] osmMaps) {
+            mOsmMaps = osmMaps;
             this.start();
         }
 
@@ -935,7 +935,7 @@ public class NavitMapDownloader extends Thread {
 
         public void run() {
             Log.e(TAG, "updater started");
-            for (OsmMapValues value : sOsm_maps) {
+            for (OsmMapValues value : mOsmMaps) {
                 //Log.e(TAG," " + value.mMapName);
                 URL url = getDownloadURL(value);
                 //Log.e(TAG," " + url);

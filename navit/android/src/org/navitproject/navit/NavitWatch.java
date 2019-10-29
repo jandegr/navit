@@ -57,7 +57,7 @@ class NavitWatch implements Runnable {
     public native void watchCallback(long id);
 
     public void run() {
-        for (; ; ) {
+        for (;; ) {
             // Log.e("NavitWatch","Polling "+watch_fd+" "+watch_cond + " from "
             // + java.lang.Thread.currentThread().getName());
             poll(mWatchFunc, mWatchFd, mWatchCond);
