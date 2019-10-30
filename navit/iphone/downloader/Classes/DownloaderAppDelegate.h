@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface DownloaderAppDelegate : NSObject <UIApplicationDelegate> {
-    
     UIWindow *window;
     UINavigationController *navigationController;
 }
