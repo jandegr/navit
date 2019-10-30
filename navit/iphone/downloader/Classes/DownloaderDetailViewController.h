@@ -12,7 +12,6 @@
 @interface DownloaderDetailViewController : UIViewController {
 @private
 	NSDictionary *locationName_;
-
 }
 
 @property(nonatomic, retain) NSDictionary *locationName;
