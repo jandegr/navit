@@ -10,10 +10,8 @@
 
 
 @interface DownloaderDetailViewController : UIViewController {
-
 @private
 	NSDictionary *locationName_;
-
 
 }
 
