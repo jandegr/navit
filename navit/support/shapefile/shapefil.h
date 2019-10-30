@@ -419,7 +419,6 @@ typedef struct shape_tree_node
 
     int		nSubNodes;
     struct shape_tree_node *apsSubNode[MAX_SUBNODE];
-    
 } SHPTreeNode;
 
 typedef struct
