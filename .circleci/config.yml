@@ -117,6 +117,8 @@ jobs:
             ls -la navit/android/build/outputs/apk
             ls -la navit/android/build/outputs/logs
             ls -la navit/android/build/reports
+            echo $CIRCLE_BUILD_NUM
+            echo ${CIRCLE_BUILD_NUM}
       - store_artifacts:
           name: Store outputs
           path: navit/android/build/outputs/apk
@@ -124,7 +126,7 @@ jobs:
       - store_artifacts:
           name: Store versioned apk
           path: navit/android/build/outputs/apk/debug/android-debug.apk
-          destination: apk/$CIRCLE_BUILD_NUM.apk
+          destination: apk/${CIRCLE_BUILD_NUM}.apk
       - store_artifacts:
           name: Store logs
           path: navit/android/build/outputs/logs
