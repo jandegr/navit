@@ -5,7 +5,6 @@
  * should be drawn.
  */
 struct gui_config_settings {
-
   /**
    * The base size (in fractions of a point) to use for text.
    */
@@ -27,7 +26,6 @@ struct gui_config_settings {
    * The default amount of spacing (in pixels) to place between GUI elements.
    */
   int spacing;
-
 };
 
 struct route_data {
