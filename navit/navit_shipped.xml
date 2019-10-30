@@ -418,13 +418,14 @@ Waypoint</text></img>
 					</polyline>
 				</itemgra>
 			</cursor>
-
+                        <layer name="ocean">
+				<itemgra item_types="poly_water_tiled" order="0-">
+					<polygon color="#82c8ea"/>
+				</itemgra>
+			</layer>
 			<layer name="polygons">
 				<itemgra item_types="image" order="0-5">
 					<image/>
-				</itemgra>
-				<itemgra item_types="poly_water_tiled" order="0-">
-					<polygon color="#82c8ea"/>
 				</itemgra>
 				<itemgra item_types="poly_water" order="0-">
 					<polygon color="#82c8ea"/>
