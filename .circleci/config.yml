@@ -23,8 +23,6 @@ jobs:
       - checkout
       - run: echo 'export KEYSTORE=${HOME}/code/sigining.keystore' >> $BASH_ENV
       - run: echo 'export CIRCLE_BUILD_NUM=${CIRCLE_BUILD_NUM}' >> $BASH_ENV
-      - run: echo $CIRCLE_BUILD_NUM
-      - run: echo ${CIRCLE_BUILD_NUM}
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
       - run:
@@ -78,7 +76,6 @@ jobs:
       - run:
          name: prep
          command: bash ci/download_keystore.sh
-#      - run: ./misc/inject_circle_build_number.sh
       - run:
          name: Chmod permissions
          command: sudo chmod +x ./gradlew
