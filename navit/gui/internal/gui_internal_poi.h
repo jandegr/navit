@@ -5,7 +5,6 @@
  */
 
 struct poi_param {
-
 		/**
  		 * =1 if selnb is defined, 0 otherwize.
 		 */
