@@ -195,8 +195,8 @@ workflows:
   version: 2
   build_all:
     jobs:
-      - build_linux
+#      - build_linux
       - build_android
-      - build_win_32
+#      - build_win_32
       - build_win_64
       - build_win_64_glib_dll
