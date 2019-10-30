@@ -121,7 +121,6 @@ typedef struct {
 	unsigned char  reduce_to;      // change to this phoneme if unstressed
 	unsigned char  alternative_ph; // change to this phoneme if a vowel follows/doesn't follow
 	unsigned char  link_out;       // insert linking phoneme if a vowel follows
-	
 } PHONEME_TAB;
 
 
