@@ -23,6 +23,8 @@ jobs:
       - checkout
       - run: echo 'export KEYSTORE=${HOME}/code/sigining.keystore' >> $BASH_ENV
       - run: echo 'export CIRCLE_BUILD_NUM=${CIRCLE_BUILD_NUM}' >> $BASH_ENV
+      - run: echo $CIRCLE_BUILD_NUM
+      - run: echo ${CIRCLE_BUILD_NUM}
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
       - run:
@@ -117,8 +119,6 @@ jobs:
             ls -la navit/android/build/outputs/apk
             ls -la navit/android/build/outputs/logs
             ls -la navit/android/build/reports
-            echo $CIRCLE_BUILD_NUM
-            echo ${CIRCLE_BUILD_NUM}
       - store_artifacts:
           name: Store outputs
           path: navit/android/build/outputs/apk
