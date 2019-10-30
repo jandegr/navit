@@ -262,7 +262,6 @@ typedef struct PaHostApiInfo
      if no default output device is available.
     */
     PaDeviceIndex defaultOutputDevice;
-    
 } PaHostApiInfo;
 
 
@@ -515,7 +514,6 @@ typedef struct PaStreamParameters
      if not used it should be set to NULL.
     */
     void *hostApiSpecificStreamInfo;
-
 } PaStreamParameters;
 
 
@@ -974,7 +972,6 @@ typedef struct PaStreamInfo
      parameter passed to Pa_OpenStream().
     */
     double sampleRate;
-    
 } PaStreamInfo;
 
 
