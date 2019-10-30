@@ -19,10 +19,10 @@ jobs:
       - image: circleci/android:api-29
     environment:
       JVM_OPTS: -Xmx3200m
-      KEYSTORE: ${HOME}/${CIRCLE_PROJECT_REPONAME}/signing.keystore
     steps:
       - checkout
       - run: echo 'export KEYSTORE=${HOME}/code/sigining.keystore' >> $BASH_ENV
+      - run: echo 'export CIRCLE_BUILD_NUM=${CIRCLE_BUILD_NUM}' >> $BASH_ENV
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "navit/android/build.gradle" }}
       - run:
