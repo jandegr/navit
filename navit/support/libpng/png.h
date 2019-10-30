@@ -997,7 +997,6 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
    png_fixed_point int_x_blue;
    png_fixed_point int_y_blue;
 #endif
-
 } png_info;
 
 typedef png_info FAR * png_infop;
@@ -1484,7 +1483,6 @@ struct png_struct_def
 
 /* New member added in libpng-1.2.30 */
   png_charp chunkdata;  /* buffer for reading chunk data */
-
 };
 
 
