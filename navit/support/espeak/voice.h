@@ -61,7 +61,6 @@ typedef struct {
 	// value of 128 means no change
 	#define N_TONE_ADJUST  1000
 	unsigned char tone_adjust[N_TONE_ADJUST];   //  8Hz steps * 1000 = 8kHz
-
 } voice_t;
 
 // percentages shown to user, ix=N_PEAKS means ALL peaks
