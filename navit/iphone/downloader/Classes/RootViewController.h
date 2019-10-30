@@ -10,8 +10,7 @@
 
 @interface RootViewController : UITableViewController 
 {
-	NSMutableArray* locations_;
-	
+	NSMutableArray* locations_;	
 }
 
 @property (nonatomic, retain) NSMutableArray* locations;
