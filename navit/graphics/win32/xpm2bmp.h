@@ -32,7 +32,6 @@ typedef struct XPM2BMP_TAG
 	unsigned char *dib_trans;
 	unsigned char *wimage_data_trans;
 	BITMAPINFOHEADER *bmih_trans;
-
 } XPM2BMP, *PXPM2BMP;
 
 
