@@ -9,7 +9,6 @@ enum message_id
     CHANGE,
     BUTTON_CLICK,
     INVALID
-
 };
 
 struct datawindow_priv;
