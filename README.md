@@ -1,7 +1,7 @@
 
 
-[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/arm64_2.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/arm64_2)
-[![CodeFactor](https://www.codefactor.io/repository/github/jandegr/navit/badge/arm64_2)](https://www.codefactor.io/repository/github/jandegr/navit/overview/arm64_2)
+[![Circle CI](https://circleci.com/gh/jandegr/navit/tree/pre-pre-tileprovider.svg?style=svg)](https://circleci.com/gh/jandegr/navit/tree/pre-pre-tileprovider)
+[![CodeFactor](https://www.codefactor.io/repository/github/jandegr/navit/badge/pre-pre-tileprovider)](https://www.codefactor.io/repository/github/jandegr/navit/overview/pre-pre-tileprovider)
 
 - windows 64 build includes maptool
 
