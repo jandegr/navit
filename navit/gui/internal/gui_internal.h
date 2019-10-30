@@ -75,7 +75,6 @@ struct gui_internal_widget_methods {
 	void (*set_func)(struct widget *widget, void (*func)(struct gui_priv *priv, struct widget *widget, void *data));
 	void (*set_data)(struct widget *widget, void *data);
 	void (*set_default_background)(struct gui_priv *this, struct widget *widget);
-
 };
 
 struct gui_internal_data {
