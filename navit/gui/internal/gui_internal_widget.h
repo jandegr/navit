@@ -125,7 +125,6 @@ struct table_data
   GList * bottom_row;
 
   struct scroll_buttons scroll_buttons;
-
 };
 
 /**
@@ -135,7 +134,6 @@ struct table_data
  */
 struct table_column_desc
 {
-
   /**
    * The computed height of a cell in the table.
    */
