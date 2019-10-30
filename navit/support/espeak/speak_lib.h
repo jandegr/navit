@@ -136,7 +136,6 @@ typedef enum {
 
 	/* Synchronous playback */
 	AUDIO_OUTPUT_SYNCH_PLAYBACK
-
 } espeak_AUDIO_OUTPUT;
 
 
