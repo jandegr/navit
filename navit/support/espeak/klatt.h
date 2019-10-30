@@ -94,7 +94,6 @@ typedef struct
 
   resonator_t rsn[N_RSN];	 // internal storage for resonators
   resonator_t rsn_next[N_RSN];
-
 } klatt_global_t, *klatt_global_ptr;
   
 /* Structure for Klatt Parameters */
