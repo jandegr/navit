@@ -84,7 +84,6 @@ public slots:
 		this->setNewPoint(p,MapPoint);
 		this->object->guiWidget->setFocus(Qt::ActiveWindowFocusReason);
 		this->object->switcherWidget->setCurrentWidget(this->object->guiWidget);
-
 	}
 	//Properties
 	QString iconPath() {
@@ -132,6 +131,7 @@ public slots:
 		return QString();
 #endif
 	}
+	
 protected:
 	int getAttrFunc(enum attr_type type, struct attr* attr, struct attr_iter* iter) { return gui_get_attr(this->object->gui, type, attr, iter); }
 	int setAttrFunc(struct attr* attr) {return gui_set_attr(this->object->gui,attr); }
