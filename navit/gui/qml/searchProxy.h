@@ -218,6 +218,7 @@ protected:
 	virtual int setAttrFunc(struct attr *attr) {
 		return 0;
 	}
+
 private:
 	struct search_list *sl;
 	QString search_context;
