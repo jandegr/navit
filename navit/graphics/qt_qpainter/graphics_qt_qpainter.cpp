@@ -159,7 +159,6 @@ static void graphics_destroy(struct graphics_priv *gr)
 //##############################################################################################################
 static void font_destroy(struct graphics_font_priv *font)
 {
-
 }
 
 //##############################################################################################################
@@ -292,9 +291,7 @@ static struct graphics_image_priv * image_new(struct graphics_priv *gr, struct g
                     renderer.render(&painter);
 
                 } else {
-
 		    ret->pixmap=new QPixmap(path);
-
                 }
 #else 
 		ret->pixmap=new QPixmap(path);
@@ -372,7 +369,6 @@ static void draw_circle(struct graphics_priv *gr, struct graphics_gc_priv *gc, s
 {
 	gr->painter->setPen(*gc->pen);
 	gr->painter->drawArc(p->x-r/2, p->y-r/2, r, r, 0, 360*16);
-	
 }
 
 //##############################################################################################################
@@ -696,7 +692,6 @@ static struct graphics_methods graphics_methods = {
         overlay_disable,
 	NULL,
 	set_attr,
-	
 };
 
 //##############################################################################################################
@@ -765,7 +760,6 @@ event_qt_remove_watch(struct event_watch *ev)
 	g_hash_table_remove(event_gr->widget->watches, GINT_TO_POINTER(ev->fd));
 	delete(ev->sn);
 	g_free(ev);
-
 }
 
 static struct event_timeout *
