@@ -38,6 +38,7 @@ class NGQPoint : public QObject {
     Q_PROPERTY(QString pointName READ pointName CONSTANT);
     Q_PROPERTY(QString pointType READ pointType CONSTANT);
     Q_PROPERTY(QUrl pointUrl READ pointUrl CONSTANT);
+
 public:
     NGQPoint(struct gui_priv* this_,struct point* p,NGQPointTypes type=MapPoint,QObject *parent=NULL) : QObject(parent) {
         this->object=this_;
@@ -251,6 +252,7 @@ public slots:
             dbg(lvl_info,"%s\n",retDoc.toString().toLocal8Bit().constData());
             return retDoc.toString();
     }
+
 protected:
         QDomElement _fieldValueHelper(QDomDocument doc, QString field,QString value) {
                 QDomElement fieldTag=doc.createElement(field);
@@ -361,6 +363,7 @@ protected:
                         url.clear();
                 }
         }
+
 private:
     struct gui_priv* object;
 
