@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 # mingw-w64-tools is there to provide pkg-config
