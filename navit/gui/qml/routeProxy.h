@@ -26,7 +26,6 @@ public slots:
 		route_set_destinations(navit_get_route(this->object->nav),coords,counter+1,1);
 	}
     QString getDestinations() {
-
 		QList<struct attr> destinations=this->_routeDestinations();
 		for (QList<struct attr>::const_iterator iter=destinations.begin();iter!=destinations.end();iter++) {
 			NGQPoint helperPoint(this->object,iter->u.pcoord,MapPoint);
