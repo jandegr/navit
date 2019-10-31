@@ -96,9 +96,9 @@ export CXX=gcc
 
 # glib
 cd /tmp
-wget -c http://ftp.gnome.org/pub/gnome/sources/glib/2.62/glib-2.62.0.tar.xz
-tar xvf glib-2.62.0.tar.xz
-cd glib-2.62.0
+wget -c http://ftp.gnome.org/pub/gnome/sources/glib/2.63/glib-2.63.1.tar.xz
+tar xvf glib-2.63.1.tar.xz
+cd glib-2.63.1
 mkdir build
 
 meson  --buildtype plain --prefix=$prefix_path --cross-file=/tmp/cross_file_android_arm64_21.txt -Diconv=auto -Dinternal_pcre=true build
