@@ -407,7 +407,6 @@ typedef struct {
 
 typedef struct Translator
 {//=============
-
 	LANGUAGE_OPTIONS langopts;
 	int translator_name;
 	int transpose_offset;
