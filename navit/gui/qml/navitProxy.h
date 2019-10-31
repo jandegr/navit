@@ -135,6 +135,7 @@ public slots:
 		navit.u.navit=this->object->nav;
 		command_evaluate(&navit,command.toLocal8Bit().constData());
 	}
+
 protected:
 	int getAttrFunc(enum attr_type type, struct attr* attr, struct attr_iter* iter) { return navit_get_attr(this->object->nav, type, attr, iter); }
 	int setAttrFunc(struct attr* attr) {return navit_set_attr(this->object->nav,attr); }
@@ -142,7 +143,6 @@ protected:
 	void dropIterFunc(struct attr_iter* iter) { navit_attr_iter_destroy(iter); };
 
 private:
-
 };
 
 #include "navitProxy.moc"
