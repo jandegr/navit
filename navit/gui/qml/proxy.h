@@ -22,6 +22,7 @@ class NGQProxy : public QObject {
 	Q_OBJECT;
 
 	Q_PROPERTY(int itemId READ itemId  NOTIFY itemIdSignal);
+
 public:
     NGQProxy(struct gui_priv* this_,QObject *parent) : QObject(parent) {
         this->object=this_;
@@ -85,6 +86,7 @@ public slots:
 	int itemId() {
 		return _itemId;
 	}
+
 protected:
     struct gui_priv* object;
 
@@ -101,7 +103,6 @@ protected:
 			fieldTag.appendChild(valueText);
 			return fieldTag;
 	}
-
 };
 
 #include "proxy.moc"
