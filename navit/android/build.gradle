@@ -72,10 +72,10 @@ android {
             xml.enabled = true
             html.enabled = true
             xml {
-                destination file("checkstyle/checkstyleMain.xml")
+                destination file("build/outputs/checkstyle/checkstyleMain.xml")
             }
             html {
-                destination file("checkstyle/checkstyleMain.html")
+                destination file("build/outputs/checkstyle/checkstyleMain.html")
             }
         }
     }
