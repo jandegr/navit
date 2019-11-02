@@ -144,7 +144,7 @@ jobs:
 #          destination: translations
       - store_artifacts:
           name: Store checkstyle report
-          path: /home/circleci/code/navit/android/checkstyle
+          path: navit/android/build/outputs/checkstyle
           destination: reports
       - store_test_results:
           path: test-results
