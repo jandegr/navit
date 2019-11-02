@@ -35,7 +35,7 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install cmake gettext libsaxonb-java mmv
-#            sudo apt-get install librsvg2-bin -- only needed if converting icons
+            sudo apt-get install librsvg2-bin #-- only needed if converting icons
             sudo apt-get install rename
             cmake ./ -Dsvg2png_scaling:STRING=-1,128 -Dsvg2png_scaling_nav:STRING=-1,128 -Dsvg2png_scaling_flag:STRING=-1,64 -DSAMPLE_MAP=n
 #      - run:
