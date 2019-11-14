@@ -2,7 +2,7 @@ version: 2
 jobs:
   build_linux:
     docker:
-      - image: ubuntu:19.04
+      - image: ubuntu:19.10
     steps:
       - checkout
       - run:
@@ -150,7 +150,7 @@ jobs:
           path: test-results
   build_win_32:
     docker:
-      - image: ubuntu:19.04
+      - image: ubuntu:19.10
     steps:
       - checkout
       - run:
@@ -162,7 +162,7 @@ jobs:
           path: win32/navit32install.exe
   build_win_64:
     docker:
-      - image: ubuntu:19.04
+      - image: ubuntu:19.10
     steps:
       - checkout
       - run:
@@ -174,7 +174,7 @@ jobs:
           path: win64/navit64install.exe
   build_win_64_glib_dll:
     docker:
-      - image: ubuntu:19.04
+      - image: ubuntu:19.10
     steps:
       - checkout
       - run:
