@@ -612,7 +612,7 @@ merge_tiles(struct tile_info *info)
 		while (last) {
 			processed_tiles++;
 			len=tile_len(last->data);
-			if (len >= 1 && len !=9  && len != 8 && len != 7) {
+			if (len >= 1) {
 				strcpy(basetile,last->data);
 				basetile[len-1]='\0';
 				strcat(basetile, info->suffix);
@@ -665,6 +665,7 @@ index_init(struct zip_info *info, int version)
 	int i;
 	map_information_attrs[0].type=attr_version;
 	map_information_attrs[0].u.num=version;
+	fprintf(stderr, "writing mapversion num:%d\n", version);
 	item_bin=init_item(type_map_information);
 	for (i = 0 ; i < 32 ; i++) {
 		if (!map_information_attrs[i].type)
