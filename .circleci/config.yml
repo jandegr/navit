@@ -54,10 +54,10 @@ jobs:
           name: Maptool Phase 4 splitting at intersections
           command: $MAPTOOL_CMD -s4 -e4 -i europe-latest.osm.pbf BFRL.bin
           no_output_timeout: 120m
-      - run:
-          name: Maptool Phase 5 generating coastlines
-          command: $MAPTOOL_CMD -s5 -e5 -i europe-latest.osm.pbf BFRL.bin
-          no_output_timeout: 120m
+#      - run:
+#          name: Maptool Phase 5 generating coastlines
+#          command: $MAPTOOL_CMD -s5 -e5 -i europe-latest.osm.pbf BFRL.bin
+#          no_output_timeout: 120m
       - run:
           name: Maptool Phase 6 assigning towns to countries
           command: $MAPTOOL_CMD -s6 -e6 -i europe-latest.osm.pbf BFRL.bin
