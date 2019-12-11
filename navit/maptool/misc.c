@@ -280,7 +280,10 @@ phase34_process_file_range(struct tile_info *info, FILE *in, FILE *reference)
 			processed_nodes++;
 		else
 			processed_ways++;
-		tile_write_item_minmax(info, ib, reference, min, max);
+		if ((ib->type != type_street_unkn) || (ignore_unkown != 1))
+		{
+		    tile_write_item_minmax(info, ib, reference, min, max);
+		}
 	}
 }
 
