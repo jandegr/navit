@@ -404,7 +404,7 @@ struct country_table {
 //   otherwise - nodes
 
 static char *attrmap={
-//	"n	*=*			point_unkn\n"
+	"n	*=*			point_unkn\n"
 //	"n	Annehmlichkeit=Hochsitz	poi_hunting_stand\n"
 	"?	addr:housenumber=*	house_number\n"
 	"?	aeroway=aerodrome	poi_airport\n"
@@ -565,7 +565,7 @@ static char *attrmap={
 	"?	tourism=zoo		poi_zoo\n"
 	"n	traffic_sign=city_limit	traffic_sign_city_limit\n"
 	"n	highway=speed_camera	tec_common\n"
-//	"w	*=*			street_unkn\n"
+	"w	*=*			street_unkn\n"
 	"w	addr:interpolation=even	house_number_interpolation_even\n"
 	"w	addr:interpolation=odd	house_number_interpolation_odd\n"
 	"w	addr:interpolation=all	house_number_interpolation_all\n"
