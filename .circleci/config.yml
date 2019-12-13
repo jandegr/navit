@@ -120,7 +120,7 @@ jobs:
           name: Store outputs
           path: navit/android/build/outputs/apk
           destination: outputs
-      - run: cp navit/android/build/outputs/apk/debug/android-debug.apk navit/android/build/outputs/apk/debug/$CIRCLE_BUILD_NUM.apk
+      - run: cp navit/android/build/outputs/apk/debug/android-debug.apk navit/android/build/outputs/apk/debug/navitCI$CIRCLE_BUILD_NUM.apk
       - run: rm navit/android/build/outputs/apk/debug/android-debug.apk
       - store_artifacts:
           name: Store versioned apk
