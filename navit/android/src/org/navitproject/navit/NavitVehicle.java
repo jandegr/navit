@@ -19,14 +19,9 @@
 
 package org.navitproject.navit;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
-import android.location.GpsSatellite;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -40,12 +35,12 @@ import java.util.List;
 
 public class NavitVehicle {
 
-    private static final String GPS_FIX_CHANGE = "android.location.GPS_FIX_CHANGE";
+    private static final String TAG = "NavitVehicle";
     static Location sLastLocation;
+    private long mLastLocationProcessedTime;
     private static LocationManager sLocationManager;
     private Context mContext;
     private long mVehiclePcbid;
-    private long mVehicleScbid;
     private long mVehicleFcbid;
     private String mFastProvider;
 
@@ -54,11 +49,9 @@ public class NavitVehicle {
 
     public native void vehicleCallback(long id, Location location);
 
-    public native void vehicleCallback(long id, int satsInView, int satsUsed);
-
     public native void vehicleCallback(long id, int enabled);
 
-    private class NavitLocationListener extends BroadcastReceiver implements GpsStatus.Listener, LocationListener {
+    private class NavitLocationListener implements LocationListener {
         boolean mPrecise = false;
 
         public void onLocationChanged(Location location) {
@@ -68,56 +61,39 @@ public class NavitVehicle {
                 mFastProvider = null;
             }
 
-            sLastLocation = location;
-            vehicleCallback(mVehiclePcbid, location);
-            vehicleCallback(mVehicleFcbid, 1);
+            Log.e(TAG,"onLocationChanged " + location.getProvider());
+            // check for the very latest location and skip older locations
+            if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                long newLocationTime =  location.getTime();
+                Log.e(TAG, "location available " + newLocationTime);
+                long lastLocationTime = sLocationManager.getLastKnownLocation(location.getProvider()).getTime();
+                Log.e(TAG, "last location available " + lastLocationTime);
+                if (lastLocationTime > mLastLocationProcessedTime) {
+                    Log.e(TAG, "more recent location available " + location.getProvider());
+                    sLastLocation = sLocationManager.getLastKnownLocation(location.getProvider());
+                    mLastLocationProcessedTime = lastLocationTime;
+                    vehicleCallback(mVehiclePcbid, sLastLocation);
+                    vehicleCallback(mVehicleFcbid, 1);
+                } else {
+                    Log.e(TAG, "skip location " + newLocationTime); // location is already processed
+                }
+            }
         }
 
         public void onProviderDisabled(String provider) {
             //unhandled
+            Log.e(TAG,"onProviderDisabled");
         }
 
         public void onProviderEnabled(String provider) {
             //unhandled
+            Log.e(TAG,"onProviderEnabled");
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {
             //unhandled
-        }
-
-        /**
-         * Called when the status of the GPS changes.
-         */
-        public void onGpsStatusChanged(int event) {
-            if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                // Permission is not granted
-                return;
-            }
-            GpsStatus status = sLocationManager.getGpsStatus(null);
-            int satsInView = 0;
-            int satsUsed = 0;
-            Iterable<GpsSatellite> sats = status.getSatellites();
-            for (GpsSatellite sat : sats) {
-                satsInView++;
-                if (sat.usedInFix()) {
-                    satsUsed++;
-                }
-            }
-            vehicleCallback(mVehicleScbid, satsInView, satsUsed);
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(GPS_FIX_CHANGE)) {
-                if (intent.getBooleanExtra("enabled", false)) {
-                    vehicleCallback(mVehicleFcbid, 1);
-                } else {
-                    if (!intent.getBooleanExtra("enabled", true)) {
-                        vehicleCallback(mVehicleFcbid, 0);
-                    }
-                }
-            }
+            Log.e(TAG,"onStatusChanged " + provider + " status = " + status);
         }
     }
 
@@ -162,19 +138,15 @@ public class NavitVehicle {
         lowCriteria.setCostAllowed(true);
         lowCriteria.setPowerRequirement(Criteria.POWER_HIGH);
 
-        Log.d("NavitVehicle", "Providers " + sLocationManager.getAllProviders());
+        Log.e("NavitVehicle", "Providers " + sLocationManager.getAllProviders());
 
         String mPreciseProvider = sLocationManager.getBestProvider(highCriteria, false);
-        Log.d("NavitVehicle", "Precise Provider " + mPreciseProvider);
+        Log.e("NavitVehicle", "Precise Provider " + mPreciseProvider);
         mFastProvider = sLocationManager.getBestProvider(lowCriteria, false);
-        Log.d("NavitVehicle", "Fast Provider " + mFastProvider);
         mVehiclePcbid = pcbid;
-        mVehicleScbid = scbid;
         mVehicleFcbid = fcbid;
 
-        context.registerReceiver(sPreciseLocationListener, new IntentFilter(GPS_FIX_CHANGE));
         sLocationManager.requestLocationUpdates(mPreciseProvider, 0, 0, sPreciseLocationListener);
-        sLocationManager.addGpsStatusListener(sPreciseLocationListener);
 
         /*
          * Since Android criteria have no way to specify "fast fix", lowCriteria may return the same
@@ -194,15 +166,14 @@ public class NavitVehicle {
         }
         if (mFastProvider != null) {
             sLocationManager.requestLocationUpdates(mFastProvider, 0, 0, sFastLocationListener);
+            Log.e("NavitVehicle", "Fast Provider " + mFastProvider);
         }
     }
 
-    static void removeListeners(Navit navit) {
+    static void removeListeners() {
         if (sLocationManager != null) {
             if (sPreciseLocationListener != null) {
                 sLocationManager.removeUpdates(sPreciseLocationListener);
-                sLocationManager.removeGpsStatusListener(sPreciseLocationListener);
-                navit.unregisterReceiver(sPreciseLocationListener);
             }
             if (sFastLocationListener != null) {
                 sLocationManager.removeUpdates(sFastLocationListener);

@@ -16,19 +16,18 @@ android {
         }
         externalNativeBuild {
             cmake {
-                arguments '-DUSE_PLUGINS=n', '-DBUILD_MAPTOOL=n', '-DXSL_PROCESSING=n', '-DSAMPLE_MAP=n', '-DENABLE_ROLL=y'
-                'Dplugin/pedestrian=n' //werkt op linux maar niet hier in androidstudio !!!
+                arguments '-DUSE_PLUGINS=n', '-DBUILD_MAPTOOL=n', '-DXSL_PROCESSING=n', '-DSAMPLE_MAP=n', '-DENABLE_ROLL=y', '-DCACHE_SIZE=10485760', '-Dplugin/pedestrian=n'
             }
         }
     }
-    signingConfigs {
-        debug {
-            storeFile file(System.getenv("KEYSTORE") ?: "keystore.jks")
-            storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias System.getenv("KEY_ALIAS")
-            keyPassword System.getenv("KEY_PASSWORD")
-        }
-    }
+//    signingConfigs {
+//        debug {
+//            storeFile file(System.getenv("KEYSTORE") ?: "keystore.jks")
+//            storePassword System.getenv("KEYSTORE_PASSWORD")
+//            keyAlias System.getenv("KEY_ALIAS")
+//            keyPassword System.getenv("KEY_PASSWORD")
+//        }
+//    }
     buildTypes {
         release {
             minifyEnabled false

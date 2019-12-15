@@ -666,7 +666,7 @@ public class Navit extends Activity {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        NavitVehicle.removeListeners(this);
+        NavitVehicle.removeListeners();
         navitDestroy();
     }
 
