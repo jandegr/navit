@@ -53,6 +53,7 @@ static struct item_bin item;
 
 int maxspeed_attr_value;
 int lanes_attr_value;
+int osm_layer_attr_value;
 
 char debug_attr_buffer[BUFFER_SIZE];
 
@@ -1080,6 +1081,11 @@ osm_add_tag(char *k, char *v)
 			flags[0] |= AF_SPEED_LIMIT;
 		level=5;
 	}
+	if (!strcmp(k, "layer"))
+	{
+		osm_layer_attr_value = atoi(v);
+		level = 5;
+	}
 	if (! strcmp(k,"toll")) {
 		if (!strcmp(v,"1")) {
 			flags[0] |= AF_TOLL;
@@ -1614,6 +1620,7 @@ osm_add_way(osmid id)
 	debug_attr_buffer[0]='\0';
 	maxspeed_attr_value=0;
 	lanes_attr_value=0;
+	osm_layer_attr_value = 0;
 	flags_attr_value = 0;
 	memset(flags, 0, sizeof(flags));
 	memset(flagsa, 0, sizeof(flagsa));
@@ -1879,6 +1886,9 @@ osm_end_way(struct maptool_osm *osm)
 			item_bin_add_attr_int(item_bin, attr_maxspeed, maxspeed_attr_value);
 		if (lanes_attr_value){
 			item_bin_add_attr_int(item_bin, attr_lanes, lanes_attr_value);
+		}
+		if (osm_layer_attr_value){
+			item_bin_add_attr_int(item_bin, attr_osm_layer, osm_layer_attr_value);
 		}
 		if(i>0)
 			item_bin_add_attr_int(item_bin, attr_duplicate, 1);
