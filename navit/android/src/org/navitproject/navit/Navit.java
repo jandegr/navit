@@ -621,9 +621,9 @@ public class Navit extends Activity {
                 }
                 break;
             default:
-                //if (mActivityResults[requestCode] != null) {
-                //    mActivityResults[requestCode].onActivityResult(requestCode, resultCode, data);
-                //}
+                if (mActivityResults[requestCode] != null) { // this is used to set up the TTS engine
+                    mActivityResults[requestCode].onActivityResult(requestCode, resultCode, data);
+                }
                 break;
         }
     }
