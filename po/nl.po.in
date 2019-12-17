@@ -324,6 +324,10 @@ msgid "strongly "
 msgstr "scherp "
 
 #, c-format
+msgid "then take the %1$s road to the %2$s"
+msgstr "neem daarna de %1$s straat naar %2$s"
+
+#, c-format
 msgid "Take the %1$s road to the %2$s"
 msgstr "Neem de %1$s straat naar %2$s"
 
