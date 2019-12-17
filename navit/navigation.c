@@ -1513,7 +1513,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 				{
 					char *destination_raw;
 					destination_raw=map_convert_string(streetitem->map,attr.u.str);
-					dbg(lvl_debug,"destination_raw =%s\n",destination_raw);
+					//dbg(lvl_debug,"destination_raw =%s\n",destination_raw);
 					split_string_to_list(&(ret->way),destination_raw, ';');
 					g_free(destination_raw);
 				}
@@ -1526,7 +1526,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 					{
 						char *destination_raw;
 						destination_raw=map_convert_string(streetitem->map,attr.u.str);
-						dbg(lvl_debug,"destination_raw forward =%s\n",destination_raw);
+						//dbg(lvl_debug,"destination_raw forward =%s\n",destination_raw);
 						split_string_to_list(&(ret->way),destination_raw, ';');
 						g_free(destination_raw);
 					}
@@ -1538,7 +1538,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 					{
 						char *destination_raw;
 						destination_raw=map_convert_string(streetitem->map,attr.u.str);
-						dbg(lvl_debug,"destination_raw backward =%s\n",destination_raw);
+						//dbg(lvl_debug,"destination_raw backward =%s\n",destination_raw);
 						split_string_to_list(&(ret->way),destination_raw, ';');
 						g_free(destination_raw);
 					}
@@ -1591,17 +1591,19 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		{
 			struct map_selection mselexit;
 			struct item *rampitem;
-			dbg(lvl_debug,"test ramp\n");
+			//dbg(lvl_error,"test ramp\n");
 			mselexit.next = NULL;
 			mselexit.u.c_rect.lu = c[0] ;
 			mselexit.u.c_rect.rl = c[0] ;
 			mselexit.range = item_range_all;
+            mselexit.range.max = type_highway_exit;
+            mselexit.range.min = type_highway_exit;
 			mselexit.order =6;
 
 			map_rect_destroy(mr);
 			mr = map_rect_new(tmap, &mselexit);
 
-			while ((rampitem=map_rect_get_item(mr)))
+			while (rampitem=map_rect_get_item(mr))
 			{
 				if (rampitem->type == type_highway_exit && item_coord_get(rampitem, &exitcoord, 1)
 							&& exitcoord.x == c[0].x && exitcoord.y == c[0].y)
@@ -1610,12 +1612,12 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 					{
 						if (attr.type && attr.type == attr_label)
 						{
-							dbg(lvl_debug,"exit_label=%s\n",attr.u.str);
+							//dbg(lvl_debug,"exit_label=%s\n",attr.u.str);
 							ret->way.exit_label= map_convert_string(tmap,attr.u.str);
 						}
 						if (attr.type == attr_ref)
 						{
-							dbg(lvl_debug,"exit_ref=%s\n",attr.u.str);
+							//dbg(lvl_debug,"exit_ref=%s\n",attr.u.str);
 							ret->way.exit_ref= map_convert_string(tmap,attr.u.str);
 						}
 						if (attr.type == attr_exit_to)
@@ -1631,7 +1633,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 									&& (!is_ramp(&(this_->last->way)))) {
 								char *destination_raw;
 								destination_raw=map_convert_string(tmap,attr.u.str);
-								dbg(lvl_debug,"destination_raw from exit_to =%s\n",destination_raw);
+								//dbg(lvl_debug,"destination_raw from exit_to =%s\n",destination_raw);
 								if ((split_string_to_list(&(ret->way),destination_raw, ';')) < 2)
 								/*
 								 * if a first try did not result in an actual splitting
@@ -1644,10 +1646,12 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 							}
 						}
 					}
+                    //dbg(lvl_error,"found\n");
+					break;
 				}
 			}
 		}
-		dbg(lvl_debug,"i=%d start %d end %d '%s' \n", i, ret->way.angle2, ret->angle_end, ret->way.name_systematic);
+		//dbg(lvl_debug,"i=%d start %d end %d '%s' \n", i, ret->way.angle2, ret->angle_end, ret->way.name_systematic);
 		map_rect_destroy(mr);
 	} else {
 		if (this_->last)
@@ -1659,7 +1663,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 		this_->last->next=ret;
 		ret->prev=this_->last;
 	}
-	dbg(lvl_debug,"ret=%p\n", ret);
+	//dbg(lvl_debug,"ret=%p\n", ret);
 	this_->last=ret;
 	return ret;
 }
@@ -3699,9 +3703,10 @@ navigation_update(struct navigation *this_, struct route *route, struct attr *at
 		if (ritem->type != type_street_route)
 			continue;
 		if (first && item_attr_get(ritem, attr_street_item, &street_item)) {
-			first=0;
-			if (!item_attr_get(ritem, attr_direction, &street_direction))
-				street_direction.u.num=0;
+            first = 0;
+            if (!item_attr_get(ritem, attr_direction, &street_direction)) {
+                street_direction.u.num = 0;
+            }
 			sitem=street_item.u.item;
 			dbg(lvl_debug,"sitem=%p\n", sitem);
 			itm=item_hash_lookup(this_->hash, sitem);
