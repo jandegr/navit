@@ -1595,10 +1595,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 			mselexit.next = NULL;
 			mselexit.u.c_rect.lu = c[0] ;
 			mselexit.u.c_rect.rl = c[0] ;
-			mselexit.range = item_range_all;
-            mselexit.range.max = type_highway_exit;
-            mselexit.range.min = type_highway_exit;
-			mselexit.order =6;
+			mselexit.order = 6;
 
 			map_rect_destroy(mr);
 			mr = map_rect_new(tmap, &mselexit);
@@ -1646,7 +1643,7 @@ navigation_itm_new(struct navigation *this_, struct item *routeitem)
 							}
 						}
 					}
-                    //dbg(lvl_error,"found\n");
+					//dbg(lvl_error,"found\n");
 					break;
 				}
 			}
