@@ -4,6 +4,9 @@
       <xsl:param name="NEXT_TURN_SIZE"><xsl:value-of select="round(12*number($OSD_SIZE)+number($ICON_BIG))"/></xsl:param>
       <xsl:param name="NEXT_TURN_TEXT_HIGHT"><xsl:value-of select="round(20*number($OSD_SIZE))"/></xsl:param>
       
+      <xsl:text>&#x0A;        </xsl:text>
+      <osd type="speed_warner" enabled="yes" speed_exceed_limit_offset = "5" speed_exceed_limit_percent = "5" x="{round(80*number($OSD_SIZE))}" y="{round(-80*number($OSD_SIZE))}" w="{round(80*number($OSD_SIZE))}" h="{round(80*number($OSD_SIZE))}" font_size="{round(350*number($OSD_SIZE))}" osd_configuration="1"/>
+      <xsl:text>&#x0A;        </xsl:text>
       <osd type="compass" enabled="yes" x="{round(-60*number($OSD_SIZE))}" y="{round(-80*number($OSD_SIZE))}" w="{round(60*number($OSD_SIZE))}" h="{round(80*number($OSD_SIZE))}" font_size="{round(200*number($OSD_SIZE))}" osd_configuration="1"/>
       <xsl:text>&#x0A;        </xsl:text>
       <osd type="text" label="${{navigation.item.destination_length[named]}}\n${{navigation.item.destination_time[arrival]}}" x="{round(-60*number($OSD_SIZE))}" y="125" w="{round(60*number($OSD_SIZE))}" h="{round(40*number($OSD_SIZE))}" font_size="{round(200*number($OSD_SIZE))}" osd_configuration="1"/>
