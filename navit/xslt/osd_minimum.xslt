@@ -5,7 +5,7 @@
       <xsl:param name="NEXT_TURN_TEXT_HIGHT"><xsl:value-of select="round(20*number($OSD_SIZE))"/></xsl:param>
       
       <xsl:text>&#x0A;        </xsl:text>
-      <osd type="speed_warner" enabled="yes" x="{round(60*number($OSD_SIZE))}" y="{round(-80*number($OSD_SIZE))}" w="{round(80*number($OSD_SIZE))}" h="{round(80*number($OSD_SIZE))}" font_size="{round(200*number($OSD_SIZE))}" osd_configuration="1"/>
+      <osd type="speed_warner" enabled="yes" x="{round(80*number($OSD_SIZE))}" y="{round(-80*number($OSD_SIZE))}" w="{round(80*number($OSD_SIZE))}" h="{round(80*number($OSD_SIZE))}" font_size="{round(200*number($OSD_SIZE))}" osd_configuration="1"/>
       <xsl:text>&#x0A;        </xsl:text>
       <osd type="compass" enabled="yes" x="{round(-60*number($OSD_SIZE))}" y="{round(-80*number($OSD_SIZE))}" w="{round(60*number($OSD_SIZE))}" h="{round(80*number($OSD_SIZE))}" font_size="{round(200*number($OSD_SIZE))}" osd_configuration="1"/>
       <xsl:text>&#x0A;        </xsl:text>
