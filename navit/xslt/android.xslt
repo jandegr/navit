@@ -5,7 +5,7 @@
    <xsl:param name="ICON_MEDIUM" select="32"/>
    <xsl:param name="ICON_BIG" select="64"/>
 
-   <xsl:output method="xml" doctype-system="navit.dtd" cdata-section-elements="gui"/>
+   <xsl:output method="xml" indent="yes" doctype-system="navit.dtd" cdata-section-elements="gui"/>
    <xsl:include href="default_plugins.xslt"/>
    <xsl:include href="map_sdcard_navitmap_bin.xslt"/>
    <xsl:include href="osd_minimum.xslt"/>
