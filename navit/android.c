@@ -481,7 +481,7 @@ Java_org_navitproject_navit_NavitGraphics_getDefaultCountry( JNIEnv* env, jobjec
 }
 
 JNIEXPORT jobjectArray JNICALL
-Java_org_navitproject_navit_NavitGraphics_getAllCountries( JNIEnv* env, jclass thiz)
+Java_org_navitproject_navit_NavitAddressSearchActivity_getAllCountries( JNIEnv* env, jclass thiz)
 {
     struct attr search_attr;
     struct search_list_result *res;
