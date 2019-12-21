@@ -49,7 +49,7 @@ public class NavitVehicle {
 
     public native void vehicleCallback(long id, Location location);
 
-    public native void vehicleCallback(long id, int enabled);
+    //public native void vehicleCallback(long id, int enabled);
 
     private class NavitLocationListener implements LocationListener {
         boolean mPrecise = false;
@@ -74,7 +74,7 @@ public class NavitVehicle {
                     sLastLocation = sLocationManager.getLastKnownLocation(location.getProvider());
                     mLastLocationProcessedTime = lastLocationTime;
                     vehicleCallback(mVehiclePcbid, sLastLocation);
-                    vehicleCallback(mVehicleFcbid, 1);
+                    //vehicleCallback(mVehicleFcbid, 1);
                 } else {
                     Log.e(TAG, "skip location " + newLocationTime); // location is already processed
                 }

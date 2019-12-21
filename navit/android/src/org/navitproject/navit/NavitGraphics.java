@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,6 +45,7 @@ import android.view.ViewConfiguration;
 import android.view.WindowInsets;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.io.FileInputStream;
@@ -518,6 +520,9 @@ class NavitGraphics {
         mView.setKeepScreenOn(true);
         mRelativeLayout = new RelativeLayout(mActivity);
 
+        RelativeLayout osdOverlay = new RelativeLayout(mActivity);
+        osdOverlay.setFitsSystemWindows(true);
+
         RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(96,96);
         lpLeft.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         mZoomOutButton = new ImageButton(mActivity);
@@ -541,8 +546,10 @@ class NavitGraphics {
         });
 
         mRelativeLayout.addView(mView);
-        mRelativeLayout.addView(mZoomInButton);
-        mRelativeLayout.addView(mZoomOutButton);
+        osdOverlay.addView(mZoomInButton);
+        osdOverlay.addView(mZoomOutButton);
+        mRelativeLayout.addView(osdOverlay);
+
         mActivity.setContentView(mRelativeLayout);
         mView.requestFocus();
     }
@@ -555,8 +562,6 @@ class NavitGraphics {
     private native void buttonCallback(long id, int pressed, int button, int x, int y);
 
     private native void motionCallback(long id, int x, int y);
-
-    static native String[][] getAllCountries();
 
     private Canvas mDrawCanvas;
     private Bitmap mDrawBitmap;

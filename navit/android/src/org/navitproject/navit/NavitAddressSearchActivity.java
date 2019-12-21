@@ -65,6 +65,8 @@ public class NavitAddressSearchActivity extends Activity {
     private Button mResultActionButton;
     private long mSearchHandle = 0;
 
+    static native String[][] getAllCountries();
+
     private int getDrawableID(String resourceName) {
         int drawableId = 0;
         try {
@@ -228,7 +230,7 @@ public class NavitAddressSearchActivity extends Activity {
     }
 
     private void requestCountryDialog() {
-        final String[][] allCountries = NavitGraphics.getAllCountries();
+        final String[][] allCountries = getAllCountries();
         Comparator<String[]> countryComperator = new Comparator<String[]>() {
             public int compare(String[] object1, String[] object2) {
                 return object1[1].compareTo(object2[1]);

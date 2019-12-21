@@ -51,6 +51,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -64,7 +65,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class Navit extends Activity {
+public class Navit extends AppCompatActivity {
 
 
     public static boolean sShowSoftKeyboardShowing;
@@ -341,8 +342,6 @@ public class Navit extends Activity {
         }
         //InputMethodManager sInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         // DEBUG
-
-
     }
 
     @Override
@@ -580,6 +579,7 @@ public class Navit extends Activity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Navit.NavitDownloaderSelectMap_id:
                 if (resultCode == Activity.RESULT_OK) {
