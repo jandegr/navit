@@ -23,6 +23,7 @@ import static org.navitproject.navit.NavitAppConfig.getTstring;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -67,7 +68,7 @@ class NavitGraphics {
     private float                          mTrackballY;
     private ImageButton                    mZoomInButton;
     private ImageButton                    mZoomOutButton;
-    private View                           mView;
+    private NavitView                      mView;
     private RelativeLayout                 mRelativeLayout;
     private NavitCamera                    mCamera;
     private Navit                          mActivity;
@@ -112,6 +113,7 @@ class NavitGraphics {
 
     private class NavitView extends View implements MenuItem.OnMenuItemClickListener,
             GestureDetector.OnGestureListener {
+        boolean mIsDrag;
         private final GestureDetector mDetector;
         float             mOldDist = 0;
         static final int  NONE       = 0;
@@ -254,6 +256,7 @@ class NavitGraphics {
         public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX,
                                 float distanceY) {
             Log.w(TAG, "onScroll: " + event1.toString() + event2.toString());
+            mIsDrag = true;
             motionCallback(mMotionCallbackID, (int)event2.getX(), (int)event2.getY());
             return false;
         }
@@ -306,6 +309,7 @@ class NavitGraphics {
                 int y = (int) event.getY();
                 //    mPressedPosition = new PointF(x, y);
                 Log.e(TAG,"ACTION_UP point " + mPressedPosition.toString());
+                mIsDrag = false;
                 buttonCallback(mButtonCallbackID, 0, 1, x, y); // up
                 //    performClick();
             }
@@ -784,11 +788,15 @@ class NavitGraphics {
         this.mZoomInButton.setEnabled(b);
         this.mZoomOutButton.setEnabled(b);
         if (b) {
+            mActivity.showActionBar(true);
             this.mZoomInButton.setVisibility(View.VISIBLE);
             this.mZoomOutButton.setVisibility(View.VISIBLE);
         } else {
-            this.mZoomInButton.setVisibility(View.INVISIBLE);
-            this.mZoomOutButton.setVisibility(View.INVISIBLE);
+            if ((!mView.mIsDrag)) {
+                mActivity.showActionBar(false);
+                this.mZoomInButton.setVisibility(View.INVISIBLE);
+                this.mZoomOutButton.setVisibility(View.INVISIBLE);
+            }
         }
         Log.d("Navitgraphics", "setbuttons " + b);
     }
