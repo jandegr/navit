@@ -676,6 +676,16 @@ public class Navit extends AppCompatActivity {
         Log.d(TAG, "onStop");
     }
 
+    void showActionBar(boolean show) {
+        if (this.getSupportActionBar() == null) {
+            return;
+        }
+        if (show) {
+            this.getSupportActionBar().show();
+        } else {
+            this.getSupportActionBar().hide();
+        }
+    }
 
     void fullscreen(int fullscreen) {
         int width;
