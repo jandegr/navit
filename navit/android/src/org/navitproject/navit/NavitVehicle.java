@@ -61,16 +61,16 @@ public class NavitVehicle {
                 mFastProvider = null;
             }
 
-            Log.e(TAG,"onLocationChanged " + location.getProvider());
+            //Log.e(TAG,"onLocationChanged " + location.getProvider());
             // check for the very latest location and skip older locations
             if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 long newLocationTime =  location.getTime();
-                Log.e(TAG, "location available " + newLocationTime);
+                //Log.e(TAG, "location available " + newLocationTime);
                 long lastLocationTime = sLocationManager.getLastKnownLocation(location.getProvider()).getTime();
-                Log.e(TAG, "last location available " + lastLocationTime);
+                //Log.e(TAG, "last location available " + lastLocationTime);
                 if (lastLocationTime > mLastLocationProcessedTime) {
-                    Log.e(TAG, "more recent location available " + location.getProvider());
+                    //Log.e(TAG, "more recent location available " + location.getProvider());
                     sLastLocation = sLocationManager.getLastKnownLocation(location.getProvider());
                     mLastLocationProcessedTime = lastLocationTime;
                     vehicleCallback(mVehiclePcbid, sLastLocation);
