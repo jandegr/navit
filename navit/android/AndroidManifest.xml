@@ -68,6 +68,7 @@
         </activity>
         <activity
             android:name=".NavitAddressSearchActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:configChanges="orientation|screenSize|keyboardHidden"/>
         <activity
             android:name=".NavitSettingsActivity"
