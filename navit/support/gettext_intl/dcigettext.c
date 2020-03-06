@@ -152,7 +152,9 @@ char *getwd ();
 #  if VMS
 #   define getcwd(buf, max) (getcwd) (buf, max, 0)
 #  else
+#   if !(defined(__clang__) && defined(__BIONIC_FORTIFY))
 char *getcwd ();
+#   endif
 #  endif
 # endif
 # ifndef HAVE_STPCPY
