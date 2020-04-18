@@ -96,7 +96,7 @@ public class Navit extends AppCompatActivity {
 
         if (!resultfile.exists()) {
             File path = resultfile.getParentFile();
-            if (!path.exists() && !resultfile.getParentFile().mkdirs()) {
+            if (path != null && !path.exists() && !resultfile.getParentFile().mkdirs()) {
                 Log.e(TAG, "Could not create directory path for " + filename);
                 return false;
             }
@@ -288,7 +288,7 @@ public class Navit extends AppCompatActivity {
             Log.e("Navit", "Failed to extract navit.xml for " + myDisplayDensity);
         }
 
-        Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + Integer.valueOf(Build.VERSION.SDK));
+        Log.d(TAG, "android.os.Build.VERSION.SDK_INT=" + Build.VERSION.SDK_INT);
         navitMain(navitLanguage, navitDataDir + "/bin/navit", sMapFilenamePath + '/');
         showInfos();
 
@@ -619,6 +619,8 @@ public class Navit extends AppCompatActivity {
                 } else {
                     Log.w(TAG, "select path failed");
                 }
+                break;
+            case MapsActivity_id:
                 break;
             default:
                 if (mActivityResults[requestCode] != null) { // this is used to set up the TTS engine
