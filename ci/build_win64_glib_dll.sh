@@ -60,9 +60,9 @@ cd ../..
 
 # glib
 cd /tmp
-wget -c http://ftp.gnome.org/pub/gnome/sources/glib/2.63/glib-2.63.2.tar.xz
-tar xvf glib-2.63.2.tar.xz
-cd glib-2.63.2
+wget -c http://ftp.gnome.org/pub/gnome/sources/glib/2.64/glib-2.64.2.tar.xz
+tar xvf glib-2.64.2.tar.xz
+cd glib-2.64.2
 mkdir build
 cd build
 meson --prefix=$PREFIX --cross-file=/tmp/cross_file_mingw64.txt --buildtype=plain ../
