@@ -244,7 +244,7 @@ android_return_search_result(struct jni_object *jni_o, int type, int id, struct 
     (*env)->DeleteLocalRef(jni_o->env, jaddress_extras);
 }
 
-JNIEXPORT jobject JNICALL
+JNIEXPORT jint JNICALL
 Java_org_navitproject_navit_CallBackHandler_callbackCmdChannel( JNIEnv* env, jclass thiz, jint command)
 {
     struct attr attr;
@@ -283,7 +283,7 @@ Java_org_navitproject_navit_CallBackHandler_callbackCmdChannel( JNIEnv* env, jcl
     }
 }
 
-JNIEXPORT jobject JNICALL
+JNIEXPORT jint JNICALL
 Java_org_navitproject_navit_CallBackHandler_callbackMessageChannel( JNIEnv* env, jclass thiz, jint channel, jstring str)
 {
     struct attr attr;
