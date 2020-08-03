@@ -96,7 +96,7 @@ jobs:
             cd ..
             ls -la
             cp tilesdir_.* out
-# join them with cmd /c copy /b BFRLaa+BFRLab BFRLtoday.bin
+# join them with  cmd /c copy /b BFRLaa+BFRLab BFRLtoday.bin
       - store_artifacts:
           path: out
 workflows:
