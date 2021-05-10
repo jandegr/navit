@@ -63,7 +63,7 @@ cd /tmp
 wget -c http://ftp.gnome.org/pub/gnome/sources/glib/2.9/glib-2.9.6.tar.gz
 tar xvzf glib-2.9.6.tar.gz
 cd glib-2.9.6
-mkdir build
+# mkdir build
 cd build
 meson --prefix=$PREFIX --cross-file=/tmp/cross_file_mingw64.txt --buildtype=plain ../
 
