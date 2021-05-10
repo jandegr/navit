@@ -163,6 +163,9 @@ jobs:
   build_win_64:
     docker:
       - image: ubuntu:20.04
+    environment:
+      - TZ=America/New_York
+      - DEBIAN_FRONTEND=noninteractive
     steps:
       - checkout
       - run:
