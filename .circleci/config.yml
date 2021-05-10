@@ -162,7 +162,7 @@ jobs:
           path: win32/navit32install.exe
   build_win_64:
     docker:
-      - image: ubuntu:19.10
+      - image: ubuntu:20.04
     steps:
       - checkout
       - run:
