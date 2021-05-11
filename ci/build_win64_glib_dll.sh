@@ -45,9 +45,9 @@ cd ..
 
 #gettext
 cd /tmp
-wget ftp.gnu.org/pub/gnu/gettext/gettext-0.20.1.tar.gz
-tar xzf gettext-0.20.1.tar.gz
-cd gettext-0.20.1
+wget ftp.gnu.org/pub/gnu/gettext/gettext-0.21.tar.gz
+tar xzf gettext-0.21.tar.gz
+cd gettext-0.21
 ./configure --prefix=$PREFIX --host=$ARCH --disable-dependency-tracking --enable-silent-rules \
             --disable-rpath --enable-nls --disable-csharp --disable-java \
             --enable-relocatable --enable-static
