@@ -60,7 +60,7 @@ cd ../..
 
 # glib
 cd /tmp
-wget -c http://ftp.gnome.org/pub/gnome/sources/glib/2.9/glib-2.68.1.tar.xz
+wget -c http://ftp.gnome.org/pub/gnome/sources/glib/2.68/glib-2.68.1.tar.xz
 tar xvf glib-2.68.1.tar.xz
 cd glib-2.68.1
 mkdir build
