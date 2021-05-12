@@ -6,7 +6,9 @@ jobs:
   build_linux:
     <<: *defaults
     environment:
-      MAPTOOL_CMD: "bin/navit/maptool/maptool -P -n -6 -k"
+      - MAPTOOL_CMD: "bin/navit/maptool/maptool -P -n -6 -k"
+      - TZ=America/New_York
+      - DEBIAN_FRONTEND=noninteractive
     steps:
       - checkout
       - run:
